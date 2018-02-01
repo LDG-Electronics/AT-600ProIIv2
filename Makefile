@@ -17,11 +17,11 @@ SRC_DIR = src
 OBJ_DIR = obj
 
 # The name of the project
-PROJECT = TuneOS
+PROJECT = AT-600ProII
 PROJECT_HEX = $(BUILD_DIR)/$(PROJECT).hex
 
 # The PIC microcontroller used for this project
-TARGET_DEVICE = 18f56k42
+TARGET_DEVICE = 18f27k42
 
 # ---------------------------------------------------------------------------- #
 # Commands and command variables
@@ -60,7 +60,7 @@ PK3FLAGS = -M -P$(TARGET_DEVICE) -L -V5
 PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
 
 CCSLOAD = ccsload
-CCSLOADFLAGS = -AREAS=ALL -VERBOSE -DEVICE=PIC18F56K42 -WRITE=$(PROJECT_HEX)
+CCSLOADFLAGS = -AREAS=ALL -VERBOSE -DEVICE=PIC18F27K42 -WRITE=$(PROJECT_HEX)
 
 # ---------------------------------------------------------------------------- #
 # Puttin' stuff together
