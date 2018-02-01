@@ -1,0 +1,12 @@
+
+# ignore output and build artifacts
+build/**
+obj/**
+
+# ignore stupid log file outputs from pk3cmd.exe
+log.0
+log.1
+log.2
+MPLABXLog.xml
+.vscode/settings.json
+pic18f45k42.h.bak
