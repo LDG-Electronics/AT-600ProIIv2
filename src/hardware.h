@@ -10,17 +10,18 @@
 // Button stuff
 
 // Button port accessors
-#define TUNE_BUTTON !PORTAbits.RA0
-#define FUNC_BUTTON !PORTAbits.RA1
-#define ANT_BUTTON !PORTAbits.RA2
-#define CUP_BUTTON !PORTAbits.RA3
+#define POWER_BUTTON !PORTAbits.RA3
+#define TUNE_BUTTON !PORTBbits.RB7
+#define FUNC_BUTTON !PORTBbits.RB4
+#define ANT_BUTTON !PORTBbits.RB6
+#define CUP_BUTTON !PORTBbits.RB2
 #define CDN_BUTTON !PORTAbits.RA4
 #define LUP_BUTTON !PORTAbits.RA5
-#define LDN_BUTTON !PORTAbits.RA6
+#define LDN_BUTTON !PORTBbits.RB5
 
 /* ************************************************************************** */
 
-
+// User interface
 // Front Panel bitbang SPI
 #define FP_CLOCK_PIN LATAbits.LATA6 //
 #define FP_DATA_PIN LATCbits.LATC5 // 
@@ -30,8 +31,27 @@
 #define BYPASS_LED LATCbits.LATC3 // 
 #define ANT_LED LATBbits.LATB1 // 
 
-// Frequency Counter input
-#define FREQ_PIN PORTEbits.RE0
+/* -------------------------------------------------------------------------- */
+
+// RF Sensor
+#define FREQ_PIN PORTEbits.RE0 // frequency counter
+#define FWD_PIN PORTAbits.RA0 // forward power
+#define REV_PIN PORTAbits.RA1 // reverse power
+
+#define RF_INT_PIN PORTBbits.RB3 // rf interrupt - unused
+#define INTERRUPT_PIN PORTBbits.RB0 // front panel button interrupt - unused
+
+//
+#define RADIO_CMD PORTAbits.RA7
+
+// Relays
+#define RELAY_CLOCK_PIN LATAbits.LATA6 //
+#define RELAY_DATA_PIN LATCbits.LATC5 // 
+#define RELAY_STROBE_PIN LATCbits.LATC4 //
+
+// Meter port
+#define METER_TX_PIN LATCbits.LATC6
+#define METER_RX_PIN PORTCbits.RC7
 
 //
 #define BITBANG_PIN PORTCbits.RC6
