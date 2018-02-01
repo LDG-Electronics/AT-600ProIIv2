@@ -25,10 +25,10 @@
 
 /* ************************************************************************** */
 
-#define FRONT_PANEL_BUTTONS 7
+#define FRONT_PANEL_BUTTONS 8
 
 // This enum should contain one entry for every front panel button.
-typedef enum {TUNE, FUNC, CUP, CDN, LUP, LDN, ANT} buttonName_t;
+typedef enum {TUNE, FUNC, CUP, CDN, LUP, LDN, ANT, POWER} buttonName_t;
 
 // This is only public so it can be accessed by the ISR.  If not ISR, no touchy.
 extern volatile uint8_t buttons[7];

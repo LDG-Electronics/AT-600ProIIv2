@@ -62,6 +62,9 @@ void interrupt_init(void)
         
 //         buttons[ANT] <<= 1;
 //         buttons[ANT] |= ANT_BUTTON;
+
+//         buttons[POWER] <<= 1;
+//         buttons[POWER] |= ANT_BUTTON;
         
 //         TIMER5_ON = 1; // restart timer
 //     }
