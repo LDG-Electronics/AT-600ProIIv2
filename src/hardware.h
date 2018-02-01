@@ -6,12 +6,6 @@
 #define _XTAL_FREQ 64000000
 
 /* ************************************************************************** */
-// Hardware platforms
-// #define YT1200
-#define Z11PROII
-// #define AT100PROII
-
-/* ************************************************************************** */
 
 // Button stuff
 
@@ -26,39 +20,21 @@
 
 /* ************************************************************************** */
 
-// User Interface - YT-1200
-// #define LED_PIN LATBbits.LATB3 // output; YT-1200 has one LED
-// #define BUTTON_PIN PORTBbits.RB0 // input; YT-1200 has one button
 
-// Front Panel bitbang SPI - AT-100ProII
-#define FP_CLOCK_PIN LATCbits.LATC4 //
+// Front Panel bitbang SPI
+#define FP_CLOCK_PIN LATAbits.LATA6 //
 #define FP_DATA_PIN LATCbits.LATC5 // 
-#define FP_STROBE_PIN LATCbits.LATC1 //
+#define FP_STROBE_PIN LATCbits.LATC4 //
  
-// Front Panel LEDs - AT-100ProII
-#define BYPASS_LED LATBbits.LATB4 // 
-#define ANT_LED LATBbits.LATB5 // 
-
-// LED SPI pins
-#define CLOCK_PIN LATCbits.LATC0 //
-#define DATA_PIN LATCbits.LATC1 //
-
-// Bitbang UART, used for serial debug
-// #define BITBANG_PIN LATCbits.LATC7 // 
-#define BITBANG_PIN LATFbits.LATF6 // 
-
+// Front Panel LEDs
+#define BYPASS_LED LATCbits.LATC3 // 
+#define ANT_LED LATBbits.LATB1 // 
 
 // Frequency Counter input
 #define FREQ_PIN PORTEbits.RE0
 
-// Z-11 Front Panel LEDS
-#define LED_A LATBbits.LATB5
-#define LED_B LATAbits.LATA7
-#define LED_C LATBbits.LATB4
-#define LED_D LATCbits.LATC1
-
-// Z-11 Power Hold pin
-#define POWER_HOLD LATAbits.LATA5
+//
+#define BITBANG_PIN PORTCbits.RC6
 
 /* ************************************************************************** */
 
