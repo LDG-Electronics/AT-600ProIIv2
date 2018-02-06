@@ -54,10 +54,10 @@ void display_init(void)
     FP_DATA_PIN = 0;
     FP_STROBE_PIN = 0;
 
-    show_startup();
+    //show_startup();
 
-    ANT_LED = 1;
-    BYPASS_LED = 1;
+    ANT_LED = 0;
+    BYPASS_LED = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -65,20 +65,20 @@ void display_init(void)
 void show_startup(void)
 {
     shift_out_595_16bit(0x0101);
-    __delay_ms(100);
+    delay_ms(100);
     shift_out_595_16bit(0x0202);
-    __delay_ms(100);
+    delay_ms(100);
     shift_out_595_16bit(0x0404);
-    __delay_ms(75);
+    delay_ms(75);
     shift_out_595_16bit(0x0808);
-    __delay_ms(75);
+    delay_ms(75);
     shift_out_595_16bit(0x1010);
-    __delay_ms(75);
+    delay_ms(75);
     shift_out_595_16bit(0x2020);
-    __delay_ms(50);
+    delay_ms(50);
     shift_out_595_16bit(0x4040);
-    __delay_ms(50);
+    delay_ms(50);
     shift_out_595_16bit(0x8080);
-    __delay_ms(50);
+    delay_ms(50);
     shift_out_595_16bit(0x0000);
 }

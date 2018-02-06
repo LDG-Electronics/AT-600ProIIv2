@@ -24,6 +24,15 @@ void port_init(void)
     TRISB = 0xFF;
     TRISC = 0xFF;
 
+    // Front Panel bitbang SPI
+    TRISAbits.TRISA6 = 0; // FP_CLOCK_PIN
+    TRISCbits.TRISC4 = 0; // FP_STROBE_PIN
+    TRISCbits.TRISC5 = 0; // FP_DATA_PIN
+
+    // Front Panel LEDs
+    TRISBbits.TRISB1 = 0; // ANT_LED
+    TRISCbits.TRISC3 = 0; // BYPASS_LED
+
     // Output latch - explicitly drive all outputs low
     LATA = 0;    
     LATB = 0;    
@@ -35,7 +44,7 @@ void port_init(void)
     ANSELC = 0;
 
     // Weak Pull-up; 0 = pull-up disabled, 1 = pull-up enabled
-    WPUA = 0xff;
+    WPUA = 0;
     WPUB = 0;
     WPUC = 0;
 

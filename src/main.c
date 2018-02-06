@@ -18,24 +18,16 @@ void main(void) {
 
     startup();
 
-    print_format(BRIGHT, RED);
-    print_str_ln("Hello!");
-
-    TRISBbits.TRISB5 = 0;
-    LATBbits.LATB5 = 1;    
-    TRISBbits.TRISB4 = 0;
-    LATBbits.LATB4 = 1;    
-
-    print_str_ln("hello");
-
+    //print_format(BRIGHT, RED);
+    //print_str_ln("Hello!");
 
     while(1)
     {
-        print_str_ln("beep");
-
-        LATA3 = 1;
+        BYPASS_LED = 1;
+        ANT_LED = 1;
         delay_ms(500);
-        LATA3 = 0;
+        BYPASS_LED = 0;
+        ANT_LED = 0;
         delay_ms(500);
     }
 }
