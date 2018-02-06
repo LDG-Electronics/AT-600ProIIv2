@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 // device header
-#include "pic18f27k42.h"
+#include "pic18f26k42.h"
 
 // drivers
 #include "buttons.h"
