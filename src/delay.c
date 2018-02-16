@@ -9,15 +9,16 @@ void delay_init(void)
     TIMER3_IF = 0;
 }
 
-// void delay_us(uint16_t useconds)
-// {
-//     useconds >>= 1;
-//     while (useconds > 0)
-//     {
-//         useconds--;
-//         __asm__ ("nop");
-//     }
-// }
+void delay_us(uint16_t useconds)
+{
+    useconds >>= 1;
+    while (useconds > 0)
+    {
+        useconds--;
+        asm("nop");
+        asm("nop");
+    }
+}
 
 void delay_10us(uint16_t useconds)
 {
