@@ -1,6 +1,40 @@
 #include "includes.h"
 
 /* ************************************************************************** */
+// Function prototypes
+void osc_init(void);
+void port_init(void);
+void pps_init(void);
+
+/* ************************************************************************** */
+
+void startup(void)
+{
+    osc_init();
+    port_init();
+    pps_init();
+    interrupt_init();
+    
+    // Driver setup
+    delay_init();
+    buttons_init();
+    spi_init();
+    display_init();
+    serial_bitbang_init();
+    RF_sensor_init();
+    relays_init();
+
+
+    print_format(BRIGHT, RED);
+    print_str_ln("Hello!");
+}
+
+void shutdown(void)
+{
+    asm("SLEEP");
+}
+
+/* -------------------------------------------------------------------------- */
 
 void osc_init(void)
 {
@@ -24,6 +58,16 @@ void port_init(void)
     TRISB = 0xFF;
     TRISC = 0xFF;
 
+    // Front panel buttons
+    TRISAbits.TRISA3 = 1; // POWER_BUTTON
+    TRISAbits.TRISA4 = 1; // CDN_BUTTON
+    TRISAbits.TRISA5 = 1; // LUP_BUTTON
+    TRISBbits.TRISB2 = 1; // CUP_BUTTON
+    TRISBbits.TRISB4 = 1; // FUNC_BUTTON
+    TRISBbits.TRISB5 = 1; // LDN_BUTTON
+    TRISBbits.TRISB6 = 1; // ANT_BUTTON
+    TRISBbits.TRISB7 = 1; // TUNE_BUTTON
+
     // Front Panel bitbang SPI
     TRISAbits.TRISA6 = 0; // FP_CLOCK_PIN
     TRISCbits.TRISC4 = 0; // FP_STROBE_PIN
@@ -32,6 +76,15 @@ void port_init(void)
     // Front Panel LEDs
     TRISBbits.TRISB1 = 0; // ANT_LED
     TRISCbits.TRISC3 = 0; // BYPASS_LED
+
+    // Relay SPI
+    TRISCbits.TRISC0 = 0; // RELAY_CLOCK_PIN
+    TRISCbits.TRISC1 = 0; // RELAY_DATA_PIN
+    TRISCbits.TRISC2 = 0; // RELAY_STROBE_PIN
+
+    // Meter port pins
+    TRISCbits.TRISC6 = 0; // Meter TX
+    TRISCbits.TRISC7 = 1; // Meter RX
 
     // Output latch - explicitly drive all outputs low
     LATA = 0;    
@@ -47,6 +100,15 @@ void port_init(void)
     WPUA = 0;
     WPUB = 0;
     WPUC = 0;
+
+    WPUAbits.WPUA3 = 1; // POWER_BUTTON
+    WPUAbits.WPUA4 = 1; // CDN_BUTTON
+    WPUAbits.WPUA5 = 1; // LUP_BUTTON
+    WPUBbits.WPUB2 = 1; // CUP_BUTTON
+    WPUBbits.WPUB4 = 1; // FUNC_BUTTON
+    WPUBbits.WPUB5 = 1; // LDN_BUTTON
+    WPUBbits.WPUB6 = 1; // ANT_BUTTON
+    WPUBbits.WPUB7 = 1; // TUNE_BUTTON
 
     // Open-Drain Control; 0 = Output drives both high and low, 1 = 
     ODCONA = 0;
@@ -80,29 +142,4 @@ void pps_init(void)
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
     PPSLOCKbits.PPSLOCKED = 0x01; // lock PPS
-}
-
-/* -------------------------------------------------------------------------- */
-
-
-
-void startup(void)
-{
-    osc_init();
-    port_init();
-    pps_init();
-    interrupt_init();
-    
-    // Driver setup
-    delay_init();
-    buttons_init();
-    spi_init();
-    display_init();
-    serial_bitbang_init();
-    RF_sensor_init();
-}
-
-void shutdown(void)
-{
-    asm("SLEEP");
 }
