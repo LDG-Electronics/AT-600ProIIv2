@@ -26,4 +26,17 @@ extern void manual_store(void);
 extern void mode_thresh(void);
 extern void mode_func(void);
 
+/* -------------------------------------------------------------------------- */
+
+extern void cup_hold(void);
+extern void cdn_hold(void);
+extern void lup_hold(void);
+extern void ldn_hold(void);
+
+extern void power_hold(void);
+extern void tune_hold(void);
+
+extern void func_hold(void);
+extern void func_release(void);
+
 #endif

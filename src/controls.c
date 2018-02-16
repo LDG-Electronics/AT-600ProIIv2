@@ -8,9 +8,7 @@ void short_tune_release(void)
 }
 void medium_tune_release(void)
 {
-    LED_TUNE = 1;
-    RADIO_OUT_PIN = 1;
-    poll_for_fwd_pwr(500);
+    // poll_for_fwd_pwr(500);
     
     memory_tune();
     
@@ -18,21 +16,15 @@ void medium_tune_release(void)
     {
         full_tune();
     }
-    RADIO_OUT_PIN = 0;
-    LED_TUNE = 0;
     tuning_followup_animation();
 }
 
 void long_tune_release(void)
 {
-    LED_TUNE = 1;
-    RADIO_OUT_PIN = 1;
-    poll_for_fwd_pwr(500);
+    // poll_for_fwd_pwr(500);
     
     full_tune();
-    
-    RADIO_OUT_PIN = 0;
-    LED_TUNE = 0;
+
     tuning_followup_animation();
 }
 
@@ -44,16 +36,16 @@ void toggle_bypass(void)
     relaysUndo.all = currentRelays.all;
 
     if (saved_flags.inBypass == 1) {
-        if (set_relays(&currentRelays) == -1) {
+        if (put_relays(&currentRelays) == -1) {
             currentRelays.all = relaysUndo.all;
         } else {
-            blink_all(1, FAST);
+            //blink_all(1);
         }
     } else {
-        if (set_relays(&bypassRelays) == -1) {
+        if (put_relays(&bypassRelays) == -1) {
             currentRelays.all = relaysUndo.all;
         } else {
-            blink_all(3, FAST);
+            //blink_all(3);
         }
     }
 }
@@ -69,7 +61,7 @@ void toggle_hiloz(void)
 
     currentRelays.z = !currentRelays.z;
     
-    if (set_relays(&currentRelays) == -1)
+    if (put_relays(&currentRelays) == -1)
     {
         currentRelays.z = undo;
     }
@@ -77,18 +69,18 @@ void toggle_hiloz(void)
 
 void manual_store(void)
 {
-    uint16_t memAddr = 0;
+    // uint16_t memAddr = 0;
     
-    memAddr = period_to_addr(currentRF.period);
+    // memAddr = period_to_addr(currentRF.period);
     
-    // If address is within valid range, save it
-    if ((memAddr != 0) && (memAddr < 2046)) {
-        memAddr = (memAddr << 1) + MEM_BASE_ADDR;
-        memory_store(memAddr);
-        // display_animation(FUNC_TUNE_OKAY);
-    } else {
-        blink_all(2, FAST);
-    }  
+    // // If address is within valid range, save it
+    // if ((memAddr != 0) && (memAddr < 2046)) {
+    //     memAddr = (memAddr << 1) + MEM_BASE_ADDR;
+    //     memory_store(memAddr);
+    //     // display_animation(FUNC_TUNE_OKAY);
+    // } else {
+    //     blink_all(2);
+    // }  
 }
 
 /* -------------------------------------------------------------------------- */
@@ -97,7 +89,7 @@ void mode_thresh(void)
 {
     uint16_t modeCount = 0;
     
-    blink_thresh(3, FAST);
+    blink_thresh(3);
     show_thresh();
     
     for (;;)
@@ -108,7 +100,7 @@ void mode_thresh(void)
             SWR_threshold_increment();
             
             show_thresh();
-            blink_thresh(2, FAST);
+            blink_thresh(2);
             show_thresh();
             
             wait_for_no_buttons();
@@ -130,7 +122,7 @@ void mode_func(void)
     uint8_t     buttons = 0;
     uint16_t    funcCounter = 0; 
 
-    leds_scroll_up();
+    // leds_scroll_up();
     funcCounter = FUNC_THRESH;
     
     while (1)
@@ -138,7 +130,7 @@ void mode_func(void)
         buttons = get_buttons();
         
         if (btn_is_pressed(FUNC)) {
-            leds_scroll_down();
+            // leds_scroll_down();
             break;
         }
         if (btn_is_pressed(CUP)) {
@@ -147,17 +139,17 @@ void mode_func(void)
         }
         if (btn_is_pressed(LUP)) {
             toggle_hiloz();
-            blink_HiLoZ(4, FAST);
+            blink_HiLoZ(4);
             break;
         }
         if (btn_is_pressed(CDN)) {
             toggle_auto();
-            blink_auto(4, FAST);
+            blink_auto(4);
             break;
         }
         if (btn_is_pressed(LDN)) {
             mode_thresh();
-            blink_thresh(4, FAST);
+            blink_thresh(4);
             break;
         }
         if (btn_is_pressed(TUNE)) {
@@ -167,7 +159,7 @@ void mode_func(void)
         
         funcCounter--;
         if (funcCounter == 0) {
-            leds_scroll_down();
+            // leds_scroll_down();
             return;
         }
         delay_ms(1);
@@ -175,4 +167,197 @@ void mode_func(void)
     
     wait_for_no_buttons();
     return;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void cup_hold(void)
+{
+    while(1)
+    {
+        capacitor_increment();
+        if(btn_is_up(CUP)) break;
+
+        delay_ms(1);
+    }
+}
+
+void cdn_hold(void)
+{
+    while(1)
+    {
+        capacitor_decrement();
+        if(btn_is_up(CDN)) break;
+
+        delay_ms(1);
+    }
+}
+
+void lup_hold(void)
+{
+    while(1)
+    {
+        inductor_increment();
+        if(btn_is_up(LUP)) break;
+
+        delay_ms(1);
+    }
+}
+
+void ldn_hold(void)
+{
+    while(1)
+    {
+        inductor_decrement();
+        if(btn_is_up(LDN)) break;
+
+        delay_ms(1);
+    }
+}
+
+
+// Button timing constants, in 1ms increments.
+#define BTN_PRESS_DEBOUNCE  10
+#define BTN_PRESS_SHORT     400
+#define BTN_PRESS_MEDIUM    2500
+#define BTN_PRESS_LONG      10000
+
+void power_hold(void)
+{
+    print_str_ln("power_hold");
+
+    while(1)
+    {
+        if (btn_is_released(POWER))
+        {
+            break;
+        }
+
+        delay_ms(1);
+    }
+
+    print_str_ln("power_hold");
+}
+
+void tune_hold(void)
+{
+    uint16_t buttonCount = 0;
+
+    while(1)
+    {
+        if (buttonCount < 0xffff) buttonCount++;
+
+        if (buttonCount < BTN_PRESS_DEBOUNCE) {
+            // button was not held long enough, do nothing
+        } else if (buttonCount < BTN_PRESS_SHORT) {
+            show_frame(TUNE_FRAMES, 1);
+        } else if (buttonCount < BTN_PRESS_MEDIUM) {
+            show_frame(TUNE_FRAMES, 3);
+        } else if (buttonCount < BTN_PRESS_LONG) {
+            show_frame(TUNE_FRAMES, 4);
+        } else if (buttonCount >= BTN_PRESS_LONG) {
+            show_frame(CLEAR, 0);
+        }
+
+        if (btn_is_released(TUNE))
+        {
+            if (buttonCount < BTN_PRESS_DEBOUNCE) {
+                // button was not held long enough, do nothing
+            } else if (buttonCount < BTN_PRESS_SHORT) {
+                short_tune_release();
+                break;
+            } else if (buttonCount < BTN_PRESS_MEDIUM) {
+                medium_tune_release();
+                break;
+            } else if (buttonCount < BTN_PRESS_LONG) {
+                long_tune_release();
+                break;
+            } else if (buttonCount >= BTN_PRESS_LONG) {
+                // button was held for too long, do nothing
+                break;
+            }
+        }
+
+        delay_ms(1);
+    }
+
+    show_frame(CLEAR, 0);
+}
+
+void func_hold(void)
+{
+    uint8_t FuncHoldProcessed = 0;
+
+    while(1)
+    {
+        if (btn_is_pressed(CUP)) {
+            FuncHoldProcessed = 1;
+            // empty
+        }
+        if (btn_is_pressed(LUP)) {
+            FuncHoldProcessed = 1;
+            blink_HiLoZ(2);
+            show_HiLoZ();
+        }
+        if (btn_is_pressed(CDN)) {
+            FuncHoldProcessed = 1;
+            blink_auto(4);
+            show_auto();
+        }
+        if (btn_is_pressed(LDN)) {
+            FuncHoldProcessed = 1;
+            blink_thresh(4);
+            show_thresh();
+        }
+
+        if (btn_is_released(FUNC)) {
+            break;
+        }
+        delay_ms(1);
+    }
+
+    if (FuncHoldProcessed == 0) func_release();
+}
+
+#define FUNC_THRESH 2200
+
+void func_release(void)
+{
+    uint8_t buttons = 0;
+    uint16_t funcCounter = FUNC_THRESH; 
+
+    blink_arrow_up(3);
+    
+    while (1)
+    {
+        if (btn_is_pressed(CUP)) {
+            // no function on this button
+            return;
+        }
+        if (btn_is_pressed(LUP)) {
+            toggle_hiloz();
+            blink_HiLoZ(4);
+            return;
+        }
+        if (btn_is_pressed(CDN)) {
+            toggle_auto();
+            blink_auto(4);
+            return;
+        }
+        if (btn_is_pressed(LDN)) {
+            mode_thresh();
+            blink_thresh(4);
+            return;
+        }
+        if (btn_is_pressed(TUNE)) {
+            manual_store();
+            return;
+        }
+
+        if (btn_is_pressed(FUNC)) break;
+        funcCounter--;
+        if (funcCounter == 0) break;
+        delay_ms(1);
+    }
+    blink_arrow_down(3);
 }
