@@ -29,17 +29,22 @@ void buttons_init(void)
     timer5_start();
 }
 
+/* -------------------------------------------------------------------------- */
+
+// Returns 0 if no buttons are pressed
 uint8_t get_buttons(void)
 {
-    uint8_t check = ~PORTB;
+    // Grab the current state of all the button pins
+    uint8_t buttons = ~PORTB & 0xf4;
+    buttons = buttons | (!PORTAbits.RA3 << 3);
+    buttons = buttons | (!PORTAbits.RA4 << 1);
+    buttons = buttons | (!PORTAbits.RA5); 
 
-    check &= ~1; // mask off RB0, it's not a button
+    //! ANT button is currently nonfunctional
+    //*
+    buttons = buttons & 0b10111111;
 
-    // These two buttons are on RB6 and RB7, the two pins used by the ICD-U80
-    // check &= ~(1 << 7); // mask off the tune button
-    check &= ~(1 << 6); // mask off the antenna button
-    
-    return check;
+    return buttons;
 }
 
 // Only returns after all buttons have been released.
