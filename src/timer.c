@@ -274,9 +274,9 @@ uint16_t timer5_read(void)
 
 void timer6_init(void)
 {
-    T6CLK = 2;
-    T6CON = 0b00000110;
-    PR6 = 237; 
+    T6CLK = 1;
+    T6CON = 0b00000000;
+    PR6 = 138; 
    
     timer6_stop();
     timer6_clear();
