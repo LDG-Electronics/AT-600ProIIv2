@@ -31,43 +31,43 @@ void interrupt_init(void)
     INTCON0bits.GIE = 1;
 }
 
-// void high_priority interrupt interrupt_high(void)
-// {
-//     // 5ms tick for button polling
-//     if (TIMER5_IF == 1)
-//     {
-//         TIMER5_ON = 0;  // stop timer
-//         TIMER5_IF = 0;  // clear flag
-//         TMR5H = 0x63;   // reset timer
-//         TMR5L = 0xC0;
+void high_priority interrupt interrupt_high(void)
+{
+    // 5ms tick for button polling
+    if (TIMER5_IF == 1)
+    {
+        TIMER5_ON = 0;  // stop timer
+        TIMER5_IF = 0;  // clear flag
+        TMR5H = 0x63;   // reset timer
+        TMR5L = 0xC0;
 
-//         // Grab current state of every button
-//         buttons[TUNE] <<= 1;
-//         buttons[TUNE] |= TUNE_BUTTON;
+        // Grab current state of every button
+        buttons[TUNE] <<= 1;
+        buttons[TUNE] |= TUNE_BUTTON;
         
-//         buttons[FUNC] <<= 1;
-//         buttons[FUNC] |= FUNC_BUTTON;
+        buttons[FUNC] <<= 1;
+        buttons[FUNC] |= FUNC_BUTTON;
         
-//         buttons[CUP] <<= 1;
-//         buttons[CUP] |= CUP_BUTTON;
+        buttons[CUP] <<= 1;
+        buttons[CUP] |= CUP_BUTTON;
         
-//         buttons[CDN] <<= 1;
-//         buttons[CDN] |= CDN_BUTTON;
+        buttons[CDN] <<= 1;
+        buttons[CDN] |= CDN_BUTTON;
         
-//         buttons[LUP] <<= 1;
-//         buttons[LUP] |= LUP_BUTTON;
+        buttons[LUP] <<= 1;
+        buttons[LUP] |= LUP_BUTTON;
         
-//         buttons[LDN] <<= 1;
-//         buttons[LDN] |= LDN_BUTTON;
+        buttons[LDN] <<= 1;
+        buttons[LDN] |= LDN_BUTTON;
         
-//         buttons[ANT] <<= 1;
-//         buttons[ANT] |= ANT_BUTTON;
+        buttons[ANT] <<= 1;
+        buttons[ANT] |= ANT_BUTTON;
 
-//         buttons[POWER] <<= 1;
-//         buttons[POWER] |= ANT_BUTTON;
+        buttons[POWER] <<= 1;
+        buttons[POWER] |= POWER_BUTTON;
         
-//         TIMER5_ON = 1; // restart timer
-//     }
+        TIMER5_ON = 1; // restart timer
+    }
 
-//     return;
-// }
+    return;
+}
