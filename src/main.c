@@ -1,34 +1,32 @@
 #include "includes.h"
 
-// Button timing constants, in 1ms increments.
-#define BTN_PRESS_DEBOUNCE  10
-#define BTN_PRESS_SHORT     400
-#define BTN_PRESS_MEDIUM    2500
-#define BTN_PRESS_LONG      10000
+/* ************************************************************************** */
 
-#define SLEEP_THRESH        2000
-
-void main(void) {
-    uint16_t buttonCount = 0;
-    uint16_t sleepCounter = SLEEP_THRESH;
-
-    uint8_t TuneIsHeld = 0;
-    uint8_t FuncIsHeld = 0;
-    uint8_t FuncHoldProcessed = 0;
-
+void main(void)
+{
     startup();
 
-    //print_format(BRIGHT, RED);
-    //print_str_ln("Hello!");
+
 
     while(1)
     {
-        BYPASS_LED = 1;
-        ANT_LED = 1;
-        delay_ms(500);
-        BYPASS_LED = 0;
-        ANT_LED = 0;
-        delay_ms(500);
+        // Relay buttons
+        if (btn_is_pressed(CUP)) cup_hold();
+        if (btn_is_pressed(CDN)) cdn_hold();
+        if (btn_is_pressed(LUP)) lup_hold();
+        if (btn_is_pressed(LDN)) ldn_hold();
+        relays_delay_reset();
+
+        // Other buttons
+        if (btn_is_pressed(FUNC)) func_hold();
+        if (btn_is_pressed(TUNE)) tune_hold();
+        if (btn_is_pressed(POWER)) power_hold();
+        if (btn_is_pressed(ANT)) {
+            // ANT button is currently broken
+            // toggle_ant();
+        }
+
+        delay_ms(1);
     }
 }
 
