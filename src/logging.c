@@ -124,24 +124,24 @@ void log_cat_ln(const char *string, int32_t value)
 }
 
 // Prints the contents of relay struct as "(caps, inds, z)"
-// void log_relays(relays_s *relays)
-// {
-//     log_cat("(", relays->caps);
-//     log_cat(", ", relays->inds);
-//     log_cat(", ", relays->z);
-//     log_str(")"); 
-// }
+void log_relays(relays_s *relays)
+{
+    log_cat("(", relays->caps);
+    log_cat(", ", relays->inds);
+    log_cat(", ", relays->z);
+    log_str(")"); 
+}
 
 // Same as log_relays(), but also appends a CRLF.
-// void log_relays_ln(relays_s *relays)
-// {
-//     log_cat("(", relays->caps);
-//     log_cat(", ", relays->inds);
-//     log_cat(", ", relays->z);
-//     log_str(")"); 
+void log_relays_ln(relays_s *relays)
+{
+    log_cat("(", relays->caps);
+    log_cat(", ", relays->inds);
+    log_cat(", ", relays->z);
+    log_str(")"); 
     
-//     log_ln();
-// }
+    log_ln();
+}
 
 // Change the format of debug output
 void log_format(enum textAttribute attribute, enum textColor foreground)

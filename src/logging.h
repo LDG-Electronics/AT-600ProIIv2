@@ -47,8 +47,8 @@ extern void log_cat(const char *string, int32_t value);
 extern void log_cat_ln(const char *string, int32_t value);
 
 // Prints the contents of relay struct as "(caps, inds, z)"
-// extern void log_relays(relays_s *relays);
-// extern void log_relays_ln(relays_s *relays);
+extern void log_relays(relays_s *relays);
+extern void log_relays_ln(relays_s *relays);
 
 // Change the format of debug output
 extern void log_format(enum textAttribute attribute, enum textColor foreground);
