@@ -11,13 +11,13 @@
 
 // Button port accessors
 #define POWER_BUTTON !PORTAbits.RA3
-#define TUNE_BUTTON !PORTBbits.RB7
-#define FUNC_BUTTON !PORTBbits.RB4
-#define ANT_BUTTON !PORTBbits.RB6
-#define CUP_BUTTON !PORTBbits.RB2
 #define CDN_BUTTON !PORTAbits.RA4
 #define LUP_BUTTON !PORTAbits.RA5
+#define CUP_BUTTON !PORTBbits.RB2
+#define FUNC_BUTTON !PORTBbits.RB4
 #define LDN_BUTTON !PORTBbits.RB5
+#define ANT_BUTTON !PORTBbits.RB6
+#define TUNE_BUTTON !PORTBbits.RB7
 
 /* ************************************************************************** */
 
@@ -45,16 +45,16 @@
 #define RADIO_CMD PORTAbits.RA7
 
 // Relays
-#define RELAY_CLOCK_PIN LATAbits.LATA6 //
-#define RELAY_DATA_PIN LATCbits.LATC5 // 
-#define RELAY_STROBE_PIN LATCbits.LATC4 //
+#define RELAY_CLOCK_PIN LATCbits.LATC0 //
+#define RELAY_DATA_PIN LATCbits.LATC1 // 
+#define RELAY_STROBE_PIN LATCbits.LATC2 //
 
 // Meter port
 #define METER_TX_PIN LATCbits.LATC6
 #define METER_RX_PIN PORTCbits.RC7
 
 //
-#define BITBANG_PIN PORTCbits.RC6
+#define BITBANG_PIN LATCbits.LATC6
 
 /* ************************************************************************** */
 
