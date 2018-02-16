@@ -11,8 +11,10 @@
 
 // device header
 #include "pic18f26k42.h"
+#include "config.h"
 
 // drivers
+#include "flags.h"
 #include "buttons.h"
 #include "interrupt.h"
 #include "delay.h"
@@ -20,6 +22,12 @@
 #include "serial_bitbang.h"
 #include "spi.h"
 #include "timer.h"
+#include "relays.h"
+#include "controls.h"
+#include "adc.h"
+#include "memory.h"
+#include "tuning.h"
+#include "nonvolatile_memory.h"
 
 // modules
 #include "display.h"
