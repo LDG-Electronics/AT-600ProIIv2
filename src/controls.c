@@ -119,54 +119,43 @@ void mode_thresh(void)
 
 void mode_func(void)
 {
-    uint8_t     buttons = 0;
-    uint16_t    funcCounter = 0; 
+    uint8_t buttons = 0;
+    uint16_t funcCounter = FUNC_THRESH; 
 
-    // leds_scroll_up();
-    funcCounter = FUNC_THRESH;
+    blink_arrow_up(3);
     
     while (1)
     {
-        buttons = get_buttons();
-        
-        if (btn_is_pressed(FUNC)) {
-            // leds_scroll_down();
-            break;
-        }
         if (btn_is_pressed(CUP)) {
             // no function on this button
-            break;
+            return;
         }
         if (btn_is_pressed(LUP)) {
             toggle_hiloz();
             blink_HiLoZ(4);
-            break;
+            return;
         }
         if (btn_is_pressed(CDN)) {
             toggle_auto();
             blink_auto(4);
-            break;
+            return;
         }
         if (btn_is_pressed(LDN)) {
             mode_thresh();
             blink_thresh(4);
-            break;
+            return;
         }
         if (btn_is_pressed(TUNE)) {
             manual_store();
-            break;
-        }
-        
-        funcCounter--;
-        if (funcCounter == 0) {
-            // leds_scroll_down();
             return;
         }
+
+        if (btn_is_pressed(FUNC)) break;
+        funcCounter--;
+        if (funcCounter == 0) break;
         delay_ms(1);
     }
-    
-    wait_for_no_buttons();
-    return;
+    blink_arrow_down(3);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -214,13 +203,6 @@ void ldn_hold(void)
         delay_ms(1);
     }
 }
-
-
-// Button timing constants, in 1ms increments.
-#define BTN_PRESS_DEBOUNCE  10
-#define BTN_PRESS_SHORT     400
-#define BTN_PRESS_MEDIUM    2500
-#define BTN_PRESS_LONG      10000
 
 void power_hold(void)
 {
@@ -316,48 +298,6 @@ void func_hold(void)
         delay_ms(1);
     }
 
-    if (FuncHoldProcessed == 0) func_release();
+    if (FuncHoldProcessed == 0) mode_func();
 }
 
-#define FUNC_THRESH 2200
-
-void func_release(void)
-{
-    uint8_t buttons = 0;
-    uint16_t funcCounter = FUNC_THRESH; 
-
-    blink_arrow_up(3);
-    
-    while (1)
-    {
-        if (btn_is_pressed(CUP)) {
-            // no function on this button
-            return;
-        }
-        if (btn_is_pressed(LUP)) {
-            toggle_hiloz();
-            blink_HiLoZ(4);
-            return;
-        }
-        if (btn_is_pressed(CDN)) {
-            toggle_auto();
-            blink_auto(4);
-            return;
-        }
-        if (btn_is_pressed(LDN)) {
-            mode_thresh();
-            blink_thresh(4);
-            return;
-        }
-        if (btn_is_pressed(TUNE)) {
-            manual_store();
-            return;
-        }
-
-        if (btn_is_pressed(FUNC)) break;
-        funcCounter--;
-        if (funcCounter == 0) break;
-        delay_ms(1);
-    }
-    blink_arrow_down(3);
-}
