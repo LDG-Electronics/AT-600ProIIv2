@@ -6,8 +6,6 @@ void main(void)
 {
     startup();
 
-
-
     while(1)
     {
         // Relay buttons
@@ -25,8 +23,6 @@ void main(void)
             // ANT button is currently broken
             // toggle_ant();
         }
-
-        delay_ms(1);
     }
 }
 
