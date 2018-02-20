@@ -1,7 +1,7 @@
 #include "includes.h"
 
 /* ************************************************************************** */
-// Function prototypes
+// Forward Declarations
 void osc_init(void);
 void port_init(void);
 void pps_init(void);
@@ -23,7 +23,6 @@ void startup(void)
     serial_bitbang_init();
     RF_sensor_init();
     relays_init();
-
 
     print_format(BRIGHT, RED);
     print_str_ln("Hello!");
@@ -57,6 +56,10 @@ void port_init(void)
     TRISA = 0xFF;
     TRISB = 0xFF;
     TRISC = 0xFF;
+
+    // RF Sensor
+    TRISBbits.TRISB0 = 1; // FREQ_PIN <- temporary pin for development purposes
+    // TRISEbits.TRISE0 = 1; // FREQ_PIN
 
     // Front panel buttons
     TRISAbits.TRISA3 = 1; // POWER_BUTTON
@@ -137,7 +140,7 @@ void pps_init(void)
     // SPI1SDIPPSbits.SPI1SDIPPS = 0x12;   //RC2->SPI1:SDI1;
     // RC1PPS = 0x1F;   //RC1->SPI1:SDO1;
 
-    T1CKIPPS = 0x20;
+    T3CKIPPS = 0b00001000;
 
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
