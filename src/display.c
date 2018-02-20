@@ -7,42 +7,30 @@ const uint8_t swrThreshDisplay[4] = { 0x08,0x10,0x20,0x40 };
 const uint16_t ledBarTable[9] = { 0x00,0x01,0x03,0x07,0x0f,0x1f,0x3f,0x7f,0xff, };
 const uint16_t ledSingleTable[9] = { 0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80, };
 
-// Shifts out a 16-bit data value to the TPIC_595 chip(s)
-// Requires that STROBE_PIN, CLOCK_PIN, and DATA_PIN are defined in hardware.h
-void delay_3_nops(void)
-{
-    #asm
-        nop
-        nop
-        nop
-    #endasm;
-}
+/* ************************************************************************** */
 
-void shift_out_595_16bit(uint16_t d)
+void FP_update(uint16_t d)
 {
     uint8_t i;
-    (FP_STROBE_PIN) = 1;
-    (FP_CLOCK_PIN) = 0;
+    FP_STROBE_PIN = 1;
+    FP_CLOCK_PIN = 0;
     for (i = 0; i < 16; i++)
     {
-        if (d & (1 << (15 - i)))
-        {
-            (FP_DATA_PIN) = 1;
+        if (d & (1 << (15 - i))) {
+            FP_DATA_PIN = 1;
+        } else {
+            FP_DATA_PIN = 0;
         }
-        else
-        {
-            (FP_DATA_PIN) = 0;
-        }
-        delay_3_nops();
-        (FP_CLOCK_PIN) = 1;
-        delay_3_nops();
-        (FP_CLOCK_PIN) = 0;
-        delay_3_nops();
+        delay_10us(1);
+        FP_CLOCK_PIN = 1;
+        delay_10us(1);
+        FP_CLOCK_PIN = 0;
+        delay_10us(1);
     }
-    (FP_STROBE_PIN) = 0;
-    delay_3_nops();
-    (FP_STROBE_PIN) = 1;
-    delay_3_nops();
+    FP_STROBE_PIN = 0;
+    delay_10us(1);
+    FP_STROBE_PIN = 1;
+    delay_10us(1);
 }
 
 /* ************************************************************************** */
@@ -64,23 +52,23 @@ void display_init(void)
 
 void show_startup(void)
 {
-    shift_out_595_16bit(0x0101);
+    FP_update(0x0101);
     delay_ms(100);
-    shift_out_595_16bit(0x0202);
+    FP_update(0x0202);
     delay_ms(100);
-    shift_out_595_16bit(0x0404);
+    FP_update(0x0404);
     delay_ms(75);
-    shift_out_595_16bit(0x0808);
+    FP_update(0x0808);
     delay_ms(75);
-    shift_out_595_16bit(0x1010);
+    FP_update(0x1010);
     delay_ms(75);
-    shift_out_595_16bit(0x2020);
+    FP_update(0x2020);
     delay_ms(50);
-    shift_out_595_16bit(0x4040);
+    FP_update(0x4040);
     delay_ms(50);
-    shift_out_595_16bit(0x8080);
+    FP_update(0x8080);
     delay_ms(50);
-    shift_out_595_16bit(0x0000);
+    FP_update(0x0000);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -88,155 +76,153 @@ void show_startup(void)
 // generic display functions
 void show_frame(uint8_t command, uint16_t argument)
 {
-    // This function is intentionally breaking the coding style of the project.
-    // if & else usually requires { }, but here that is omitted for brevity.
     switch (command)
     {
     case CLEAR:
-        shift_out_595_16bit(0x0000);
+        FP_update(0x0000);
         break;
         
     case RAW_LEDS:
-        shift_out_595_16bit(argument);
+        FP_update(argument);
         break;
         
     case PWR_ALL:
         if (argument == 1)
-            shift_out_595_16bit(0x00ff);
+            FP_update(0x00ff);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case PWR_BAR:
         if (argument > 10)
-            shift_out_595_16bit(ledBarTable[argument]);
+            FP_update(ledBarTable[argument]);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case PWR_SINGLE:
         if (argument > 10)
-            shift_out_595_16bit(ledSingleTable[argument]);
+            FP_update(ledSingleTable[argument]);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case SWR_ALL:
         if (argument == 1)
-            shift_out_595_16bit(0xff00);
+            FP_update(0xff00);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case SWR_BAR:
         if (argument > 10)
-            shift_out_595_16bit(ledBarTable[argument] << 8);
+            FP_update(ledBarTable[argument] << 8);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case SWR_SINGLE:
         if (argument > 10)
-            shift_out_595_16bit(ledSingleTable[argument] << 8);
+            FP_update(ledSingleTable[argument] << 8);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case BOTH_ALL:
         if (argument == 1)
-            shift_out_595_16bit(0xffff);
+            FP_update(0xffff);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case BOTH_BAR:
         if (argument > 10)
-            shift_out_595_16bit((ledBarTable[argument] << 8) && ledBarTable[argument]);
+            FP_update((ledBarTable[argument] << 8) && ledBarTable[argument]);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case BOTH_SINGLE:
         if (argument > 10)
-            shift_out_595_16bit((ledSingleTable[argument] << 8) && ledSingleTable[argument]);
+            FP_update((ledSingleTable[argument] << 8) && ledSingleTable[argument]);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case ARROW_UP_FRAMES:
         if (argument == 1)
-            shift_out_595_16bit(0x1800);
+            FP_update(0x1800);
         else if (argument == 2)
-            shift_out_595_16bit(0x2418);
+            FP_update(0x2418);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case ARROW_DOWN_FRAMES:
         if (argument == 1)
-            shift_out_595_16bit(0x0018);
+            FP_update(0x0018);
         else if (argument == 2)
-            shift_out_595_16bit(0x1824);
+            FP_update(0x1824);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
 
     case TUNE_FRAMES:
         if (argument == 1)
-            shift_out_595_16bit(0x8181);
+            FP_update(0x8181);
         else if (argument == 2)
-            shift_out_595_16bit(0x4242);
+            FP_update(0x4242);
         else if (argument == 3)
-            shift_out_595_16bit(0x2424);
+            FP_update(0x2424);
         else if (argument == 4)
-            shift_out_595_16bit(0x1818);
+            FP_update(0x1818);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case POWER_ERROR:
         if (argument == 1)
-            shift_out_595_16bit(0x42a5);
+            FP_update(0x42a5);
         else if (argument == 2)
-            shift_out_595_16bit(0xa542);
+            FP_update(0xa542);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case SWR_ERROR:
         if (argument == 1)
-            shift_out_595_16bit(0x2814);
+            FP_update(0x2814);
         else if (argument == 2)
-            shift_out_595_16bit(0x1428);
+            FP_update(0x1428);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case WAVE_LEFT:
         if (argument == 1)
-            shift_out_595_16bit(0x3030);
+            FP_update(0x3030);
         else if (argument == 2)
-            shift_out_595_16bit(0xc0c0);
+            FP_update(0xc0c0);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case WAVE_RIGHT:
         if (argument == 1)
-            shift_out_595_16bit(0x0c0c);
+            FP_update(0x0c0c);
         else if (argument == 2)
-            shift_out_595_16bit(0x0303);
+            FP_update(0x0303);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
         
     case FUNC_HOLD:
         if (argument == 1)
-            shift_out_595_16bit(0x1800);
+            FP_update(0x1800);
         else if (argument == 2)
-            shift_out_595_16bit(0x0018);
+            FP_update(0x0018);
         else
-            shift_out_595_16bit(0x0000);
+            FP_update(0x0000);
         break;
     }
 }
@@ -298,30 +284,6 @@ void show_animation(uint8_t command)
         show_frame(BOTH_ALL, 0);
         delay_ms(LED_BLINK_SLOW);
         break;
-        
-    case FUNC_MOM_ON:
-        show_frame(ARROW_UP_FRAMES, 0);
-        delay_ms(LED_BLINK_MED);
-        for (i = 0; i < 3; i++)
-        {
-            show_frame(ARROW_UP_FRAMES, 2);
-            delay_ms(LED_BLINK_FAST);
-            show_frame(ARROW_UP_FRAMES, 0);
-            delay_ms(LED_BLINK_FAST);
-        }
-        break;
-
-    case FUNC_MOM_OFF:
-        show_frame(ARROW_DOWN_FRAMES, 0);
-        delay_ms(LED_BLINK_MED);
-        for (i = 0; i < 3; i++)
-        {
-            show_frame(ARROW_DOWN_FRAMES, 2);
-            delay_ms(LED_BLINK_FAST);
-            show_frame(ARROW_DOWN_FRAMES, 0);
-            delay_ms(LED_BLINK_FAST);
-        }
-        break;
 
     case FUNC_TUNE_OKAY:
         for(i = 0; i < 5; i++)
@@ -372,8 +334,6 @@ void show_animation(uint8_t command)
         }
         show_frame(SWR_ERROR, 0);
         break;
-        
-    
     }
 }
 
@@ -383,37 +343,37 @@ void show_peak(void)
     if (saved_flags.PeakOn == 0)
     {
         // No peak
-        shift_out_595_16bit(0x1f1f);
+        FP_update(0x1f1f);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x0f0f);
+        FP_update(0x0f0f);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x0707);
+        FP_update(0x0707);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x0303);
+        FP_update(0x0303);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x0101);
+        FP_update(0x0101);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0);
+        FP_update(0);
         delay_ms(LED_BLINK_MED);
 
     }
     else
     {
         // show peak
-        shift_out_595_16bit(0x1f1f);
+        FP_update(0x1f1f);
         delay_ms(LED_BLINK_SLOW);
-        shift_out_595_16bit(0x1717);
+        FP_update(0x1717);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x1313);
+        FP_update(0x1313);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x0909);
+        FP_update(0x0909);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x0808);
+        FP_update(0x0808);
         delay_ms(LED_BLINK_SLOW + 100);
-        shift_out_595_16bit(0x0404);
+        FP_update(0x0404);
         delay_ms(LED_BLINK_SLOW);
         delay_ms(LED_BLINK_SLOW);
-        shift_out_595_16bit(0);
+        FP_update(0);
         delay_ms(LED_BLINK_MED);
     }
 }
@@ -467,19 +427,19 @@ void blink_antenna(void)
     if (saved_flags.Antenna == 1)
     {
         ANT_LED = 0;
-        shift_out_595_16bit(0x0c0c);
+        FP_update(0x0c0c);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0x0303);
+        FP_update(0x0303);
     }
     else
     {
         ANT_LED = 1;
-        shift_out_595_16bit(0x3030);
+        FP_update(0x3030);
         delay_ms(LED_BLINK_MED);
-        shift_out_595_16bit(0xc0c0);
+        FP_update(0xc0c0);
     }
     delay_ms(LED_BLINK_V_SLOW);
-    shift_out_595_16bit(0x0000);
+    FP_update(0x0000);
 }
 
 void blink_auto(uint8_t blinks)
@@ -488,12 +448,12 @@ void blink_auto(uint8_t blinks)
     for (i = 0; i < blinks; i++)
     {
         if (saved_flags.AutoMode == 0) {
-            shift_out_595_16bit(0x8181);
+            FP_update(0x8181);
         } else {
-            shift_out_595_16bit(0x1818);
+            FP_update(0x1818);
         }
         delay_ms(LED_BLINK_FAST);
-        shift_out_595_16bit(0x0000);
+        FP_update(0x0000);
         delay_ms(LED_BLINK_FAST);
     }
 }
@@ -507,9 +467,9 @@ void blink_HiLoZ(uint8_t blinks)
     
     for (i = 0; i < blinks; i++)
     {
-        shift_out_595_16bit(out);
+        FP_update(out);
         delay_ms(LED_BLINK_FAST);
-        shift_out_595_16bit(0x0000);
+        FP_update(0x0000);
         delay_ms(LED_BLINK_FAST);
     }
 }
@@ -521,13 +481,13 @@ void blink_scale(uint8_t blinks)
     {
 
         if (saved_flags.Scale100W == 0) {
-            shift_out_595_16bit(0x0002);
+            FP_update(0x0002);
             delay_ms(LED_BLINK_FAST);
         } else {
-            shift_out_595_16bit(0x0040);
+            FP_update(0x0040);
             delay_ms(LED_BLINK_FAST);
         }
-        shift_out_595_16bit(0);
+        FP_update(0);
         delay_ms(LED_BLINK_FAST);
     }
 }
@@ -540,9 +500,9 @@ void blink_thresh(uint8_t blinks)
     
     for (i = 0; i < blinks; i++)
     {
-        shift_out_595_16bit(out);
+        FP_update(out);
         delay_ms(LED_BLINK_FAST);
-        shift_out_595_16bit(0x0000);
+        FP_update(0x0000);
         delay_ms(LED_BLINK_FAST);
     }
 }
@@ -562,9 +522,9 @@ void show_antenna_led(void)
 void show_auto(void)
 {
     if (saved_flags.AutoMode == 0) {
-        shift_out_595_16bit(0x8181);
+        FP_update(0x8181);
     } else {
-        shift_out_595_16bit(0x1818);
+        FP_update(0x1818);
     }
     return;
 }
@@ -572,9 +532,9 @@ void show_auto(void)
 void show_HiLoZ(void)
 {
     if (currentRelays.z == 1) {
-        shift_out_595_16bit(0xc0c0);
+        FP_update(0xc0c0);
     } else {
-        shift_out_595_16bit(0x0303);
+        FP_update(0x0303);
     }
     return;
 }
@@ -594,16 +554,16 @@ void show_relays(void)
     uint16_t out;
     out = ((currentRelays.inds & 0x7f) | ((currentRelays.z & 0x01) << 7));
     out |= (uint16_t)currentRelays.caps << 8;
-    shift_out_595_16bit(out);
+    FP_update(out);
     return;
 }
 
 void show_scale(void)
 {
     if (saved_flags.Scale100W == 0) {
-        shift_out_595_16bit(0x0002);
+        FP_update(0x0002);
     } else {
-        shift_out_595_16bit(0x0040);
+        FP_update(0x0040);
     }
     return;
 }

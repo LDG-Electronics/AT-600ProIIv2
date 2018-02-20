@@ -36,8 +36,6 @@
 #define BOTH_ALL_1BLINK     45
 #define BOTH_ALL_2BLINK     46
 
-#define FUNC_MOM_ON         50
-#define FUNC_MOM_OFF        51
 #define FUNC_LOW_PWR        52
 #define FUNC_HIGH_PWR       53
 #define FUNC_TUNE_OKAY      54
@@ -48,15 +46,6 @@
 #define TUNE_FULL_ON        82
 #define OVER_PWR_ERROR      90
 #define OVER_SWR_PWR        91
-
-// indicate_error command codes
-#define ERR_NO_ERROR        0
-#define ERR_OVER_SWR        1
-#define ERR_NO_FREQ         2
-#define ERR_NO_RF           4
-#define ERR_LOST_RF         5
-#define ERR_OVER_PWR        6
-#define ERR_SWR_PWR         7
 
 // Display timing constants
 #define LED_BLINK_V_FAST    75
