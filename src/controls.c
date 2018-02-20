@@ -92,7 +92,7 @@ void mode_thresh(void)
     blink_thresh(3);
     show_thresh();
     
-    for (;;)
+    while (1)
     {
         if (btn_is_pressed(LDN))
         {
@@ -102,8 +102,6 @@ void mode_thresh(void)
             show_thresh();
             blink_thresh(2);
             show_thresh();
-            
-            wait_for_no_buttons();
         }        
         
         if (btn_is_pressed(FUNC) || modeCount == 2000)
@@ -227,6 +225,7 @@ void tune_hold(void)
 
     while(1)
     {
+        // TODO: replace magic number with defined constant for uint16 max value
         if (buttonCount < 0xffff) buttonCount++;
 
         if (buttonCount < BTN_PRESS_DEBOUNCE) {
