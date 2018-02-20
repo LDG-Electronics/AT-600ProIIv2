@@ -32,27 +32,10 @@ typedef union {
     uint8_t flags;
 } saved_flags_s;
 
-/*  unsaved_flags_s contains information that does NOT need to be retained after
-    a power cycle.
-    
-    If possible, keep this struct under 8 bits in size, because we have to
-    access if from all over the place.
-*/
-typedef union {
-    struct {
-        unsigned allowAutoTune : 1; // 
-        unsigned FuncIsHeld : 1; // Function button held in
-        unsigned TuneIsHeld : 1; // Tune button held in
-        unsigned FuncHoldProcessed : 1; // Processed a func-hold
-    };
-    uint8_t flags;
-} unsaved_flags_s;
-
 /* ************************************************************************** */
 
 // Global structs 
 extern saved_flags_s saved_flags;
-extern unsaved_flags_s unsaved_flags;
 
 /* ************************************************************************** */
 
