@@ -2,34 +2,6 @@
 
 /* ************************************************************************** */
 
-void short_tune_release(void)
-{
-    toggle_bypass();
-}
-void medium_tune_release(void)
-{
-    // poll_for_fwd_pwr(500);
-    
-    memory_tune();
-    
-    if (tuning_flags.noMemory == 1)
-    {
-        full_tune();
-    }
-    tuning_followup_animation();
-}
-
-void long_tune_release(void)
-{
-    // poll_for_fwd_pwr(500);
-    
-    full_tune();
-
-    tuning_followup_animation();
-}
-
-/* -------------------------------------------------------------------------- */
-
 void toggle_bypass(void)
 {
     relays_s relaysUndo;
@@ -81,6 +53,35 @@ void manual_store(void)
     // } else {
     //     blink_all(2);
     // }  
+}
+
+/* -------------------------------------------------------------------------- */
+
+void short_tune_release(void)
+{
+    toggle_bypass();
+}
+
+void medium_tune_release(void)
+{
+    // poll_for_fwd_pwr(500);
+    
+    memory_tune();
+    
+    if (tuning_flags.noMemory == 1)
+    {
+        full_tune();
+    }
+    tuning_followup_animation();
+}
+
+void long_tune_release(void)
+{
+    // poll_for_fwd_pwr(500);
+    
+    full_tune();
+
+    tuning_followup_animation();
 }
 
 /* -------------------------------------------------------------------------- */
