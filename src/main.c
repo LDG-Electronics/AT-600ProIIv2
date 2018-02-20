@@ -6,6 +6,13 @@ void main(void)
 {
     startup();
 
+
+    // while(1)
+    // {
+    //     print_cat_ln("Freq:", get_freq());
+    //     delay_ms(100);
+    // }
+
     while(1)
     {
         // Relay buttons

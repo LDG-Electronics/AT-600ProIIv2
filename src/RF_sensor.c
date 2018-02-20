@@ -6,9 +6,9 @@
 RF_power_s currentRF;
 
 // Global SWR Threshold Settings
-uint16_t        swrThresh = SWR1_7;
-uint8_t         swrThreshIndex = 0;
-const uint16_t  swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
+uint16_t swrThresh = SWR1_7;
+uint8_t swrThreshIndex = 0;
+const uint16_t swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
 
 /* ************************************************************************** */
@@ -16,7 +16,8 @@ const uint16_t  swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 void RF_sensor_init(void)
 {    
     timer1_init();
-    
+    timer3_init();
+
     currentRF.forward = 0;
     currentRF.reverse = 0;
     currentRF.swr = 0;
@@ -31,10 +32,7 @@ void SWR_threshold_set(void)
 void SWR_threshold_increment(void)
 {
     swrThreshIndex++;
-    if (swrThreshIndex == 5)
-    {
-        swrThreshIndex = 0;
-    }
+    if (swrThreshIndex == 4) swrThreshIndex = 0;
     SWR_threshold_set();
 }
 
@@ -42,23 +40,23 @@ void SWR_threshold_increment(void)
 
 uint16_t get_freq(void)
 {
-    timer1_clear();
+    timer3_clear();
 
-    TIMER3_IF = 0;
-    TMR3H = 0xE0;
-    TMR3L = 0xC0;
+    // TIMER1_IF = 0;
+    // TMR1H = 0xE0;
+    // TMR1L = 0xC0;
 
-    timer3_start();
-    TIMER1_ON = 1;
+    // TIMER1_ON = 1;
+    TIMER3_ON = 1;
 
-    while ((TIMER3_IF) == 0);
-    // delay_ms(1);
+    // while ((TIMER1_IF) == 0);
+    delay_ms(100);
     
-    TIMER1_ON = 0;
-    timer3_stop();
+    TIMER3_ON = 0;
+    // TIMER1_ON = 0;
     
 
-    return timer1_read();
+    return timer3_read();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,6 +70,8 @@ uint16_t get_freq(void)
     Possible future improvements include fixed-point math or one of several
     techniques including Exponential Moving Average or an Infinite or Finite
     Impulse Response (IIR) filter
+
+    TODO: new processor has 12 bit ADC instead of 10 bit, all math needs rewritten
 */
 
 #define NUM_OF_SAMPLES 8

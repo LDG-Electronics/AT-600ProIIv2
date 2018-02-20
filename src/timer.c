@@ -37,20 +37,12 @@ uint16_t timer0_read(void)
 
 /*
     Timer1 is used in the frequency counter
-
-    Settings:
-    Clock Source: FOSC/4
-    Prescaler 1:8
-    Secondary Oscillator: disabled
-    16-Bit Read/Write Mode: disabled   
-    No interrupt
-    Do not leave running
 */
 
 void timer1_init(void)
 {
-    T1CON = 0b00000100;
-    T1CLK = 0;
+    T1CON = 0b00000000;
+    T1CLK = 2;
 
     timer1_clear();
 }
@@ -113,14 +105,13 @@ uint16_t timer2_read(void)
 }
 
 /*
-    Timer3 is unused
+    Timer3 is used in the frequency counter
 */
 
 void timer3_init(void)
 {
-    timer3_stop();
-    T3CON = 0b00010000;
-    T3CLK = 1;
+    T3CON = 0b00000100;
+    T3CLK = 0;
 
     TIMER3_IF = 0;
     timer3_clear();
