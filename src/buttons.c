@@ -47,23 +47,6 @@ uint8_t get_buttons(void)
     return buttons;
 }
 
-// Only returns after all buttons have been released.
-void wait_for_no_buttons(void)
-{
-    uint8_t i = 0;
-    uint8_t x = 1;
-    
-    // TODO: Explain how this works.
-    while (x != 0)
-    {
-        x = 0;
-        for (i = 0; i < FRONT_PANEL_BUTTONS; i++)
-        {
-            x += buttons[i];
-        }
-    }
-}
-
 // Returns 1 if rising edge is detected
 uint8_t btn_is_pressed(buttonName_t buttonName)
 {

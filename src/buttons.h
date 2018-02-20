@@ -38,9 +38,8 @@ extern volatile uint8_t buttons[FRONT_PANEL_BUTTONS];
 // Setup
 extern void buttons_init(void);
 
-// Button checking functions
+// Deprecated
 extern uint8_t get_buttons(void);
-extern void wait_for_no_buttons(void);
 
 // button handley-ness
 extern uint8_t btn_is_pressed(buttonName_t buttonName);
