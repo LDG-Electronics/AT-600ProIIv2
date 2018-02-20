@@ -30,6 +30,7 @@
 // Front Panel LEDs
 #define BYPASS_LED LATCbits.LATC3 // 
 #define ANT_LED LATBbits.LATB1 // 
+#define POWER_LED LATAbits.LATA2  
 
 /* -------------------------------------------------------------------------- */
 
@@ -42,7 +43,7 @@
 #define INTERRUPT_PIN PORTBbits.RB0 // front panel button interrupt - unused
 
 //
-#define RADIO_CMD PORTAbits.RA7
+#define RADIO_CMD_PIN PORTAbits.RA7
 
 // Relays
 #define RELAY_CLOCK_PIN LATCbits.LATC0 //
