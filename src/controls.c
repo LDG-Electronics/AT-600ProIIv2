@@ -290,6 +290,8 @@ void func_hold(void)
 
 void ant_hold(void)
 {
+    toggle_ant();
+
     while(1)
     {
         if (btn_is_released(POWER))

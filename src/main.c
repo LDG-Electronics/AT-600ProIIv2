@@ -35,11 +35,11 @@ void main(void)
         if (btn_is_pressed(TUNE)) tune_hold();
 
         // ANT button doesn't work in development unit
-        // if (btn_is_pressed(ANT)) toggle_ant();
+        // if (btn_is_pressed(ANT)) ant_hold();
 
         // remap ANT onto POWER
-        if (btn_is_pressed(POWER)) power_hold();
-        // if (btn_is_pressed(POWER)) ant_hold();
+        // if (btn_is_pressed(POWER)) power_hold();
+        if (btn_is_pressed(POWER)) ant_hold();
     }
 }
 
