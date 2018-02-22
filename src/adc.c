@@ -4,15 +4,12 @@
 
 void adc_init(void)
 {
-    ADCON0 = 0;
-    
-    ADCLK = 0xff;
-
     ADREFbits.NREF = 0; // Negative Voltage Reference, set to Vss
     ADREFbits.PREF = 0b00; // Positive Voltage Reference, set to Vdd
     
     ADCON0bits.FM = 1; // adc result is right-justified
-    
+    ADCON0bits.CS = 1; //FRC Clock
+
     ADCON0bits.ON = 1; // Enable ADC peripheral
 }
 
