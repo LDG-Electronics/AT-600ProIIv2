@@ -2,7 +2,7 @@
 
 /* ************************************************************************** */
 
-saved_flags_s        saved_flags;
+saved_flags_s saved_flags;
 
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ void retrieve_flags(void)
         
         currentRelays.all = 0;
         saved_flags.inBypass = 1;
-        saved_flags.forceAllRelays = 1;
         saved_flags.AutoMode = 1;
         swrThreshIndex = 0;
     }

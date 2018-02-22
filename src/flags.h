@@ -21,8 +21,6 @@
 */
 typedef union {
     struct {
-        unsigned forceAllRelays : 1; // Set if first time into put_relays,
-                                     // to force all relay set
         unsigned inBypass : 1; // Are we in bypass mode?
         unsigned AutoMode : 1; // Are we in semi (0)  or full (1) auto mode?
         unsigned Antenna : 1; // Which antenna is selected 
