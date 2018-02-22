@@ -66,8 +66,11 @@ extern uint16_t get_freq(void);
 extern uint16_t get_period(void);
 
 // SWR measurement functions
+extern void SWR_measure(void);
 extern void SWR_average(void);
 extern int8_t SWR_stable_average(void);
 
+// Tests
+void take_SWR_samples(void);
 
 #endif

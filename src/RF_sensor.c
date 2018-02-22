@@ -61,6 +61,26 @@ uint16_t get_freq(void)
 
 /* -------------------------------------------------------------------------- */
 
+void SWR_measure(void)
+{
+    uint16_t tempFWD = 0;
+    uint16_t tempREV = 0;
+    uint16_t tempSWR = 0;
+
+    tempFWD += adc_measure(0);
+    tempREV += adc_measure(1);
+
+    tempFWD >>= 4;
+    tempREV >>= 4;
+
+    currentRF.forward = tempFWD;
+    currentRF.reverse = tempREV; 
+    
+    tempREV <<= 8; 
+    tempSWR = tempREV / tempFWD;
+    currentRF.swr = tempSWR;
+}
+
 /*  SWR_average() calculates the average SWR across several samples
     
     Several alternative techniques were considered, including collecting an
@@ -98,8 +118,8 @@ void SWR_average(void)
     tempREV >>= SAMPLE_FACTOR; 
     
     if (tempFWD > 8) {
-        tempFWD >>= 2;
-        tempREV >>= 2; 
+        // tempFWD >>= 2;
+        // tempREV >>= 2; 
         
         currentRF.forward = tempFWD;
         currentRF.reverse = tempREV; 
@@ -127,8 +147,10 @@ int16_t abs(int16_t j)
 int8_t SWR_stable_average(void)
 {
     uint16_t ADcount = 0;
+
     int16_t currentFWD;
     int16_t previousFWD;
+
     int16_t deltaFWD = 0;
     int16_t deltaCompare = 0;
 
@@ -164,4 +186,43 @@ int8_t SWR_stable_average(void)
     SWR_average();
     
     return 0;
+}
+
+/* ************************************************************************** */
+
+void take_SWR_samples(void)
+{
+    uint32_t temp;
+
+    uint16_t prevFWD = currentRF.forward;
+    uint16_t prevREV = currentRF.reverse;
+    uint16_t prevSWR = currentRF.swr;
+    
+    uint16_t deltaFWD = 0;
+    uint16_t deltaREV = 0;
+    uint16_t deltaSWR = 0;
+
+    SWR_measure();
+    
+    deltaFWD = abs(currentRF.forward - prevFWD);
+    deltaREV = abs(currentRF.reverse - prevREV);
+    deltaSWR = abs(currentRF.swr - prevSWR);
+
+    if ((deltaFWD > 0) || (deltaREV > 0) || (deltaSWR > 0))
+    {
+
+        print_cat("FWD: ", currentRF.forward);
+        print_cat(", REV: ", currentRF.reverse);
+        print_cat(", SWR8: ", currentRF.swr);
+        
+        // temp = (uint32_t)currentRF.reverse << 9;
+        // temp = temp / (uint32_t)currentRF.forward;
+        // print_cat(", SWR9: ", temp);
+        
+        // temp = (uint32_t)currentRF.reverse << 10;
+        // temp = temp / (uint32_t)currentRF.forward;
+        // print_cat(", SWR10: ", temp);
+        
+        print_ln();
+    }
 }
