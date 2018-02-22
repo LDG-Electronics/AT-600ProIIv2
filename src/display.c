@@ -42,6 +42,7 @@ void display_init(void)
     FP_DATA_PIN = 0;
     FP_STROBE_PIN = 0;
 
+    POWER_LED = 0;
     ANT_LED = 0;
     BYPASS_LED = 0;
 
@@ -338,6 +339,45 @@ void show_animation(uint8_t command)
 }
 
 // function-related display functions
+void blink_upper_bar(uint8_t blinks)
+{
+    uint8_t i;
+
+    for (i = 0; i < blinks; i++)
+    {
+        delay_ms(100);
+        FP_update(0xff00);
+        delay_ms(100);
+        FP_update(0x0000);
+    }  
+} 
+
+void blink_lower_bar(uint8_t blinks)
+{
+    uint8_t i;
+
+    for (i = 0; i < blinks; i++)
+    {
+        delay_ms(100);
+        FP_update(0x00ff);
+        delay_ms(100);
+        FP_update(0x0000);
+    }  
+} 
+
+void blink_all(uint8_t blinks)
+{
+    uint8_t i;
+
+    for (i = 0; i < blinks; i++)
+    {
+        delay_ms(100);
+        FP_update(0xffff);
+        delay_ms(100);
+        FP_update(0x0000);
+    }  
+} 
+
 void show_peak(void)
 {
     if (saved_flags.PeakOn == 0)

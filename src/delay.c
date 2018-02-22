@@ -27,8 +27,8 @@ void delay_10us(uint16_t useconds)
     while (useconds > 0)
     {
         TIMER1_IF = 0;
-        TMR3H = 0xFF;
-        TMR3L = 0xC1;
+        TMR1H = 0xFF;
+        TMR1L = 0xC1;
         
         while ((TIMER1_IF) == 0);
         useconds--;
@@ -43,8 +43,8 @@ void delay_100us(uint16_t useconds)
     while (useconds > 0)
     {
         TIMER1_IF = 0;
-        TMR3H = 0xFD;
-        TMR3L = 0x05;
+        TMR1H = 0xFD;
+        TMR1L = 0x05;
         
         while ((TIMER1_IF) == 0);
         useconds--;
@@ -59,8 +59,8 @@ void delay_ms(uint16_t mseconds)
     while (mseconds > 0)
     {
         TIMER1_IF = 0;
-        TMR3H = 0xE0;
-        TMR3L = 0xC0;
+        TMR1H = 0xE0;
+        TMR1L = 0xC0;
         
         while ((TIMER1_IF) == 0);
         mseconds--;

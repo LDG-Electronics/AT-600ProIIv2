@@ -6,6 +6,12 @@ void main(void)
 {
     startup();
 
+    // while(1)
+    // {
+    //     take_SWR_samples();
+    //     // print_cat_ln("Freq:", get_freq());
+    //     delay_ms(100);        
+    // }
 
     // while(1)
     // {
@@ -15,6 +21,8 @@ void main(void)
 
     while(1)
     {
+        take_SWR_samples();
+    
         // Relay buttons
         if (btn_is_pressed(CUP)) cup_hold();
         if (btn_is_pressed(CDN)) cdn_hold();
@@ -25,11 +33,13 @@ void main(void)
         // Other buttons
         if (btn_is_pressed(FUNC)) func_hold();
         if (btn_is_pressed(TUNE)) tune_hold();
+
+        // ANT button doesn't work in development unit
+        // if (btn_is_pressed(ANT)) toggle_ant();
+
+        // remap ANT onto POWER
         if (btn_is_pressed(POWER)) power_hold();
-        if (btn_is_pressed(ANT)) {
-            // ANT button is currently broken
-            // toggle_ant();
-        }
+        // if (btn_is_pressed(POWER)) ant_hold();
     }
 }
 

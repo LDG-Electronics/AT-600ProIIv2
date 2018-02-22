@@ -16,6 +16,7 @@ void startup(void)
     interrupt_init();
     
     // Driver setup
+    adc_init();
     delay_init();
     buttons_init();
     spi_init();
@@ -58,6 +59,8 @@ void port_init(void)
     TRISC = 0xFF;
 
     // RF Sensor
+    TRISAbits.TRISA0 = 1; // FWD_PIN
+    TRISAbits.TRISA1 = 1; // REV_PIN
     TRISBbits.TRISB0 = 1; // FREQ_PIN <- temporary pin for development purposes
     // TRISEbits.TRISE0 = 1; // FREQ_PIN
 
@@ -77,6 +80,7 @@ void port_init(void)
     TRISCbits.TRISC5 = 0; // FP_DATA_PIN
 
     // Front Panel LEDs
+    TRISAbits.TRISA2 = 0; // POWER_LED
     TRISBbits.TRISB1 = 0; // ANT_LED
     TRISCbits.TRISC3 = 0; // BYPASS_LED
 
@@ -98,6 +102,9 @@ void port_init(void)
     ANSELA = 0;
     ANSELB = 0;
     ANSELC = 0;
+
+    ANSELAbits.ANSELA0 = 1; // FWD_PIN
+    ANSELAbits.ANSELA1 = 1; // REV_PIN
 
     // Weak Pull-up; 0 = pull-up disabled, 1 = pull-up enabled
     WPUA = 0;

@@ -4,20 +4,25 @@
 
 void toggle_bypass(void)
 {
-    relays_s relaysUndo;
-    relaysUndo.all = currentRelays.all;
+    relays_s undoRelays;
+    undoRelays.all = currentRelays.all;
 
     if (saved_flags.inBypass == 1) {
+        currentRelays.all = preBypassRelays.all;
+
         if (put_relays(&currentRelays) == -1) {
-            currentRelays.all = relaysUndo.all;
+            currentRelays.all = undoRelays.all;
         } else {
-            //blink_all(1);
+            show_relays();
+            delay_ms(250);
         }
     } else {
+        preBypassRelays.all = currentRelays.all;
+
         if (put_relays(&bypassRelays) == -1) {
-            currentRelays.all = relaysUndo.all;
+            currentRelays.all = undoRelays.all;
         } else {
-            //blink_all(3);
+            blink_all(3);
         }
     }
 }
@@ -203,31 +208,13 @@ void ldn_hold(void)
     }
 }
 
-void power_hold(void)
-{
-    print_str_ln("power_hold");
-
-    while(1)
-    {
-        if (btn_is_released(POWER))
-        {
-            break;
-        }
-
-        delay_ms(1);
-    }
-
-    print_str_ln("power_hold");
-}
-
 void tune_hold(void)
 {
     uint16_t buttonCount = 0;
 
     while(1)
     {
-        // TODO: replace magic number with defined constant for uint16 max value
-        if (buttonCount < 0xffff) buttonCount++;
+        if (buttonCount < UINT16_MAX) buttonCount++;
 
         if (buttonCount < BTN_PRESS_DEBOUNCE) {
             // button was not held long enough, do nothing
@@ -301,3 +288,38 @@ void func_hold(void)
     if (FuncHoldProcessed == 0) mode_func();
 }
 
+void ant_hold(void)
+{
+    while(1)
+    {
+        if (btn_is_released(POWER))
+        {
+            break;
+        }
+
+        delay_ms(1);
+    }
+}
+
+void power_hold(void)
+{
+    uint16_t buttonCount = 0;
+
+    print_str_ln("power_hold");
+
+    while(1)
+    {
+        if (buttonCount < UINT16_MAX) buttonCount++;
+
+        if (buttonCount == 1000) {
+            print_str_ln("going to sleep");
+        }
+
+        if (btn_is_released(POWER))
+        {
+            break;
+        }
+
+        delay_ms(1);
+    }
+}

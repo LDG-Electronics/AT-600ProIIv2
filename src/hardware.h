@@ -28,9 +28,9 @@
 #define FP_STROBE_PIN LATCbits.LATC4 //
  
 // Front Panel LEDs
+#define POWER_LED LATAbits.LATA2  
 #define BYPASS_LED LATCbits.LATC3 // 
 #define ANT_LED LATBbits.LATB1 // 
-#define POWER_LED LATAbits.LATA2  
 
 /* -------------------------------------------------------------------------- */
 

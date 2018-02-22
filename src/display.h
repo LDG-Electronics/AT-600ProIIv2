@@ -78,6 +78,10 @@ extern void show_animation(uint8_t command);
 // function-related, blinky display functions
 // THESE HAVE BLOCKING DELAYS
 
+extern void blink_upper_bar(uint8_t blinks);
+extern void blink_lower_bar(uint8_t blinks);
+extern void blink_all(uint8_t blinks);
+
 extern void blink_arrow_up(uint8_t blinks);
 extern void blink_arrow_down(uint8_t blinks);
 

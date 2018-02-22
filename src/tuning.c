@@ -577,7 +577,6 @@ void full_tune(void)
     #endif
     
     clear_tuning_flags();
-    saved_flags.forceAllRelays = 1;
     
     // If we fail to find FWD power twice, then set an error and exit.
     if (SWR_stable_average() != 0) {
@@ -623,7 +622,6 @@ void full_tune(void)
     // If nothing failed, we can update currentRelays with the best solution
     currentRelays.all = bestSolution.all;
     
-    saved_flags.forceAllRelays = 1;
     if (put_relays(&currentRelays) == -1)
     {
         tuning_flags.relayError = 1;
@@ -709,7 +707,6 @@ void restore_best_memory(void)
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
     print_str_ln("  restore_best_memory");
     #endif
-    saved_flags.forceAllRelays = 1;
     currentRelays.all = bestMemory.all;
     put_relays(&currentRelays);
 }
@@ -733,7 +730,6 @@ void memory_tune(void)
     #endif
     
     clear_tuning_flags();
-    saved_flags.forceAllRelays = 1;
     
     if (SWR_stable_average() != 0)
     {

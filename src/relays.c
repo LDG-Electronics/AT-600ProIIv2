@@ -4,21 +4,22 @@
 
 /*  AT-600ProII Relay Configuration
 
-    The YT-1200 has 7 Capacitors, 7 Inductors, and 1 HiLoZ relay.
+    The AT-600ProII has 7 Capacitors, 7 Inductors, and 1 HiLoZ relay.
+
+    It uses 1500 Watt non-latching, 12 volt single coil relays.  The relays are
+    controlled by a pair of daisy-chained TPIC6B595 Serial-in/Parallel-out
+    SPI controlled shift registers.
 */
 
-// Maximum number of relays to be switched at once: limited by PIC's maximum mA
-#define RELAY_DELTA_THRESHOLD   4
-
 // Relay delay constants, in 1 ms intervals
-#define RELAY_BUS_DELAY     1
 #define RELAY_COIL_DELAY    6
 
 /* ************************************************************************** */
 
 // Global
 relays_s currentRelays;
-relays_s bypassRelays;
+relays_s bypassRelays; //TODO: needs to be const, and permanently equal {0, 0, 0}
+relays_s preBypassRelays;
 
 // File
 relays_s oldRelays;
@@ -31,20 +32,30 @@ uint8_t IncDecDelay = 0;
 
 void relays_init(void)
 {
+    // Initialize relay structs
     currentRelays.all = 0;
+    bypassRelays.all = 0;
+    preBypassRelays.all = 0;
     oldRelays.all = 0;
+
+    // 
+    RELAY_STROBE_PIN = 1;
+    RELAY_CLOCK_PIN = 1;
+    RELAY_DATA_PIN = 1;
 }
 
 /* -------------------------------------------------------------------------- */
 
-void relay_shift_out_595_16bit(uint16_t d)
+void publish_relays(uint16_t word)
 {
     uint8_t i;
+
     RELAY_STROBE_PIN = 1;
     RELAY_CLOCK_PIN = 0;
+
     for (i = 0; i < 16; i++)
     {
-        if (d & (1 << (15 - i))) {
+        if (word & (1 << (15 - i))) {
             RELAY_DATA_PIN = 1;
         } else {
             RELAY_DATA_PIN = 0;
@@ -83,20 +94,18 @@ int8_t check_if_safe(void)
 */
 int8_t put_relays(relays_s *testRelays)
 {
-    if (check_if_safe() == -1) return (-1);
-    
-    if (saved_flags.forceAllRelays == 1)
-    {
-        saved_flags.forceAllRelays = 0;
-        oldRelays.all = ~testRelays->all;
-    }
+    // if (check_if_safe() == -1) return (-1);
     
     saved_flags.inBypass = 0;
     if (testRelays->all == 0) {
         saved_flags.inBypass = 1;
     }
+
+    show_bypass();
     
-    relay_shift_out_595_16bit(testRelays->all);
+    publish_relays(testRelays->all);
+
+    delay_ms(RELAY_COIL_DELAY);
 
     oldRelays.all = testRelays->all;
     return 0;
@@ -142,8 +151,9 @@ void capacitor_increment(void)
             {
                 currentRelays.caps--;
             }
+            show_relays();
         } else {
-            // blink_all();
+            blink_upper_bar(4);
         }
     }
     delay_ms(50);
@@ -159,8 +169,9 @@ void capacitor_decrement(void)
             {
                 currentRelays.caps++;
             }
+            show_relays();
         } else {
-            // blink_all(4);
+            blink_upper_bar(4);
         }
     }
     delay_ms(50);
@@ -176,8 +187,9 @@ void inductor_increment(void)
             {
                 currentRelays.inds--;
             }
+            show_relays();
         } else {
-            // blink_all(4);
+            blink_lower_bar(4);
         }
     }
     delay_ms(50);
@@ -193,8 +205,9 @@ void inductor_decrement(void)
             {
                 currentRelays.inds++;
             }
+            show_relays();
         } else {
-            // blink_all(4);
+            blink_lower_bar(4);
         }
     }
     delay_ms(50);

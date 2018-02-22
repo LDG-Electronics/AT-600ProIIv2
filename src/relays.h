@@ -38,6 +38,7 @@ typedef union {
 
 extern relays_s currentRelays;
 extern relays_s bypassRelays;
+extern relays_s preBypassRelays;
 
 /* ************************************************************************** */
 

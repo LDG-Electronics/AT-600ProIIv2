@@ -41,8 +41,8 @@ uint16_t timer0_read(void)
 
 void timer1_init(void)
 {
-    T1CON = 0b00000000;
-    T1CLK = 2;
+    T1CON = 0b00010000;
+    T1CLK = 1;
 
     timer1_clear();
 }
