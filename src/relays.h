@@ -5,7 +5,7 @@
 
 /*  YT-1200 Relay Configuration
 
-    The YT-1200 has 8 Capacitors, 8 Inductors, and 1 HiLoZ relay.
+    The YT-1200 has 8 Capacitors, 8 Inductors, 1 HiLoZ relay.
 */
 
 #define NUM_INDUCTORS 7
@@ -23,9 +23,10 @@
 */
 typedef union {
     struct {
-        uint8_t caps;
-        unsigned inds : 7;
+        unsigned caps : 7;
         unsigned z : 1;
+        unsigned inds : 7;
+        unsigned ant : 1;
     };
     struct {
         uint8_t top;
