@@ -97,7 +97,9 @@ int8_t put_relays(relays_s *testRelays)
     // if (check_if_safe() == -1) return (-1);
     
     saved_flags.inBypass = 0;
-    if (testRelays->all == 0) {
+    if ((testRelays->caps == 0) && 
+        (testRelays->z == 0) && 
+        (testRelays->inds == 0)) {
         saved_flags.inBypass = 1;
     }
 
