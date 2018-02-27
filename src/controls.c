@@ -44,6 +44,18 @@ void toggle_hiloz(void)
     }
 }
 
+void toggle_antenna(void)
+{
+    uint8_t undo = currentRelays.ant;
+
+    currentRelays.ant = !currentRelays.ant;
+    
+    if (put_relays(&currentRelays) == -1)
+    {
+        currentRelays.ant = undo;
+    }
+}
+
 void manual_store(void)
 {
     // uint16_t memAddr = 0;
@@ -159,7 +171,7 @@ void mode_func(void)
         if (funcCounter == 0) break;
         delay_ms(1);
     }
-    blink_arrow_down(3);
+    play_animation(&arrow_down_frames);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -290,7 +302,7 @@ void func_hold(void)
 
 void ant_hold(void)
 {
-    toggle_ant();
+    toggle_antenna();
 
     while(1)
     {

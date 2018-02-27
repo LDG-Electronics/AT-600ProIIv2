@@ -46,30 +46,25 @@ void display_init(void)
     ANT_LED = 0;
     BYPASS_LED = 0;
 
-    show_startup();
+    play_animation(&startup_frames);
 }
 
 /* -------------------------------------------------------------------------- */
 
-void show_startup(void)
+
+
+void play_animation(animation_s *animation)
 {
-    FP_update(0x0101);
-    delay_ms(100);
-    FP_update(0x0202);
-    delay_ms(100);
-    FP_update(0x0404);
-    delay_ms(75);
-    FP_update(0x0808);
-    delay_ms(75);
-    FP_update(0x1010);
-    delay_ms(75);
-    FP_update(0x2020);
-    delay_ms(50);
-    FP_update(0x4040);
-    delay_ms(50);
-    FP_update(0x8080);
-    delay_ms(50);
-    FP_update(0x0000);
+    uint8_t i = 0;
+
+    while(1)
+    {
+        FP_update(animation[i].image);
+        if (animation[i].frame_delay == 0) break;
+        delay_ms(animation[i].frame_delay);
+
+        i++;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
