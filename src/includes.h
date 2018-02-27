@@ -14,6 +14,7 @@
 #include "config.h"
 
 // drivers
+#include "animations.h"
 #include "flags.h"
 #include "buttons.h"
 #include "interrupt.h"
