@@ -16,14 +16,22 @@ void startup(void)
     interrupt_init();
     
     // Driver setup
-    adc_init();
     delay_init();
+    adc_init();
     buttons_init();
     spi_init();
     display_init();
     serial_bitbang_init();
     RF_sensor_init();
     relays_init();
+
+    // Recall previous stuff from memory
+
+    // 
+    play_animation(&left_crawl);
+    update_antenna_led();
+    update_bypass_led();
+    update_power_led();
 
     print_format(BRIGHT, RED);
     print_str_ln("Hello!");

@@ -8,15 +8,9 @@ void main(void)
 
     // while(1)
     // {
-    //     take_SWR_samples();
-    //     // print_cat_ln("Freq:", get_freq());
-    //     delay_ms(100);        
-    // }
+    //     play_animation(&center_crawl);
 
-    // while(1)
-    // {
-    //     print_cat_ln("Freq:", get_freq());
-    //     delay_ms(100);
+    //     delay_ms(500);
     // }
 
     while(1)

@@ -103,7 +103,7 @@ int8_t put_relays(relays_s *testRelays)
         saved_flags.inBypass = 1;
     }
 
-    show_bypass();
+    update_bypass_led();
     
     publish_relays(testRelays->all);
 
@@ -155,7 +155,7 @@ void capacitor_increment(void)
             }
             show_relays();
         } else {
-            blink_upper_bar(4);
+            repeat_animation(&blink_power_bar, 3);
         }
     }
     delay_ms(50);
@@ -173,7 +173,7 @@ void capacitor_decrement(void)
             }
             show_relays();
         } else {
-            blink_upper_bar(4);
+            repeat_animation(&blink_power_bar, 3);
         }
     }
     delay_ms(50);
@@ -191,7 +191,7 @@ void inductor_increment(void)
             }
             show_relays();
         } else {
-            blink_lower_bar(4);
+            repeat_animation(&blink_swr_bar, 3);
         }
     }
     delay_ms(50);
@@ -209,7 +209,7 @@ void inductor_decrement(void)
             }
             show_relays();
         } else {
-            blink_lower_bar(4);
+            repeat_animation(&blink_swr_bar, 3);
         }
     }
     delay_ms(50);

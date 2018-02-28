@@ -22,9 +22,19 @@ void toggle_bypass(void)
         if (put_relays(&bypassRelays) == -1) {
             currentRelays.all = undoRelays.all;
         } else {
-            blink_all(3);
+            repeat_animation(&blink_both_bars, 3);
         }
     }
+}
+
+void toggle_peak(void)
+{
+    saved_flags.PeakOn = !saved_flags.PeakOn;
+}
+
+void toggle_scale(void)
+{
+    saved_flags.Scale100W = !saved_flags.Scale100W;
 }
 
 void toggle_auto(void)
@@ -54,6 +64,8 @@ void toggle_antenna(void)
     {
         currentRelays.ant = undo;
     }
+
+    update_antenna_led();
 }
 
 void manual_store(void)
@@ -122,7 +134,7 @@ void mode_thresh(void)
             show_thresh();
         }        
         
-        if (btn_is_pressed(FUNC) || modeCount == 2000)
+        if (btn_is_pressed(FUNC) || modeCount == 2000) //TODO: magic number
         {
             return;
         }
@@ -136,19 +148,20 @@ void mode_thresh(void)
 void mode_func(void)
 {
     uint8_t buttons = 0;
-    uint16_t funcCounter = FUNC_THRESH; 
+    uint16_t modeCount = FUNC_THRESH; 
 
-    blink_arrow_up(3);
-    
+    play_interruptable_animation(&arrow_up);
+
     while (1)
     {
         if (btn_is_pressed(CUP)) {
-            // no function on this button
+            toggle_peak();
+            show_peak();
             return;
         }
         if (btn_is_pressed(LUP)) {
-            toggle_hiloz();
-            blink_HiLoZ(4);
+            toggle_scale();
+            blink_scale(4);
             return;
         }
         if (btn_is_pressed(CDN)) {
@@ -165,20 +178,25 @@ void mode_func(void)
             manual_store();
             return;
         }
+        if (btn_is_pressed(POWER)) {
+            toggle_hiloz();
+            blink_HiLoZ(4);
+            return;
+        }
 
         if (btn_is_pressed(FUNC)) break;
-        funcCounter--;
-        if (funcCounter == 0) break;
+        modeCount--;
+        if (modeCount == 0) break;
         delay_ms(1);
     }
-    play_animation(&arrow_down_frames);
+    play_animation(&arrow_down);
 }
 
 /* -------------------------------------------------------------------------- */
 
 void cup_hold(void)
 {
-    while(1)
+    while(btn_is_down(CUP))
     {
         capacitor_increment();
         if(btn_is_up(CUP)) break;
@@ -189,7 +207,7 @@ void cup_hold(void)
 
 void cdn_hold(void)
 {
-    while(1)
+    while(btn_is_down(CDN))
     {
         capacitor_decrement();
         if(btn_is_up(CDN)) break;
@@ -200,7 +218,7 @@ void cdn_hold(void)
 
 void lup_hold(void)
 {
-    while(1)
+    while(btn_is_down(LUP))
     {
         inductor_increment();
         if(btn_is_up(LUP)) break;
@@ -211,7 +229,7 @@ void lup_hold(void)
 
 void ldn_hold(void)
 {
-    while(1)
+    while(btn_is_down(LDN))
     {
         inductor_decrement();
         if(btn_is_up(LDN)) break;
@@ -224,55 +242,52 @@ void tune_hold(void)
 {
     uint16_t buttonCount = 0;
 
-    while(1)
+    while(btn_is_down(TUNE))
     {
         if (buttonCount < UINT16_MAX) buttonCount++;
 
         if (buttonCount < BTN_PRESS_DEBOUNCE) {
             // button was not held long enough, do nothing
         } else if (buttonCount < BTN_PRESS_SHORT) {
-            show_frame(TUNE_FRAMES, 1);
+            display_single_frame(&center_crawl, 0);
+            // display_raw_frame(center_crawl[0].image);
         } else if (buttonCount < BTN_PRESS_MEDIUM) {
-            show_frame(TUNE_FRAMES, 3);
+            display_single_frame(&center_crawl, 2);
+            // display_raw_frame(center_crawl[2].image);
         } else if (buttonCount < BTN_PRESS_LONG) {
-            show_frame(TUNE_FRAMES, 4);
+            display_single_frame(&center_crawl, 3);
+            // display_raw_frame(center_crawl[3].image);
         } else if (buttonCount >= BTN_PRESS_LONG) {
-            show_frame(CLEAR, 0);
-        }
-
-        if (btn_is_released(TUNE))
-        {
-            if (buttonCount < BTN_PRESS_DEBOUNCE) {
-                // button was not held long enough, do nothing
-            } else if (buttonCount < BTN_PRESS_SHORT) {
-                short_tune_release();
-                break;
-            } else if (buttonCount < BTN_PRESS_MEDIUM) {
-                medium_tune_release();
-                break;
-            } else if (buttonCount < BTN_PRESS_LONG) {
-                long_tune_release();
-                break;
-            } else if (buttonCount >= BTN_PRESS_LONG) {
-                // button was held for too long, do nothing
-                break;
-            }
+            display_clear();
         }
 
         delay_ms(1);
     }
 
-    show_frame(CLEAR, 0);
+    display_clear();
+
+    if (buttonCount < BTN_PRESS_DEBOUNCE) {
+        // button was not held long enough, do nothing
+    } else if (buttonCount < BTN_PRESS_SHORT) {
+        short_tune_release();
+    } else if (buttonCount < BTN_PRESS_MEDIUM) {
+        medium_tune_release();
+    } else if (buttonCount < BTN_PRESS_LONG) {
+        long_tune_release();
+    } else if (buttonCount >= BTN_PRESS_LONG) {
+        // button was held for too long, do nothing
+    }
 }
 
 void func_hold(void)
 {
     uint8_t FuncHoldProcessed = 0;
 
-    while(1)
+    while(btn_is_down(FUNC))
     {
         if (btn_is_pressed(CUP)) {
             FuncHoldProcessed = 1;
+            show_peak();
             // empty
         }
         if (btn_is_pressed(LUP)) {
@@ -290,11 +305,6 @@ void func_hold(void)
             blink_thresh(4);
             show_thresh();
         }
-
-        if (btn_is_released(FUNC)) {
-            break;
-        }
-        delay_ms(1);
     }
 
     if (FuncHoldProcessed == 0) mode_func();
@@ -303,15 +313,17 @@ void func_hold(void)
 void ant_hold(void)
 {
     toggle_antenna();
+    blink_antenna();
+    update_antenna_led();
 
-    while(1)
+    //! This function is configured for the POWER button instead of ANT
+    // The ANT button is disabled on the dev unit
+    while(btn_is_down(POWER))
     {
         if (btn_is_released(POWER))
         {
             break;
         }
-
-        delay_ms(1);
     }
 }
 
@@ -321,7 +333,7 @@ void power_hold(void)
 
     print_str_ln("power_hold");
 
-    while(1)
+    while(btn_is_down(POWER))
     {
         if (buttonCount < UINT16_MAX) buttonCount++;
 
@@ -333,7 +345,5 @@ void power_hold(void)
         {
             break;
         }
-
-        delay_ms(1);
     }
 }
