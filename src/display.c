@@ -42,9 +42,9 @@ void display_init(void)
     FP_DATA_PIN = 0;
     FP_STROBE_PIN = 0;
 
-    POWER_LED = 0;
-    ANT_LED = 0;
-    BYPASS_LED = 0;
+    POWER_LED_PIN = 0;
+    ANT_LED_PIN = 0;
+    BYPASS_LED_PIN = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -124,10 +124,10 @@ void show_peak(void)
 // THESE HAVE BLOCKING DELAYS
 void blink_antenna(void)
 {
-    if (currentRelays.ant == 1) {
-        play_animation(&left_wave);
-    } else {
+    if (saved_flags.Antenna == 1) {
         play_animation(&right_wave);
+    } else {
+        play_animation(&left_wave);
     }
 }
 
@@ -177,18 +177,18 @@ void blink_thresh(uint8_t blinks)
 // THESE HAVE NO DELAYS
 void update_antenna_led(void)
 {
-    ANT_LED = currentRelays.ant;
+    ANT_LED_PIN = ~saved_flags.Antenna;
 }
 
 void update_bypass_led(void)
 {
-    BYPASS_LED = saved_flags.inBypass;
+    BYPASS_LED_PIN = saved_flags.inBypass;
 }
 
 void update_power_led(void)
 {
     //TODO: implement power-on status flag 
-    // POWER_LED = saved_flags.inBypass;
+    // POWER_LED_PIN = saved_flags.inBypass;
 }
 
 void show_auto(void)
