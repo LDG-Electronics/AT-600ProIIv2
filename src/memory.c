@@ -83,55 +83,55 @@ uint32_t convert_memory_address(uint16_t frequency)
 
 void memory_store(uint32_t address)
 {
-    uint8_t i;
-    uint8_t buffer[64];
-    relays_s readRelays;
+    // uint8_t i;
+    // uint8_t buffer[64];
+    // relays_s readRelays;
     
-    // Make sure we aren't wasting an erase/write cycle [1]
-    readRelays.all = memory_recall(address);
-    readRelays.caps |= 1;
-    if (readRelays.all == currentRelays.all) return;
-    readRelays.caps &= ~1;
-    if (readRelays.all == currentRelays.all) return;
+    // // Make sure we aren't wasting an erase/write cycle [1]
+    // readRelays.all = memory_recall(address);
+    // readRelays.caps |= 1;
+    // if (readRelays.all == currentRelays.all) return;
+    // readRelays.caps &= ~1;
+    // if (readRelays.all == currentRelays.all) return;
     
-    #if LOG_LEVEL_MEMORY >= LOG_EVENTS
-    print_cat("  mem write: ", address);
-    print_relays_ln(&currentRelays);
-    #endif
+    // #if LOG_LEVEL_MEMORY >= LOG_EVENTS
+    // print_cat("  mem write: ", address);
+    // print_relays_ln(&currentRelays);
+    // #endif
     
-    // Read existing block into buffer
-    flash_block_read(address, buffer);
+    // // Read existing block into buffer
+    // flash_block_read(address, buffer);
     
-    // Mask off everything but bottom 6 bits(64 addresses)
-    i = address & 0x003f;
+    // // Mask off everything but bottom 6 bits(64 addresses)
+    // i = address & 0x003f;
     
-    // Pack the caps and hiloz into the low byte, load inds into the high byte
-    buffer[i] = currentRelays.caps;
-    buffer[i] ^= (-currentRelays.z ^ buffer[i]) & 1;
-    buffer[i + 1] = currentRelays.inds;
+    // // Pack the caps and hiloz into the low byte, load inds into the high byte
+    // buffer[i] = currentRelays.caps;
+    // buffer[i] ^= (-currentRelays.z ^ buffer[i]) & 1;
+    // buffer[i + 1] = currentRelays.inds;
     
-    // Write the edited buffer into flash
-    flash_block_erase(address);
-    flash_block_write(address, buffer);
+    // // Write the edited buffer into flash
+    // flash_block_erase(address);
+    // flash_block_write(address, buffer);
 }
 
 uint32_t memory_recall(uint32_t address)
 {
-    relays_s readRelays;
-    readRelays.all = 0;
+    // relays_s readRelays;
+    // readRelays.all = 0;
     
-    readRelays.caps = flash_read(address);
-    readRelays.inds = flash_read(address + 1);
+    // readRelays.caps = flash_read(address);
+    // readRelays.inds = flash_read(address + 1);
     
-    readRelays.z = readRelays.caps & 1;
-    readRelays.caps &= ~1;
+    // readRelays.z = readRelays.caps & 1;
+    // readRelays.caps &= ~1;
     
-    #if LOG_LEVEL_MEMORY >= LOG_INFO
-    print_cat("  mem read: ", address);
-    print_relays_ln(&readRelays);  
-    #endif
+    // #if LOG_LEVEL_MEMORY >= LOG_INFO
+    // print_cat("  mem read: ", address);
+    // print_relays_ln(&readRelays);  
+    // #endif
     
-    return readRelays.all;
+    // return readRelays.all;
 }
 
 
