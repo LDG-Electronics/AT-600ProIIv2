@@ -143,6 +143,22 @@ void log_relays_ln(relays_s *relays)
     log_ln();
 }
 
+void log_current_SWR(void)
+{
+    print_cat("FWD: ", currentRF.forward);
+    print_cat(", REV: ", currentRF.reverse);
+    print_cat(", SWR: ", currentRF.swr);
+}
+
+void log_current_SWR_ln(void)
+{
+    log_current_SWR();
+
+    log_ln();
+}
+
+/* -------------------------------------------------------------------------- */
+
 // Change the format of debug output
 void log_format(enum textAttribute attribute, enum textColor foreground)
 {

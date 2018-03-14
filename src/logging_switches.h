@@ -38,8 +38,13 @@
     #define print_str_ln(val);          log_str_ln(val);
     #define print_cat(val, val2);       log_cat(val, val2);
     #define print_cat_ln(val, val2);    log_cat_ln(val, val2);
+
     #define print_relays(val);          log_relays(val);
     #define print_relays_ln(val);       log_relays_ln(val);
+    
+    #define print_current_SWR();        log_current_SWR();
+    #define print_current_SWR_ln();     log_current_SWR_ln();
+
     #define print_format(val, val2);    log_format(val, val2);
     #define print_format_reset();       log_format_reset();
 #else
@@ -49,11 +54,16 @@
     #define print_str_ln(val);
     #define print_cat(val, val2);
     #define print_cat_ln(val, val2);
+
     #define print_relays(val);
     #define print_relays_ln(val);
+
+    #define print_current_SWR();
+    #define print_current_SWR_ln();   
+
     #define print_format(val, val2);
     #define print_format_reset();
 #endif
 
 
-#endif
+#endif // <- include guard
