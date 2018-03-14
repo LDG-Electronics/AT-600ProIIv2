@@ -21,7 +21,7 @@ void RF_sensor_init(void)
     currentRF.forward = 0;
     currentRF.reverse = 0;
     currentRF.swr = 0;
-    currentRF.frequency = 0xffff;
+    currentRF.frequency = 0;
 }
 
 void SWR_threshold_set(void)
@@ -96,13 +96,14 @@ void SWR_measure(void)
 
 #define NUM_OF_SAMPLES 8
 #define SAMPLE_FACTOR 3
+#define LOW_POWER_THRESHOLD 8
 
 void SWR_average(void)
 {
     uint8_t i = 0;
-    uint16_t tempFWD = 0;
-    uint16_t tempREV = 0;
-    uint16_t tempSWR = 0;
+    uint32_t tempFWD = 0;
+    uint32_t tempREV = 0;
+    uint32_t tempSWR = 0;
 
     #if LOG_LEVEL_RF_SENSOR >= LOG_LABELS
     print_format(BRIGHT, BLUE);
@@ -117,14 +118,14 @@ void SWR_average(void)
     tempFWD >>= SAMPLE_FACTOR;
     tempREV >>= SAMPLE_FACTOR; 
     
-    if (tempFWD > 8) {
-        // tempFWD >>= 2;
-        // tempREV >>= 2; 
+    if (tempFWD > LOW_POWER_THRESHOLD) {
+        // tempFWD >>= 4;
+        // tempREV >>= 4; 
         
         currentRF.forward = tempFWD;
         currentRF.reverse = tempREV; 
         
-        tempREV <<= 8; 
+        tempREV <<= 12; 
         tempSWR = tempREV / tempFWD;
         currentRF.swr = tempSWR;
     } else {
@@ -132,7 +133,6 @@ void SWR_average(void)
         currentRF.reverse = 0;
         currentRF.swr = 0xffff;
     }
-    return;
 }
 
 // abs() is borrowed from the sdcc stdlib
@@ -192,7 +192,8 @@ int8_t SWR_stable_average(void)
 
 void take_SWR_samples(void)
 {
-    uint32_t temp;
+    uint32_t temp = 0;
+    uldiv_t result;
 
     uint16_t prevFWD = currentRF.forward;
     uint16_t prevREV = currentRF.reverse;
@@ -202,18 +203,28 @@ void take_SWR_samples(void)
     uint16_t deltaREV = 0;
     uint16_t deltaSWR = 0;
 
-    SWR_measure();
-    
+    SWR_average();
+
     deltaFWD = abs(currentRF.forward - prevFWD);
     deltaREV = abs(currentRF.reverse - prevREV);
     deltaSWR = abs(currentRF.swr - prevSWR);
 
-    if ((deltaFWD > 0) || (deltaREV > 0) || (deltaSWR > 0))
+    if ((deltaFWD > 5) || (deltaREV > 5) || (deltaSWR > 3))
     {
+        log_current_SWR();
 
-        print_cat("FWD: ", currentRF.forward);
-        print_cat(", REV: ", currentRF.reverse);
-        print_cat(", SWR8: ", currentRF.swr);
+        // result = uldiv(currentRF.reverse << 8, currentRF.forward)
+        // print_cat(", SWR8: ", result.quot);
+        
+        // result = uldiv(currentRF.reverse << 9, currentRF.forward)
+        // print_cat(", SWR9: ", result.quot);
+        
+        // result = uldiv(currentRF.reverse << 10, currentRF.forward)
+        // print_cat(", SWR10: ", result.quot);
+
+        // print_cat("FWD: ", currentRF.forward);
+        // print_cat(", REV: ", currentRF.reverse);
+        // print_cat(", SWR8: ", currentRF.swr);
         
         // temp = (uint32_t)currentRF.reverse << 9;
         // temp = temp / (uint32_t)currentRF.forward;
