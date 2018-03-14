@@ -31,6 +31,13 @@ void interrupt_init(void)
     INTCON0bits.GIE = 1;
 }
 
+/* -------------------------------------------------------------------------- */
+
+void low_priority interrupt interrupt_low(void)
+{
+    // the compiler complains without this empty function
+}
+
 void high_priority interrupt interrupt_high(void)
 {
     // 5ms tick for button polling
