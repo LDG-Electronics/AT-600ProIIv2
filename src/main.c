@@ -16,6 +16,8 @@ void main(void)
     while(1)
     {
         take_SWR_samples();
+
+        store_flags();
     
         // Relay buttons
         if (btn_is_pressed(CUP)) cup_hold();

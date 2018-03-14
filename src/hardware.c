@@ -26,9 +26,12 @@ void startup(void)
     relays_init();
 
     // Recall previous stuff from memory
+    retrieve_flags();
+    if (saved_flags.inBypass == 1) put_relays(&bypassRelays);
+    if (saved_flags.inBypass == 0) put_relays(&currentRelays);
 
     // 
-    play_animation(&left_crawl);
+    play_animation(&right_crawl);
     update_antenna_led();
     update_bypass_led();
     update_power_led();
@@ -39,6 +42,7 @@ void startup(void)
 
 void shutdown(void)
 {
+    //TODO: implement sleep mode/power saving features
     asm("SLEEP");
 }
 
