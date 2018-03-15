@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <float.h>
 
 // device header
 #include "pic18f26k42.h"

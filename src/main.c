@@ -4,7 +4,15 @@
 
 void main(void)
 {
+    // double test = 0.5;
+    // char buffer[17];
+
     startup();
+
+    // sprintf(&buffer, "%f", test);
+
+    // log_str_ln("hello!");
+    // log_str_ln(&buffer);
 
     // while(1)
     // {
@@ -15,7 +23,7 @@ void main(void)
 
     while(1)
     {
-        take_SWR_samples();
+        // take_SWR_samples();
 
         store_flags();
     

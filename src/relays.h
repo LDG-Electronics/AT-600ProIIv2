@@ -3,9 +3,9 @@
 
 /* ************************************************************************** */
 
-/*  YT-1200 Relay Configuration
+/*  AT-600ProII Relay Configuration
 
-    The YT-1200 has 8 Capacitors, 8 Inductors, 1 HiLoZ relay.
+    The AT-600ProII has 7 Capacitors, 7 Inductors, 1 HiLoZ relay.
 */
 
 #define NUM_INDUCTORS 7

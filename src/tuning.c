@@ -228,8 +228,7 @@ void save_new_best_solution(void)
     #if LOG_LEVEL_TUNING >= LOG_INFO
     print_str("\t\t");
     print_relays(&bestSolution);
-    print_cat(" SWR: ", currentRF.swr);
-    print_cat(" F: ", currentRF.forward);
+    print_current_SWR();
     print_ln();
     #endif
 }
@@ -241,19 +240,12 @@ int8_t test_next_solution(uint8_t testMode)
     if (put_relays(&nextSolution) == -1) goto RELAY_ERROR;
     if (SWR_stable_average() != 0) goto LOST_RF;
     
-    // if (BUTTON_PIN == 0) {
-        // print_relays(&nextSolution);
-        // print_cat(" SWR: ", currentRF.swr);
-        // print_cat(" F: ", currentRF.forward);
-        // print_ln();
-        
-        // while(BUTTON_PIN == 0);
-        
-        // SWR_stable_average();
-        // print_cat(" SWR: ", currentRF.swr);
-        // print_cat(" F: ", currentRF.forward);
-        // print_ln();
-    // }
+    // mechanism for pausing while tuning
+    while(btn_is_down(TUNE_BUTTON))
+    {
+        print_current_SWR();
+        print_ln();
+    }
     
     if (testMode == 0) {
         if (currentRF.swr < bestSWR) {
@@ -494,6 +486,9 @@ void coarse_tune(void)
             }
         }
     }
+    #if LOG_LEVEL_TUNING >= LOG_INFO
+    print_solution_count();
+    #endif
 }
 
 /*  bracket_tune() searches a narrow subset of the possible solutions
@@ -515,6 +510,8 @@ void bracket_tune(uint8_t bracket, uint8_t step)
     print_cat(" (", bracket);
     print_cat(", ", step);
     print_str(") ");
+    print_str(" bestSolution:");
+    print_relays(&bestSolution);
     #endif
     
     // Define bracket_area
@@ -558,6 +555,9 @@ void bracket_tune(uint8_t bracket, uint8_t step)
         }
         tryInd += step;
     }
+    #if LOG_LEVEL_TUNING >= LOG_INFO
+    print_solution_count();
+    #endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -594,7 +594,7 @@ void full_tune(void)
     if (tuning_flags.errors != 0) return;
 
     coarse_tune();
-    // bracket_tune(2, 1);
+    bracket_tune(5, 1);
     if (tuning_flags.errors != 0) return;
     
     if (bestSolution.inds < 3) {
@@ -608,11 +608,10 @@ void full_tune(void)
     }
     
     bracket_tune(30, 4);
-    // bracket_tune(2, 1);
+    bracket_tune(5, 2);
     if (tuning_flags.errors != 0) return;
     
     bracket_tune(15, 3);
-    // bracket_tune(2, 1);
     if (tuning_flags.errors != 0) return;
     
     bracket_tune(5, 2);

@@ -193,7 +193,6 @@ int8_t SWR_stable_average(void)
 void take_SWR_samples(void)
 {
     uint32_t temp = 0;
-    uldiv_t result;
 
     uint16_t prevFWD = currentRF.forward;
     uint16_t prevREV = currentRF.reverse;
@@ -212,15 +211,6 @@ void take_SWR_samples(void)
     if ((deltaFWD > 5) || (deltaREV > 5) || (deltaSWR > 3))
     {
         log_current_SWR();
-
-        // result = uldiv(currentRF.reverse << 8, currentRF.forward)
-        // print_cat(", SWR8: ", result.quot);
-        
-        // result = uldiv(currentRF.reverse << 9, currentRF.forward)
-        // print_cat(", SWR9: ", result.quot);
-        
-        // result = uldiv(currentRF.reverse << 10, currentRF.forward)
-        // print_cat(", SWR10: ", result.quot);
 
         // print_cat("FWD: ", currentRF.forward);
         // print_cat(", REV: ", currentRF.reverse);

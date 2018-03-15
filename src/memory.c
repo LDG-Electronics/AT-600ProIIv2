@@ -81,6 +81,8 @@ uint32_t convert_memory_address(uint16_t frequency)
 
 /* -------------------------------------------------------------------------- */
 
+//TODO: These functions are disabled in anticipation of overhaul
+
 void memory_store(uint32_t address)
 {
     // uint8_t i;
@@ -132,6 +134,7 @@ uint32_t memory_recall(uint32_t address)
     // #endif
     
     // return readRelays.all;
+    return 0; // required for function to be disabled
 }
 
 
