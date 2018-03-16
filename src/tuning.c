@@ -556,10 +556,38 @@ void bracket_tune(uint8_t bracket, uint8_t step)
 
 /* -------------------------------------------------------------------------- */
 
-/*  full_tune() 
+/*  full_tune() finds the L and C values that have the lowest SWR
+
+    The full tune has several distinct stages:
+    Stage 1: Setup
+    Stage 2: Hi/Lo Z
+    Stage 3: Coarse Tuning
+    Stage 4: Fine Tuning, via several bracket_tune() calls
+    Stage 5: Cleanup
     
-    TODO: write this summary
-    
+    Stage 1: Setup
+    The tuning process uses several file-scope variables to track the progress
+    through the tuning process. It's vitally important to properly clear the
+    values of all of these variables.
+
+    Stage 2: Hi/Lo Z
+    This stage _attempts_ to find the correct setting of the HiLoZ relay.
+    It's pretty much a cargo cult routine at this point, and only barely works.
+    TODO: do science here to find an accurate and reliable process
+
+    Stage 3: Coarse Tune
+    This stage does a rough survey of the entire solution area, and ideally it
+    will find a solution that is reasonably close to the desired result
+
+    Stage 4: Fine Tuning
+    The stage is a series of bracket tunes designed to walk towards the best
+    answer, starting from the best answer found during Stage 3
+
+    Stage 5: Cleanup
+    This stage involves saving the found result to memory if it's good enough,
+    as well as making sure the final answer gets published to the appropriate
+    places.
+
 */
 void full_tune(void)
 {
@@ -706,12 +734,6 @@ void restore_best_memory(void)
 
 /*  memory_tune() tests saved memories for the current frequency, plus neighbors
     
-    The YT-1200 has 17 relays, so saved memories overwrite the value of the
-    smallest capacitor with the HiLoZ relay in order to fit in two bytes.
-    
-    In order to compensate for the data loss, an additional copy is made of each
-    of the three typical memories (address, address + 2, address - 2), in order
-    to test both positions of the smallest capacitor for each memory.
 */
 void memory_tune(void)
 {

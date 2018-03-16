@@ -3,7 +3,13 @@
 
 /* ************************************************************************** */
 
-// TODO: describe this shit
+/*  tuning_flags is a collection of read-only global status flags
+
+    ! Read-only status is not compiler enforced: do not change these values from
+    ! outside tuning.c
+
+    These flags represent the various ways that a tuning cycle can fail.
+*/
 
 typedef union {
     struct {
