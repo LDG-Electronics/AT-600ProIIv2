@@ -41,6 +41,8 @@ CFLAGS += -O$(BUILD_DIR)/$(PROJECT)
 # TODO: Fix the Vector Table!
 # WARNING: Do not suppress compiler warnings during normal development!
 CFLAGS += --MSGDISABLE=2020:off
+# These set the size of floating point types to the larger 32bit settings.
+CFLAGS += --FLOAT=24 --DOUBLE=32
 
 # Linter(s)
 # LINT1 is cppcheck, a free C/C++ static analysis tool.
