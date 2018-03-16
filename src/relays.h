@@ -32,7 +32,7 @@ typedef union {
         unsigned caps : 7;
         unsigned z : 1;
         unsigned inds : 7;
-        unsigned ant : 1;
+        unsigned ant : 1; // Relay is wired backwards: the off position is ANT2
     };
     struct {
         uint8_t top;
@@ -51,14 +51,5 @@ extern relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
 extern void relays_init(void);
 extern int8_t put_relays(relays_s *testRelays);
-
-// relay increment functions
-extern void relays_delay_reset(void);
-
-extern uint8_t OkToIncDec(void);
-extern void capacitor_increment(void);
-extern void capacitor_decrement(void);
-extern void inductor_increment(void);
-extern void inductor_decrement(void);
 
 #endif

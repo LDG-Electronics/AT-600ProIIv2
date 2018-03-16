@@ -14,8 +14,18 @@ extern void manual_store(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern void short_tune_release(void);
-extern void medium_tune_release(void);
-extern void long_tune_release(void);
+extern void request_memory_tune(void);
+extern void request_full_tune(void);
+
+/* -------------------------------------------------------------------------- */
+
+// relay increment functions
+extern void relays_delay_reset(void);
+
+extern uint8_t OkToIncDec(void);
+extern void capacitor_increment(void);
+extern void capacitor_decrement(void);
+extern void inductor_increment(void);
+extern void inductor_decrement(void);
 
 #endif

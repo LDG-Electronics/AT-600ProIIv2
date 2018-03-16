@@ -24,10 +24,6 @@ relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
 // File
 relays_s oldRelays;
 
-// Allow for slow inc/dec, these are public because they're cleared from the main loop
-uint8_t IncDecCount = 0;
-uint8_t IncDecDelay = 0;
-
 /* ************************************************************************** */
 
 void relays_init(void)
@@ -39,7 +35,9 @@ void relays_init(void)
     currentRelays[1].ant = 1;
     bypassRelays.all = 0;
     preBypassRelays[0].all = 0;
+    preBypassRelays[0].ant = 0;
     preBypassRelays[1].all = 0;
+    preBypassRelays[1].ant = 1;
     oldRelays.all = 0;
 
     // 
@@ -100,17 +98,19 @@ int8_t put_relays(relays_s *testRelays)
 {
     // if (check_if_safe() == -1) return (-1);
     
-    system_flags.inBypass = 0;
+    bypassStatus[system_flags.antenna] = 0;
     if ((testRelays->caps == 0) && 
         (testRelays->z == 0) && 
         (testRelays->inds == 0)) {
             
-        system_flags.inBypass = 1;
+        bypassStatus[system_flags.antenna] = 1;
     }
 
     update_bypass_led();
     
     publish_relays(testRelays->all);
+
+    print_relays_ln(testRelays);
 
     delay_ms(RELAY_COIL_DELAY);
 
@@ -121,101 +121,3 @@ int8_t put_relays(relays_s *testRelays)
 /* -------------------------------------------------------------------------- */
 
 // The next several routines are for dealing with user interface stuff
-void relays_delay_reset(void)
-{
-    IncDecCount = 0;
-    IncDecDelay = 0;
-}
-
-uint8_t OkToIncDec(void)
-{
-    if (IncDecCount < 5)  {
-        if (IncDecDelay == 0) {
-            IncDecDelay++;
-            return (1);
-        } else {
-            IncDecDelay++;
-        }
-        
-        if (IncDecDelay > 5)
-        {
-            IncDecDelay = 0;
-            IncDecCount++;
-        }
-        return(0);
-    } else {
-        return (1);
-    }
-}
-
-void capacitor_increment(void)
-{
-    if (OkToIncDec())
-    {
-        if (currentRelays[currentAntenna].caps < MAX_CAPACITORS) {
-            currentRelays[currentAntenna].caps++;
-            if (put_relays(&currentRelays[currentAntenna]) == -1)
-            {
-                currentRelays[currentAntenna].caps--;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_power_bar, 3);
-        }
-    }
-    delay_ms(50);
-}
-
-void capacitor_decrement(void)
-{
-    if (OkToIncDec())
-    {
-        if (currentRelays[currentAntenna].caps > MIN_CAPACITORS) {
-            currentRelays[currentAntenna].caps--;
-            if (put_relays(&currentRelays[currentAntenna]) == -1)
-            {
-                currentRelays[currentAntenna].caps++;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_power_bar, 3);
-        }
-    }
-    delay_ms(50);
-}
-
-void inductor_increment(void)
-{
-    if (OkToIncDec())
-    {
-        if (currentRelays[currentAntenna].inds < MAX_INDUCTORS) {
-            currentRelays[currentAntenna].inds++;
-            if (put_relays(&currentRelays[currentAntenna]) == -1)
-            {
-                currentRelays[currentAntenna].inds--;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_swr_bar, 3);
-        }
-    }
-    delay_ms(50);
-}
-
-void inductor_decrement(void)
-{
-    if (OkToIncDec())
-    {
-        if (currentRelays[currentAntenna].inds > MIN_INDUCTORS) {
-            currentRelays[currentAntenna].inds--;
-            if (put_relays(&currentRelays[currentAntenna]) == -1)
-            {
-                currentRelays[currentAntenna].inds++;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_swr_bar, 3);
-        }
-    }
-    delay_ms(50);
-}

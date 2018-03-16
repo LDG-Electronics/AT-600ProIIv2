@@ -113,4 +113,106 @@ void long_tune_release(void)
     full_tune();
 
     tuning_followup_animation();
+}   tuning_followup_animation();
+}
+
+/* -------------------------------------------------------------------------- */
+
+void relays_delay_reset(void)
+{
+    IncDecCount = 0;
+    IncDecDelay = 0;
+}
+
+uint8_t OkToIncDec(void)
+{
+    if (IncDecCount < 5)  {
+        if (IncDecDelay == 0) {
+            IncDecDelay++;
+            return (1);
+        } else {
+            IncDecDelay++;
+        }
+        
+        if (IncDecDelay > 5)
+        {
+            IncDecDelay = 0;
+            IncDecCount++;
+        }
+        return(0);
+    } else {
+        return (1);
+    }
+}
+
+void capacitor_increment(void)
+{
+    if (OkToIncDec())
+    {
+        if (currentRelays[system_flags.antenna].caps < MAX_CAPACITORS) {
+            currentRelays[system_flags.antenna].caps++;
+            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+            {
+                currentRelays[system_flags.antenna].caps--;
+            }
+            show_relays();
+        } else {
+            repeat_animation(&blink_power_bar, 3);
+        }
+    }
+    delay_ms(50);
+}
+
+void capacitor_decrement(void)
+{
+    if (OkToIncDec())
+    {
+        if (currentRelays[system_flags.antenna].caps > MIN_CAPACITORS) {
+            currentRelays[system_flags.antenna].caps--;
+            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+            {
+                currentRelays[system_flags.antenna].caps++;
+            }
+            show_relays();
+        } else {
+            repeat_animation(&blink_power_bar, 3);
+        }
+    }
+    delay_ms(50);
+}
+
+void inductor_increment(void)
+{
+    if (OkToIncDec())
+    {
+        if (currentRelays[system_flags.antenna].inds < MAX_INDUCTORS) {
+            currentRelays[system_flags.antenna].inds++;
+            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+            {
+                currentRelays[system_flags.antenna].inds--;
+            }
+            show_relays();
+        } else {
+            repeat_animation(&blink_swr_bar, 3);
+        }
+    }
+    delay_ms(50);
+}
+
+void inductor_decrement(void)
+{
+    if (OkToIncDec())
+    {
+        if (currentRelays[system_flags.antenna].inds > MIN_INDUCTORS) {
+            currentRelays[system_flags.antenna].inds--;
+            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+            {
+                currentRelays[system_flags.antenna].inds++;
+            }
+            show_relays();
+        } else {
+            repeat_animation(&blink_swr_bar, 3);
+        }
+    }
+    delay_ms(50);
 }
