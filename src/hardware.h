@@ -1,5 +1,5 @@
-#ifndef _HARDWARE_H_
-#define	_HARDWARE_H_
+#ifndef HARDWARE_H
+#define	HARDWARE_H
 
 /* ************************************************************************** */
 
@@ -63,5 +63,5 @@ extern void processor_init(void);
 extern void startup(void);
 extern void shutdown(void);
 
-#endif	/* _HARDWARE_H_ */
+#endif	/* HARDWARE_H */
 

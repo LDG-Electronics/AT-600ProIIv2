@@ -61,4 +61,4 @@ extern void capacitor_decrement(void);
 extern void inductor_increment(void);
 extern void inductor_decrement(void);
 
-#endif /* _RELAYS_H_ */
+#endif

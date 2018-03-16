@@ -72,4 +72,4 @@
 #endif
 
 
-#endif /* _LOGGING_SWITCHES_H_ */
+#endif // <- include guard

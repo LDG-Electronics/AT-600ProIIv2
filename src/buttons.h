@@ -118,4 +118,4 @@ extern uint8_t btn_is_up(buttonName_t buttonName);
         }
     }
 */
-#endif /* _BUTTONS_H_ */
+#endif

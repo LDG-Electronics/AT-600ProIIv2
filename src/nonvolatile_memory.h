@@ -84,4 +84,4 @@ void flash_block_erase(uint32_t address);
 void flash_block_write(uint32_t address, uint8_t *buffer);
 
 
-#endif /* _NONVOLATILE_MEMORY_H_ */
+#endif

@@ -6,4 +6,4 @@
 // Interrupt control functions
 extern void interrupt_init(void);
 
-#endif /* _INTERRUPT_H_ */
+#endif

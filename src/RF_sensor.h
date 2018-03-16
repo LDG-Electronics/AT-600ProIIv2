@@ -1,5 +1,5 @@
-#ifndef _RF_SENSOR_H_
-#define	_RF_SENSOR_H_
+#ifndef RF_SENSOR_H
+#define	RF_SENSOR_H
 
 /* ************************************************************************** */
 
@@ -73,4 +73,4 @@ extern int8_t SWR_stable_average(void);
 // Tests
 void take_SWR_samples(void);
 
-#endif /* _RF_SENSOR_H_ */
+#endif

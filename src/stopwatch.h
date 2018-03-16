@@ -46,4 +46,4 @@ extern void ms_stopwatch_end(void);
 // Test function used to calibrate the stopwatch
 extern void stopwatch_and_delay_test(void);
 
-#endif /* _STOPWATCH_H_ */
+#endif

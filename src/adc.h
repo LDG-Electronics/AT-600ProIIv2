@@ -21,5 +21,5 @@ void adc_init(void);
 // Actually measuring shit
 uint16_t adc_measure(uint8_t channel);
 
-#endif /* _ADC_H_ */
+#endif
 

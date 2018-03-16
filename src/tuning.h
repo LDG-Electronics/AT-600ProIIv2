@@ -31,5 +31,5 @@ extern void memory_tune (void);
 
 extern void tuning_followup_animation(void);
 
-#endif /* _TUNING_H_ */
+#endif
 

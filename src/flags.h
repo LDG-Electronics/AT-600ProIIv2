@@ -1,5 +1,5 @@
-#ifndef _FLAGS_H_
-#define _FLAGS_H_
+#ifndef _PARAMETERS_H_
+#define _PARAMETERS_H_
 
 /* ************************************************************************** */
 
@@ -42,4 +42,4 @@ extern bit currentAntenna;
 extern void save_flags(void);
 extern void load_flags(void);
 
-#endif /* _FLAGS_H_ */
+#endif

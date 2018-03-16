@@ -21,4 +21,4 @@ extern void func_hold(void);
 extern void ant_hold(void);
 extern void power_hold(void);
 
-#endif /* _CONTROLS_H_ */
+#endif
