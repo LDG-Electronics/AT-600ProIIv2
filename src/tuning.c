@@ -152,7 +152,7 @@ uint8_t get_c_limit_max(void)
 void clear_best_solution(void)
 {
     bestSolution.all = 0;
-    bestSWR = 0xffff;
+    bestSWR = DBL_MAX;
     bestFWD = 0;
 }
 
@@ -163,17 +163,17 @@ void clear_all_solutions(void)
     clear_best_solution();
     
     // Clear bypass
-    bypassSWR = 0xffff;
+    bypassSWR = DBL_MAX;
     bypassFWD = 0;
     
     // Clear hiz
     hizSolution.all = 0;
-    hizSWR = 0xffff;
+    hizSWR = DBL_MAX;
     hizFWD = 0;
     
     // Clear loz
     lozSolution.all = 0;
-    lozSWR = 0xffff;
+    lozSWR = DBL_MAX;
     lozFWD = 0;
     
     solutionCount = 0;
@@ -681,7 +681,7 @@ void prepare_memories(void)
     
     address = convert_memory_address(currentRF.frequency);
     
-    bestMemorySWR = 0xffff;
+    bestMemorySWR = DBL_MAX;
     bestMemory.all = 0;
     
     // Read the memory and its neighbors
