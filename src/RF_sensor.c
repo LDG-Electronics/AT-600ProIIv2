@@ -61,6 +61,12 @@ uint16_t get_freq(void)
 
 /* -------------------------------------------------------------------------- */
 
+/*  SWR_measure() calculates the SWR from a single sample
+    
+    This should probably only be used during development and debugging.
+    It doesn't make any effort to clean or smooth the results, and therefore
+    shouldn't be used to make any real decisions.
+*/
 void SWR_measure(void)
 {
     uint16_t tempFWD = adc_measure(0);
@@ -89,9 +95,8 @@ void SWR_measure(void)
 void SWR_average(void)
 {
     uint8_t i = 0;
-    uint32_t tempFWD = 0;
-    uint32_t tempREV = 0;
-    uint32_t tempSWR = 0;
+    uint16_t tempFWD = 0;
+    uint16_t tempREV = 0;
 
     #if LOG_LEVEL_RF_SENSOR >= LOG_LABELS
     print_format(BRIGHT, BLUE);
@@ -103,13 +108,7 @@ void SWR_average(void)
         tempFWD += adc_measure(0);
         tempREV += adc_measure(1);
     }
-    // tempFWD >>= SAMPLE_FACTOR;
-    // tempREV >>= SAMPLE_FACTOR; 
-    
     if (tempFWD > LOW_POWER_THRESHOLD) {
-        // tempFWD >>= 4;
-        // tempREV >>= 4; 
-        
         currentRF.forward = tempFWD;
         currentRF.reverse = tempREV; 
         currentRF.swr = (double)tempREV/(double)tempFWD;
@@ -169,25 +168,32 @@ int8_t SWR_stable_average(void)
 
 /* ************************************************************************** */
 
-void take_SWR_samples(void)
+// tests
+
+/* print_SWR_samples()
+
+    This function takes an SWR sample and prints it if it's different enough 
+    from the previous samples.
+*/
+void print_SWR_samples(uint8_t delta)
 {
     uint32_t temp = 0;
 
     uint16_t prevFWD = currentRF.forward;
     uint16_t prevREV = currentRF.reverse;
-    double prevSWR = currentRF.swr;
+    // double prevSWR = currentRF.swr;
     
     uint16_t deltaFWD = 0;
     uint16_t deltaREV = 0;
-    double deltaSWR = 0;
+    // double deltaSWR = 0;
 
     SWR_average();
 
     deltaFWD = abs(currentRF.forward - prevFWD);
     deltaREV = abs(currentRF.reverse - prevREV);
-    deltaSWR = fabs(currentRF.swr - prevSWR);
+    // deltaSWR = fabs(currentRF.swr - prevSWR);
 
-    if ((deltaFWD > 5) || (deltaREV > 5) || (deltaSWR > 3))
+    if ((deltaFWD > delta) || (deltaREV > delta))
     {
         log_current_SWR();
         
