@@ -40,6 +40,17 @@ void low_priority interrupt interrupt_low(void)
 
 void high_priority interrupt interrupt_high(void)
 {
+    if (TIMER0_IF == 1)
+    {
+        TIMER0_ON = 0;
+        TIMER0_IF = 0;
+        TMR0H = 0x00;
+        TMR0L = 0x00;
+
+        stopwatchCount += 0xffff;
+        TIMER0_ON = 1;
+    }
+
     // 5ms tick for button polling
     if (TIMER5_IF == 1)
     {

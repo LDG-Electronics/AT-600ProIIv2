@@ -33,6 +33,7 @@
 #include "memory.h"
 #include "tuning.h"
 #include "nonvolatile_memory.h"
+#include "stopwatch.h"
 
 // modules
 #include "display.h"
