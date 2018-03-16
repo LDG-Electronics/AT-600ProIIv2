@@ -12,7 +12,7 @@
 */
 
 // Relay delay constants, in 1 ms intervals
-#define RELAY_COIL_DELAY    6
+#define RELAY_COIL_DELAY    15
 
 /* ************************************************************************** */
 
