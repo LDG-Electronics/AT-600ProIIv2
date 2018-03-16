@@ -1,5 +1,5 @@
-#ifndef _CONTROLS_H_
-#define _CONTROLS_H_
+#ifndef _MENUS_H_
+#define _MENUS_H_
 
 /* ************************************************************************** */
 
