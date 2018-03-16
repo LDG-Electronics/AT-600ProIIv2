@@ -143,19 +143,17 @@ void log_catf_ln(const char *string, double value)
 // Prints the contents of relay struct as "(caps, inds, z)"
 void log_relays(relays_s *relays)
 {
-    log_cat("(", relays->caps);
-    log_cat(", ", relays->inds);
-    log_cat(", ", relays->z);
+    log_cat("(C", relays->caps);
+    log_cat(", L", relays->inds);
+    log_cat(", Z", relays->z);
+    log_cat(", A", relays->ant);
     log_str(")"); 
 }
 
 // Same as log_relays(), but also appends a CRLF.
 void log_relays_ln(relays_s *relays)
 {
-    log_cat("(", relays->caps);
-    log_cat(", ", relays->inds);
-    log_cat(", ", relays->z);
-    log_str(")"); 
+    log_relays(relays);
     
     log_ln();
 }
