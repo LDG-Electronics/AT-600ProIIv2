@@ -36,13 +36,16 @@ CFLAGS = -q
 CFLAGS += --OBJDIR=$(OBJ_DIR) 
 # -O tells xc8 where to put output files(.hex, .map, .cof, .as, etc)
 CFLAGS += -O$(BUILD_DIR)/$(PROJECT)
-# This flag suppresses about 80 warning messages complaining that the Vector Tables
-# for the interrupt handler are empty.
-# TODO: Fix the Vector Table!
-# WARNING: Do not suppress compiler warnings during normal development!
-CFLAGS += --MSGDISABLE=2020:off
 # These set the size of floating point types to the larger 32bit settings.
 CFLAGS += --FLOAT=24 --DOUBLE=32
+
+# TODO: Fix the Vector Table!
+# This flag suppresses about 80 warning messages complaining that the Vector Tables
+# for the interrupt handler are empty.
+# WARNING: Do not suppress compiler warnings during normal development!
+CFLAGS += --MSGDISABLE=2020:off
+# Program each unassigned vector with the address of a RESET instruction
+CFLAGS += --UNDEFINTS=RESET
 
 # Linter(s)
 # LINT1 is cppcheck, a free C/C++ static analysis tool.

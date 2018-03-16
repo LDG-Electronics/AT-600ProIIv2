@@ -33,6 +33,54 @@ void interrupt_init(void)
 
 /* -------------------------------------------------------------------------- */
 
+void __interrupt(irq(TMR0),base(IVT1_BASE_ADDRESS),high_priority) TMR1_ISR(void)
+{
+    TIMER0_ON = 0; // stop timer
+    TIMER0_IF = 0; // clear flag
+
+    stopwatchCount += 0xffff;
+    TIMER0_ON = 1; // restart timer
+}
+
+void __interrupt(irq(TMR5),base(IVT1_BASE_ADDRESS),high_priority) TMR5_ISR(void)
+{
+    TIMER5_ON = 0;  // stop timer
+    TIMER5_IF = 0;  // clear flag
+    TMR5H = 0x63;   // reset timer
+    TMR5L = 0xC0;
+
+    // Grab current state of every button
+    buttons[TUNE] <<= 1;
+    buttons[TUNE] |= TUNE_BUTTON;
+    
+    buttons[FUNC] <<= 1;
+    buttons[FUNC] |= FUNC_BUTTON;
+    
+    buttons[CUP] <<= 1;
+    buttons[CUP] |= CUP_BUTTON;
+    
+    buttons[CDN] <<= 1;
+    buttons[CDN] |= CDN_BUTTON;
+    
+    buttons[LUP] <<= 1;
+    buttons[LUP] |= LUP_BUTTON;
+    
+    buttons[LDN] <<= 1;
+    buttons[LDN] |= LDN_BUTTON;
+    
+    buttons[ANT] <<= 1;
+    buttons[ANT] |= ANT_BUTTON;
+
+    buttons[POWER] <<= 1;
+    buttons[POWER] |= POWER_BUTTON;
+    
+    TIMER5_ON = 1; // restart timer
+}
+
+/* -------------------------------------------------------------------------- */
+
+/*
+
 void low_priority interrupt interrupt_low(void)
 {
     // the compiler complains without this empty function
@@ -89,3 +137,5 @@ void high_priority interrupt interrupt_high(void)
 
     return;
 }
+
+ */
