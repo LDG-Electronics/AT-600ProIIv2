@@ -39,7 +39,7 @@ typedef union {
     struct {
         uint16_t forward;
         uint16_t reverse;
-        uint16_t swr;
+        double swr;
         uint16_t frequency;
     };
 } RF_power_s;

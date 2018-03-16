@@ -34,6 +34,7 @@ typedef union {
 /* -------------------------------------------------------------------------- */
 
 tuning_flags_s tuning_flags; 
+int status;
 
 // Indexes used by coarse_tune()
 search_area_t search_area;
@@ -44,21 +45,21 @@ relays_s nextSolution;
 
 // The best tuning answer at any given time
 relays_s bestSolution;
-uint16_t bestSWR;
+double bestSWR;
 uint16_t bestFWD;
 
 // 
-uint16_t bypassSWR;
+double bypassSWR;
 uint16_t bypassFWD;
 
 // 
 relays_s hizSolution;
-uint16_t hizSWR;
+double hizSWR;
 uint16_t hizFWD;
 
 //
 relays_s lozSolution;
-uint16_t lozSWR;
+double lozSWR;
 uint16_t lozFWD;
 
 // 
@@ -240,13 +241,6 @@ int8_t test_next_solution(uint8_t testMode)
     if (put_relays(&nextSolution) == -1) goto RELAY_ERROR;
     if (SWR_stable_average() != 0) goto LOST_RF;
     
-    // mechanism for pausing while tuning
-    while(btn_is_down(TUNE_BUTTON))
-    {
-        print_current_SWR();
-        print_ln();
-    }
-    
     if (testMode == 0) {
         if (currentRF.swr < bestSWR) {
             save_new_best_solution();
@@ -319,7 +313,7 @@ void test_bypass(void)
     print_format(BRIGHT, WHITE);
     print_str("\t\t");
     print_relays(&bypassRelays);
-    print_cat(" SWR: ", bypassSWR);
+    print_catf(" SWR: ", bypassSWR);
     print_cat(" F: ", bypassFWD);
     print_ln();
     #endif
@@ -348,7 +342,7 @@ void test_loz(void)
     print_format(BRIGHT, WHITE);
     print_str("\t\t");
     print_relays(&lozSolution);
-    print_cat(" SWR: ", lozSWR);
+    print_catf(" SWR: ", lozSWR);
     print_cat(" F: ", lozFWD);
     print_ln();
     #endif
@@ -377,7 +371,7 @@ void test_hiz(void)
     print_format(BRIGHT, WHITE);
     print_str("\t");
     print_relays(&hizSolution);
-    print_cat(" SWR: ", hizSWR);
+    print_catf(" SWR: ", hizSWR);
     print_cat(" F: ", hizFWD);
     print_ln();
     #endif
@@ -414,7 +408,7 @@ void restore_best_z(void)
     print_str("best z: ");
     print_str("\t");
     print_relays(&bestSolution);
-    print_cat(" SWR: ", bestSWR);
+    print_catf(" SWR: ", bestSWR);
     print_cat(" F: ", bestFWD);
     print_ln();
     #endif
@@ -458,7 +452,7 @@ void hiloz_tune(void)
 void coarse_tune(void)
 {
     search_index_t current_index;
-    uint16_t earlyExitSWR = (bypassSWR >> 1);
+    double earlyExitSWR = (bypassSWR / 2);
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
     print_format(BRIGHT, BLUE);
@@ -502,7 +496,7 @@ void bracket_tune(uint8_t bracket, uint8_t step)
     
     search_area_t bracket_area;
     
-    uint16_t earlyExitSWR = (bestSWR >> 1);
+    double earlyExitSWR = (bestSWR / 2);
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
     print_format(BRIGHT, BLUE);
@@ -594,7 +588,7 @@ void full_tune(void)
     if (tuning_flags.errors != 0) return;
 
     coarse_tune();
-    bracket_tune(5, 1);
+    bracket_tune(5, 2);
     if (tuning_flags.errors != 0) return;
     
     if (bestSolution.inds < 3) {
@@ -633,7 +627,7 @@ void full_tune(void)
         #if LOG_LEVEL_TUNING >= LOG_EVENTS
         print_str("  Saving: ");
         print_relays(&currentRelays);
-        print_cat_ln(" with SWR: ", bestSWR);
+        print_catf_ln(" with SWR: ", bestSWR);
         #endif
         
         address = convert_memory_address(currentRF.frequency);
@@ -649,7 +643,7 @@ void full_tune(void)
 #define MEMORY_GAP 2
 #define NUM_OF_MEMORIES 6
 
-uint16_t bestMemorySWR;
+double bestMemorySWR;
 relays_s bestMemory;
 relays_s memoryBuffer[NUM_OF_MEMORIES];
 
@@ -690,7 +684,7 @@ void test_memory(relays_s* memory)
     SWR_stable_average();
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_cat("  SWR: ", currentRF.swr);
+    print_catf(" SWR: ", currentRF.swr);
     print_relays_ln(memory);
     #endif
     
@@ -753,7 +747,7 @@ void memory_tune(void)
     if (bestMemorySWR < SWR1_7)
     {
         #if LOG_LEVEL_TUNING >= LOG_EVENTS
-        print_cat("  found memory: ", currentRF.swr);
+        print_catf("  found memory: ", currentRF.swr);
         print_relays_ln(&currentRelays);
         #endif
         
@@ -791,14 +785,14 @@ void tuning_followup_animation(void)
             print_str_ln("lostRF");
             #endif
             
-            // led_blink(4, MEDIUM);
+            repeat_animation(&blink_both_bars, 2);
             
         } else if (tuning_flags.noRF == 1) {
             #if LOG_LEVEL_TUNING >= LOG_ERROR
             print_str_ln("noRF");
             #endif
             
-            // led_blink(5, MEDIUM);
+            repeat_animation(&blink_both_bars, 1);
             
         } else if (tuning_flags.relayError == 1) {
             #if LOG_LEVEL_TUNING >= LOG_ERROR
@@ -813,7 +807,7 @@ void tuning_followup_animation(void)
             print_str_ln("good match");
             #endif
             
-            // led_blink(1, MEDIUM);
+            play_animation(&center_crawl);
             
         } else if (bestSWR < SWR3_5) {
             #if LOG_LEVEL_TUNING >= LOG_DETAILS

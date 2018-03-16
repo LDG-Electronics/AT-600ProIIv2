@@ -115,8 +115,8 @@ void SWR_average(void)
         tempFWD += adc_measure(0);
         tempREV += adc_measure(1);
     }
-    tempFWD >>= SAMPLE_FACTOR;
-    tempREV >>= SAMPLE_FACTOR; 
+    // tempFWD >>= SAMPLE_FACTOR;
+    // tempREV >>= SAMPLE_FACTOR; 
     
     if (tempFWD > LOW_POWER_THRESHOLD) {
         // tempFWD >>= 4;
@@ -124,14 +124,11 @@ void SWR_average(void)
         
         currentRF.forward = tempFWD;
         currentRF.reverse = tempREV; 
-        
-        tempREV <<= 12; 
-        tempSWR = tempREV / tempFWD;
-        currentRF.swr = tempSWR;
+        currentRF.swr = (double)tempREV/(double)tempFWD;
     } else {
         currentRF.forward = 0;
         currentRF.reverse = 0;
-        currentRF.swr = 0xffff;
+        currentRF.swr = 0;
     }
 }
 
@@ -148,11 +145,11 @@ int8_t SWR_stable_average(void)
 {
     uint16_t ADcount = 0;
 
-    int16_t currentFWD;
-    int16_t previousFWD;
+    int32_t currentFWD;
+    int32_t previousFWD;
 
-    int16_t deltaFWD = 0;
-    int16_t deltaCompare = 0;
+    int32_t deltaFWD = 0;
+    int32_t deltaCompare = 0;
 
     #if LOG_LEVEL_RF_SENSOR >= LOG_LABELS
     print_format(BRIGHT, BLUE);
@@ -196,17 +193,17 @@ void take_SWR_samples(void)
 
     uint16_t prevFWD = currentRF.forward;
     uint16_t prevREV = currentRF.reverse;
-    uint16_t prevSWR = currentRF.swr;
+    double prevSWR = currentRF.swr;
     
     uint16_t deltaFWD = 0;
     uint16_t deltaREV = 0;
-    uint16_t deltaSWR = 0;
+    double deltaSWR = 0;
 
     SWR_average();
 
     deltaFWD = abs(currentRF.forward - prevFWD);
     deltaREV = abs(currentRF.reverse - prevREV);
-    deltaSWR = abs(currentRF.swr - prevSWR);
+    deltaSWR = fabs(currentRF.swr - prevSWR);
 
     if ((deltaFWD > 5) || (deltaREV > 5) || (deltaSWR > 3))
     {
