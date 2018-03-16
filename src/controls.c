@@ -7,7 +7,7 @@ void toggle_bypass(void)
     relays_s undoRelays;
     undoRelays.all = currentRelays.all;
 
-    if (saved_flags.inBypass == 1) {
+    if (system_flags.inBypass == 1) {
         currentRelays.all = preBypassRelays.all;
 
         if (put_relays(&currentRelays) == -1) {
@@ -29,17 +29,17 @@ void toggle_bypass(void)
 
 void toggle_peak(void)
 {
-    saved_flags.PeakOn = !saved_flags.PeakOn;
+    system_flags.PeakOn = !system_flags.PeakOn;
 }
 
 void toggle_scale(void)
 {
-    saved_flags.Scale100W = !saved_flags.Scale100W;
+    system_flags.Scale100W = !system_flags.Scale100W;
 }
 
 void toggle_auto(void)
 {
-    saved_flags.AutoMode = !saved_flags.AutoMode;
+    system_flags.AutoMode = !system_flags.AutoMode;
 }
 
 void toggle_hiloz(void)
@@ -64,6 +64,8 @@ void toggle_antenna(void)
     {
         currentRelays.ant = undo;
     }
+
+    system_flags.Antenna = currentRelays.ant;
 
     update_antenna_led();
 }
@@ -271,7 +273,8 @@ void tune_hold(void)
     } else if (buttonCount < BTN_PRESS_SHORT) {
         short_tune_release();
     } else if (buttonCount < BTN_PRESS_MEDIUM) {
-        medium_tune_release();
+        // medium_tune_release();
+        long_tune_release();
     } else if (buttonCount < BTN_PRESS_LONG) {
         long_tune_release();
     } else if (buttonCount >= BTN_PRESS_LONG) {

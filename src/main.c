@@ -25,7 +25,7 @@ void main(void)
     {
         // take_SWR_samples();
 
-        store_flags();
+        save_flags();
     
         // Relay buttons
         if (btn_is_pressed(CUP)) cup_hold();

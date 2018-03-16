@@ -26,9 +26,14 @@ void startup(void)
     relays_init();
 
     // Recall previous stuff from memory
-    retrieve_flags();
-    if (saved_flags.inBypass == 1) put_relays(&bypassRelays);
-    if (saved_flags.inBypass == 0) put_relays(&currentRelays);
+    load_flags();
+    if (system_flags.inBypass == 1) put_relays(&bypassRelays);
+    if (system_flags.inBypass == 0) put_relays(&currentRelays);
+
+    // This delay is needed during dev because the TUNE button is shared with a
+    // programming pin
+    // TODO: reassess this during verification
+    delay_ms(250);
 
     // initialize the display
     play_interruptable_animation(&right_crawl);

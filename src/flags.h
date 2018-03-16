@@ -12,7 +12,7 @@
     Something something translation units, something something object linking.
 */
 
-/*  saved_flags_s contains information that should be retained after cycling the
+/*  system_flags_s contains information that should be retained after cycling the
     power.  The contents are saved to EEPROM whenever a setting is changed, and
     are read from EEPROM during boot.
     
@@ -28,16 +28,18 @@ typedef union {
         unsigned Scale100W : 1; // 
     };
     uint8_t flags;
-} saved_flags_s;
+} system_flags_s;
 
 /* ************************************************************************** */
 
-// Global structs 
-extern saved_flags_s saved_flags;
+// Global flags 
+extern system_flags_s system_flags;
+
+extern bit selectedAntenna;
 
 /* ************************************************************************** */
 
-extern void store_flags(void);
-extern void retrieve_flags(void);
+extern void save_flags(void);
+extern void load_flags(void);
 
 #endif

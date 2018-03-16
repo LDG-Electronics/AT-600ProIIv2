@@ -2,11 +2,13 @@
 
 /* ************************************************************************** */
 
-saved_flags_s saved_flags;
+system_flags_s system_flags;
+
+bit selectedAntenna;
 
 /* ************************************************************************** */
 
-void retrieve_flags(void)
+void load_flags(void)
 {
     uint8_t i = 0;
     uint8_t j = 0;
@@ -14,7 +16,7 @@ void retrieve_flags(void)
     uint8_t valid = 0;
     
     #if LOG_LEVEL_FLAGS >= LOG_LABELS
-    print_str_ln("retrieve_flags");
+    print_str_ln("load_flags");
     #endif
     
     while (i < 250)
@@ -35,30 +37,30 @@ void retrieve_flags(void)
         swrThreshIndex = (internal_eeprom_read(i) & 0x07);
         currentRelays.top = internal_eeprom_read(i + 1);
         currentRelays.bot = internal_eeprom_read(i + 2);
-        saved_flags.flags = internal_eeprom_read(i + 3);
+        system_flags.flags = internal_eeprom_read(i + 3);
     } else {
         #if LOG_LEVEL_FLAGS >= LOG_INFO
         print_str_ln("  no valid record");
         #endif
         
         currentRelays.all = 0;
-        saved_flags.inBypass = 1;
-        saved_flags.AutoMode = 1;
+        system_flags.inBypass = 1;
+        system_flags.AutoMode = 1;
         swrThreshIndex = 0;
     }
     SWR_threshold_set();
 }
 
-void store_flags(void)
+void save_flags(void)
 {
     uint8_t i = 0;
 
     uint8_t tempThreshIndex = 0; 
     relays_s tempRelays;
-    saved_flags_s temp_flags;
+    system_flags_s temp_flags;
     
     #if LOG_LEVEL_FLAGS >= LOG_LABELS
-    print_str_ln("store_flags");
+    print_str_ln("save_flags");
     #endif
     
     while (i < 250)
@@ -75,7 +77,7 @@ void store_flags(void)
     if ((tempThreshIndex != swrThreshIndex) ||
         (tempRelays.top != currentRelays.top) ||
         (tempRelays.bot != currentRelays.bot) ||
-        (temp_flags.flags != saved_flags.flags))
+        (temp_flags.flags != system_flags.flags))
     {
         #if LOG_LEVEL_FLAGS >= LOG_INFO
         print_str_ln("  saving records");
@@ -89,6 +91,6 @@ void store_flags(void)
         internal_eeprom_write(i, (swrThreshIndex & 0x7f));
         internal_eeprom_write(i + 1, currentRelays.top);
         internal_eeprom_write(i + 2, currentRelays.bot);
-        internal_eeprom_write(i + 3, saved_flags.flags);
+        internal_eeprom_write(i + 3, system_flags.flags);
     }
 }
