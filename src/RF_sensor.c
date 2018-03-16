@@ -80,8 +80,6 @@ void SWR_measure(void)
     Possible future improvements include fixed-point math or one of several
     techniques including Exponential Moving Average or an Infinite or Finite
     Impulse Response (IIR) filter
-
-    TODO: new processor has 12 bit ADC instead of 10 bit, all math needs rewritten
 */
 
 #define NUM_OF_SAMPLES 8
@@ -99,7 +97,7 @@ void SWR_average(void)
     print_format(BRIGHT, BLUE);
     print_str_ln("\tSWR_average");
     #endif
-    
+
     for (i = 0; i < NUM_OF_SAMPLES; i++)
     {
         tempFWD += adc_measure(0);
@@ -192,18 +190,6 @@ void take_SWR_samples(void)
     if ((deltaFWD > 5) || (deltaREV > 5) || (deltaSWR > 3))
     {
         log_current_SWR();
-
-        // print_cat("FWD: ", currentRF.forward);
-        // print_cat(", REV: ", currentRF.reverse);
-        // print_cat(", SWR8: ", currentRF.swr);
-        
-        // temp = (uint32_t)currentRF.reverse << 9;
-        // temp = temp / (uint32_t)currentRF.forward;
-        // print_cat(", SWR9: ", temp);
-        
-        // temp = (uint32_t)currentRF.reverse << 10;
-        // temp = temp / (uint32_t)currentRF.forward;
-        // print_cat(", SWR10: ", temp);
         
         print_ln();
     }
