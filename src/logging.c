@@ -10,6 +10,7 @@
 */
 #define NUMBER_OF_DIGITS 12
 char intString[NUMBER_OF_DIGITS]; 
+int status;
 
 /* ************************************************************************** */
 
@@ -57,10 +58,10 @@ char* i_to_a(int32_t value)
         value /= 10;
     } while (value != 0);
 
-/*  At this point, the result in 'buffer' is right-justified, and 
-    bufferIndex is at the leftmost digit of the converted result.
-    This loop copies buffer into intString, and makes the result left-justified.
-*/
+    /*  At this point, the result in 'buffer' is right-justified, and 
+        bufferIndex is at the leftmost digit of the converted result.
+        This loop copies buffer into intString, and makes the result left-justified.
+    */
     while (bufferIndex < NUMBER_OF_DIGITS) 
     {
         intString[stringIndex++] = buffer[bufferIndex++];
@@ -123,6 +124,22 @@ void log_cat_ln(const char *string, int32_t value)
     log_ln();
 }
 
+// Common use case of printing "label: <value>".
+void log_catf(const char *string, double value)
+{ 
+    serial_tx_string(string);
+    serial_tx_string(ftoa(value, &status));
+}
+
+// Same as log_catf(), but also appends a CRLF.
+void log_catf_ln(const char *string, double value)
+{ 
+    serial_tx_string(string);
+    serial_tx_string(ftoa(value, &status));
+
+    log_ln();
+}
+
 // Prints the contents of relay struct as "(caps, inds, z)"
 void log_relays(relays_s *relays)
 {
@@ -147,7 +164,7 @@ void log_current_SWR(void)
 {
     print_cat("FWD: ", currentRF.forward);
     print_cat(", REV: ", currentRF.reverse);
-    print_cat(", SWR: ", currentRF.swr);
+    print_catf(", SWR: ", currentRF.swr)
 }
 
 void log_current_SWR_ln(void)

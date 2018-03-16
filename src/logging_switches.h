@@ -36,8 +36,11 @@
     #define print_int(val);             log_int(val);
     #define print_str(val);             log_str(val);
     #define print_str_ln(val);          log_str_ln(val);
+
     #define print_cat(val, val2);       log_cat(val, val2);
     #define print_cat_ln(val, val2);    log_cat_ln(val, val2);
+    #define print_catf(val, val2);      log_catf(val, val2);
+    #define print_catf_ln(val, val2);   log_catf_ln(val, val2);
 
     #define print_relays(val);          log_relays(val);
     #define print_relays_ln(val);       log_relays_ln(val);
@@ -52,8 +55,11 @@
     #define print_int(val);
     #define print_str(val);
     #define print_str_ln(val);
+
     #define print_cat(val, val2);
     #define print_cat_ln(val, val2);
+    #define print_catf(val, val2);
+    #define print_catf_ln(val, val2);
 
     #define print_relays(val);
     #define print_relays_ln(val);
