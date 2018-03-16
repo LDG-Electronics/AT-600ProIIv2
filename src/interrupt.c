@@ -33,7 +33,7 @@ void interrupt_init(void)
 
 /* -------------------------------------------------------------------------- */
 
-void __interrupt(irq(TMR0),base(IVT1_BASE_ADDRESS),high_priority) TMR1_ISR(void)
+void __interrupt(irq(TMR0),high_priority) TMR1_ISR(void)
 {
     TIMER0_ON = 0; // stop timer
     TIMER0_IF = 0; // clear flag
@@ -42,7 +42,7 @@ void __interrupt(irq(TMR0),base(IVT1_BASE_ADDRESS),high_priority) TMR1_ISR(void)
     TIMER0_ON = 1; // restart timer
 }
 
-void __interrupt(irq(TMR5),base(IVT1_BASE_ADDRESS),high_priority) TMR5_ISR(void)
+void __interrupt(irq(TMR5),high_priority) TMR5_ISR(void)
 {
     TIMER5_ON = 0;  // stop timer
     TIMER5_IF = 0;  // clear flag
