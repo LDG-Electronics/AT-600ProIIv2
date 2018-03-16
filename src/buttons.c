@@ -32,7 +32,7 @@ void buttons_init(void)
 /* -------------------------------------------------------------------------- */
 
 // Returns 0 if no buttons are pressed
-uint8_t get_buttons(void)
+uint8_t get_buttons(void) // 2us
 {
     // Grab the current state of all the button pins
     uint8_t buttons = ~PORTB & 0xf4;
@@ -40,11 +40,25 @@ uint8_t get_buttons(void)
     buttons = buttons | (!PORTAbits.RA4 << 1);
     buttons = buttons | (!PORTAbits.RA5); 
 
-    //! ANT button is currently nonfunctional
-    //*
+    // TODO: ANT button is currently nonfunctional
     buttons = buttons & 0b10111111;
 
     return buttons;
+}
+
+// Returns 0 if no buttons are pressed
+uint8_t get_buttons2(void) // 11us, will be faster after ANT buttons works
+{
+    uint16_t x = 0;
+    
+    for (uint8_t i = 0; i < FRONT_PANEL_BUTTONS; i++)
+    {
+        x += buttons[i];
+    }
+
+    x -= buttons[ANT]; // TODO: ANT button is currently nonfunctional
+
+    return x;
 }
 
 // Returns 1 if rising edge is detected

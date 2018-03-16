@@ -3,7 +3,7 @@
 
 /* ************************************************************************** */
 
-/*  Notes on using the button processing subsystem.
+/*  Notes on using the button processing subsystem_flags.
     
     This module is designed as a publisher/subscriber model, with two loosely
     coupled components.
@@ -40,6 +40,7 @@ extern void buttons_init(void);
 
 // Deprecated
 extern uint8_t get_buttons(void);
+extern uint8_t get_buttons2(void);
 
 // button handley-ness
 extern uint8_t btn_is_pressed(buttonName_t buttonName);
@@ -51,7 +52,7 @@ extern uint8_t btn_is_up(buttonName_t buttonName);
 
 /* ************************************************************************** */
 
-/*  This is an example of the subscriber half of the button processing subsystem.
+/*  This is an example of the subscriber half of the button processing subsystem_flags.
     
     This example is pulled from the interrupt handler in the AT-100ProII software,
     although it is not necessary to use the Interrupt Service Routine(ISR).

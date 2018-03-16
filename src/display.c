@@ -99,7 +99,7 @@ void play_interruptable_animation(const animation_s *animation)
         if (animation[i].frame_delay == NULL) break;
         
         for(j = animation[i].frame_delay; j != 0; j--) {
-            if (get_buttons() != 0) return;
+            if (get_buttons2() != 0) return;
             delay_ms(1);
         }
 
@@ -113,7 +113,7 @@ void play_interruptable_animation(const animation_s *animation)
 
 void show_peak(void)
 {
-    if (saved_flags.PeakOn == 0) {
+    if (system_flags.PeakOn == 0) {
         play_animation(&peak_off);
     } else {
         play_animation(&peak_on);
@@ -124,7 +124,7 @@ void show_peak(void)
 // THESE HAVE BLOCKING DELAYS
 void blink_antenna(void)
 {
-    if (saved_flags.Antenna == 1) {
+    if (system_flags.Antenna == 1) {
         play_animation(&right_wave);
     } else {
         play_animation(&left_wave);
@@ -133,7 +133,7 @@ void blink_antenna(void)
 
 void blink_auto(uint8_t blinks)
 {
-    if (saved_flags.AutoMode == 0) {
+    if (system_flags.AutoMode == 0) {
         repeat_animation(&auto_off, blinks);
     } else {
         repeat_animation(&auto_on, blinks);
@@ -151,7 +151,7 @@ void blink_HiLoZ(uint8_t blinks)
 
 void blink_scale(uint8_t blinks)
 {
-    if (saved_flags.Scale100W == 0) {
+    if (system_flags.Scale100W == 0) {
         repeat_animation(&high_scale, blinks);
     } else {
         repeat_animation(&low_scale, blinks);
@@ -177,23 +177,23 @@ void blink_thresh(uint8_t blinks)
 // THESE HAVE NO DELAYS
 void update_antenna_led(void)
 {
-    ANT_LED_PIN = ~saved_flags.Antenna;
+    ANT_LED_PIN = ~system_flags.Antenna;
 }
 
 void update_bypass_led(void)
 {
-    BYPASS_LED_PIN = saved_flags.inBypass;
+    BYPASS_LED_PIN = system_flags.inBypass;
 }
 
 void update_power_led(void)
 {
     //TODO: implement power-on status flag 
-    // POWER_LED_PIN = saved_flags.inBypass;
+    // POWER_LED_PIN = system_flags.inBypass;
 }
 
 void show_auto(void)
 {
-    if (saved_flags.AutoMode == 0) {
+    if (system_flags.AutoMode == 0) {
         FP_update(0x8181);
     } else {
         FP_update(0x1818);
@@ -221,7 +221,7 @@ void show_relays(void)
 
 void show_scale(void)
 {
-    if (saved_flags.Scale100W == 0) {
+    if (system_flags.Scale100W == 0) {
         FP_update(0x0002);
     } else {
         FP_update(0x0040);
