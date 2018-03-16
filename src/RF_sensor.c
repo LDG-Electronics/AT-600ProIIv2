@@ -63,22 +63,12 @@ uint16_t get_freq(void)
 
 void SWR_measure(void)
 {
-    uint16_t tempFWD = 0;
-    uint16_t tempREV = 0;
-    uint16_t tempSWR = 0;
-
-    tempFWD += adc_measure(0);
-    tempREV += adc_measure(1);
-
-    tempFWD >>= 4;
-    tempREV >>= 4;
+    uint16_t tempFWD = adc_measure(0);
+    uint16_t tempREV = adc_measure(1);
 
     currentRF.forward = tempFWD;
     currentRF.reverse = tempREV; 
-    
-    tempREV <<= 8; 
-    tempSWR = tempREV / tempFWD;
-    currentRF.swr = tempSWR;
+    currentRF.swr = (double)tempREV/(double)tempFWD;   
 }
 
 /*  SWR_average() calculates the average SWR across several samples
