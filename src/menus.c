@@ -1,8 +1,11 @@
 #include "includes.h"
 
-void mode_thresh(void)
+/* ************************************************************************** */
+#define SUBMENU_TIMEOUT 2200
+
+void threshold_submenu(void)
 {
-    uint16_t modeCount = 0;
+    uint16_t modeCount = SUBMENU_TIMEOUT;
     
     blink_thresh(3);
     show_thresh();
@@ -19,21 +22,16 @@ void mode_thresh(void)
             show_thresh();
         }        
         
-        if (btn_is_pressed(FUNC) || modeCount == 2000) //TODO: magic number
-        {
-            return;
-        }
-        modeCount++;
+        if (btn_is_pressed(FUNC)) break;
+        modeCount--;
+        if (modeCount == 0) break;
         delay_ms(1);
     }
 }
 
-#define FUNC_THRESH 2200
-
-void mode_func(void)
+void function_submenu(void)
 {
-    uint8_t buttons = 0;
-    uint16_t modeCount = FUNC_THRESH; 
+    uint16_t modeCount = SUBMENU_TIMEOUT; 
 
     play_interruptable_animation(&arrow_up);
 
@@ -55,7 +53,7 @@ void mode_func(void)
             return;
         }
         if (btn_is_pressed(LDN)) {
-            mode_thresh();
+            threshold_submenu();
             blink_thresh(4);
             return;
         }
@@ -154,12 +152,12 @@ void tune_hold(void)
     if (buttonCount < BTN_PRESS_DEBOUNCE) {
         // button was not held long enough, do nothing
     } else if (buttonCount < BTN_PRESS_SHORT) {
-        short_tune_release();
+        toggle_bypass();
     } else if (buttonCount < BTN_PRESS_MEDIUM) {
-        // medium_tune_release();
-        long_tune_release();
+        // request_memory_tune();
+        request_full_tune();
     } else if (buttonCount < BTN_PRESS_LONG) {
-        long_tune_release();
+        request_full_tune();
     } else if (buttonCount >= BTN_PRESS_LONG) {
         // button was held for too long, do nothing
     }
@@ -193,7 +191,7 @@ void func_hold(void)
         }
     }
 
-    if (FuncHoldProcessed == 0) mode_func();
+    if (FuncHoldProcessed == 0) function_submenu();
 }
 
 void ant_hold(void)
