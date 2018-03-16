@@ -4,10 +4,6 @@
 
 /*  Frequency Group definitions
     
-    The YT-1200 reads the frequency directly, via the radio's CAT interface.
-    The value provided by the radio is truncated to the largest 5 digits, giving
-    a maximum range that fits within a 16 bit integer.
-    
     !0 to 5.5
     5.5 to 10.5
     10.5 to 20

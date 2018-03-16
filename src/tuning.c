@@ -117,10 +117,6 @@ void print_solution_count(void)
     
     L Limit is enabled at 20MHz.
     C Limit is enabled at 30MHz.
-    
-    Determining L or C limit is dependant on the frequency counting technique.
-    In the YT-1200, we're lucky enough to read the frequency directly from the
-    radio, therefore no calculations or complex logic is required.
 */
 
 #define L_LIMIT_FREQUENCY 20000 // 20mhz
