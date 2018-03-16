@@ -637,9 +637,9 @@ void full_tune(void)
     if (tuning_flags.errors != 0) return;
     
     // If nothing failed, we can update currentRelays with the best solution
-    currentRelays.all = bestSolution.all;
+    currentRelays[currentAntenna].all = bestSolution.all;
     
-    if (put_relays(&currentRelays) == -1)
+    if (put_relays(&currentRelays[currentAntenna]) == -1)
     {
         tuning_flags.relayError = 1;
         return;
@@ -650,7 +650,7 @@ void full_tune(void)
     {
         #if LOG_LEVEL_TUNING >= LOG_EVENTS
         print_str("  Saving: ");
-        print_relays(&currentRelays);
+        print_relays(&currentRelays[currentAntenna]);
         print_catf_ln(" with SWR: ", bestSWR);
         #endif
         
@@ -724,8 +724,8 @@ void restore_best_memory(void)
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
     print_str_ln("  restore_best_memory");
     #endif
-    currentRelays.all = bestMemory.all;
-    put_relays(&currentRelays);
+    currentRelays[currentAntenna].all = bestMemory.all;
+    put_relays(&currentRelays[currentAntenna]);
 }
 
 /*  memory_tune() tests saved memories for the current frequency, plus neighbors
@@ -750,7 +750,7 @@ void memory_tune(void)
     
     prepare_memories();
     
-    test_memory(&currentRelays);
+    test_memory(&currentRelays[currentAntenna]);
     while (i < NUM_OF_MEMORIES)
     {
         test_memory(&memoryBuffer[i]);
@@ -766,7 +766,7 @@ void memory_tune(void)
     {
         #if LOG_LEVEL_TUNING >= LOG_EVENTS
         print_catf("  found memory: ", currentRF.swr);
-        print_relays_ln(&currentRelays);
+        print_relays_ln(&currentRelays[currentAntenna]);
         #endif
         
         return;

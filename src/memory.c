@@ -88,13 +88,13 @@ void memory_store(uint32_t address)
     // // Make sure we aren't wasting an erase/write cycle [1]
     // readRelays.all = memory_recall(address);
     // readRelays.caps |= 1;
-    // if (readRelays.all == currentRelays.all) return;
+    // if (readRelays.all == currentRelays[currentAntenna].all) return;
     // readRelays.caps &= ~1;
-    // if (readRelays.all == currentRelays.all) return;
+    // if (readRelays.all == currentRelays[currentAntenna].all) return;
     
     // #if LOG_LEVEL_MEMORY >= LOG_EVENTS
     // print_cat("  mem write: ", address);
-    // print_relays_ln(&currentRelays);
+    // print_relays_ln(&currentRelays[currentAntenna]);
     // #endif
     
     // // Read existing block into buffer
@@ -104,9 +104,9 @@ void memory_store(uint32_t address)
     // i = address & 0x003f;
     
     // // Pack the caps and hiloz into the low byte, load inds into the high byte
-    // buffer[i] = currentRelays.caps;
-    // buffer[i] ^= (-currentRelays.z ^ buffer[i]) & 1;
-    // buffer[i + 1] = currentRelays.inds;
+    // buffer[i] = currentRelays[currentAntenna].caps;
+    // buffer[i] ^= (-currentRelays[currentAntenna].z ^ buffer[i]) & 1;
+    // buffer[i + 1] = currentRelays[currentAntenna].inds;
     
     // // Write the edited buffer into flash
     // flash_block_erase(address);
@@ -140,9 +140,9 @@ uint32_t memory_recall(uint32_t address)
     I wanted to write:
     
     readRelays.all = memory_recall(address);
-    if (readRelays.all == currentRelays.all) return;
+    if (readRelays.all == currentRelays[currentAntenna].all) return;
     readRelays.caps |= 1;
-    if (readRelays.all == currentRelays.all) return;
+    if (readRelays.all == currentRelays[currentAntenna].all) return;
     
     But that causes this output:
     Found a processor register! WREG

@@ -28,10 +28,11 @@ void startup(void)
     // Recall previous stuff from memory
     load_flags();
     if (system_flags.inBypass == 1) put_relays(&bypassRelays);
-    if (system_flags.inBypass == 0) put_relays(&currentRelays);
+    if (system_flags.inBypass == 0) put_relays(&currentRelays[currentAntenna]);
 
     // This delay is needed during dev because the TUNE button is shared with a
-    // programming pin
+    // programming pin, and that pin is pulled low for some time after a
+    // programming cycle is finished
     // TODO: reassess this during verification
     delay_ms(250);
 

@@ -5,22 +5,23 @@
 void toggle_bypass(void)
 {
     relays_s undoRelays;
-    undoRelays.all = currentRelays.all;
+    undoRelays.all = currentRelays[currentAntenna].all;
 
     if (system_flags.inBypass == 1) {
-        currentRelays.all = preBypassRelays.all;
+        currentRelays[currentAntenna].all = preBypassRelays[currentAntenna].all;
 
-        if (put_relays(&currentRelays) == -1) {
-            currentRelays.all = undoRelays.all;
+        if (put_relays(&currentRelays[currentAntenna]) == -1) {
+            currentRelays[currentAntenna].all = undoRelays.all;
         } else {
             show_relays();
             delay_ms(250);
+            display_clear();
         }
     } else {
-        preBypassRelays.all = currentRelays.all;
+        preBypassRelays[currentAntenna].all = currentRelays[currentAntenna].all;
 
         if (put_relays(&bypassRelays) == -1) {
-            currentRelays.all = undoRelays.all;
+            currentRelays[currentAntenna].all = undoRelays.all;
         } else {
             repeat_animation(&blink_both_bars, 3);
         }
@@ -44,29 +45,28 @@ void toggle_auto(void)
 
 void toggle_hiloz(void)
 {
-    uint8_t undo = currentRelays.z;
+    uint8_t undo = currentRelays[currentAntenna].z;
 
-    currentRelays.z = !currentRelays.z;
+    currentRelays[currentAntenna].z = !currentRelays[currentAntenna].z;
     
-    if (put_relays(&currentRelays) == -1)
+    if (put_relays(&currentRelays[currentAntenna]) == -1)
     {
-        currentRelays.z = undo;
+        currentRelays[currentAntenna].z = undo;
     }
 }
 
 void toggle_antenna(void)
 {
-    uint8_t undo = currentRelays.ant;
+    uint8_t undo = currentAntenna;
 
-    currentRelays.ant = !currentRelays.ant;
+    currentAntenna = !currentAntenna;
     
-    if (put_relays(&currentRelays) == -1)
+    if (put_relays(&currentRelays[currentAntenna]) == -1)
     {
-        currentRelays.ant = undo;
+        currentAntenna = undo;
     }
-
-    system_flags.Antenna = currentRelays.ant;
-
+    
+    system_flags.Antenna = currentAntenna;
     update_antenna_led();
 }
 

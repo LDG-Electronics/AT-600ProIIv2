@@ -142,7 +142,7 @@ void blink_auto(uint8_t blinks)
 
 void blink_HiLoZ(uint8_t blinks)
 {
-    if (currentRelays.z == 1) {
+    if (currentRelays[currentAntenna].z == 1) {
         repeat_animation(&auto_off, blinks);
     } else {
         repeat_animation(&auto_on, blinks);
@@ -177,7 +177,7 @@ void blink_thresh(uint8_t blinks)
 // THESE HAVE NO DELAYS
 void update_antenna_led(void)
 {
-    ANT_LED_PIN = ~system_flags.Antenna;
+    ANT_LED_PIN = ~currentAntenna;
 }
 
 void update_bypass_led(void)
@@ -202,7 +202,7 @@ void show_auto(void)
 
 void show_HiLoZ(void)
 {
-    if (currentRelays.z == 1) {
+    if (currentRelays[currentAntenna].z == 1) {
         FP_update(0xc0c0);
     } else {
         FP_update(0x0303);
@@ -213,8 +213,8 @@ void show_relays(void)
 {
     uint16_t out;
 
-    out = ((currentRelays.inds & 0x7f) | ((currentRelays.z & 0x01) << 7));
-    out |= (uint16_t)currentRelays.caps << 8;
+    out = ((currentRelays[currentAntenna].inds & 0x7f) | ((currentRelays[currentAntenna].z & 0x01) << 7));
+    out |= (uint16_t)currentRelays[currentAntenna].caps << 8;
 
     FP_update(out);
 }

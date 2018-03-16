@@ -5,17 +5,23 @@
 
 /*  AT-600ProII Relay Configuration
 
-    The AT-600ProII has 7 Capacitors, 7 Inductors, 1 HiLoZ relay.
+    7 Capacitors
+    7 Inductors
+    1 HiLoZ relay
+    
+    1 Antenna relay    
 */
 
-#define NUM_INDUCTORS 7
-#define NUM_CAPACITORS 7
+#define NUM_OF_INDUCTORS 7
+#define NUM_OF_CAPACITORS 7
 
 #define MAX_INDUCTORS 127
 #define MAX_CAPACITORS 127
 
 #define MIN_INDUCTORS 0
 #define MIN_CAPACITORS 0
+
+#define NUM_OF_ANTENNA_PORTS 2
 
 /* ************************************************************************** */
 
@@ -37,9 +43,9 @@ typedef union {
 
 /* ************************************************************************** */
 
-extern relays_s currentRelays;
+extern relays_s currentRelays[NUM_OF_ANTENNA_PORTS];
 extern relays_s bypassRelays;
-extern relays_s preBypassRelays;
+extern relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
 /* ************************************************************************** */
 

@@ -35,7 +35,7 @@ typedef union {
 // Global flags 
 extern system_flags_s system_flags;
 
-extern bit selectedAntenna;
+extern bit currentAntenna;
 
 /* ************************************************************************** */
 

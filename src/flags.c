@@ -4,7 +4,7 @@
 
 system_flags_s system_flags;
 
-bit selectedAntenna;
+bit currentAntenna;
 
 /* ************************************************************************** */
 
@@ -35,15 +35,15 @@ void load_flags(void)
         #endif
         
         swrThreshIndex = (internal_eeprom_read(i) & 0x07);
-        currentRelays.top = internal_eeprom_read(i + 1);
-        currentRelays.bot = internal_eeprom_read(i + 2);
+        currentRelays[currentAntenna].top = internal_eeprom_read(i + 1);
+        currentRelays[currentAntenna].bot = internal_eeprom_read(i + 2);
         system_flags.flags = internal_eeprom_read(i + 3);
     } else {
         #if LOG_LEVEL_FLAGS >= LOG_INFO
         print_str_ln("  no valid record");
         #endif
         
-        currentRelays.all = 0;
+        currentRelays[currentAntenna].all = 0;
         system_flags.inBypass = 1;
         system_flags.AutoMode = 1;
         swrThreshIndex = 0;
@@ -75,8 +75,8 @@ void save_flags(void)
     temp_flags.flags = internal_eeprom_read(i + 3);
      
     if ((tempThreshIndex != swrThreshIndex) ||
-        (tempRelays.top != currentRelays.top) ||
-        (tempRelays.bot != currentRelays.bot) ||
+        (tempRelays.top != currentRelays[currentAntenna].top) ||
+        (tempRelays.bot != currentRelays[currentAntenna].bot) ||
         (temp_flags.flags != system_flags.flags))
     {
         #if LOG_LEVEL_FLAGS >= LOG_INFO
@@ -89,8 +89,8 @@ void save_flags(void)
         if (i > 248) i = 0;
 
         internal_eeprom_write(i, (swrThreshIndex & 0x7f));
-        internal_eeprom_write(i + 1, currentRelays.top);
-        internal_eeprom_write(i + 2, currentRelays.bot);
+        internal_eeprom_write(i + 1, currentRelays[currentAntenna].top);
+        internal_eeprom_write(i + 2, currentRelays[currentAntenna].bot);
         internal_eeprom_write(i + 3, system_flags.flags);
     }
 }

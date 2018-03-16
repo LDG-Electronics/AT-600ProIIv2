@@ -12,14 +12,14 @@
 */
 
 // Relay delay constants, in 1 ms intervals
-#define RELAY_COIL_DELAY    15
+#define RELAY_COIL_DELAY 15
 
 /* ************************************************************************** */
 
 // Global
-relays_s currentRelays;
+relays_s currentRelays[NUM_OF_ANTENNA_PORTS];
 relays_s bypassRelays; //TODO: needs to be const, and permanently equal {0, 0, 0}
-relays_s preBypassRelays;
+relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
 // File
 relays_s oldRelays;
@@ -33,9 +33,13 @@ uint8_t IncDecDelay = 0;
 void relays_init(void)
 {
     // Initialize relay structs
-    currentRelays.all = 0;
+    currentRelays[0].all = 0;
+    currentRelays[0].ant = 0;
+    currentRelays[1].all = 0;
+    currentRelays[1].ant = 1;
     bypassRelays.all = 0;
-    preBypassRelays.all = 0;
+    preBypassRelays[0].all = 0;
+    preBypassRelays[1].all = 0;
     oldRelays.all = 0;
 
     // 
@@ -100,6 +104,7 @@ int8_t put_relays(relays_s *testRelays)
     if ((testRelays->caps == 0) && 
         (testRelays->z == 0) && 
         (testRelays->inds == 0)) {
+            
         system_flags.inBypass = 1;
     }
 
@@ -147,11 +152,11 @@ void capacitor_increment(void)
 {
     if (OkToIncDec())
     {
-        if (currentRelays.caps < MAX_CAPACITORS) {
-            currentRelays.caps++;
-            if (put_relays(&currentRelays) == -1)
+        if (currentRelays[currentAntenna].caps < MAX_CAPACITORS) {
+            currentRelays[currentAntenna].caps++;
+            if (put_relays(&currentRelays[currentAntenna]) == -1)
             {
-                currentRelays.caps--;
+                currentRelays[currentAntenna].caps--;
             }
             show_relays();
         } else {
@@ -165,11 +170,11 @@ void capacitor_decrement(void)
 {
     if (OkToIncDec())
     {
-        if (currentRelays.caps > MIN_CAPACITORS) {
-            currentRelays.caps--;
-            if (put_relays(&currentRelays) == -1)
+        if (currentRelays[currentAntenna].caps > MIN_CAPACITORS) {
+            currentRelays[currentAntenna].caps--;
+            if (put_relays(&currentRelays[currentAntenna]) == -1)
             {
-                currentRelays.caps++;
+                currentRelays[currentAntenna].caps++;
             }
             show_relays();
         } else {
@@ -183,11 +188,11 @@ void inductor_increment(void)
 {
     if (OkToIncDec())
     {
-        if (currentRelays.inds < MAX_INDUCTORS) {
-            currentRelays.inds++;
-            if (put_relays(&currentRelays) == -1)
+        if (currentRelays[currentAntenna].inds < MAX_INDUCTORS) {
+            currentRelays[currentAntenna].inds++;
+            if (put_relays(&currentRelays[currentAntenna]) == -1)
             {
-                currentRelays.inds--;
+                currentRelays[currentAntenna].inds--;
             }
             show_relays();
         } else {
@@ -201,11 +206,11 @@ void inductor_decrement(void)
 {
     if (OkToIncDec())
     {
-        if (currentRelays.inds > MIN_INDUCTORS) {
-            currentRelays.inds--;
-            if (put_relays(&currentRelays) == -1)
+        if (currentRelays[currentAntenna].inds > MIN_INDUCTORS) {
+            currentRelays[currentAntenna].inds--;
+            if (put_relays(&currentRelays[currentAntenna]) == -1)
             {
-                currentRelays.inds++;
+                currentRelays[currentAntenna].inds++;
             }
             show_relays();
         } else {
