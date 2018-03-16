@@ -112,14 +112,14 @@ void log_str_ln(const char *string)
 void log_cat(const char *string, int32_t value)
 { 
     serial_tx_string(string);
-    serial_tx_string(i_to_a(value));
+    log_int(value);
 }
 
 // Same as log_cat(), but also appends a CRLF.
 void log_cat_ln(const char *string, int32_t value)
 { 
     serial_tx_string(string);
-    serial_tx_string(i_to_a(value));
+    log_int(value);
 
     log_ln();
 }
@@ -162,9 +162,9 @@ void log_relays_ln(relays_s *relays)
 
 void log_current_SWR(void)
 {
-    print_cat("FWD: ", currentRF.forward);
-    print_cat(", REV: ", currentRF.reverse);
-    print_catf(", SWR: ", currentRF.swr)
+    log_cat("FWD: ", currentRF.forward);
+    log_cat(", REV: ", currentRF.reverse);
+    log_catf(", SWR: ", currentRF.swr);
 }
 
 void log_current_SWR_ln(void)
