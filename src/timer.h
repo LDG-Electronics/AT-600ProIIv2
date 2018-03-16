@@ -97,4 +97,4 @@ extern void timer6_stop(void);
 extern void timer6_clear(void);
 extern uint16_t timer6_read(void);
 
-#endif
+#endif /* _TIMER_H_ */

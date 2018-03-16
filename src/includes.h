@@ -1,5 +1,5 @@
-#ifndef INCLUDES_H
-#define	INCLUDES_H
+#ifndef _INCLUDES_H_
+#define	_INCLUDES_H_
 
 // System
 #include <xc.h>
@@ -13,33 +13,31 @@
 #include <float.h>
 #include <math.h>
 
-// device header
+// device headers
 #include "pic18f26k42.h"
 #include "config.h"
 
-// drivers
+// modules
+#include "adc.h"
 #include "animations.h"
-#include "flags.h"
 #include "buttons.h"
-#include "interrupt.h"
+#include "controls.h"
 #include "delay.h"
+#include "display.h"
+#include "flags.h"
 #include "hardware.h"
+#include "interrupt.h"
+#include "logging.h"
+#include "logging_switches.h"
+#include "memory.h"
+#include "relays.h"
+#include "RF_sensor.h"
 #include "serial_bitbang.h"
 #include "spi.h"
+#include "stopwatch.h"
 #include "timer.h"
-#include "relays.h"
-#include "controls.h"
-#include "adc.h"
-#include "memory.h"
 #include "tuning.h"
 #include "nonvolatile_memory.h"
-#include "stopwatch.h"
 
-// modules
-#include "display.h"
-#include "RF_sensor.h"
-#include "logging_switches.h"
-#include "logging.h"
-
-#endif	/* INCLUDES_H */
+#endif	/* _INCLUDES_H_ */
 

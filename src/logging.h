@@ -62,4 +62,4 @@ extern void log_current_SWR_ln(void);
 extern void log_format(enum textAttribute attribute, enum textColor foreground);
 extern void log_format_reset(void);
 
-#endif
+#endif /* _LOGGING_H_ */

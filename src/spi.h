@@ -12,4 +12,4 @@ extern uint8_t SPI1_Exchange8bitBuffer(uint8_t *dataIn,
                                        uint8_t bufLen,
                                        uint8_t *dataOut);
 
-#endif
+#endif /* _SPI_H_ */

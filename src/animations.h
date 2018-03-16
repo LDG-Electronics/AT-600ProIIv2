@@ -217,4 +217,4 @@ const animation_s dual_counter_clockwise_idle[] = {
     {0x0000,NULL},
 };
 
-#endif
+#endif /* _ANIMATIONS_H_ */

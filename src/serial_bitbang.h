@@ -1,5 +1,5 @@
-#ifndef SERIAL_BITBANG_H
-#define SERIAL_BITBANG_H
+#ifndef _SERIAL_BITBANG_H_
+#define _SERIAL_BITBANG_H_
 
 /* ************************************************************************** */
 
@@ -43,4 +43,4 @@ extern void serial_bitbang_init(void);
 extern void serial_tx_char(const char);
 extern void serial_tx_string(const char *string);
 
-#endif
+#endif /* _SERIAL_BITBANG_H_ */
