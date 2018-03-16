@@ -19,16 +19,16 @@ void startup(void)
     delay_init();
     adc_init();
     buttons_init();
-    spi_init();
     display_init();
-    serial_bitbang_init();
-    RF_sensor_init();
     relays_init();
-
+    RF_sensor_init();
+    spi_init();
+    serial_bitbang_init();
+    
     // Recall previous stuff from memory
-    load_flags();
-    if (system_flags.inBypass == 1) put_relays(&bypassRelays);
-    if (system_flags.inBypass == 0) put_relays(&currentRelays[currentAntenna]);
+    flags_init();
+    if (bypassStatus[system_flags.antenna] == 1) put_relays(&bypassRelays);
+    if (bypassStatus[system_flags.antenna] == 0) put_relays(&currentRelays[system_flags.antenna]);
 
     // This delay is needed during dev because the TUNE button is shared with a
     // programming pin, and that pin is pulled low for some time after a
@@ -38,6 +38,7 @@ void startup(void)
 
     // initialize the display
     play_interruptable_animation(&right_crawl);
+    display_clear();
     update_antenna_led();
     update_bypass_led();
     update_power_led();

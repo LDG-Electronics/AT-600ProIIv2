@@ -637,9 +637,9 @@ void full_tune(void)
     if (tuning_flags.errors != 0) return;
     
     // If nothing failed, we can update currentRelays with the best solution
-    currentRelays[currentAntenna].all = bestSolution.all;
+    currentRelays[system_flags.antenna].all = bestSolution.all;
     
-    if (put_relays(&currentRelays[currentAntenna]) == -1)
+    if (put_relays(&currentRelays[system_flags.antenna]) == -1)
     {
         tuning_flags.relayError = 1;
         return;
@@ -650,7 +650,7 @@ void full_tune(void)
     {
         #if LOG_LEVEL_TUNING >= LOG_EVENTS
         print_str("  Saving: ");
-        print_relays(&currentRelays[currentAntenna]);
+        print_relays(&currentRelays[system_flags.antenna]);
         print_catf_ln(" with SWR: ", bestSWR);
         #endif
         
@@ -724,8 +724,8 @@ void restore_best_memory(void)
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
     print_str_ln("  restore_best_memory");
     #endif
-    currentRelays[currentAntenna].all = bestMemory.all;
-    put_relays(&currentRelays[currentAntenna]);
+    currentRelays[system_flags.antenna].all = bestMemory.all;
+    put_relays(&currentRelays[system_flags.antenna]);
 }
 
 /*  memory_tune() tests saved memories for the current frequency, plus neighbors
@@ -750,7 +750,7 @@ void memory_tune(void)
     
     prepare_memories();
     
-    test_memory(&currentRelays[currentAntenna]);
+    test_memory(&currentRelays[system_flags.antenna]);
     while (i < NUM_OF_MEMORIES)
     {
         test_memory(&memoryBuffer[i]);
@@ -766,7 +766,7 @@ void memory_tune(void)
     {
         #if LOG_LEVEL_TUNING >= LOG_EVENTS
         print_catf("  found memory: ", currentRF.swr);
-        print_relays_ln(&currentRelays[currentAntenna]);
+        print_relays_ln(&currentRelays[system_flags.antenna]);
         #endif
         
         return;
@@ -791,8 +791,8 @@ void memory_tune(void)
 */
 void tuning_followup_animation(void)
 {
-    // led_off();
-    delay_ms(1000);
+    display_clear();
+    // delay_ms(1000);
     
     if (tuning_flags.errors != 0) {
         #if LOG_LEVEL_TUNING >= LOG_ERROR

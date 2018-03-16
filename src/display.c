@@ -99,7 +99,7 @@ void play_interruptable_animation(const animation_s *animation)
         if (animation[i].frame_delay == NULL) break;
         
         for(j = animation[i].frame_delay; j != 0; j--) {
-            if (get_buttons2() != 0) return;
+            if (get_buttons() != 0) return;
             delay_ms(1);
         }
 
@@ -113,7 +113,7 @@ void play_interruptable_animation(const animation_s *animation)
 
 void show_peak(void)
 {
-    if (system_flags.PeakOn == 0) {
+    if (system_flags.peakMode == 0) {
         play_animation(&peak_off);
     } else {
         play_animation(&peak_on);
@@ -124,7 +124,7 @@ void show_peak(void)
 // THESE HAVE BLOCKING DELAYS
 void blink_antenna(void)
 {
-    if (system_flags.Antenna == 1) {
+    if (system_flags.antenna == 1) {
         play_animation(&right_wave);
     } else {
         play_animation(&left_wave);
@@ -133,7 +133,7 @@ void blink_antenna(void)
 
 void blink_auto(uint8_t blinks)
 {
-    if (system_flags.AutoMode == 0) {
+    if (system_flags.autoMode == 0) {
         repeat_animation(&auto_off, blinks);
     } else {
         repeat_animation(&auto_on, blinks);
@@ -142,7 +142,7 @@ void blink_auto(uint8_t blinks)
 
 void blink_HiLoZ(uint8_t blinks)
 {
-    if (currentRelays[currentAntenna].z == 1) {
+    if (currentRelays[system_flags.antenna].z == 1) {
         repeat_animation(&auto_off, blinks);
     } else {
         repeat_animation(&auto_on, blinks);
@@ -177,12 +177,12 @@ void blink_thresh(uint8_t blinks)
 // THESE HAVE NO DELAYS
 void update_antenna_led(void)
 {
-    ANT_LED_PIN = ~currentAntenna;
+    ANT_LED_PIN = ~system_flags.antenna;
 }
 
 void update_bypass_led(void)
 {
-    BYPASS_LED_PIN = system_flags.inBypass;
+    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
 }
 
 void update_power_led(void)
@@ -193,7 +193,7 @@ void update_power_led(void)
 
 void show_auto(void)
 {
-    if (system_flags.AutoMode == 0) {
+    if (system_flags.autoMode == 0) {
         FP_update(0x8181);
     } else {
         FP_update(0x1818);
@@ -202,7 +202,7 @@ void show_auto(void)
 
 void show_HiLoZ(void)
 {
-    if (currentRelays[currentAntenna].z == 1) {
+    if (currentRelays[system_flags.antenna].z == 1) {
         FP_update(0xc0c0);
     } else {
         FP_update(0x0303);
@@ -213,8 +213,8 @@ void show_relays(void)
 {
     uint16_t out;
 
-    out = ((currentRelays[currentAntenna].inds & 0x7f) | ((currentRelays[currentAntenna].z & 0x01) << 7));
-    out |= (uint16_t)currentRelays[currentAntenna].caps << 8;
+    out = ((currentRelays[system_flags.antenna].inds & 0x7f) | ((currentRelays[system_flags.antenna].z & 0x01) << 7));
+    out |= (uint16_t)currentRelays[system_flags.antenna].caps << 8;
 
     FP_update(out);
 }
