@@ -30,8 +30,8 @@ void startup(void)
     if (saved_flags.inBypass == 1) put_relays(&bypassRelays);
     if (saved_flags.inBypass == 0) put_relays(&currentRelays);
 
-    // 
-    play_animation(&right_crawl);
+    // initialize the display
+    play_interruptable_animation(&right_crawl);
     update_antenna_led();
     update_bypass_led();
     update_power_led();
