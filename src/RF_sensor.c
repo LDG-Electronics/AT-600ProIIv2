@@ -122,12 +122,6 @@ void SWR_average(void)
     }
 }
 
-// abs() is borrowed from the sdcc stdlib
-int16_t abs(int16_t j)
-{
-    return (j < 0) ? -j : j;
-}
-
 #define NO_POWER_COUNT 5000
 #define LOW_POWER 30
 
