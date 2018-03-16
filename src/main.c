@@ -23,7 +23,7 @@ void main(void)
 
     while(1)
     {
-        // take_SWR_samples();
+        // print_SWR_samples(5);
 
         save_flags();
     
