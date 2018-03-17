@@ -33,7 +33,7 @@ void interrupt_init(void)
 
 /* -------------------------------------------------------------------------- */
 
-void __interrupt(irq(TMR0),high_priority) TMR1_ISR(void)
+void __interrupt(irq(TMR0), high_priority) TMR1_ISR(void)
 {
     TIMER0_ON = 0; // stop timer
     TIMER0_IF = 0; // clear flag
@@ -42,7 +42,7 @@ void __interrupt(irq(TMR0),high_priority) TMR1_ISR(void)
     TIMER0_ON = 1; // restart timer
 }
 
-void __interrupt(irq(TMR5),high_priority) TMR5_ISR(void)
+void __interrupt(irq(TMR5), high_priority) TMR5_ISR(void)
 {
     TIMER5_ON = 0;  // stop timer
     TIMER5_IF = 0;  // clear flag
@@ -68,13 +68,24 @@ void __interrupt(irq(TMR5),high_priority) TMR5_ISR(void)
     buttons[LDN] <<= 1;
     buttons[LDN] |= LDN_BUTTON;
     
-    buttons[ANT] <<= 1;
-    buttons[ANT] |= ANT_BUTTON;
+    // buttons[ANT] <<= 1; //! ANT button is disabled
+    // buttons[ANT] |= ANT_BUTTON;
 
     buttons[POWER] <<= 1;
     buttons[POWER] |= POWER_BUTTON;
     
     TIMER5_ON = 1; // restart timer
+}
+
+void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR()
+{   
+    // interrupt on change for pin IOCAF3
+    if(IOCAFbits.IOCAF3 == 1)
+    {
+        IOCAFbits.IOCAF3 = 0;
+        PIE0bits.IOCIE = 0;
+        IOCANbits.IOCAN3 = 0;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
