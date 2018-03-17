@@ -27,6 +27,7 @@ typedef union {
         unsigned autoMode : 1; // Are we in semi (0) or full (1) auto mode?
         unsigned peakMode : 1; // 
         unsigned Scale100W : 1; // 
+        unsigned powerStatus : 1;
     };
     uint8_t flags;
 } system_flags_s;

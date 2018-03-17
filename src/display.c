@@ -198,8 +198,7 @@ void update_bypass_led(void)
 
 void update_power_led(void)
 {
-    //TODO: implement power-on status flag 
-    // POWER_LED_PIN = system_flags.inBypass;
+    POWER_LED_PIN = system_flags.powerStatus;
 }
 
 void show_auto(void)

@@ -16,41 +16,45 @@ void startup(void)
     interrupt_init();
     
     // Driver setup
-    delay_init();
     adc_init();
-    buttons_init();
+    delay_init();
     display_init();
     relays_init();
     RF_sensor_init();
-    spi_init();
     serial_bitbang_init();
+    spi_init();
+
+    print_format(BRIGHT, RED);
+    print_str_ln("Hello!");
     
     // Recall previous stuff from memory
     flags_init();
-    if (bypassStatus[system_flags.antenna] == 1) put_relays(&bypassRelays);
-    if (bypassStatus[system_flags.antenna] == 0) put_relays(&currentRelays[system_flags.antenna]);
-
-    // This delay is needed during dev because the TUNE button is shared with a
-    // programming pin, and that pin is pulled low for some time after a
-    // programming cycle is finished
-    // TODO: reassess this during verification
-    delay_ms(250);
+    put_relays(&currentRelays[system_flags.antenna]);
 
     // initialize the display
-    play_interruptable_animation(&right_crawl);
+    play_animation(&right_crawl);
     display_clear();
     update_antenna_led();
     update_bypass_led();
     update_power_led();
-
-    print_format(BRIGHT, RED);
-    print_str_ln("Hello!");
+    
+    buttons_init();
 }
 
 void shutdown(void)
 {
-    //TODO: implement sleep mode/power saving features
+    CPUDOZEbits.IDLEN = 0; // 0 = SLEEP, 1 = IDLE
+    IOCANbits.IOCAN3 = 1; // enable Interrupt-On-Change on the power button
+    PIE0bits.IOCIE = 1; // enable Interrupt-On-Change interrupt
+    timer5_stop();
+
     asm("SLEEP");
+
+    PIE0bits.IOCIE = 0;
+    IOCANbits.IOCAN3 = 0;
+    IOCAF = 0;
+
+    timer5_start();
 }
 
 /* -------------------------------------------------------------------------- */

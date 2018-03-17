@@ -57,6 +57,11 @@ void function_submenu(void)
             blink_thresh(4);
             return;
         }
+        // if (btn_is_pressed(ANT)) { //! ANT button is disabled
+        //     toggle_hiloz();
+        //     blink_HiLoZ(4);
+        //     return;
+        // }
         if (btn_is_pressed(TUNE)) {
             manual_store();
             return;
@@ -75,93 +80,159 @@ void function_submenu(void)
     play_animation(&arrow_down);
 }
 
-/* -------------------------------------------------------------------------- */
-
-void cup_hold(void)
+void shutdown_submenu(void)
 {
-    while(btn_is_down(CUP))
+    uint16_t holdCount = 0;
+
+    print_format(BRIGHT, RED);
+    print_str_ln("shutting down");
+
+    ANT_LED_PIN = 0;
+    BYPASS_LED_PIN = 0;
+    POWER_LED_PIN = 0;
+    display_clear();
+
+    while(btn_is_down(POWER));
+    delay_ms(100);
+
+    while(1)
     {
-        capacitor_increment();
-        if(btn_is_up(CUP)) break;
+        if (btn_is_down(POWER)) holdCount++;
+        if (holdCount == 1000) break;
 
         delay_ms(1);
     }
+
+    print_format(BRIGHT, RED);
+    print_str_ln("Hello again!");
+    
+    update_antenna_led();
+    update_bypass_led();
+    update_power_led();
+
+    while(btn_is_down(POWER));
+}
+
+/* -------------------------------------------------------------------------- */
+
+#define RELAY_INCREMENT_COUNT 4
+#define RELAY_INCREMENT_FAST_DELAY 75
+#define RELAY_INCREMENT_SLOW_DELAY 200
+
+void cup_hold(void)
+{
+    uint16_t holdCount = 0;
+
+    while(btn_is_down(CUP))
+    {
+        if (holdCount < UINT16_MAX) holdCount++;
+
+        capacitor_increment();
+
+        if(holdCount > RELAY_INCREMENT_COUNT) {
+            delay_ms(RELAY_INCREMENT_FAST_DELAY);
+        } else {
+            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
+        }
+    }
+    save_flags();
 }
 
 void cdn_hold(void)
 {
+    uint16_t holdCount = 0;
+
     while(btn_is_down(CDN))
     {
-        capacitor_decrement();
-        if(btn_is_up(CDN)) break;
+        if (holdCount < UINT16_MAX) holdCount++;
 
-        delay_ms(1);
+        capacitor_decrement();
+
+        if(holdCount > RELAY_INCREMENT_COUNT) {
+            delay_ms(RELAY_INCREMENT_FAST_DELAY);
+        } else {
+            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
+        }
     }
+    save_flags();
 }
 
 void lup_hold(void)
 {
+    uint16_t holdCount = 0;
+
     while(btn_is_down(LUP))
     {
-        inductor_increment();
-        if(btn_is_up(LUP)) break;
+        if (holdCount < UINT16_MAX) holdCount++;
 
-        delay_ms(1);
+        inductor_increment();
+
+        if(holdCount > RELAY_INCREMENT_COUNT) {
+            delay_ms(RELAY_INCREMENT_FAST_DELAY);
+        } else {
+            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
+        }
     }
+    save_flags();
 }
 
 void ldn_hold(void)
 {
+    uint16_t holdCount = 0;
+
     while(btn_is_down(LDN))
     {
-        inductor_decrement();
-        if(btn_is_up(LDN)) break;
+        if (holdCount < UINT16_MAX) holdCount++;
 
-        delay_ms(1);
+        inductor_decrement();
+
+        if(holdCount > RELAY_INCREMENT_COUNT) {
+            delay_ms(RELAY_INCREMENT_FAST_DELAY);
+        } else {
+            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
+        }
     }
+    save_flags();
 }
 
 void tune_hold(void)
 {
-    uint16_t buttonCount = 0;
+    uint16_t holdCount = 0;
 
     while(btn_is_down(TUNE))
     {
-        if (buttonCount < UINT16_MAX) buttonCount++;
+        if (holdCount < UINT16_MAX) holdCount++;
 
-        if (buttonCount < BTN_PRESS_DEBOUNCE) {
+        if (holdCount < BTN_PRESS_DEBOUNCE) {
             // button was not held long enough, do nothing
-        } else if (buttonCount < BTN_PRESS_SHORT) {
+        } else if (holdCount < BTN_PRESS_SHORT) {
             display_single_frame(&center_crawl, 0);
-            // display_raw_frame(center_crawl[0].image);
-        } else if (buttonCount < BTN_PRESS_MEDIUM) {
+        } else if (holdCount < BTN_PRESS_MEDIUM) {
             display_single_frame(&center_crawl, 2);
-            // display_raw_frame(center_crawl[2].image);
-        } else if (buttonCount < BTN_PRESS_LONG) {
+        } else if (holdCount < BTN_PRESS_LONG) {
             display_single_frame(&center_crawl, 3);
-            // display_raw_frame(center_crawl[3].image);
-        } else if (buttonCount >= BTN_PRESS_LONG) {
+        } else if (holdCount >= BTN_PRESS_LONG) {
             display_clear();
         }
-
         delay_ms(1);
     }
 
     display_clear();
 
-    if (buttonCount < BTN_PRESS_DEBOUNCE) {
+    if (holdCount < BTN_PRESS_DEBOUNCE) {
         // button was not held long enough, do nothing
-    } else if (buttonCount < BTN_PRESS_SHORT) {
+    } else if (holdCount < BTN_PRESS_SHORT) {
         toggle_bypass();
         blink_bypass();
     } else if (holdCount < BTN_PRESS_MEDIUM) {
         // request_memory_tune();
         request_full_tune();
-    } else if (buttonCount < BTN_PRESS_LONG) {
+    } else if (holdCount < BTN_PRESS_LONG) {
         request_full_tune();
-    } else if (buttonCount >= BTN_PRESS_LONG) {
+    } else if (holdCount >= BTN_PRESS_LONG) {
         // button was held for too long, do nothing
     }
+    save_flags();
 }
 
 void func_hold(void)
@@ -173,26 +244,30 @@ void func_hold(void)
         if (btn_is_pressed(CUP)) {
             FuncHoldProcessed = 1;
             show_peak();
-            // empty
-        }
-        if (btn_is_pressed(LUP)) {
-            FuncHoldProcessed = 1;
-            blink_HiLoZ(2);
-            show_HiLoZ();
         }
         if (btn_is_pressed(CDN)) {
             FuncHoldProcessed = 1;
-            blink_auto(4);
+            blink_auto(3);
             show_auto();
         }
         if (btn_is_pressed(LDN)) {
             FuncHoldProcessed = 1;
-            blink_thresh(4);
+            blink_thresh(3);
             show_thresh();
         }
+        if (btn_is_pressed(LUP)) {
+            FuncHoldProcessed = 1;
+            blink_scale(3);
+            show_scale();
+        }
+        // if (btn_is_pressed(ANT)) { //! ANT button is disabled
+        //     FuncHoldProcessed = 1;
+        //     blink_HiLoZ(2);
+        //     show_HiLoZ();
+        // }
     }
-
     if (FuncHoldProcessed == 0) function_submenu();
+    save_flags();
 }
 
 void ant_hold(void)
@@ -205,30 +280,26 @@ void ant_hold(void)
     // The ANT button is disabled on the dev unit
     while(btn_is_down(POWER))
     {
-        if (btn_is_released(POWER))
-        {
-            break;
-        }
+        // empty
     }
+    save_flags();
 }
 
 void power_hold(void)
 {
-    uint16_t buttonCount = 0;
-
-    print_str_ln("power_hold");
+    uint16_t holdCount = 0;
 
     while(btn_is_down(POWER))
     {
-        if (buttonCount < UINT16_MAX) buttonCount++;
+        if (holdCount < UINT16_MAX) holdCount++;
 
-        if (buttonCount == 1000) {
-            print_str_ln("going to sleep");
-        }
-
-        if (btn_is_released(POWER))
-        {
+        if (holdCount == 1500) {
+            shutdown_submenu();
             break;
         }
+        delay_ms(1);
     }
+    save_flags();
+    delay_ms(25);
 }
+
