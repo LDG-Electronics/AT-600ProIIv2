@@ -222,9 +222,9 @@ void show_relays(void)
 void show_scale(void)
 {
     if (system_flags.Scale100W == 0) {
-        FP_update(0x0002);
+        FP_update(0x0008);
     } else {
-        FP_update(0x0040);
+        FP_update(0x0080);
     }
 }
 
