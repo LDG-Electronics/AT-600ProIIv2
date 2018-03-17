@@ -14,7 +14,7 @@ void threshold_submenu(void)
     {
         if (btn_is_pressed(LDN))
         {
-            modeCount = 0;
+            modeCount = SUBMENU_TIMEOUT;
             SWR_threshold_increment();
             
             show_thresh();
