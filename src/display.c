@@ -122,6 +122,17 @@ void show_peak(void)
 
 // function-related, blinky display functions
 // THESE HAVE BLOCKING DELAYS
+void blink_bypass(void)
+{
+    if (bypassStatus[system_flags.antenna] == 1) {
+        repeat_animation(&blink_both_bars, 3);
+    } else {
+        show_relays();
+        delay_ms(150);
+        display_clear();
+    }
+}
+
 void blink_antenna(void)
 {
     if (system_flags.antenna == 1) {

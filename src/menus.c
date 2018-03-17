@@ -153,7 +153,8 @@ void tune_hold(void)
         // button was not held long enough, do nothing
     } else if (buttonCount < BTN_PRESS_SHORT) {
         toggle_bypass();
-    } else if (buttonCount < BTN_PRESS_MEDIUM) {
+        blink_bypass();
+    } else if (holdCount < BTN_PRESS_MEDIUM) {
         // request_memory_tune();
         request_full_tune();
     } else if (buttonCount < BTN_PRESS_LONG) {

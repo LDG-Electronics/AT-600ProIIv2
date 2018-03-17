@@ -29,7 +29,7 @@ extern void play_interruptable_animation(const animation_s *animation);
 
 // function-related, blinky display functions
 // THESE HAVE BLOCKING DELAYS
-
+extern void blink_bypass(void);
 extern void blink_antenna(void);
 extern void blink_auto(uint8_t blinks);
 extern void blink_HiLoZ(uint8_t blinks);
