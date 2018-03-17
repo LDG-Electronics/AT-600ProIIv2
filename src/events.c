@@ -2,12 +2,6 @@
 
 /* ************************************************************************** */
 
-// Allow for slow inc/dec, these are public because they're cleared from the main loop
-uint8_t IncDecCount = 0;
-uint8_t IncDecDelay = 0;
-
-/* -------------------------------------------------------------------------- */
-
 void toggle_bypass(void)
 {
     relays_s undoRelays;
@@ -15,22 +9,18 @@ void toggle_bypass(void)
 
     if (bypassStatus[system_flags.antenna] == 1) {
         currentRelays[system_flags.antenna].all = preBypassRelays[system_flags.antenna].all;
+
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].all = undoRelays.all;
-        } else {
-            // show_relays();
-            // delay_ms(250);
-            // display_clear();
         }
     } else {        
         preBypassRelays[system_flags.antenna].all = currentRelays[system_flags.antenna].all;
         currentRelays[system_flags.antenna].caps = 0;
         currentRelays[system_flags.antenna].inds = 0;
         currentRelays[system_flags.antenna].z = 0;
+
         if (put_relays(&bypassRelays) == -1) {
             currentRelays[system_flags.antenna].all = undoRelays.all;
-        } else {
-            // repeat_animation(&blink_both_bars, 3);
         }
     }
 }
@@ -96,6 +86,7 @@ void manual_store(void)
 
 void request_memory_tune(void)
 {
+    RADIO_CMD_PIN = 1;
     // poll_for_fwd_pwr(500);
     
     memory_tune();
@@ -104,115 +95,76 @@ void request_memory_tune(void)
     {
         full_tune();
     }
+
+    RADIO_CMD_PIN = 0;
     tuning_followup_animation();
 }
 
 void request_full_tune(void)
 {
+    RADIO_CMD_PIN = 1;
     // poll_for_fwd_pwr(500);
     
     full_tune();
 
+    RADIO_CMD_PIN = 0;
     tuning_followup_animation();
 }
 
 /* -------------------------------------------------------------------------- */
 
-void relays_delay_reset(void)
-{
-    IncDecCount = 0;
-    IncDecDelay = 0;
-}
-
-uint8_t OkToIncDec(void)
-{
-    if (IncDecCount < 5)  {
-        if (IncDecDelay == 0) {
-            IncDecDelay++;
-            return (1);
-        } else {
-            IncDecDelay++;
-        }
-        
-        if (IncDecDelay > 5)
-        {
-            IncDecDelay = 0;
-            IncDecCount++;
-        }
-        return(0);
-    } else {
-        return (1);
-    }
-}
-
 void capacitor_increment(void)
 {
-    if (OkToIncDec())
-    {
-        if (currentRelays[system_flags.antenna].caps < MAX_CAPACITORS) {
-            currentRelays[system_flags.antenna].caps++;
-            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
-            {
-                currentRelays[system_flags.antenna].caps--;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_power_bar, 3);
+    if (currentRelays[system_flags.antenna].caps < MAX_CAPACITORS) {
+        currentRelays[system_flags.antenna].caps++;
+        if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+        {
+            currentRelays[system_flags.antenna].caps--;
         }
+        show_relays();
+    } else {
+        repeat_animation(&blink_power_bar, 3);
     }
-    delay_ms(50);
 }
 
 void capacitor_decrement(void)
 {
-    if (OkToIncDec())
-    {
-        if (currentRelays[system_flags.antenna].caps > MIN_CAPACITORS) {
-            currentRelays[system_flags.antenna].caps--;
-            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
-            {
-                currentRelays[system_flags.antenna].caps++;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_power_bar, 3);
+    if (currentRelays[system_flags.antenna].caps > MIN_CAPACITORS) {
+        currentRelays[system_flags.antenna].caps--;
+        if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+        {
+            currentRelays[system_flags.antenna].caps++;
         }
+        show_relays();
+    } else {
+        repeat_animation(&blink_power_bar, 3);
     }
-    delay_ms(50);
 }
 
 void inductor_increment(void)
 {
-    if (OkToIncDec())
-    {
-        if (currentRelays[system_flags.antenna].inds < MAX_INDUCTORS) {
-            currentRelays[system_flags.antenna].inds++;
-            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
-            {
-                currentRelays[system_flags.antenna].inds--;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_swr_bar, 3);
+    if (currentRelays[system_flags.antenna].inds < MAX_INDUCTORS) {
+        currentRelays[system_flags.antenna].inds++;
+        if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+        {
+            currentRelays[system_flags.antenna].inds--;
         }
+        show_relays();
+    } else {
+        repeat_animation(&blink_swr_bar, 3);
     }
-    delay_ms(50);
 }
 
 void inductor_decrement(void)
 {
-    if (OkToIncDec())
-    {
-        if (currentRelays[system_flags.antenna].inds > MIN_INDUCTORS) {
-            currentRelays[system_flags.antenna].inds--;
-            if (put_relays(&currentRelays[system_flags.antenna]) == -1)
-            {
-                currentRelays[system_flags.antenna].inds++;
-            }
-            show_relays();
-        } else {
-            repeat_animation(&blink_swr_bar, 3);
+    if (currentRelays[system_flags.antenna].inds > MIN_INDUCTORS) {
+        currentRelays[system_flags.antenna].inds--;
+        if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+        {
+            currentRelays[system_flags.antenna].inds++;
         }
+        show_relays();
+    } else {
+        repeat_animation(&blink_swr_bar, 3);
     }
-    delay_ms(50);
 }
