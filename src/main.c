@@ -4,46 +4,26 @@
 
 void main(void)
 {
-    // double test = 0.5;
-    // char buffer[17];
-
     startup();
 
-    // sprintf(&buffer, "%f", test);
-
-    // log_str_ln("hello!");
-    // log_str_ln(&buffer);
-
-    // while(1)
-    // {
-    //     play_animation(&center_crawl);
-
-    //     delay_ms(500);
-    // }
-
     while(1)
-    {
-        // print_SWR_samples(5);
-
-        save_flags();
-    
+    {    
         // Relay buttons
-        if (btn_is_pressed(CUP)) cup_hold();
-        if (btn_is_pressed(CDN)) cdn_hold();
-        if (btn_is_pressed(LUP)) lup_hold();
-        if (btn_is_pressed(LDN)) ldn_hold();
-        relays_delay_reset();
+        if (btn_is_pressed(CUP) || btn_is_down(CUP)) cup_hold();
+        if (btn_is_pressed(CDN) || btn_is_down(CDN)) cdn_hold();
+        if (btn_is_pressed(LUP) || btn_is_down(LUP)) lup_hold();
+        if (btn_is_pressed(LDN) || btn_is_down(LDN)) ldn_hold();
 
         // Other buttons
-        if (btn_is_pressed(FUNC)) func_hold();
-        if (btn_is_pressed(TUNE)) tune_hold();
+        if (btn_is_pressed(FUNC) || btn_is_down(FUNC)) func_hold();
+        if (btn_is_pressed(TUNE) || btn_is_down(TUNE)) tune_hold();
 
         // ANT button doesn't work in development unit
-        // if (btn_is_pressed(ANT)) ant_hold();
+        // if (btn_is_pressed(ANT) || btn_is_down(ANT)) ant_hold();
 
         // remap ANT onto POWER
-        // if (btn_is_pressed(POWER)) power_hold();
-        if (btn_is_pressed(POWER)) ant_hold();
+        if (btn_is_pressed(POWER) || btn_is_down(POWER)) power_hold();
+        // if (btn_is_pressed(POWER) || btn_is_down(POWER)) ant_hold();
     }
 }
 
