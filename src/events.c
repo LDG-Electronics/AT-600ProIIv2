@@ -2,6 +2,11 @@
 
 /* ************************************************************************** */
 
+void set_bypass(uint8_t value)
+{
+
+}
+
 void toggle_bypass(void)
 {
     relays_s undoRelays;
@@ -25,9 +30,19 @@ void toggle_bypass(void)
     }
 }
 
+void set_peak(uint8_t value)
+{
+    system_flags.peakMode = value;
+}
+
 void toggle_peak(void)
 {
     system_flags.peakMode = !system_flags.peakMode;
+}
+
+void set_scale(uint8_t value)
+{
+    system_flags.Scale100W = value;
 }
 
 void toggle_scale(void)
@@ -35,9 +50,26 @@ void toggle_scale(void)
     system_flags.Scale100W = !system_flags.Scale100W;
 }
 
+void set_auto(uint8_t value)
+{
+    system_flags.autoMode = value;
+}
+
 void toggle_auto(void)
 {
     system_flags.autoMode = !system_flags.autoMode;
+}
+
+void set_hiloz(uint8_t value)
+{
+    uint8_t undo = currentRelays[system_flags.antenna].z;
+
+    currentRelays[system_flags.antenna].z = value;
+    
+    if (put_relays(&currentRelays[system_flags.antenna]) == -1)
+    {
+        currentRelays[system_flags.antenna].z = undo;
+    }
 }
 
 void toggle_hiloz(void)
@@ -52,18 +84,23 @@ void toggle_hiloz(void)
     }
 }
 
-void toggle_antenna(void)
+void set_antenna(uint8_t value)
 {
     uint8_t undo = system_flags.antenna;
 
-    system_flags.antenna = !system_flags.antenna;
+    system_flags.antenna = value;
     
     if (put_relays(&currentRelays[system_flags.antenna]) == -1)
     {
         system_flags.antenna = undo;
     }
-    
+
     update_antenna_led();
+}
+
+void toggle_antenna(void)
+{
+    set_antenna(!system_flags.antenna);
 }
 
 void manual_store(void)
