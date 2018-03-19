@@ -24,16 +24,16 @@ void startup(void)
     serial_bitbang_init();
     spi_init();
 
-    print_format(BRIGHT, RED);
-    print_str_ln("Hello!");
-    
     // Recall previous stuff from memory
     flags_init();
     put_relays(&currentRelays[system_flags.antenna]);
+    
+    print_format(BRIGHT, RED);
+    print_str_ln("Hello!");
 
     // initialize the display
-    play_animation(&right_crawl);
-    display_clear();
+    // play_animation(&right_crawl);
+    // display_clear();
     update_antenna_led();
     update_bypass_led();
     update_power_led();
@@ -159,16 +159,18 @@ void port_init(void)
     INLVLC = 0xff;
 }
 
+// TODO: split into PPS_lock() and PPS_unlock(), and make each module
+// TODO: responsible for it's own PPS settings.
 void pps_init(void)
 {
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
     PPSLOCKbits.PPSLOCKED = 0x00; // unlock PPS
 
-    // RC0PPS = 0x1E;   //RC0->SPI1:SCK1;
-    // SPI1SCKPPSbits.SPI1SCKPPS = 0x10;   //RC0->SPI1:SCK1;
-    // SPI1SDIPPSbits.SPI1SDIPPS = 0x12;   //RC2->SPI1:SDI1;
-    // RC1PPS = 0x1F;   //RC1->SPI1:SDO1;
+    RA6PPS = 0b000001; // RA6 -> CLC1OUT
+    // RC5PPS = 0x011111; // RC5 -> SPI1:SDO
+    RC5PPS = 0x000011; // RC5 -> CLC3OUT
+    RC4PPS = 0b100000; // RC4 -> SPI1:SS
 
     T3CKIPPS = 0b00001000;
 
