@@ -21,9 +21,6 @@ relays_s currentRelays[NUM_OF_ANTENNA_PORTS];
 relays_s bypassRelays; //TODO: needs to be const, and permanently equal {0, 0, 0}
 relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
-// File
-relays_s oldRelays;
-
 /* ************************************************************************** */
 
 void relays_init(void)
@@ -38,7 +35,6 @@ void relays_init(void)
     preBypassRelays[0].ant = 0;
     preBypassRelays[1].all = 0;
     preBypassRelays[1].ant = 1;
-    oldRelays.all = 0;
 
     // 
     RELAY_STROBE_PIN = 1;
@@ -110,11 +106,8 @@ int8_t put_relays(relays_s *testRelays)
     
     publish_relays(testRelays->all);
 
-    print_relays_ln(testRelays);
-
     delay_ms(RELAY_COIL_DELAY);
 
-    oldRelays.all = testRelays->all;
     return 0;
 }
 
