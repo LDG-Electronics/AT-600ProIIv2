@@ -4,7 +4,8 @@
 // Forward Declarations
 void osc_init(void);
 void port_init(void);
-void pps_init(void);
+void pps_unlock(void);
+void pps_lock(void);
 
 /* ************************************************************************** */
 
@@ -12,8 +13,8 @@ void startup(void)
 {
     osc_init();
     port_init();
-    pps_init();
     interrupt_init();
+    pps_unlock();
     
     // Driver setup
     adc_init();
@@ -39,6 +40,8 @@ void startup(void)
     update_power_led();
     
     buttons_init();
+
+    pps_lock();
 }
 
 void shutdown(void)
@@ -159,21 +162,15 @@ void port_init(void)
     INLVLC = 0xff;
 }
 
-// TODO: split into PPS_lock() and PPS_unlock(), and make each module
-// TODO: responsible for it's own PPS settings.
-void pps_init(void)
+void pps_unlock(void)
 {
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
     PPSLOCKbits.PPSLOCKED = 0x00; // unlock PPS
+}
 
-    RA6PPS = 0b000001; // RA6 -> CLC1OUT
-    // RC5PPS = 0x011111; // RC5 -> SPI1:SDO
-    RC5PPS = 0x000011; // RC5 -> CLC3OUT
-    RC4PPS = 0b100000; // RC4 -> SPI1:SS
-
-    T3CKIPPS = 0b00001000;
-
+void pps_lock(void)
+{
     PPSLOCK = 0x55;
     PPSLOCK = 0xAA;
     PPSLOCKbits.PPSLOCKED = 0x01; // lock PPS

@@ -18,6 +18,9 @@ void RF_sensor_init(void)
     timer1_init();
     timer3_init();
 
+    // PPS setup
+    T3CKIPPS = 0b00001000;
+
     currentRF.forward = 0;
     currentRF.reverse = 0;
     currentRF.swr = 0;

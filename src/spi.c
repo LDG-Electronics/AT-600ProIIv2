@@ -44,6 +44,12 @@ void spi_init(void)
 {
     clc_init();
 
+    // PPS setup
+    RA6PPS = 0b000001; // RA6 -> CLC1OUT
+    RC5PPS = 0x011111; // RC5 -> SPI1:SDO
+    // RC5PPS = 0x000010; // RC5 -> CLC3OUT
+    RC4PPS = 0b100000; // RC4 -> SPI1:SS
+
     SPI1CON0bits.BMODE = 1;
 
     SPI1CON1bits.CKE = 1; // Output data changes on transition from idle to active clock state
