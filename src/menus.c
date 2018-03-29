@@ -280,7 +280,7 @@ void ant_hold(void)
     // The ANT button is disabled on the dev unit
     while(btn_is_down(POWER))
     {
-        // empty
+        delay_ms(1);
     }
     save_flags();
 }
