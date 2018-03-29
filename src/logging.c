@@ -85,7 +85,7 @@ void log_ln(void)
 {
     serial_tx_char('\r');
     serial_tx_char('\n');
-    print_format_reset();
+    log_format_reset();
 }
 
 // Converts an integer to a string and prints it
