@@ -65,7 +65,11 @@ PK3FLAGS = -M -P$(TARGET_DEVICE) -L -V5
 PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
 
 CCSLOAD = ccsload
-CCSLOADFLAGS = -AREAS=ALL -VERBOSE -DEVICE=PIC18F26K42 -WRITE=$(PROJECT_HEX)
+CCSLOADFLAGS = -AREAS=ALL 
+CCSLOADFLAGS += -VERBOSE 
+CCSLOADFLAGS += -DEVICE=PIC18F26K42 
+CCSLOADFLAGS += -POWER=TARGET
+CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
 
 # ---------------------------------------------------------------------------- #
 # Puttin' stuff together
