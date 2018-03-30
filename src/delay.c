@@ -20,38 +20,6 @@ void delay_us(uint16_t useconds)
     }
 }
 
-void delay_10us(uint16_t useconds)
-{
-    timer1_start();
-    
-    while (useconds > 0)
-    {
-        TIMER1_IF = 0;
-        TMR1H = 0xFF;
-        TMR1L = 0xC1;
-        
-        while ((TIMER1_IF) == 0);
-        useconds--;
-    }
-    timer1_stop();
-}
-
-void delay_100us(uint16_t useconds)
-{
-    timer1_start();
-    
-    while (useconds > 0)
-    {
-        TIMER1_IF = 0;
-        TMR1H = 0xFD;
-        TMR1L = 0x05;
-        
-        while ((TIMER1_IF) == 0);
-        useconds--;
-    }
-    timer1_stop();
-}
-
 void delay_ms(uint16_t mseconds)
 {
     timer1_start();

@@ -58,16 +58,16 @@ void publish_relays(uint16_t word)
         } else {
             RELAY_DATA_PIN = 0;
         }
-        delay_10us(1);
+        delay_us(10);
         RELAY_CLOCK_PIN = 1;
-        delay_10us(1);
+        delay_us(10);
         RELAY_CLOCK_PIN = 0;
-        delay_10us(1);
+        delay_us(10);
     }
     RELAY_STROBE_PIN = 0;
-    delay_10us(1);
+    delay_us(10);
     RELAY_STROBE_PIN = 1;
-    delay_10us(1);
+    delay_us(10);
 }
 
 /* -------------------------------------------------------------------------- */

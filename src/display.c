@@ -21,14 +21,14 @@ const uint16_t ledSingleTable[9] = { 0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x8
 //         } else {
 //             FP_DATA_PIN = 0;
 //         }
-//         delay_10us(1);
+//         delay_us(10);
 //         FP_CLOCK_PIN = 1;
-//         delay_10us(1);
+//         delay_us(10);
 //         FP_CLOCK_PIN = 0;
-//         delay_10us(1);
+//         delay_us(10);
 //     }
 //     FP_STROBE_PIN = 0;
-//     delay_10us(1);
+//     delay_us(10);
 //     FP_STROBE_PIN = 1;
 //     FP_CLOCK_PIN = 1;
 //     FP_DATA_PIN = 1;
