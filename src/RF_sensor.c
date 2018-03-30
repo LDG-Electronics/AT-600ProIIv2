@@ -15,7 +15,6 @@ const uint16_t swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
 void RF_sensor_init(void)
 {    
-    timer1_init();
     timer3_init();
 
     // PPS setup
@@ -45,18 +44,11 @@ uint16_t get_freq(void)
 {
     timer3_clear();
 
-    // TIMER1_IF = 0;
-    // TMR1H = 0xE0;
-    // TMR1L = 0xC0;
-
-    // TIMER1_ON = 1;
     TIMER3_ON = 1;
 
-    // while ((TIMER1_IF) == 0);
     delay_ms(100);
     
     TIMER3_ON = 0;
-    // TIMER1_ON = 0;
     
 
     return timer3_read();

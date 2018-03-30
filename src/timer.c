@@ -2,8 +2,8 @@
 
 /* ************************************************************************** */
 
-/*
-    Timer0 is unused
+/*  Timer0 is used in the stopwatch module
+
 */
 
 void timer0_init(void)
@@ -35,8 +35,14 @@ uint16_t timer0_read(void)
     return retval;
 }
 
-/*
-    Timer1 is used in the frequency counter
+/*  Timer1 is used in the millisecond delay function
+
+    Settings:
+    Prescaler:
+    Postscaler: 
+    Actual Interrupt Time:
+    No interrupt
+    Do not leave running
 */
 
 void timer1_init(void)
@@ -72,13 +78,26 @@ uint16_t timer1_read(void)
     return retval;
 }
 
-/*
-    Timer2 is unused
+/*  Timer2 is used in the system tick counter
+
+    Settings:
+    Prescaler: 1:4
+    Postscaler: 1:8
+    TMR4 Preload: 0xF9
+    Actual Interrupt Time:
+    No interrupt
+    Do not leave running
 */
 
 void timer2_init(void)
 {
-    T2CON = 0b00000000;
+    T2CLK = 0b00000010;
+    T2CONbits.CKPS = 0b111;
+    T2CONbits.OUTPS = 0b0001;
+
+    PR2 = 0xF9;
+
+    timer2_start();
 }
 
 void timer2_start(void)
@@ -104,8 +123,8 @@ uint16_t timer2_read(void)
     return retval;
 }
 
-/*
-    Timer3 is used in the frequency counter
+/*  Timer3 is used in the frequency counter
+
 */
 
 void timer3_init(void)
@@ -148,8 +167,7 @@ uint16_t timer3_read(void)
     return retval;
 }
 
-/*
-    Timer4 is used for the millisecond delay function
+/*  Timer4 is used for the millisecond delay function
 
     Settings:
     Prescaler 1:4
@@ -192,8 +210,7 @@ uint16_t timer4_read(void)
     return retval;
 }
 
-/*
-    Timer5 is used to trigger an interrupt every 5ms to poll the buttons.
+/*  Timer5 is used to trigger an interrupt every 5ms to poll the buttons.
     
     Settings:
     Clock Source: FOSC/4

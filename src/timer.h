@@ -21,20 +21,15 @@
 
 #define TIMER0_H_REG TMR0H
 #define TIMER0_L_REG TMR0L
-#define TIMER1_H_REG TMR1H
-#define TIMER1_L_REG TMR1L
-#define TIMER2_REG TMR2
-#define TIMER3_H_REG TMR3H
-#define TIMER3_L_REG TMR3L
 
 /* ************************************************************************** */
 
-// Timer0 is unused
-// Timer1 is used in the frequency counter.  Not free-running.
-// Timer2 is unused
-// Timer3 is unused
-// Timer4 is used for the millisecond delay function.  Not free-running.
-// Timer5 is unused
+// Timer0 is used in the stopwatch module
+// Timer1 is used for the millisecond delay function.  Not free-running.
+// Timer2 is used for the systick module
+// Timer3 is used in the frequency counter
+// Timer4 is unused
+// Timer5 is used for the button debounce subsystem
 // Timer6 is used in serial communication.  Free-running.
 
 /* ************************************************************************** */
