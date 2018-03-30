@@ -14,6 +14,7 @@ void startup(void)
     osc_init();
     port_init();
     interrupt_init();
+    systick_init();
     pps_unlock();
     
     // Driver setup

@@ -37,6 +37,7 @@
 #include "serial_bitbang.h"
 #include "spi.h"
 #include "stopwatch.h"
+#include "system_tick.h"
 #include "timer.h"
 #include "tuning.h"
 
