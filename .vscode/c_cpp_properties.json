@@ -49,7 +49,7 @@
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/um",
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/shared",
                 "${workspaceRoot}",
-                "C:\Microchip\xc8\v1.45\include",
+                "C:/Microchip/xc8/v1.45/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -66,7 +66,9 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
     "version": 3
