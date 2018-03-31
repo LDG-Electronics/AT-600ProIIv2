@@ -17,7 +17,8 @@ const uint16_t swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 void RF_sensor_init(void)
 {
     adc_init();
-    timer3_init();
+    T3CON = 0b00000100;
+    T3CLK = 1;
 
     // PPS setup
     // T3CKIPPS = 0b00001000; // FREQ pin(RE3) is unavailable during development
@@ -47,11 +48,11 @@ uint16_t get_freq(void)
 {
     timer3_clear();
 
-    TIMER3_ON = 1;
+    timer3_start();
 
     delay_ms(100);
     
-    TIMER3_ON = 0;
+    timer3_stop();
     
 
     return timer3_read();

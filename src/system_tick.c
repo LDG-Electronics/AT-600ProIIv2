@@ -5,7 +5,11 @@
 
 void systick_init(void)
 {
-    timer2_init();
+    T2CLK = 0b00000010;
+    T2CONbits.CKPS = 0b111;
+    T2CONbits.OUTPS = 0b0001;
+    PR2 = 0xF9;
+
     timer2_start();
 
     SMT1CON0bits.STP = 0; // SMT automatically rolls over when it overflows

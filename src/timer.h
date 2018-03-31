@@ -41,54 +41,59 @@
 // naming convention of:  timerX_verb()
 
 // Timer0 control functions
-extern void timer0_init(void);      // sets up timer with desired settings
-extern void timer0_start(void);     // sets timerX enable bit
-extern void timer0_stop(void);      // clears timerX enable bit
+#define timer0_start() TIMER0_ON = 1
+#define timer0_stop() TIMER0_ON = 0
+#define timer0_IF_clear() TIMER0_IF = 0
+#define timer0_IF_read() TIMER0_IF
 extern void timer0_clear(void);     // clears timer count registers
-extern void timer0_reset(void);     // stops timer, clears count,
-                                    // clears interrupt flag, starts timer
 extern uint16_t timer0_read(void);
 
 // Timer1 control functions
-extern void timer1_init(void);
-extern void timer1_start(void);
-extern void timer1_stop(void);
+#define timer1_start() TIMER1_ON = 1
+#define timer1_stop() TIMER1_ON = 0
+#define timer1_IF_clear() TIMER1_IF = 0
+#define timer1_IF_read() TIMER1_IF
 extern void timer1_clear(void);
 extern uint16_t timer1_read(void);
 
 // Timer2 control functions
 extern void timer2_init(void);
-extern void timer2_start(void);
-extern void timer2_stop(void);
+#define timer2_start() TIMER2_ON = 1
+#define timer2_stop() TIMER2_ON = 0
+#define timer2_IF_clear() TIMER2_IF = 0
+#define timer2_IF_read() TIMER2_IF
 extern void timer2_clear(void);
 extern uint16_t timer2_read(void);
 
 // Timer3 control functions
-extern void timer3_init(void);
-extern void timer3_start(void);
-extern void timer3_stop(void);
+#define timer3_start() TIMER3_ON = 1
+#define timer3_stop() TIMER3_ON = 0
+#define timer3_IF_clear() TIMER3_IF = 0
+#define timer3_IF_read() TIMER3_IF
 extern void timer3_clear(void);
-extern void timer3_reset(void);
 extern uint16_t timer3_read(void);
 
 // Timer4 control functions
-extern void timer4_init(void);
-extern void timer4_start(void);
-extern void timer4_stop(void);
+#define timer4_start() TIMER4_ON = 1
+#define timer4_stop() TIMER4_ON = 0
+#define timer4_IF_clear() TIMER4_IF = 0
+#define timer4_IF_read() TIMER4_IF
 extern void timer4_clear(void);
 extern uint16_t timer4_read(void);
 
 // Timer5 control functions
-extern void timer5_init(void);
-extern void timer5_start(void);
-extern void timer5_stop(void);
+#define timer5_start() TIMER5_ON = 1
+#define timer5_stop() TIMER5_ON = 0
+#define timer5_IF_clear() TIMER5_IF = 0
+#define timer5_IF_read() TIMER5_IF
 extern void timer5_clear(void);
 extern uint16_t timer5_read(void);
 
 // Timer6 control functions
-extern void timer6_init(void);
-extern void timer6_start(void);
-extern void timer6_stop(void);
+#define timer6_start() TIMER6_ON = 1
+#define timer6_stop() TIMER6_ON = 0
+#define timer6_IF_clear() TIMER6_IF = 0
+#define timer6_IF_read() TIMER6_IF
 extern void timer6_clear(void);
 extern uint16_t timer6_read(void);
 
