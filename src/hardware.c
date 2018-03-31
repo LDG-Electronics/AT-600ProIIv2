@@ -12,30 +12,35 @@ void pps_lock(void);
 
 void startup(void)
 {
+    // System setup
     osc_init();
     port_init();
     interrupt_init();
     systick_init();
-    pps_unlock(); // PPS writes BELOW THIS POINT ONLY
 
     // Driver setup
+    pps_unlock(); // PPS writes BELOW THIS POINT ONLY
+
     buttons_init();
     delay_init();
     display_init();
+    flags_init();
+    log_init();
     relays_init();
     RF_sensor_init();
-    log_init();
-
-    // Recall previous stuff from memory
-    flags_init();
-    put_relays(&currentRelays[system_flags.antenna]);
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
+
+    #if LOG_LEVEL_SYSTEM > LOG_SILENT
     // Debug greeting
     print_ln();
     print_ln();
     print_format(BRIGHT, RED);
     print_str_ln("Hello!");
+    #endif
+
+    // Push out the initial relay settings
+    put_relays(&currentRelays[system_flags.antenna]);
 
     // initialize the display
     play_animation(&right_crawl);
