@@ -23,14 +23,14 @@ void uart1_init(void)
 
 /* -------------------------------------------------------------------------- */
 
-void uart1_tx_char(const char txData)
+void uart1_tx_char(const char data)
 {
     while(U1ERRIRbits.TXMTIF == 0);
 
-    U1TXB = txData; // Write the data byte to the USART.
+    U1TXB = data;
 }
 
-// Bitbang a null-terminated string of up to 255 characters
+// Transmit a null-terminated string of up to 255 characters
 void uart1_tx_string(const char *string)
 {
     uint8_t i = 0;
