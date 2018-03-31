@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "spi.h"
 
 /* ************************************************************************** */
 
@@ -18,6 +19,8 @@ void FP_update(uint16_t data)
 
 void display_init(void)
 {
+    spi_init();
+
     POWER_LED_PIN = 0;
     ANT_LED_PIN = 0;
     BYPASS_LED_PIN = 0;

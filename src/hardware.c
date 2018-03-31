@@ -24,7 +24,6 @@ void startup(void)
     relays_init();
     RF_sensor_init();
     log_init();
-    spi_init();
 
     // Recall previous stuff from memory
     flags_init();
