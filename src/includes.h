@@ -1,8 +1,7 @@
-#ifndef INCLUDES_H
-#define	INCLUDES_H
+#ifndef _INCLUDES_H_
+#define	_INCLUDES_H_
 
-// System
-#include <xc.h>
+/* ************************************************************************** */
 
 // std c headers
 #include <stdlib.h>
@@ -15,7 +14,6 @@
 
 // device header
 #include "pic18f26k42.h"
-#include "config.h"
 
 // modules
 #include "animations.h"
@@ -38,5 +36,4 @@
 #include "timer.h"
 #include "tuning.h"
 
-#endif	/* INCLUDES_H */
-
+#endif	/* _INCLUDES_H_ */
