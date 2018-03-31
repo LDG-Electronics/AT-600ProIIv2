@@ -1,5 +1,7 @@
 #include "includes.h"
 #include "adc.h"
+#include "calibration.h"
+#include "pps.h"
 
 /* ************************************************************************** */
 

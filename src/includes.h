@@ -14,7 +14,6 @@
 
 // device header
 #include "pic18f26k42.h"
-#include "pps.h"
 
 // modules
 #include "animations.h"
