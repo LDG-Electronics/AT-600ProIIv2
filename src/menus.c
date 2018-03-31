@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "menus.h"
 
 /* ************************************************************************** */
 #define SUBMENU_TIMEOUT 2200

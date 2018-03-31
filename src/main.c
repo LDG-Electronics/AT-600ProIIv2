@@ -1,6 +1,7 @@
 #include "includes.h"
 #include <xc.h>
 #include "config.h"
+#include "menus.h"
 
 /* ************************************************************************** */
 
