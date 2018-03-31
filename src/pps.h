@@ -132,77 +132,77 @@
 
 // Output macros
 // ADC Guard Ring Outputs
-#define PPS_ADGRDB = 0b110010; // A — C
-#define PPS_ADGRDA = 0b110001; // A — C
+#define PPS_ADGRDB 0b110010
+#define PPS_ADGRDA 0b110001
 
 // Complementary Waveform Generator
-#define PPS_CWG3D = 0b110000; // A — C
-#define PPS_CWG3C = 0b101111; // A — C
-#define PPS_CWG3B = 0b101110; // A — C
-#define PPS_CWG3A = 0b101101; // — B C
-#define PPS_CWG2D = 0b101100; // — B C
-#define PPS_CWG2C = 0b101011; // — B C
-#define PPS_CWG2B = 0b101010; // — B C
-#define PPS_CWG2A = 0b101001; // — B C
-#define PPS_CWG1D = 0b001000; // — B C
-#define PPS_CWG1C = 0b000111; // — B C
-#define PPS_CWG1B = 0b000110; // — B C
-#define PPS_CWG1A = 0b000101; // — B C
+#define PPS_CWG3D 0b110000
+#define PPS_CWG3C 0b101111
+#define PPS_CWG3B 0b101110
+#define PPS_CWG3A 0b101101
+#define PPS_CWG2D 0b101100
+#define PPS_CWG2C 0b101011
+#define PPS_CWG2B 0b101010
+#define PPS_CWG2A 0b101001
+#define PPS_CWG1D 0b001000
+#define PPS_CWG1C 0b000111
+#define PPS_CWG1B 0b000110
+#define PPS_CWG1A 0b000101
 
 // Digital Signal Modulater
-#define PPS_DSM1 = 0b101000; // A — C
+#define PPS_DSM1 0b101000
 
 // Reference Clock Output
-#define PPS_CLKR = 0b100111; // — B C
+#define PPS_CLKR 0b100111
 
 // Numerically Controller Oscillator
-#define PPS_NCO1 = 0b100110; // A — C
+#define PPS_NCO1 0b100110
 
 // Timer 0 Output
-#define PPS_TMR0 = 0b100101; // — B C
+#define PPS_TMR0 0b100101
 
 // I2C
-#define PPS_I2C2_SDA = 0b100100; // — B C
-#define PPS_I2C2_SCL = 0b100011; // — B C
-#define PPS_I2C1_SDA = 0b100010; // — B C
-#define PPS_I2C1_SCL = 0b100001; // — B C
+#define PPS_I2C2_SDA 0b100100
+#define PPS_I2C2_SCL 0b100011
+#define PPS_I2C1_SDA 0b100010
+#define PPS_I2C1_SCL 0b100001
 
 // SPI
-#define PPS_SPI1_SS = 0b100000; // A — C
-#define PPS_SPI1_SDO = 0b011111; // — B C
-#define PPS_SPI1_SCK = 0b011110; // — B C
+#define PPS_SPI1_SS 0b100000
+#define PPS_SPI1_SDO 0b011111
+#define PPS_SPI1_SCK 0b011110
 
 // Comparator
-#define PPS_C2OUT = 0b011101; // A — C
-#define PPS_C1OUT = 0b011100; // A — C
+#define PPS_C2OUT 0b011101
+#define PPS_C1OUT 0b011100
 
 // UART
-#define PPS_UART2_RTS = 0b011000; // — B C
-#define PPS_UART2_TXDE = 0b010111; // — B C
-#define PPS_UART2_TX = 0b010110; // — B C
-#define PPS_UART1_RTS = 0b010101; // — B C
-#define PPS_UART1_TXDE = 0b010100; // — B C
-#define PPS_UART1_TX = 0b010011; // — B C
+#define PPS_UART2_RTS 0b011000
+#define PPS_UART2_TXDE 0b010111
+#define PPS_UART2_TX 0b010110
+#define PPS_UART1_RTS 0b010101
+#define PPS_UART1_TXDE 0b010100
+#define PPS_UART1_TX 0b010011
 
 // PWM
-#define PPS_PWM8 = 0b010000; // A — C
-#define PPS_PWM7 = 0b001111; // A — C
-#define PPS_PWM6 = 0b001110; // A — C
-#define PPS_PWM5 = 0b001101; // A — C
+#define PPS_PWM8 0b010000
+#define PPS_PWM7 0b001111
+#define PPS_PWM6 0b001110
+#define PPS_PWM5 0b001101
 
 // Capture/Compare
-#define PPS_CCP4 = 0b001100; // — B C
-#define PPS_CCP3 = 0b001011; // — B C
-#define PPS_CCP2 = 0b001010; // — B C
-#define PPS_CCP1 = 0b001001; // — B C
+#define PPS_CCP4 0b001100
+#define PPS_CCP3 0b001011
+#define PPS_CCP2 0b001010
+#define PPS_CCP1 0b001001
 
 // Configurable Logic Cell
-#define PPS_CLC4OUT = 0b000100; // — B C
-#define PPS_CLC3OUT = 0b000011; // — B C
-#define PPS_CLC2OUT = 0b000010; // A — C
-#define PPS_CLC1OUT = 0b000001; // A — C
+#define PPS_CLC4OUT 0b000100
+#define PPS_CLC3OUT 0b000011
+#define PPS_CLC2OUT 0b000010
+#define PPS_CLC1OUT 0b000001
 
-#define PPS_LATxy = 0b000000; // A B C
+#define PPS_LATxy 0b000000
 
 
 #endif	/* _PPS_H_ */
