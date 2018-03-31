@@ -34,8 +34,8 @@ void startup(void)
     print_str_ln("Hello!");
 
     // initialize the display
-    // play_animation(&right_crawl);
-    // display_clear();
+    play_animation(&right_crawl);
+    display_clear();
     update_antenna_led();
     update_bypass_led();
     update_power_led();
@@ -65,16 +65,12 @@ void shutdown(void)
 
 void osc_init(void)
 {
-    // NOSC HFINTOSC; NDIV 1; 
-    OSCCON1 = 0x60;
-    // CSWHOLD may proceed; SOSCPWR Low power; 
-    OSCCON3 = 0x00;
-    // MFOEN disabled; LFOEN disabled; ADOEN disabled; SOSCEN disabled; EXTOEN disabled; HFOEN disabled; 
-    OSCEN = 0x00;
-    // HFFRQ 64_MHz; 
-    OSCFRQ = 0x08;
-    // TUN 0; 
-    OSCTUNE = 0x00;
+    OSCCON1 = 0x60; // NOSC HFINTOSC; NDIV 1;
+    OSCCON3 = 0x00; // CSWHOLD may proceed; SOSCPWR Low power;
+    OSCEN = 0x00; // MFOEN disabled; LFOEN disabled; ADOEN disabled; 
+                  // SOSCEN disabled; EXTOEN disabled; HFOEN disabled;
+    OSCFRQ = 0x08; // HFFRQ 64_MHz;
+    OSCTUNE = 0x00; // TUN 0;
 }
 
 void port_init(void)
@@ -107,9 +103,9 @@ void port_init(void)
     TRISCbits.TRISC5 = 0; // FP_DATA_PIN
 
     // Front Panel LEDs
-    TRISAbits.TRISA2 = 0; // POWER_LED
-    TRISBbits.TRISB1 = 0; // ANT_LED
-    TRISCbits.TRISC3 = 0; // BYPASS_LED
+    TRISAbits.TRISA2 = 0; // POWER_LED_PIN
+    TRISBbits.TRISB1 = 0; // ANT_LED_PIN
+    TRISCbits.TRISC3 = 0; // BYPASS_LED_PIN
 
     // Relay SPI
     TRISCbits.TRISC0 = 0; // RELAY_CLOCK_PIN

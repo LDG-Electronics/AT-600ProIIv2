@@ -9,31 +9,6 @@ const uint16_t ledSingleTable[9] = { 0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x8
 
 /* ************************************************************************** */
 
-// void FP_update(uint16_t d)
-// {
-//     uint8_t i;
-//     FP_STROBE_PIN = 1;
-//     FP_CLOCK_PIN = 0;
-//     for (i = 0; i < 16; i++)
-//     {
-//         if (d & (1 << (15 - i))) {
-//             FP_DATA_PIN = 1;
-//         } else {
-//             FP_DATA_PIN = 0;
-//         }
-//         delay_us(10);
-//         FP_CLOCK_PIN = 1;
-//         delay_us(10);
-//         FP_CLOCK_PIN = 0;
-//         delay_us(10);
-//     }
-//     FP_STROBE_PIN = 0;
-//     delay_us(10);
-//     FP_STROBE_PIN = 1;
-//     FP_CLOCK_PIN = 1;
-//     FP_DATA_PIN = 1;
-// }
-
 void FP_update(uint16_t data)
 {
     spi_tx_word(data);
@@ -43,11 +18,6 @@ void FP_update(uint16_t data)
 
 void display_init(void)
 {
-    // Clear Front Panel bitbang SPI pins
-    // FP_CLOCK_PIN = 1;
-    // FP_DATA_PIN = 1;
-    // FP_STROBE_PIN = 1;
-
     POWER_LED_PIN = 0;
     ANT_LED_PIN = 0;
     BYPASS_LED_PIN = 0;

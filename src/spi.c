@@ -39,30 +39,28 @@ void clc_init(void)
     CLC3CONbits.EN = 1; // turn it on
 }
 
-
 void spi_init(void)
 {
     clc_init();
 
     // PPS setup
-    RA6PPS = 0b000001; // RA6 -> CLC1OUT
-    RC5PPS = 0x011111; // RC5 -> SPI1:SDO
-    // RC5PPS = 0x000010; // RC5 -> CLC3OUT
-    RC4PPS = 0b100000; // RC4 -> SPI1:SS
+    RA6PPS = 0b000001; // SCK via CLC1OUT
+    RC5PPS = 0b000011; // SDO via CLC3OUT
+    RC4PPS = 0b100000; // SS
 
     SPI1CON0bits.BMODE = 1;
 
-    SPI1CON1bits.CKE = 1; // Output data changes on transition from idle to active clock state
+    SPI1CON1bits.CKE = 0; // Output data changes on transition from idle to active clock state
     SPI1CON1bits.CKP = 1; // Idle state for SCK is high level
     SPI1CON1bits.FST = 0; // Delay to first SCK will be at least ½ baud period
     SPI1CON1bits.SSP = 1; // SS is active-low
-    SPI1CON1bits.SDOP = 1; // SDO is active-low
+    SPI1CON1bits.SDOP = 0; // SDO is active-low
 
     SPI1CON2bits.SSET = 0; // SS(out) is driven to the active state while the transmit counter is not zero
     SPI1CON2bits.TXR = 1; // TxFIFO data is required for a transfer
     SPI1CON2bits.RXR = 0; // Received data is not stored in the FIFO
     
-    SPI1BAUD = 7; // 
+    SPI1BAUD = 7; // Divide the clock source by 16(FOSC/(2*(BAUD+1)))
     
     SPI1CLK = 0; // FOSC
     
@@ -76,12 +74,6 @@ void spi_tx_word(uint16_t data)
 {
     // Two byte transfer count   
     SPI1TCNTL = 2;
-    SPI1TXB = (uint8_t)data >> 8; // high byte
-    SPI1TXB = (uint8_t)data; // low byte 
-
-    if(SPI1STATUSbits.TXWE == 1)
-    {
-        print_str_ln("TXWE");
-
-    }
+    SPI1TXB = (uint8_t)(data >> 8); // high byte
+    SPI1TXB = (uint8_t)(data & 0xff); // low byte 
 }
