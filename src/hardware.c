@@ -22,7 +22,6 @@ void startup(void)
     pps_unlock(); // PPS writes BELOW THIS POINT ONLY
 
     buttons_init();
-    delay_init();
     display_init();
     flags_init();
     log_init();
