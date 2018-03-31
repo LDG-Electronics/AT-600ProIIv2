@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "adc.h"
 
 /* ************************************************************************** */
 
@@ -14,7 +15,8 @@ const uint16_t swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 /* ************************************************************************** */
 
 void RF_sensor_init(void)
-{    
+{
+    adc_init();
     timer3_init();
 
     // PPS setup

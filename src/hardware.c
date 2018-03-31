@@ -18,7 +18,6 @@ void startup(void)
     pps_unlock();
     
     // Driver setup
-    adc_init();
     delay_init();
     display_init();
     relays_init();

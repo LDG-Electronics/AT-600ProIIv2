@@ -18,7 +18,6 @@
 #include "config.h"
 
 // modules
-#include "adc.h"
 #include "animations.h"
 #include "buttons.h"
 #include "delay.h"
