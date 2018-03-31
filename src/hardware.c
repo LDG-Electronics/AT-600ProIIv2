@@ -15,9 +15,10 @@ void startup(void)
     port_init();
     interrupt_init();
     systick_init();
-    pps_unlock();
-    
+    pps_unlock(); // PPS writes BELOW THIS POINT ONLY
+
     // Driver setup
+    buttons_init();
     delay_init();
     display_init();
     relays_init();
@@ -28,6 +29,10 @@ void startup(void)
     flags_init();
     put_relays(&currentRelays[system_flags.antenna]);
     
+    pps_lock(); // PPS writes ABOVE THIS POINT ONLY
+    // Debug greeting
+    print_ln();
+    print_ln();
     print_format(BRIGHT, RED);
     print_str_ln("Hello!");
 
@@ -37,10 +42,6 @@ void startup(void)
     update_antenna_led();
     update_bypass_led();
     update_power_led();
-    
-    buttons_init();
-
-    pps_lock();
 }
 
 void shutdown(void)
