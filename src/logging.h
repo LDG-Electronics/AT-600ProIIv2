@@ -32,6 +32,8 @@ enum textColor {
     and 'user-friendly'.
 */
 
+extern void log_init(void);
+
 // Just prints a CR/LF
 extern void log_ln(void);
 

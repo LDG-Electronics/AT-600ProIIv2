@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "uart.h"
 
 #if LOG_LEVEL_SYSTEM > LOG_SILENT
 /* ************************************************************************** */
@@ -13,6 +14,13 @@ char intString[NUMBER_OF_DIGITS];
 int status;
 
 /* ************************************************************************** */
+
+void log_init(void)
+{
+    uart1_init();
+}
+
+/* -------------------------------------------------------------------------- */
 
 /*  i_to_a() converts a signed 32 bit integer into a string
     containing the base ten digits representing that number.
@@ -83,27 +91,26 @@ char* i_to_a(int32_t value)
 */
 void log_ln(void)
 {
-    serial_tx_char('\r');
-    serial_tx_char('\n');
+    uart1_tx_string("\r\n");
     log_format_reset();
 }
 
 // Converts an integer to a string and prints it
 void log_int(int32_t value)
 {
-    serial_tx_string(i_to_a(value));
+    uart1_tx_string(i_to_a(value));
 }
 
 // Print a string.  Must be null-terminated.
 void log_str(const char *string)
 {
-    serial_tx_string(string);
+    uart1_tx_string(string);
 }
 
 // Same as log_str(), but also appends a CRLF.
 void log_str_ln(const char *string)
 {
-    serial_tx_string(string);
+    uart1_tx_string(string);
 
     log_ln();
 }
@@ -111,14 +118,14 @@ void log_str_ln(const char *string)
 // Common use case of printing "label: <value>".
 void log_cat(const char *string, int32_t value)
 { 
-    serial_tx_string(string);
+    uart1_tx_string(string);
     log_int(value);
 }
 
 // Same as log_cat(), but also appends a CRLF.
 void log_cat_ln(const char *string, int32_t value)
 { 
-    serial_tx_string(string);
+    uart1_tx_string(string);
     log_int(value);
 
     log_ln();
@@ -127,15 +134,15 @@ void log_cat_ln(const char *string, int32_t value)
 // Common use case of printing "label: <value>".
 void log_catf(const char *string, double value)
 { 
-    serial_tx_string(string);
-    serial_tx_string(ftoa(value, &status));
+    uart1_tx_string(string);
+    uart1_tx_string(ftoa(value, &status));
 }
 
 // Same as log_catf(), but also appends a CRLF.
 void log_catf_ln(const char *string, double value)
 { 
-    serial_tx_string(string);
-    serial_tx_string(ftoa(value, &status));
+    uart1_tx_string(string);
+    uart1_tx_string(ftoa(value, &status));
 
     log_ln();
 }

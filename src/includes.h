@@ -34,7 +34,6 @@
 #include "menus.h"
 #include "nonvolatile_memory.h"
 #include "RF_sensor.h"
-#include "serial_bitbang.h"
 #include "spi.h"
 #include "stopwatch.h"
 #include "system_tick.h"

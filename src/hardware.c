@@ -23,7 +23,7 @@ void startup(void)
     display_init();
     relays_init();
     RF_sensor_init();
-    serial_bitbang_init();
+    log_init();
     spi_init();
 
     // Recall previous stuff from memory
