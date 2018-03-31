@@ -1,12 +1,11 @@
 #include "includes.h"
 #include "interrupt.h"
+#include "pps.h"
 
 /* ************************************************************************** */
 // Forward Declarations
 void osc_init(void);
 void port_init(void);
-void pps_unlock(void);
-void pps_lock(void);
 
 /* ************************************************************************** */
 
@@ -161,18 +160,4 @@ void port_init(void)
     INLVLA = 0xff;
     INLVLB = 0xff;
     INLVLC = 0xff;
-}
-
-void pps_unlock(void)
-{
-    PPSLOCK = 0x55;
-    PPSLOCK = 0xAA;
-    PPSLOCKbits.PPSLOCKED = 0x00; // unlock PPS
-}
-
-void pps_lock(void)
-{
-    PPSLOCK = 0x55;
-    PPSLOCK = 0xAA;
-    PPSLOCKbits.PPSLOCKED = 0x01; // lock PPS
 }
