@@ -24,7 +24,6 @@
 #include "events.h"
 #include "flags.h"
 #include "hardware.h"
-#include "interrupt.h"
 #include "relays.h"
 #include "logging_switches.h"
 #include "logging.h"
