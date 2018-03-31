@@ -96,8 +96,6 @@ void timer2_init(void)
     T2CONbits.OUTPS = 0b0001;
 
     PR2 = 0xF9;
-
-    timer2_start();
 }
 
 void timer2_start(void)
