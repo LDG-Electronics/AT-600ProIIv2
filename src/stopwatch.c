@@ -71,6 +71,30 @@ void ms_stopwatch_end(void)
 
 void stopwatch_and_delay_test(void)
 {
+    // Microsecond tests, microsecond delays
+    print_str("10us: ");
+    us_stopwatch_begin();
+    delay_us(10);
+    us_stopwatch_end();
+    
+    print_str("100us: ");
+    us_stopwatch_begin();
+    delay_us(100);
+    us_stopwatch_end();
+    
+    print_str("1000us: ");
+    us_stopwatch_begin();
+    delay_us(1000);
+    us_stopwatch_end();
+    
+    print_str("10000us: ");
+    us_stopwatch_begin();
+    delay_us(10000);
+    us_stopwatch_end();
+
+    print_ln();
+
+    // Microsecond tests, millisecond delays
     print_str("1ms: ");
     us_stopwatch_begin();
     delay_ms(1);
@@ -95,7 +119,10 @@ void stopwatch_and_delay_test(void)
     us_stopwatch_begin();
     delay_ms(10000);
     us_stopwatch_end();
+
+    print_ln();
     
+    // Millisecond tests
     print_str("1ms: ");
     ms_stopwatch_begin();
     delay_ms(1);
