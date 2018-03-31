@@ -49,8 +49,6 @@ void timer1_init(void)
 {
     T1CON = 0b00010000;
     T1CLK = 1;
-
-    timer1_clear();
 }
 
 void timer1_start(void)
@@ -128,10 +126,7 @@ uint16_t timer2_read(void)
 void timer3_init(void)
 {
     T3CON = 0b00000100;
-    T3CLK = 0;
-
-    TIMER3_IF = 0;
-    timer3_clear();
+    T3CLK = 1;
 }
 
 void timer3_start(void)
@@ -180,9 +175,6 @@ void timer4_init(void)
 {
     T4CON = 0b00111001;
     PR4 = 250;
-
-    timer4_stop();
-    timer4_clear();
 }
 
 void timer4_start(void)
@@ -230,8 +222,6 @@ void timer5_init(void)
     TIMER5_IF = 0;
     PIE8bits.TMR5IE = 1;
     IPR8bits.TMR5IP = 1;
-
-    timer5_clear();
 }
 
 void timer5_start(void)
@@ -283,9 +273,6 @@ void timer6_init(void)
     T6CLK = 1;
     T6CON = 0b00000000;
     PR6 = 138; 
-   
-    timer6_stop();
-    timer6_clear();
 }
 
 void timer6_start(void)
