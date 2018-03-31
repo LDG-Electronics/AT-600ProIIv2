@@ -7,5 +7,6 @@ extern void systick_init(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern uint24_t systick_read(void);
 
 #endif
