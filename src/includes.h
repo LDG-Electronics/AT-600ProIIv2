@@ -29,7 +29,6 @@
 #include "logging.h"
 #include "memory.h"
 #include "menus.h"
-#include "nonvolatile_memory.h"
 #include "RF_sensor.h"
 #include "stopwatch.h"
 #include "system_tick.h"

@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "nonvolatile_memory.h"
 
 /* ************************************************************************** */
 
@@ -23,6 +24,7 @@ void flags_init(void)
     system_flags.powerStatus = 1; // default value is 1
     swrThreshIndex = 0;
 
+    // Attempt to load previously saved flags
     load_flags();
 
     // copy stored bypass values to the usable array
