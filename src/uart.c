@@ -6,8 +6,8 @@
 void uart1_init(void)
 {
     // PPS Setup
-    U1RXPPS = 0b10111; // RX
-    RC6PPS = 0b010011; // TX
+    U1RXPPS = PPS_PORT_C && PPS_PIN_7;
+    RC6PPS = PPS_UART1_TX;
 
     U1CON0bits.BRGS = 1; // Baud Rate is set to high speed
     U1CON0bits.TXEN = 1; // Transmit is enabled

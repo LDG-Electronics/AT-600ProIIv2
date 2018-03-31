@@ -44,9 +44,9 @@ void spi_init(void)
     clc_init();
 
     // PPS setup
-    RA6PPS = 0b000001; // SCK via CLC1OUT
-    RC5PPS = 0b000011; // SDO via CLC3OUT
-    RC4PPS = 0b100000; // SS
+    RA6PPS = PPS_CLC1OUT; // SCK via CLC1OUT
+    RC5PPS = PPS_CLC3OUT; // SDO via CLC3OUT
+    RC4PPS = PPS_SPI1_SS; // SS
 
     SPI1CON0bits.BMODE = 1;
 
