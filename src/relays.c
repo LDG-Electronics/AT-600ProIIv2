@@ -14,6 +14,11 @@
 // Relay delay constants, in 1 ms intervals
 #define RELAY_COIL_DELAY 15
 
+// Relay Driver pins
+#define RELAY_CLOCK_PIN LATCbits.LATC0 //
+#define RELAY_DATA_PIN LATCbits.LATC1 // 
+#define RELAY_STROBE_PIN LATCbits.LATC2 //
+
 /* ************************************************************************** */
 
 // Global

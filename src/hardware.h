@@ -45,11 +45,6 @@
 //
 #define RADIO_CMD_PIN PORTAbits.RA7
 
-// Relays
-#define RELAY_CLOCK_PIN LATCbits.LATC0 //
-#define RELAY_DATA_PIN LATCbits.LATC1 // 
-#define RELAY_STROBE_PIN LATCbits.LATC2 //
-
 // Meter port
 #define METER_TX_PIN LATCbits.LATC6
 #define METER_RX_PIN PORTCbits.RC7
