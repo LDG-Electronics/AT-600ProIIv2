@@ -248,31 +248,13 @@ uint16_t timer5_read(void)
     return retval;
 }
 
-/*  Timer6 is used for the fast serial bitbang, 115200 baud
-        115200 baud = 8.68 us per bit
-        64mhz/4 = 16mhz instruction clock
-        16mhz instruction clock = 62.5 ns per instruction
-        62.5 ns x 138 = 8.6875 us
+/*  Timer6 is unused
 
-    Settings:
-    Prescaler = 1:1
-    Postscaler = 1:1
-    TMR6 Preload = 138
-    Actual Interrupt Time = 8.6875 us
-    No interrupt
-    Should be left running
-
-    NOTE: Timer6 should be started during setup and left running.
-          Bitbang serial works better with a steady tempo.
-          This prevents multiple sequential bytes from bunching and keeps the
-          output from being jittery.
 */
 
 void timer6_init(void)
 {
-    T6CLK = 1;
-    T6CON = 0b00000000;
-    PR6 = 138; 
+    
 }
 
 void timer6_start(void)

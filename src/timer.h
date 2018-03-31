@@ -30,7 +30,7 @@
 // Timer3 is used in the frequency counter
 // Timer4 is unused
 // Timer5 is used for the button debounce subsystem
-// Timer6 is used in serial communication.  Free-running.
+// Timer6 is unused
 
 /* ************************************************************************** */
 
