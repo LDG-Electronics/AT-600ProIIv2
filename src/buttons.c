@@ -26,14 +26,11 @@ void buttons_init(void)
 {
     // Timer5 setup
     T5CLK = 1; // Select Fosc/4 as clock source
-
     T5CONbits.CKPS = 0b01; // 1:2 prescale
     T5CONbits.RD16 = 1; // 16 bit mode, for atomic operation
     
-    PIE8bits.TMR5IE = 1;
-    IPR8bits.TMR5IP = 1;
+    PIE8bits.TMR5IE = 1; // Enable Timer5 interrupt
     
-    timer5_IF_clear();
     timer5_start();
 }
 
