@@ -35,20 +35,13 @@ uint16_t timer0_read(void)
     return retval;
 }
 
-/*  Timer1 is used in the millisecond delay function
+/*  Timer1 is unused
 
-    Settings:
-    Prescaler:
-    Postscaler: 
-    Actual Interrupt Time:
-    No interrupt
-    Do not leave running
 */
 
 void timer1_init(void)
 {
-    T1CON = 0b00010000;
-    T1CLK = 1;
+    
 }
 
 void timer1_start(void)

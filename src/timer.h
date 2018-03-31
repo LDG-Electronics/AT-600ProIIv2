@@ -25,7 +25,7 @@
 /* ************************************************************************** */
 
 // Timer0 is used in the stopwatch module
-// Timer1 is used for the millisecond delay function.  Not free-running.
+// Timer1 is unused
 // Timer2 is used for the systick module
 // Timer3 is used in the frequency counter
 // Timer4 is unused
