@@ -51,28 +51,28 @@ void __interrupt(irq(TMR5), high_priority) TMR5_ISR(void)
 
     // Grab current state of every button
     buttons[TUNE] <<= 1;
-    buttons[TUNE] |= TUNE_BUTTON;
+    buttons[TUNE] |= TUNE_BUTTON_PIN;
     
     buttons[FUNC] <<= 1;
-    buttons[FUNC] |= FUNC_BUTTON;
+    buttons[FUNC] |= FUNC_BUTTON_PIN;
     
     buttons[CUP] <<= 1;
-    buttons[CUP] |= CUP_BUTTON;
+    buttons[CUP] |= CUP_BUTTON_PIN;
     
     buttons[CDN] <<= 1;
-    buttons[CDN] |= CDN_BUTTON;
+    buttons[CDN] |= CDN_BUTTON_PIN;
     
     buttons[LUP] <<= 1;
-    buttons[LUP] |= LUP_BUTTON;
+    buttons[LUP] |= LUP_BUTTON_PIN;
     
     buttons[LDN] <<= 1;
-    buttons[LDN] |= LDN_BUTTON;
+    buttons[LDN] |= LDN_BUTTON_PIN;
     
     // buttons[ANT] <<= 1; //! ANT button is disabled
-    // buttons[ANT] |= ANT_BUTTON;
+    // buttons[ANT] |= ANT_BUTTON_PIN;
 
     buttons[POWER] <<= 1;
-    buttons[POWER] |= POWER_BUTTON;
+    buttons[POWER] |= POWER_BUTTON_PIN;
     
     timer5_start();
 }
