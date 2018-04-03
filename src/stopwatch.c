@@ -10,6 +10,7 @@ volatile uint32_t stopwatchCount;
 
 /* -------------------------------------------------------------------------- */
 
+// TODO: Measure and calibrate this against the revised delay library
 void us_stopwatch_begin(void)
 {
     T0CON0bits.MD16 = 1; // Timer 0 set to 16 bit mode
@@ -18,8 +19,8 @@ void us_stopwatch_begin(void)
     
     // Clear old stuff
     stopwatchCount = 0;
-    TIMER0_H_REG = 0;
-    TIMER0_L_REG = 0;
+    TMR0H = 0;
+    TMR0L = 0;
 
     // Enable interrupt and engage
     PIE3bits.TMR0IE = 1;
@@ -38,6 +39,8 @@ void us_stopwatch_end(void)
     print_str_ln("us");
 }
 
+// TODO: Measure and calibrate this against the revised delay library
+// Include results, especially accuracy measurements. (%)
 void ms_stopwatch_begin(void)
 {
     T0CON0bits.MD16 = 1; // Timer 0 set to 16 bit mode
@@ -46,8 +49,8 @@ void ms_stopwatch_begin(void)
     
     // Clear old stuff
     stopwatchCount = 0;
-    TIMER0_H_REG = 0;
-    TIMER0_L_REG = 0;
+    TMR0H = 0;
+    TMR0L = 0;
 
     // Enable interrupt and engage
     PIE3bits.TMR0IE = 1;
