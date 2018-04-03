@@ -18,8 +18,6 @@ void startup(void)
     systick_init();
 
     // Driver setup
-    pps_unlock(); // PPS writes BELOW THIS POINT ONLY
-
     buttons_init();
     display_init();
     flags_init();

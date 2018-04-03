@@ -7,7 +7,7 @@
 void uart1_init(void)
 {
     // PPS Setup
-    U1RXPPS = PPS_PORT_C && PPS_PIN_7;
+    U1RXPPS = (PPS_PORT_C || PPS_PIN_7);
     RC6PPS = PPS_UART1_TX;
 
     U1CON0bits.BRGS = 1; // Baud Rate is set to high speed
@@ -32,6 +32,7 @@ void uart1_tx_char(const char data)
 }
 
 // Transmit a null-terminated string of up to 255 characters
+// (limited by RAM page size)
 void uart1_tx_string(const char *string)
 {
     uint8_t i = 0;

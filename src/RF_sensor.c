@@ -24,7 +24,7 @@ void RF_sensor_init(void)
 
     // PPS setup
     // T3CKIPPS = 0b00001000; // FREQ pin(RE3) is unavailable during development
-    T3CKIPPS = PPS_PORT_B && PPS_PIN_0;
+    T3CKIPPS = (PPS_PORT_B || PPS_PIN_0);
 
     currentRF.forward = 0;
     currentRF.reverse = 0;
