@@ -3,6 +3,16 @@
 
 /* ************************************************************************** */
 
+// Timer0 is used in the stopwatch module
+// Timer1 is unused
+// Timer2 is used for the systick module
+// Timer3 is used in the frequency counter
+// Timer4 is unused
+// Timer5 is used for the button debounce subsystem
+// Timer6 is unused
+
+/* ************************************************************************** */
+
 #define TIMER0_IF PIR3bits.TMR0IF
 #define TIMER1_IF PIR4bits.TMR1IF
 #define TIMER2_IF PIR4bits.TMR2IF
@@ -19,33 +29,20 @@
 #define TIMER5_ON T5CONbits.ON
 #define TIMER6_ON T6CONbits.ON
 
-#define TIMER0_H_REG TMR0H
-#define TIMER0_L_REG TMR0L
-
-/* ************************************************************************** */
-
-// Timer0 is used in the stopwatch module
-// Timer1 is unused
-// Timer2 is used for the systick module
-// Timer3 is used in the frequency counter
-// Timer4 is unused
-// Timer5 is used for the button debounce subsystem
-// Timer6 is unused
-
 /* ************************************************************************** */
 
 // Setup and control function for hardware timers.
-// Each timerX_init() and timerX_clear() can be customized for desired timer duration.
+// Each timerX_clear() can be customized for desired timer duration.
 
 // Any additional or specialized timer functions should follow the existing
-// naming convention of:  timerX_verb()
+// naming convention of: timerX_verb()
 
 // Timer0 control functions
 #define timer0_start() TIMER0_ON = 1
 #define timer0_stop() TIMER0_ON = 0
 #define timer0_IF_clear() TIMER0_IF = 0
 #define timer0_IF_read() TIMER0_IF
-extern void timer0_clear(void);     // clears timer count registers
+extern void timer0_clear(void);
 extern uint16_t timer0_read(void);
 
 // Timer1 control functions
@@ -57,7 +54,6 @@ extern void timer1_clear(void);
 extern uint16_t timer1_read(void);
 
 // Timer2 control functions
-extern void timer2_init(void);
 #define timer2_start() TIMER2_ON = 1
 #define timer2_stop() TIMER2_ON = 0
 #define timer2_IF_clear() TIMER2_IF = 0
