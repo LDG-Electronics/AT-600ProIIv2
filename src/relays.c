@@ -81,13 +81,6 @@ int8_t check_if_safe(void)
 {
     SWR_average();
     
-    if (currentRF.forward >= HIGH_OVER_POWER) {
-        #if LOG_LEVEL_RELAYS >= LOG_ERROR
-        print_format(BRIGHT, MAGENTA);
-        print_str_ln("relay error");
-        #endif
-        return (-1);
-    }
     return 0;
 }
 
