@@ -34,21 +34,15 @@
 /* ************************************************************************** */
 /*  PPS Input Registers
 
-    Each peripheral has a PPS register with which the inputs to the peripheral 
-    are selected. Inputs include the device pins. Multiple peripherals can 
-    operate from the same source simultaneously. Port reads always return the 
-    pin level regardless of peripheral PPS selection. If a pin also has analog 
-    functions associated, the ANSEL bit for that pin must be cleared to enable 
-    the digital input buffer. Although every peripheral has its own PPS input 
-    selection register, the selections are identical for every peripheral. 
-
     Example PPS Input assignments:
 
-    T3CKIPPS = PPS_PORT_B && PPS_PIN_0;
+    T3CKIPPS = (PPS_PORT_B || PPS_PIN_0);
     Connect the Timer 3 Clock input to pin RB0
     
-    U1RXPPS = PPS_PORT_C && PPS_PIN_7;
+    U1RXPPS = (PPS_PORT_C || PPS_PIN_7);
     Connect the UART 1 Recieve input to pin RC7
+
+    TODO: Write notes here in native english - not Microchipese
 
     Peripheral              Register    Default     Port
                                         Pin         Availability
@@ -97,37 +91,31 @@
 */
 
 // Input pin assignment macros
-#define PPS_PORT_A 0b000111
-#define PPS_PORT_B 0b001111
-#define PPS_PORT_C 0b010111
-#define PPS_PORT_D 0b011111
-#define PPS_PORT_E 0b100111
-#define PPS_PORT_F 0b101111
+#define PPS_PORT_A 0b00000000
+#define PPS_PORT_B 0b00001000
+#define PPS_PORT_C 0b00010000
+#define PPS_PORT_D 0b00011000
+#define PPS_PORT_E 0b00100000
+#define PPS_PORT_F 0b00101000
 
-#define PPS_PIN_0 0b111000
-#define PPS_PIN_1 0b111001
-#define PPS_PIN_2 0b111010
-#define PPS_PIN_3 0b111011
-#define PPS_PIN_4 0b111100
-#define PPS_PIN_5 0b111101
-#define PPS_PIN_6 0b111110
-#define PPS_PIN_7 0b111111
+#define PPS_PIN_0 0b00000000
+#define PPS_PIN_1 0b00000001
+#define PPS_PIN_2 0b00000010
+#define PPS_PIN_3 0b00000011
+#define PPS_PIN_4 0b00000100
+#define PPS_PIN_5 0b00000101
+#define PPS_PIN_6 0b00000110
+#define PPS_PIN_7 0b00000111
 
 /* ************************************************************************** */
 /* PPS Output Registers
-    
-    Each I/O pin has a PPS register with which the pin output source is 
-    selected. With few exceptions, the port TRIS control associated with that 
-    pin retains control over the pin output driver. Peripherals that control 
-    the pin output driver as part of the peripheral operation will override 
-    the TRIS control as needed. These peripherals include: • UART Although 
-    every pin has its own PPS peripheral selection register, the selections 
-    are identical for every pin
 
     Example PPS Output assignments:
 
     RC6PPS = PPS_UART1_TX;
     Connect pin RC6 to the UART 1 Transmit pin
+
+    TODO: Write notes here in native english - not Microchipese
 */
 
 // Output macros
@@ -202,10 +190,8 @@
 #define PPS_CLC2OUT 0b000010
 #define PPS_CLC1OUT 0b000001
 
+// Default value of all RXYPPS registers at RESET
+// Primarily used to revert a PPS configuration
 #define PPS_LATxy 0b000000
 
-
 #endif	/* _PPS_H_ */
-
-
-
