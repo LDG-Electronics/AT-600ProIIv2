@@ -13,19 +13,22 @@ uint16_t swrThresh = SWR1_7;
 uint8_t swrThreshIndex = 0;
 const uint16_t swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
-
 /* ************************************************************************** */
 
 void RF_sensor_init(void)
 {
-    adc_init();
-    T3CON = 0b00000100;
-    T3CLK = 1;
-
-    // PPS setup
+    // Frequency counter
+    // T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
+    // T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
+    T3CONbits.CKPS = 0b10; // Prescale set to 1:4
+    T3CLK = 1; // Clock source is T3CKIPPS
     // T3CKIPPS = 0b00001000; // FREQ pin(RE3) is unavailable during development
     T3CKIPPS = (PPS_PORT_B || PPS_PIN_0);
+    
+    // SWR sensor
+    adc_init();
 
+    // Initialize the SWR 
     currentRF.forward = 0;
     currentRF.reverse = 0;
     currentRF.swr = 0;
@@ -46,6 +49,46 @@ void SWR_threshold_increment(void)
 
 /* -------------------------------------------------------------------------- */
 
+uint16_t get_period(void)
+{
+    timer3_stop();
+    timer3_clear();
+    timer3_IF_clear();
+    
+    timer3_start();
+    while (1)
+    {
+        if (FREQ_PIN != 0) break;
+        if (timer3_IF_read() != 0) goto failure;
+    }
+    timer3_stop();
+    timer3_clear();
+    
+    timer3_start();
+    while (1)
+    {
+        if (FREQ_PIN == 0) break;
+        if (timer3_IF_read() != 0) goto failure;
+    }
+    timer3_stop();
+    timer3_clear();
+    
+    timer3_start();
+    while (1)
+    {
+        if (FREQ_PIN != 0) break;
+        if (timer3_IF_read() != 0) goto failure;
+    }
+    timer3_stop();
+    
+    return timer3_read();
+    
+failure:
+    timer3_stop();
+    
+    return 0xffff;
+}
+
 uint16_t get_freq(void)
 {
     timer3_clear();
@@ -60,6 +103,11 @@ uint16_t get_freq(void)
     return timer3_read();
 }
 
+void frequency_counter_test(void)
+{
+    print_cat_ln("Period:", get_period());
+}
+
 /* -------------------------------------------------------------------------- */
 
 /*  SWR_measure() calculates the SWR from a single sample
@@ -72,10 +120,16 @@ void SWR_measure(void)
 {
     uint16_t tempFWD = adc_measure(0);
     uint16_t tempREV = adc_measure(1);
+    double x = 0;
+
+    x = sqrt((double)tempREV/(double)tempFWD);
 
     currentRF.forward = tempFWD;
     currentRF.reverse = tempREV; 
-    currentRF.swr = (double)tempREV/(double)tempFWD;   
+    currentRF.swr = (1 + x) / (1 - x); 
+    // currentRF.forward = tempFWD;
+    // currentRF.reverse = tempREV; 
+    // currentRF.swr = (double)tempREV/(double)tempFWD;   
 }
 
 /*  SWR_average() calculates the average SWR across several samples
@@ -188,7 +242,7 @@ void print_SWR_samples(uint8_t delta)
     uint16_t deltaREV = 0;
     // double deltaSWR = 0;
 
-    SWR_average();
+    SWR_measure();
 
     deltaFWD = abs(currentRF.forward - prevFWD);
     deltaREV = abs(currentRF.reverse - prevREV);
@@ -196,7 +250,7 @@ void print_SWR_samples(uint8_t delta)
 
     if ((deltaFWD > delta) || (deltaREV > delta))
     {
-        log_current_SWR();
+        print_current_SWR();
         
         print_ln();
     }

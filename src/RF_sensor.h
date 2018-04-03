@@ -40,6 +40,6 @@ extern void SWR_average(void);
 extern int8_t SWR_stable_average(void);
 
 // Tests
-void take_SWR_samples(void);
+void print_SWR_samples(uint8_t delta);
 
 #endif
