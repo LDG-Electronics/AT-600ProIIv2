@@ -27,14 +27,6 @@ void startup(void)
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
-    #if LOG_LEVEL_SYSTEM > LOG_SILENT
-    // Debug greeting
-    print_ln();
-    print_ln();
-    print_format(BRIGHT, RED);
-    print_str_ln("Hello!");
-    #endif
-
     // Push out the initial relay settings
     put_relays(&currentRelays[system_flags.antenna]);
 
@@ -44,6 +36,14 @@ void startup(void)
     update_antenna_led();
     update_bypass_led();
     update_power_led();
+
+    #if LOG_LEVEL_SYSTEM > LOG_SILENT
+    // Debug greeting
+    print_ln();
+    print_ln();
+    print_format(BRIGHT, RED);
+    print_str_ln("Hello!");
+    #endif
 }
 
 void shutdown(void)
