@@ -13,7 +13,7 @@ typedef struct{
     uint8_t oldest_index;
 }uart_buffer_s;
 
-uart_buffer_s uart1_tx_buffer;
+volatile uart_buffer_s uart1_tx_buffer;
 
 /* ************************************************************************** */
 
@@ -40,7 +40,6 @@ void uart1_init(void)
 
 void __interrupt(irq(IRQ_U1TX), high_priority) U1TX_ISR()
 {
-    PIR3bits.U1TXIF = 0;
     if(uart1_tx_buffer.newest_index == uart1_tx_buffer.oldest_index)
     {
         PIE3bits.U1TXIE = 0; // buffer is empty now, disable the interrupt
@@ -57,9 +56,6 @@ void uart1_tx_string(const char *string)
 {
     uint8_t i = 0;
 
-    PIE3bits.U1TXIE = 1;
-
-    di();
     while(string[i])
     {
         if ((uart1_tx_buffer.newest_index + 1) == uart1_tx_buffer.oldest_index)
@@ -67,10 +63,13 @@ void uart1_tx_string(const char *string)
             delay_ms(1);
         }
 
+        di();
         uart1_tx_buffer.contents[uart1_tx_buffer.newest_index] = string[i++];
         uart1_tx_buffer.newest_index++;
+        ei();
     }
-    ei();
+
+    PIE3bits.U1TXIE = 1;
 }
 
 
