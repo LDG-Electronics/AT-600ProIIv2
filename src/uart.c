@@ -60,6 +60,7 @@ void uart1_tx_string(const char *string)
     {
         if ((uart1_tx_buffer.newest_index + 1) == uart1_tx_buffer.oldest_index)
         {
+            PIE3bits.U1TXIE = 1;
             delay_ms(1);
         }
 
