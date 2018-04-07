@@ -21,9 +21,7 @@ void RF_sensor_init(void)
     // T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
     // T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
     T3CONbits.CKPS = 0b10; // Prescale set to 1:4
-    T3CLK = 1; // Clock source is T3CKIPPS
-    // T3CKIPPS = 0b00001000; // FREQ pin(RE3) is unavailable during development
-    T3CKIPPS = (PPS_PORT_B || PPS_PIN_0);
+    T3CLK = 1; // Clock source is FOSC/4
     
     // SWR sensor
     adc_init();
@@ -32,6 +30,7 @@ void RF_sensor_init(void)
     currentRF.forward = 0;
     currentRF.reverse = 0;
     currentRF.swr = 0;
+    currentRF.period = 0;
     currentRF.frequency = 0;
 }
 
@@ -55,6 +54,7 @@ uint16_t get_period(void)
     timer3_clear();
     timer3_IF_clear();
     
+    begin_critical_section();
     timer3_start();
     while (1)
     {
@@ -80,35 +80,24 @@ uint16_t get_period(void)
         if (timer3_IF_read() != 0) goto failure;
     }
     timer3_stop();
+    end_critical_section();
     
     return timer3_read();
     
 failure:
     timer3_stop();
+    end_critical_section();
     
     return 0xffff;
 }
 
-uint16_t get_freq(void)
-{
-    timer3_clear();
-
-    timer3_start();
-
-    delay_ms(100);
-    
-    timer3_stop();
-    
-
-    return timer3_read();
-}
-
-void frequency_counter_test(void)
-{
-    print_cat_ln("Period:", get_period());
-}
-
 /* -------------------------------------------------------------------------- */
+
+double calculate_SWR(uint16_t tempFWD, uint16_t tempREV)
+{
+    double x = sqrt((double)tempREV/(double)tempFWD);
+    return (1 + x) / (1 - x);
+}
 
 /*  SWR_measure() calculates the SWR from a single sample
     
@@ -120,16 +109,10 @@ void SWR_measure(void)
 {
     uint16_t tempFWD = adc_measure(0);
     uint16_t tempREV = adc_measure(1);
-    double x = 0;
-
-    x = sqrt((double)tempREV/(double)tempFWD);
 
     currentRF.forward = tempFWD;
     currentRF.reverse = tempREV; 
-    currentRF.swr = (1 + x) / (1 - x); 
-    // currentRF.forward = tempFWD;
-    // currentRF.reverse = tempREV; 
-    // currentRF.swr = (double)tempREV/(double)tempFWD;   
+    currentRF.swr = calculate_SWR(tempFWD, tempREV);  
 }
 
 /*  SWR_average() calculates the average SWR across several samples
@@ -166,7 +149,7 @@ void SWR_average(void)
     if (tempFWD > LOW_POWER_THRESHOLD) {
         currentRF.forward = tempFWD;
         currentRF.reverse = tempREV; 
-        currentRF.swr = (double)tempREV/(double)tempFWD;
+        currentRF.swr = calculate_SWR(tempFWD, tempREV);
     } else {
         currentRF.forward = 0;
         currentRF.reverse = 0;

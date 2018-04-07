@@ -8,6 +8,7 @@ typedef union {
         uint16_t forward;
         uint16_t reverse;
         double swr;
+        uint16_t period;
         uint16_t frequency;
     };
 } RF_power_s;
@@ -30,9 +31,7 @@ extern void SWR_threshold_increment(void);
 /* -------------------------------------------------------------------------- */
 
 // Frequency measurement
-extern uint16_t get_freq(void);
 extern uint16_t get_period(void);
-extern void frequency_counter_test(void);
 
 // SWR measurement functions
 extern void SWR_measure(void);
