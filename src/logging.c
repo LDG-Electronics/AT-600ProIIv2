@@ -17,9 +17,17 @@ int status;
 
 void log_init(void)
 {
-    uart1_init();
+    // PPS Setup
+    RB0PPS = PPS_UART2_TX;
+    
+    UART2_init(_115200);
 }
 
+// wrap the UART driver so we don't have to repeat the terminator 30 times
+void log_tx_string(const char *string)
+{
+    UART2_tx_string(string, '\0');
+}
 /* -------------------------------------------------------------------------- */
 
 /*  i_to_a() converts a signed 32 bit integer into a string
@@ -91,41 +99,41 @@ char* i_to_a(int32_t value)
 */
 void log_ln(void)
 {
-    uart1_tx_string("\r\n");
+    log_tx_string("\r\n");
     log_format_reset();
-}
-
-// Converts an integer to a string and prints it
-void log_int(int32_t value)
-{
-    uart1_tx_string(i_to_a(value));
 }
 
 // Print a string.  Must be null-terminated.
 void log_str(const char *string)
 {
-    uart1_tx_string(string);
+    log_tx_string(string);
 }
 
 // Same as log_str(), but also appends a CRLF.
 void log_str_ln(const char *string)
 {
-    uart1_tx_string(string);
+    log_str(string);
 
     log_ln();
+}
+
+// Converts an integer to a string and prints it
+void log_int(int32_t value)
+{
+    log_str(i_to_a(value));
 }
 
 // Common use case of printing "label: <value>".
 void log_cat(const char *string, int32_t value)
 { 
-    uart1_tx_string(string);
+    log_str(string);
     log_int(value);
 }
 
 // Same as log_cat(), but also appends a CRLF.
 void log_cat_ln(const char *string, int32_t value)
 { 
-    uart1_tx_string(string);
+    log_str(string);
     log_int(value);
 
     log_ln();
@@ -134,15 +142,15 @@ void log_cat_ln(const char *string, int32_t value)
 // Common use case of printing "label: <value>".
 void log_catf(const char *string, double value)
 { 
-    uart1_tx_string(string);
-    uart1_tx_string(ftoa(value, &status));
+    log_str(string);
+    log_str(ftoa(value, &status));
 }
 
 // Same as log_catf(), but also appends a CRLF.
 void log_catf_ln(const char *string, double value)
 { 
-    uart1_tx_string(string);
-    uart1_tx_string(ftoa(value, &status));
+    log_str(string);
+    log_str(ftoa(value, &status));
 
     log_ln();
 }
@@ -170,6 +178,7 @@ void log_current_SWR(void)
     log_cat("FWD: ", currentRF.forward);
     log_cat(", REV: ", currentRF.reverse);
     log_catf(", SWR: ", currentRF.swr);
+    log_cat(", P: ", currentRF.period);
 }
 
 void log_current_SWR_ln(void)

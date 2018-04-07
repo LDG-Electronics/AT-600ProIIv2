@@ -37,12 +37,12 @@ extern void log_init(void);
 // Just prints a CR/LF
 extern void log_ln(void);
 
-// Converts an integer to a string and prints it
-extern void log_int(int32_t value);
-
 // Prints a string
 extern void log_str(const char *string);
 extern void log_str_ln(const char *string);
+
+// Converts an integer to a string and prints it
+extern void log_int(int32_t value);
 
 // Prints a string and an integer
 extern void log_cat(const char *string, int32_t value);
