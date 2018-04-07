@@ -6,11 +6,14 @@
 /* ************************************************************************** */
 
 void main(void)
-{
+{    
     startup();
 
     while(1)
     {    
+        check_for_meter_sync();
+        update_meter();
+
         // Relay buttons
         if (btn_is_pressed(CUP) || btn_is_down(CUP)) cup_hold();
         if (btn_is_pressed(CDN) || btn_is_down(CDN)) cdn_hold();

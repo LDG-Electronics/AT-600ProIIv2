@@ -1,5 +1,4 @@
 #include "includes.h"
-#include "interrupt.h"
 #include "pps.h"
 
 /* ************************************************************************** */
@@ -22,6 +21,7 @@ void startup(void)
     display_init();
     flags_init();
     log_init();
+    meter_init();
     relays_init();
     RF_sensor_init();
     
