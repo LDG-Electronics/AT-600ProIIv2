@@ -6,18 +6,33 @@
 
 /* -------------------------------------------------------------------------- */
 // Circular buffer tools
+/*  If BUFFER_SIZE is 256, then the head and tail indexes become significantly
+    easier to manage. Bounds checking and modulus operations can be replaced
+    a single postincrement(x++) instruction, because a uint8_t will wraparound
+    from 0xff to 0x00 on its own.
+
+    Yes, this wastes RAM. No, it doesn't matter, because this project has a
+    minimum of 4k of RAM and nothing else has a significant RAM footprint. If
+    memory becomes an issue, the size of these buffers can be reduced. This
+    would require rewriting the helper macros to add the previously mentioned
+    bounds checking.
+*/
 #define BUFFER_SIZE 256
 
-typedef struct{   
+typedef struct{
     char contents[BUFFER_SIZE];
     uint8_t head;
     uint8_t tail;
 }uart_buffer_s;
 
-#define buffer_is_empty(buffer) (buffer.head == buffer.tail)
-#define buffer_is_full(buffer) ((buffer.head + 1) == buffer.tail)
-#define buffer_write(buffer, data) buffer.contents[buffer.head++] = data
-#define buffer_read(buffer) buffer.contents[buffer.tail++]
+#if BUFFER_SIZE == 256
+    #define buffer_is_empty(buffer) (buffer.head == buffer.tail)
+    #define buffer_is_full(buffer) ((buffer.head + 1) == buffer.tail)
+    #define buffer_write(buffer, data) buffer.contents[buffer.head++] = data
+    #define buffer_read(buffer) buffer.contents[buffer.tail++]
+#else
+    #error BUFFER_SIZE other than 256 is not currently supported
+#endif
 
 /* -------------------------------------------------------------------------- */
 // UART Baud rate tools
@@ -41,14 +56,11 @@ void UART1_baud_select(enum baud_rates baudRate)
 
 void UART1_init(enum baud_rates baudRate)
 {
-
     UART1_baud_select(baudRate);
 
     U1CON0bits.BRGS = 1; // Baud Rate is set to high speed
     U1CON0bits.TXEN = 1; // Transmit is enabled
     U1CON0bits.RXEN = 1; // Recieve is enabled
-
-    // U1CON2bits.RUNOVF = 1; // RX continues after overflow
 
     // initialize ring buffer pointers
     UART1_tx_buffer.head = 0;
