@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "meter.h"
+#include "adc.h"
 #include "uart.h"
 
 /* ************************************************************************** */
@@ -44,10 +45,26 @@ void check_for_meter_sync(void)
     }
 }
 
+void send_meter_update(void)
+{
+    uint16_t tempFWD = adc_measure(0) >> 2;
+    uint16_t tempREV = adc_measure(1) >> 2;
+    uint16_t tempPeriod = get_period();
+
+    meter_update_buffer[0] = (uint8_t)(tempFWD >> 8);
+    meter_update_buffer[1] = (uint8_t)(tempFWD & 0xff);
+    meter_update_buffer[2] = (uint8_t)(tempREV >> 8);
+    meter_update_buffer[3] = (uint8_t)(tempREV & 0xff);
+    meter_update_buffer[4] = (uint8_t)(tempPeriod >> 8);
+    meter_update_buffer[5] = (uint8_t)(tempPeriod & 0xff);
+
+    UART1_tx_string(meter_update_buffer, METER_COMMS_TERMINATOR);
+}
+
 #define METER_UPDATE_INTERVAL 100
 void attempt_meter_update(void)
 {
-    static uint24_t nextUpdateTime = 100;
+    static uint24_t nextUpdateTime = 0;
     
     check_for_meter_sync();
 
@@ -57,19 +74,7 @@ void attempt_meter_update(void)
 
         if(currentTime >= nextUpdateTime)
         {
-            SWR_measure();
-            uint16_t tempFWD = currentRF.forward >> 2;
-            uint16_t tempREV = currentRF.reverse >> 2;
-            uint16_t tempPeriod = get_period();
-
-            meter_update_buffer[0] = (uint8_t)(tempFWD >> 8);
-            meter_update_buffer[1] = (uint8_t)(tempFWD & 0xff);
-            meter_update_buffer[2] = (uint8_t)(tempREV >> 8);
-            meter_update_buffer[3] = (uint8_t)(tempREV & 0xff);
-            meter_update_buffer[4] = (uint8_t)(tempPeriod >> 8);
-            meter_update_buffer[5] = (uint8_t)(tempPeriod & 0xff);
-
-            UART1_tx_string(meter_update_buffer, METER_COMMS_TERMINATOR);
+            send_meter_update();
             
             nextUpdateTime = currentTime + METER_UPDATE_INTERVAL;
         }
