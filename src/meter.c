@@ -36,7 +36,6 @@ void check_for_meter_sync(void)
     if (data == '\0') {
         return;
     } else if (data == 'Z') {
-        delay_ms(1);
         UART1_tx_string(METER_SYNC_STRING, '\0');
     } else if (data == 'S') {
         meter_update_status = 1;
@@ -46,9 +45,11 @@ void check_for_meter_sync(void)
 }
 
 #define METER_UPDATE_INTERVAL 100
-void update_meter(void)
+void attempt_meter_update(void)
 {
     static uint24_t nextUpdateTime = 100;
+    
+    check_for_meter_sync();
 
     if (meter_update_status == 1) 
     {

@@ -10,9 +10,8 @@ void main(void)
     startup();
 
     while(1)
-    {    
-        check_for_meter_sync();
-        update_meter();
+    {
+        attempt_meter_update();
 
         // Relay buttons
         if (btn_is_pressed(CUP) || btn_is_down(CUP)) cup_hold();

@@ -5,7 +5,6 @@
 
 extern void meter_init(void);
 
-extern void check_for_meter_sync(void);
-extern void update_meter(void);
+extern void attempt_meter_update(void);
 
 #endif
