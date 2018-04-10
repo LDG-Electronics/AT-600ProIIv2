@@ -37,9 +37,9 @@ typedef struct{
 /* -------------------------------------------------------------------------- */
 // UART Baud rate tools
 
-// Baud Rates:                  2400    4800    9600    10417   19200   38400   115200
-const uint16_t baudTableH[] = { 0x1A,   0x0D,   0x06,   0x05,   0x03,   0x01,   0x00};
-const uint16_t baudTableL[] = { 0x0A,   0x04,   0x82,   0xFF,   0x40,   0xA0,   0x8A};
+// Baud Rates:                 2400    4800    9600    10417   19200   38400   115200
+const uint8_t baudTableH[] = { 0x1A,   0x0D,   0x06,   0x05,   0x03,   0x01,   0x00};
+const uint8_t baudTableL[] = { 0x0A,   0x04,   0x82,   0xFF,   0x40,   0xA0,   0x8A};
 
 /* ************************************************************************** */
 // UART 1
