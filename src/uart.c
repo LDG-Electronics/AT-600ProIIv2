@@ -28,10 +28,11 @@ typedef struct{
 #if BUFFER_SIZE == 256
     #define buffer_is_empty(buffer) (buffer.head == buffer.tail)
     #define buffer_is_full(buffer) ((buffer.head + 1) == buffer.tail)
+    #define buffer_has_space(buffer, space) ((buffer.head + space) >= buffer.tail)
     #define buffer_write(buffer, data) buffer.contents[buffer.head++] = data
     #define buffer_read(buffer) buffer.contents[buffer.tail++]
 #else
-    #error BUFFER_SIZE other than 256 is not currently supported
+    #error BUFFER_SIZE other than 256 is not currently supported because the buffer depends on uint8_t overflow behavior
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -120,10 +121,10 @@ void UART1_tx_char(const char data)
 */
 void UART1_tx_string(const char *string, const char terminator)
 {
-    uint16_t bytesSent = 0;
+    uint16_t currentByte = 0;
     
     // loop until hitting null
-    while(string[bytesSent] != terminator)
+    while(string[currentByte] != terminator)
     {
         // buffer overflow handler
         if (buffer_is_full(UART1_tx_buffer))
@@ -131,20 +132,20 @@ void UART1_tx_string(const char *string, const char terminator)
             PIE3bits.U1TXIE = 1;
 
             uint16_t totalBytes = 0;
-            while(string[totalBytes++]); // Find out how long the string is
-            uint16_t remainingBytes = totalBytes - bytesSent;
+            while(string[totalBytes++] != terminator); // Find out how long the string is
+            uint16_t remainingBytes = totalBytes - currentByte;
 
             if (remainingBytes < BUFFER_SIZE) {
-                // Only block until there's enough room for the rest of the string
-                while(((UART1_tx_buffer.head + remainingBytes) != UART1_tx_buffer.tail));
+                // Block until there's enough room for the rest of the string
+                while(!buffer_has_space(UART1_tx_buffer, remainingBytes));
             } else if (remainingBytes >= BUFFER_SIZE) {
                 // Block until the buffer is almost empty
-                while((UART1_tx_buffer.head + 250) != UART1_tx_buffer.tail);
+                while(!buffer_has_space(UART1_tx_buffer, 250));
             }
         }
 
         begin_critical_section();
-        buffer_write(UART1_tx_buffer, string[bytesSent++]);
+        buffer_write(UART1_tx_buffer, string[currentByte++]);
         end_critical_section();
     }
 
