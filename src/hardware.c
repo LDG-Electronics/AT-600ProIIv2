@@ -3,6 +3,7 @@
 #include "pps.h"
 #include "buttons.h"
 #include "display.h"
+#include "meter.h"
 
 /* ************************************************************************** */
 // Forward Declarations

@@ -23,7 +23,6 @@
 #include "logging_switches.h"
 #include "logging.h"
 #include "memory.h"
-#include "meter.h"
 #include "RF_sensor.h"
 #include "stopwatch.h"
 #include "system_tick.h"

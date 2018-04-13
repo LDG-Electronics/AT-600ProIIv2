@@ -4,6 +4,7 @@
 #include "buttons.h"
 #include "hardware.h"
 #include "menus.h"
+#include "meter.h"
 
 /* ************************************************************************** */
 
