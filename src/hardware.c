@@ -30,7 +30,7 @@ void startup(void)
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
     // Push out the initial relay settings
-    put_relays(&currentRelays[system_flags.antenna]);
+    put_relays(&currentRelays[system_flags.antenna]); // must be after flags_init()
 
     // initialize the display
     play_animation(&right_crawl);
