@@ -3,6 +3,7 @@
 #include "spi.h"
 #include "pins.h"
 #include "buttons.h"
+#include "delay.h"
 
 /* ************************************************************************** */
 
