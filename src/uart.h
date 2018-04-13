@@ -18,8 +18,6 @@ extern char UART1_rx_char(void);
 
 extern void UART2_init(enum baud_rates baudRate);
 
-extern void UART2_tx_char(const char data);
-
 // Transmit a null-terminated string of any length
 extern void UART2_tx_string(const char *string, const char terminator);
 
