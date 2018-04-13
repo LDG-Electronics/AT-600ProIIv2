@@ -5,6 +5,7 @@
 // Forward Declarations
 void osc_init(void);
 void port_init(void);
+void interrupt_init(void);
 
 /* ************************************************************************** */
 
@@ -61,6 +62,17 @@ void shutdown(void)
     IOCAF = 0;
 
     timer5_start();
+}
+
+void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR()
+{   
+    // interrupt on change for pin IOCAF3
+    if(IOCAFbits.IOCAF3 == 1)
+    {
+        IOCAFbits.IOCAF3 = 0;
+        PIE0bits.IOCIE = 0;
+        IOCANbits.IOCAN3 = 0;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -159,4 +171,22 @@ void port_init(void)
     INLVLA = 0xff;
     INLVLB = 0xff;
     INLVLC = 0xff;
+}
+
+void interrupt_init(void)
+{
+    INTCON0bits.IPEN = 0; // Disable priority levels on interrupts
+    
+    // Clear all peripheral interrupts
+    PIE1 = 0x0;
+    PIE2 = 0x0;
+    PIE3 = 0x0;
+    PIE4 = 0x0;
+    PIE5 = 0x0;
+    PIE6 = 0x0;
+    PIE7 = 0x0;
+    PIE8 = 0x0;
+    PIE9 = 0x0;
+    
+    INTCON0bits.GIE = 1;
 }
