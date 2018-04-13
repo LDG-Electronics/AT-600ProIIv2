@@ -33,15 +33,6 @@ void interrupt_init(void)
 
 /* -------------------------------------------------------------------------- */
 
-void __interrupt(irq(TMR0), high_priority) TMR1_ISR(void)
-{
-    timer0_stop();
-    timer0_IF_clear();
-
-    stopwatchCount += 0xffff;
-    timer0_start();
-}
-
 void __interrupt(irq(TMR5), high_priority) TMR5_ISR(void)
 {
     timer5_stop();

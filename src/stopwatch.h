@@ -2,8 +2,11 @@
 #define _STOPWATCH_H_
 
 /* ************************************************************************** */
+#if LOG_LEVEL_SYSTEM == LOG_SILENT
+    #define stopwatch_init() 
+#endif
 
-extern volatile uint32_t stopwatchCount;
+#if LOG_LEVEL_SYSTEM > LOG_SILENT
 
 /* ************************************************************************** */
 
@@ -20,24 +23,18 @@ extern volatile uint32_t stopwatchCount;
     
     There is currently no mechanism in place to detect or avoid these 
     conditions, since the stopwatch is NOT intended for use in production code.
-    
-    stopwatch interrupt code:
-    
-    if (timer0_IF_read())
-    {
-        timer0_IF_clear();
-
-        stopwatchCount += 0xffff;
-    }
 */
 
 /* -------------------------------------------------------------------------- */
 
-// Microsecond stopwatch functions, prints elapsed time in us +/- 10%
+// Setup
+extern void stopwatch_init(void);
+
+// Microsecond stopwatch functions, prints elapsed time in us +/- 1%
 extern void us_stopwatch_begin(void);
 extern void us_stopwatch_end(void);
 
-// Millisecond stopwatch functions, prints elapsed time in ms +/- 5%
+// Millisecond stopwatch functions, prints elapsed time in ms +/- 1ms
 extern void ms_stopwatch_begin(void);
 extern void ms_stopwatch_end(void);
 
@@ -46,4 +43,5 @@ extern void ms_stopwatch_end(void);
 // Test function used to calibrate the stopwatch
 extern void stopwatch_and_delay_test(void);
 
-#endif
+#endif // LOG_LEVEL_SYSTEM > LOG_SILENT
+#endif // _STOPWATCH_H_
