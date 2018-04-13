@@ -12,14 +12,14 @@
 #define ANT_BUTTON_PIN !PORTBbits.RB6
 #define TUNE_BUTTON_PIN !PORTBbits.RB7
 
-/* ************************************************************************** */
-// User interface
-// Front Panel bitbang SPI - Unused since the completion of the SPI driver
+/* -------------------------------------------------------------------------- */
+// Front Panel LEDs
+// Bargraph bitbang SPI - Unused since the completion of the SPI driver
 #define FP_CLOCK_PIN LATAbits.LATA6
 #define FP_DATA_PIN LATCbits.LATC5
 #define FP_STROBE_PIN LATCbits.LATC4
  
-// Front Panel LEDs
+// Status LED pins
 #define POWER_LED_PIN LATAbits.LATA2
 #define BYPASS_LED_PIN LATCbits.LATC3
 #define ANT_LED_PIN LATBbits.LATB1
@@ -30,6 +30,7 @@
 #define FWD_PIN PORTAbits.RA0 // forward power
 #define REV_PIN PORTAbits.RA1 // reverse power
 
+// External Interrupts
 #define RF_INT_PIN PORTBbits.RB3 // rf interrupt - unused
 #define INTERRUPT_PIN PORTBbits.RB0 // front panel button interrupt - unused
 
@@ -37,9 +38,9 @@
 #define RADIO_CMD_PIN PORTAbits.RA7
 
 // Relay bitbang SPI
-#define RELAY_CLOCK_PIN LATCbits.LATC0 //
-#define RELAY_DATA_PIN LATCbits.LATC1 // 
-#define RELAY_STROBE_PIN LATCbits.LATC2 //
+#define RELAY_CLOCK_PIN LATCbits.LATC0
+#define RELAY_DATA_PIN LATCbits.LATC1
+#define RELAY_STROBE_PIN LATCbits.LATC2
 
 // Meter port - Unused since the completion of the UART driver
 #define METER_TX_PIN LATCbits.LATC6
