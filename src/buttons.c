@@ -3,8 +3,13 @@
 
 /* ************************************************************************** */
 
-#define MASK 0b11000111
+// Bitmask used to debounce the button history
+#define DEBOUNCE_MASK 0b11000111
 
+// AT-600ProII has 8 front panel buttons
+#define FRONT_PANEL_BUTTONS 8
+
+// Button history storage
 volatile uint8_t buttons[FRONT_PANEL_BUTTONS];
 
 /* ************************************************************************** */
@@ -25,50 +30,43 @@ volatile uint8_t buttons[FRONT_PANEL_BUTTONS];
 
 void buttons_init(void)
 {
-    // Timer5 setup
-    T5CLK = 1; // Select Fosc/4 as clock source
-    T5CONbits.CKPS = 0b01; // 1:2 prescale
-    T5CONbits.RD16 = 1; // 16 bit mode, for atomic operation
+    // Initialize the button history array
+    for (uint8_t i = 0; i < FRONT_PANEL_BUTTONS; i++)
+    {
+        buttons[i] = 0;
+    }
+
+    // Timer 6 configured using MPLABX MCC
+    // Period is calculated to be exactly 5ms
+    T6CLKbits.CS = 0b0010; // Clock source is FOSC
+    T6CONbits.CKPS = 0b111; // Prescaler set to 1:128
+    T6CONbits.OUTPS = 0b1001; // Postscaler set to 1:10
+
+    PR6 = 0xF9; // Timer 6 period
     
-    PIE8bits.TMR5IE = 1; // Enable Timer5 interrupt
+    PIE9bits.TMR6IE = 1; // Enable Timer6 interrupt
     
-    timer5_start();
+    timer6_start();
 }
 
 /* -------------------------------------------------------------------------- */
 
-/*  This is an example of the subscriber half of the button processing subsystem_flags.
+/*  Notes on button_subsystem_ISR()
+
+    This function is an Interrupt Vector Table compatible ISR to respond to the
+    IRQ_TMR6 interrupt signal. This signal is generated whenever timer6
+    overflows from 0xff to 0x00. The timer6 interrupt flag must be cleared by
+    software.
     
-    This example is pulled from the interrupt handler in the AT-100ProII software,
-    although it is not necessary to use the Interrupt Service Routine(ISR).
-    
-    The AT-100ProII has six front panel buttons:
-        Tune
-        Func
-        L Up
-        L Dn
-        C Up
-        C Dn
-        ANT
-    
-    This interrupt is triggered by Timer 5, which is set to overflow every 5ms.
-    The ISR stops the timer, clears the timer's interrupt flag, and reloads the
-    correct values to Timer 5's registers.
-    
-    The next block checks the state of each button and updates the correct entry
-    in the button history array.  The first operation is a bit shift to slide
+    The ISR then checks the state of each button and updates the correct entry
+    in the button history array. The first operation is a bit shift to slide
     the existing values over one, and drop the oldest value off the top end.
-    Then the current state is read with the macro XXXX_BUTTON, and bitwise OR'd
-    into the least significant bit.
-    
-    Timer 5 is then enabled.
+    Then the current state is read with the macro XXXX_BUTTON_PIN, and bitwise
+    OR'd into the least significant bit.
 */
-void __interrupt(irq(TMR5), high_priority) TMR5_ISR(void)
+void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void)
 {
-    timer5_stop();
-    timer5_IF_clear();
-    TMR5H = 0x63;   // reset timer
-    TMR5L = 0xC0;
+    timer6_IF_clear();
 
     // Grab current state of every button
     buttons[TUNE] <<= 1;
@@ -89,13 +87,12 @@ void __interrupt(irq(TMR5), high_priority) TMR5_ISR(void)
     buttons[LDN] <<= 1;
     buttons[LDN] |= LDN_BUTTON_PIN;
     
-    // buttons[ANT] <<= 1; //! ANT button is disabled
+    // TODO: ANT button is currently nonfunctional
+    // buttons[ANT] <<= 1;
     // buttons[ANT] |= ANT_BUTTON_PIN;
 
     buttons[POWER] <<= 1;
     buttons[POWER] |= POWER_BUTTON_PIN;
-    
-    timer5_start();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -130,6 +127,8 @@ uint8_t get_buttons2(void) // 11us, will be faster after ANT buttons works
     return x;
 }
 
+/* -------------------------------------------------------------------------- */
+
 // Returns 1 if rising edge is detected
 uint8_t btn_is_pressed(buttonName_t buttonName)
 {
@@ -146,7 +145,7 @@ uint8_t btn_is_pressed(buttonName_t buttonName)
         If the conditions aren't met, return 0 for false. (Duh.)
     */
     
-    if ((buttons[buttonName] & MASK) == 0b00000111)
+    if ((buttons[buttonName] & DEBOUNCE_MASK) == 0b00000111)
     {
         buttons[buttonName] = 0b11111111;
         return 1;
@@ -170,7 +169,7 @@ uint8_t btn_is_released(buttonName_t buttonName)
         If the conditions aren't met, return 0 for false. (Duh.)
     */
     
-    if ((buttons[buttonName] & MASK) == 0b11000000)
+    if ((buttons[buttonName] & DEBOUNCE_MASK) == 0b11000000)
     {
         buttons[buttonName] = 0b00000000;
         return 1;

@@ -20,18 +20,13 @@
     look at the history that's been recorded by the publisher and return a yes
     or no, based on whether the history matches a predetermined pattern.  The
     specific pattern is different for each that is being evaluated, but they all
-    provide some level of software debouncing with hysteresis.
+    provide some level of software debounce with hysteresis.
 */
 
 /* ************************************************************************** */
 
-#define FRONT_PANEL_BUTTONS 8
-
 // This enum should contain one entry for every front panel button.
 typedef enum {TUNE, FUNC, CUP, CDN, LUP, LDN, ANT, POWER} buttonName_t;
-
-// This is only public so it can be accessed by the ISR.  If not ISR, no touchy.
-extern volatile uint8_t buttons[FRONT_PANEL_BUTTONS];
 
 /* ************************************************************************** */
 
@@ -40,12 +35,37 @@ extern void buttons_init(void);
 
 // Deprecated
 extern uint8_t get_buttons(void);
+
+// Returns 1 if any button is current being held
 extern uint8_t get_buttons2(void);
 
-// button handley-ness
+/* -------------------------------------------------------------------------- */
+
+/*  Notes on button states
+
+    This button subsystem recognizes 4 distinct button states:
+    pressed
+    released
+    down
+    up
+
+    The first two states represent the rising or falling edge of exactly when
+    the user presses or released a button.
+
+    The last two states represent when a button is either being held constantly
+    or not being touched at all.
+*/
+
+// Returns 1 if the specified button is experiencing a falling edge
 extern uint8_t btn_is_pressed(buttonName_t buttonName);
+
+// Returns 1 if the specified button is experiencing a rising edge
 extern uint8_t btn_is_released(buttonName_t buttonName);
+
+// Returns 1 if the specified button has been down for 8 samples
 extern uint8_t btn_is_down(buttonName_t buttonName);
+
+// Returns 1 if the specified button has been up for 8 samples
 extern uint8_t btn_is_up(buttonName_t buttonName);
 
 #endif

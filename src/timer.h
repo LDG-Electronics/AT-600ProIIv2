@@ -8,8 +8,8 @@
 // Timer2 is used for the systick module
 // Timer3 is used in the frequency counter
 // Timer4 is unused
-// Timer5 is used for the button debounce subsystem
-// Timer6 is unused
+// Timer5 is unused
+// Timer6 is used for the button debounce subsystem
 
 /* ************************************************************************** */
 
