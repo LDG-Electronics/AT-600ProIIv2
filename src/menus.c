@@ -277,7 +277,7 @@ void ant_hold(void)
 {
     toggle_antenna();
     blink_antenna();
-    update_antenna_led();
+    update_antenna_LED();
 
     //! This function is configured for the POWER button instead of ANT
     // The ANT button is disabled on the dev unit
