@@ -36,6 +36,69 @@ void buttons_init(void)
 
 /* -------------------------------------------------------------------------- */
 
+/*  This is an example of the subscriber half of the button processing subsystem_flags.
+    
+    This example is pulled from the interrupt handler in the AT-100ProII software,
+    although it is not necessary to use the Interrupt Service Routine(ISR).
+    
+    The AT-100ProII has six front panel buttons:
+        Tune
+        Func
+        L Up
+        L Dn
+        C Up
+        C Dn
+        ANT
+    
+    This interrupt is triggered by Timer 5, which is set to overflow every 5ms.
+    The ISR stops the timer, clears the timer's interrupt flag, and reloads the
+    correct values to Timer 5's registers.
+    
+    The next block checks the state of each button and updates the correct entry
+    in the button history array.  The first operation is a bit shift to slide
+    the existing values over one, and drop the oldest value off the top end.
+    Then the current state is read with the macro XXXX_BUTTON, and bitwise OR'd
+    into the least significant bit.
+    
+    Timer 5 is then enabled.
+*/
+void __interrupt(irq(TMR5), high_priority) TMR5_ISR(void)
+{
+    timer5_stop();
+    timer5_IF_clear();
+    TMR5H = 0x63;   // reset timer
+    TMR5L = 0xC0;
+
+    // Grab current state of every button
+    buttons[TUNE] <<= 1;
+    buttons[TUNE] |= TUNE_BUTTON_PIN;
+    
+    buttons[FUNC] <<= 1;
+    buttons[FUNC] |= FUNC_BUTTON_PIN;
+    
+    buttons[CUP] <<= 1;
+    buttons[CUP] |= CUP_BUTTON_PIN;
+    
+    buttons[CDN] <<= 1;
+    buttons[CDN] |= CDN_BUTTON_PIN;
+    
+    buttons[LUP] <<= 1;
+    buttons[LUP] |= LUP_BUTTON_PIN;
+    
+    buttons[LDN] <<= 1;
+    buttons[LDN] |= LDN_BUTTON_PIN;
+    
+    // buttons[ANT] <<= 1; //! ANT button is disabled
+    // buttons[ANT] |= ANT_BUTTON_PIN;
+
+    buttons[POWER] <<= 1;
+    buttons[POWER] |= POWER_BUTTON_PIN;
+    
+    timer5_start();
+}
+
+/* -------------------------------------------------------------------------- */
+
 // Returns 0 if no buttons are pressed
 uint8_t get_buttons(void) // 2us
 {
