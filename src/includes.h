@@ -5,12 +5,8 @@
 
 // std c headers
 #include <stdlib.h>
-#include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <float.h>
-#include <math.h>
 
 // device header
 #include "pic18f26k42.h"

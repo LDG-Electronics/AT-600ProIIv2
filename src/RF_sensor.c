@@ -5,6 +5,7 @@
 #include "pins.h"
 #include "hardware.h"
 #include "timer.h"
+#include <math.h>
 
 /* ************************************************************************** */
 
