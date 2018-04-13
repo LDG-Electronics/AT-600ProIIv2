@@ -2,6 +2,7 @@
 #include "menus.h"
 #include "buttons.h"
 #include "display.h"
+#include "hardware.h"
 
 /* ************************************************************************** */
 #define SUBMENU_TIMEOUT 2200

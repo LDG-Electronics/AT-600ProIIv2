@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "uart.h"
+#include "hardware.h"
 
 /* ************************************************************************** */
 // Common UART settings

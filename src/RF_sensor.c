@@ -3,6 +3,7 @@
 #include "calibration.h"
 #include "pps.h"
 #include "pins.h"
+#include "hardware.h"
 
 /* ************************************************************************** */
 
