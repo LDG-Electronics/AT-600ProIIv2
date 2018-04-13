@@ -62,6 +62,12 @@ const animation_s arrow_down[] = {
     {0x0000,NULL},
 };
 
+const animation_s railroad_crossing[] = {
+    {0x42a5,200},
+    {0xa542,200},
+    {0x0000,NULL},
+};
+
 const animation_s blink_both_bars[] = {
     {0xffff,100},
     {0x0000,100},
