@@ -58,7 +58,13 @@ void publish_relays(uint16_t word)
 }
 
 /* -------------------------------------------------------------------------- */
+/*  check_if_safe() takes an SWR measurement and determines if it's too
+    dangerous to switch relays. Relays should not be touched above 100W or 125W.
 
+    If it's not safe to switch relays, the current operation should be halted
+    immediately, and the 'railroad crossing lights' animation should be played
+    on the front panel.
+*/
 int8_t check_if_safe(void)
 {
     SWR_average();
@@ -66,14 +72,8 @@ int8_t check_if_safe(void)
     return 0;
 }
 
-/*  put_relays() takes a pointer to a relay struct and attempts to publish that
-    struct to the physical relays.
-    
-*/
-int8_t put_relays(relays_s *testRelays)
+void update_bypass_status(relays_s *testRelays)
 {
-    // if (check_if_safe() == -1) return (-1);
-    
     bypassStatus[system_flags.antenna] = 0;
     if ((testRelays->caps == 0) && 
         (testRelays->z == 0) && 
@@ -83,6 +83,17 @@ int8_t put_relays(relays_s *testRelays)
     }
 
     update_bypass_led();
+}
+
+/*  put_relays() takes a pointer to a relay struct and attempts to publish that
+    struct to the physical relays.
+    
+*/
+int8_t put_relays(relays_s *testRelays)
+{
+    if (check_if_safe() == -1) return (-1);
+    
+    update_bypass_status(testRelays);
     
     publish_relays(testRelays->all);
 
@@ -90,7 +101,3 @@ int8_t put_relays(relays_s *testRelays)
 
     return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-
-// The next several routines are for dealing with user interface stuff

@@ -5,12 +5,15 @@
 
 /*  AT-600ProII Relay Configuration
 
-    7 Capacitors
-    7 Inductors
-    1 HiLoZ relay
-    
-    1 Antenna relay    
+    The AT-600ProII has 7 Capacitors, 7 Inductors, and 1 HiLoZ relay.
+
+    It uses 1500 Watt non-latching, 12 volt single coil relays.  The relays are
+    controlled by a pair of daisy-chained TPIC6B595 Serial-in/Parallel-out
+    SPI controlled shift registers.
 */
+
+// The 1500 watt relays in this product require a long debounce time
+#define RELAY_COIL_DELAY 15 // debounce time in ms
 
 #define NUM_OF_INDUCTORS 7
 #define NUM_OF_CAPACITORS 7
