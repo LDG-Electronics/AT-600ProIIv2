@@ -88,9 +88,7 @@ void shutdown_submenu(void)
     print_format(BRIGHT, RED);
     print_str_ln("shutting down");
 
-    ANT_LED_PIN = 0;
-    BYPASS_LED_PIN = 0;
-    POWER_LED_PIN = 0;
+    clear_FP_LEDs();
     display_clear();
 
     while(btn_is_down(POWER));

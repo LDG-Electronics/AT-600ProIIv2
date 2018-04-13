@@ -2,6 +2,7 @@
 #include "adc.h"
 #include "calibration.h"
 #include "pps.h"
+#include "pins.h"
 
 /* ************************************************************************** */
 

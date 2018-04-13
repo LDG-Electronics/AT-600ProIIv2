@@ -1,23 +1,5 @@
 #include "includes.h"
-
-/* ************************************************************************** */
-
-/*  AT-600ProII Relay Configuration
-
-    The AT-600ProII has 7 Capacitors, 7 Inductors, and 1 HiLoZ relay.
-
-    It uses 1500 Watt non-latching, 12 volt single coil relays.  The relays are
-    controlled by a pair of daisy-chained TPIC6B595 Serial-in/Parallel-out
-    SPI controlled shift registers.
-*/
-
-// Relay delay constants, in 1 ms intervals
-#define RELAY_COIL_DELAY 15
-
-// Relay Driver pins
-#define RELAY_CLOCK_PIN LATCbits.LATC0 //
-#define RELAY_DATA_PIN LATCbits.LATC1 // 
-#define RELAY_STROBE_PIN LATCbits.LATC2 //
+#include "pins.h"
 
 /* ************************************************************************** */
 
