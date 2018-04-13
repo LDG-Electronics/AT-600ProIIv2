@@ -3,6 +3,7 @@
 #include "calibration.h"
 #include "delay.h"
 #include "display.h"
+#include "memory.h"
 
 /* ************************************************************************** */
 
