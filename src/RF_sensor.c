@@ -4,6 +4,7 @@
 #include "pps.h"
 #include "pins.h"
 #include "hardware.h"
+#include "timer.h"
 
 /* ************************************************************************** */
 

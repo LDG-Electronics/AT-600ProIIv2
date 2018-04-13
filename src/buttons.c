@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "buttons.h"
 #include "pins.h"
+#include "timer.h"
 
 /* ************************************************************************** */
 
@@ -48,6 +49,11 @@ void buttons_init(void)
     PIE9bits.TMR6IE = 1; // Enable Timer6 interrupt
     
     timer6_start();
+}
+
+void buttons_stop(void)
+{
+    timer6_stop();
 }
 
 /* -------------------------------------------------------------------------- */

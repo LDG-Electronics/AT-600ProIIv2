@@ -54,7 +54,7 @@ void shutdown(void)
     CPUDOZEbits.IDLEN = 0; // 0 = SLEEP, 1 = IDLE
     IOCANbits.IOCAN3 = 1; // enable Interrupt-On-Change on the power button
     PIE0bits.IOCIE = 1; // enable Interrupt-On-Change interrupt
-    timer5_stop();
+    buttons_stop();
 
     asm("SLEEP");
 
@@ -62,7 +62,7 @@ void shutdown(void)
     IOCANbits.IOCAN3 = 0;
     IOCAF = 0;
 
-    timer5_start();
+    buttons_init();
 }
 
 void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR()

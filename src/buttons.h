@@ -32,6 +32,7 @@ typedef enum {TUNE, FUNC, CUP, CDN, LUP, LDN, ANT, POWER} buttonName_t;
 
 // Setup
 extern void buttons_init(void);
+extern void buttons_stop(void);
 
 // Deprecated
 extern uint8_t get_buttons(void);
