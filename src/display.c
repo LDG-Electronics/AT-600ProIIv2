@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "spi.h"
 #include "pins.h"
+#include "buttons.h"
 
 /* ************************************************************************** */
 

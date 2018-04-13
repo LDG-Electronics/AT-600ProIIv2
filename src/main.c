@@ -2,6 +2,7 @@
 #include <xc.h>
 #include "config.h"
 #include "menus.h"
+#include "buttons.h"
 
 /* ************************************************************************** */
 

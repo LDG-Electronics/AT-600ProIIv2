@@ -17,7 +17,6 @@
 
 // modules
 #include "animations.h"
-#include "buttons.h"
 #include "delay.h"
 #include "display.h"
 #include "events.h"
