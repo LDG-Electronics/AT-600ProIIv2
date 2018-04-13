@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "calibration.h"
+#include "display.h"
 
 /* ************************************************************************** */
 

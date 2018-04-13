@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "pps.h"
 #include "buttons.h"
+#include "display.h"
 
 /* ************************************************************************** */
 // Forward Declarations

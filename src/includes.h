@@ -18,7 +18,6 @@
 // modules
 #include "animations.h"
 #include "delay.h"
-#include "display.h"
 #include "events.h"
 #include "flags.h"
 #include "hardware.h"
