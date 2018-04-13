@@ -96,7 +96,7 @@ void set_antenna(uint8_t value)
         system_flags.antenna = undo;
     }
 
-    update_antenna_led();
+    update_antenna_LED();
 }
 
 void toggle_antenna(void)

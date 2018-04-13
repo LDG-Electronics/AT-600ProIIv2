@@ -35,9 +35,7 @@ void startup(void)
     // initialize the display
     play_animation(&right_crawl);
     display_clear();
-    update_antenna_led();
-    update_bypass_led();
-    update_power_led();
+    update_status_LEDs(); // must be after flags_init()
 
     #if LOG_LEVEL_STARTUP > LOG_SILENT
     // Debug greeting

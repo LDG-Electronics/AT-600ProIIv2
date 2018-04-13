@@ -90,7 +90,8 @@ void shutdown_submenu(void)
     print_str_ln("shutting down");
     #endif
 
-    clear_FP_LEDs();
+    // Turn off the whole front panel
+    clear_status_LEDs();
     display_clear();
 
     while(btn_is_down(POWER));
@@ -109,9 +110,8 @@ void shutdown_submenu(void)
     print_str_ln("Hello again!");
     #endif
     
-    update_antenna_led();
-    update_bypass_led();
-    update_power_led();
+    // Put the Status LEDs back how we found them
+    update_status_LEDs();
 
     while(btn_is_down(POWER));
 }
@@ -281,6 +281,8 @@ void ant_hold(void)
 
     //! This function is configured for the POWER button instead of ANT
     // The ANT button is disabled on the dev unit
+
+    // This loop ensures that the antenna is only toggled once per button press
     while(btn_is_down(POWER))
     {
         delay_ms(1);

@@ -4,17 +4,9 @@
 
 /* ************************************************************************** */
 
-const uint8_t swrThreshDisplay[4] = { 0x08,0x10,0x20,0x40 };
-
-const uint16_t ledBarTable[9] = { 0x00,0x01,0x03,0x07,0x0f,0x1f,0x3f,0x7f,0xff, };
-const uint16_t ledSingleTable[9] = { 0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80, };
-
-/* ************************************************************************** */
-
-void FP_update(uint16_t data)
-{
-    spi_tx_word(data);
-}
+const uint8_t swrThreshDisplay[] = { 0x08,0x10,0x20,0x40 };
+const uint8_t ledBarTable[] = { 0x00,0x01,0x03,0x07,0x0f,0x1f,0x3f,0x7f,0xff, };
+const uint8_t ledSingleTable[] = { 0x00,0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80, };
 
 /* ************************************************************************** */
 
@@ -22,28 +14,61 @@ void display_init(void)
 {
     spi_init();
 
+    clear_status_LEDs();
+}
+
+/* -------------------------------------------------------------------------- */
+
+void clear_status_LEDs(void)
+{
     POWER_LED_PIN = 0;
     ANT_LED_PIN = 0;
     BYPASS_LED_PIN = 0;
 }
 
-/* -------------------------------------------------------------------------- */
+void update_status_LEDs(void)
+{
+    POWER_LED_PIN = system_flags.powerStatus;
+    ANT_LED_PIN = ~system_flags.antenna;
+    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
+}
 
+void update_antenna_LED(void)
+{
+    ANT_LED_PIN = ~system_flags.antenna;
+}
+
+void update_bypass_LED(void)
+{
+    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
+}
+
+void update_power_LED(void)
+{
+    POWER_LED_PIN = system_flags.powerStatus;
+}
+
+/* ************************************************************************** */
+
+// Publishes a raw frame to the display
+void FP_update(uint16_t data)
+{
+    spi_tx_word(data);
+}
+
+// Clears the display by turning off both bargraphs
 void display_clear(void)
 {
     FP_update(0x0000);
 }
 
-void display_raw_frame(uint16_t frame)
-{
-    FP_update(frame);
-}
-
+// Display a single from an animation
 void display_single_frame(const animation_s *animation, uint8_t frame_number)
 {
     FP_update(animation[frame_number].image);
 }
 
+// Play an animation from animations.h
 void play_animation(const animation_s *animation)
 {
     uint8_t i = 0;
@@ -58,6 +83,7 @@ void play_animation(const animation_s *animation)
     }
 }
 
+// Play an animation from animations.h, and repeat it n times
 void repeat_animation(const animation_s *animation, uint8_t repeats)
 {
     uint8_t i;
@@ -68,6 +94,7 @@ void repeat_animation(const animation_s *animation, uint8_t repeats)
     }
 }
 
+// Play an animation from animations.h and return early if a button is pressed
 void play_interruptable_animation(const animation_s *animation)
 {
     uint8_t i = 0;
@@ -164,22 +191,9 @@ void blink_thresh(uint8_t blinks)
     }
 }
 
+/* -------------------------------------------------------------------------- */
 // function-related, single frame display functions
 // THESE HAVE NO DELAYS
-void update_antenna_led(void)
-{
-    ANT_LED_PIN = ~system_flags.antenna;
-}
-
-void update_bypass_led(void)
-{
-    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
-}
-
-void update_power_led(void)
-{
-    POWER_LED_PIN = system_flags.powerStatus;
-}
 
 void show_auto(void)
 {

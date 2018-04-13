@@ -82,7 +82,7 @@ void update_bypass_status(relays_s *testRelays)
         bypassStatus[system_flags.antenna] = 1;
     }
 
-    update_bypass_led();
+    update_bypass_LED();
 }
 
 /*  put_relays() takes a pointer to a relay struct and attempts to publish that
