@@ -39,7 +39,7 @@ void startup(void)
     update_bypass_led();
     update_power_led();
 
-    #if LOG_LEVEL_SYSTEM > LOG_SILENT
+    #if LOG_LEVEL_STARTUP > LOG_SILENT
     // Debug greeting
     print_ln();
     print_ln();

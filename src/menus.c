@@ -85,8 +85,10 @@ void shutdown_submenu(void)
 {
     uint16_t holdCount = 0;
 
+    #if LOG_LEVEL_MENUS > LOG_SILENT
     print_format(BRIGHT, RED);
     print_str_ln("shutting down");
+    #endif
 
     clear_FP_LEDs();
     display_clear();
@@ -102,8 +104,10 @@ void shutdown_submenu(void)
         delay_ms(1);
     }
 
+    #if LOG_LEVEL_MENUS > LOG_SILENT
     print_format(BRIGHT, RED);
     print_str_ln("Hello again!");
+    #endif
     
     update_antenna_led();
     update_bypass_led();

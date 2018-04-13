@@ -15,19 +15,17 @@
 // Entire log system enable/disable
 #define LOG_LEVEL_SYSTEM LOG_ALL
 
-// Driver layer
-#define LOG_LEVEL_STARTUP LOG_SILENT
-#define LOG_LEVEL_CAT_UART LOG_SILENT
+// Subsystems
+#define LOG_LEVEL_DISPLAY LOG_SILENT
 #define LOG_LEVEL_EEPROM LOG_SILENT
 #define LOG_LEVEL_FLASH LOG_SILENT
-
-// Application layer
-#define LOG_LEVEL_CAT_PROTOCOL LOG_SILENT
 #define LOG_LEVEL_FLAGS LOG_SILENT
 #define LOG_LEVEL_MEMORY LOG_SILENT
-#define LOG_LEVEL_TUNING LOG_ALL
+#define LOG_LEVEL_MENUS LOG_SILENT
 #define LOG_LEVEL_RF_SENSOR LOG_SILENT
 #define LOG_LEVEL_RELAYS LOG_SILENT
+#define LOG_LEVEL_STARTUP LOG_ALL
+#define LOG_LEVEL_TUNING LOG_ALL
 
 /* ************************************************************************** */
 
