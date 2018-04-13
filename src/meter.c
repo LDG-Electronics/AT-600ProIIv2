@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "meter.h"
 #include "adc.h"
+#include "pps.h"
 #include "uart.h"
 
 /* ************************************************************************** */

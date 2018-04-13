@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "uart.h"
+#include "pps.h"
 
 #if LOG_LEVEL_SYSTEM > LOG_SILENT
 /* ************************************************************************** */

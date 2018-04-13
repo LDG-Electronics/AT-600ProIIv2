@@ -23,7 +23,6 @@
 #include "flags.h"
 #include "hardware.h"
 #include "relays.h"
-#include "pps.h"
 #include "logging_switches.h"
 #include "logging.h"
 #include "memory.h"
