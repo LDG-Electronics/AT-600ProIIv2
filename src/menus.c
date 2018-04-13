@@ -3,6 +3,7 @@
 #include "buttons.h"
 #include "delay.h"
 #include "display.h"
+#include "events.h"
 #include "hardware.h"
 
 /* ************************************************************************** */
