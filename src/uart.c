@@ -28,7 +28,7 @@ typedef struct{
 #if BUFFER_SIZE == 256
     #define buffer_is_empty(buffer) (buffer.head == buffer.tail)
     #define buffer_is_full(buffer) ((buffer.head + 1) == buffer.tail)
-    #define buffer_has_space(buffer, space) ((buffer.head + space) >= buffer.tail)
+    #define buffer_has_at_least(buffer, space) ((buffer.head + space) >= buffer.tail)
     #define buffer_write(buffer, data) buffer.contents[buffer.head++] = data
     #define buffer_read(buffer) buffer.contents[buffer.tail++]
 #else
@@ -81,8 +81,7 @@ void UART1_init(enum baud_rates baudRate)
 
     This function is an Interrupt Vector Table compatible ISR to respond to the
     IRQ_U1TX interrupt signal. This signal is generated whenever U1TXB is empty
-    and PIE3bits.U1TXIE is enabled. In effect, the interrupt flag is set every
-    time UART1 finishes transmitting a byte.
+    and PIE3bits.U1TXIE is enabled.
 
 */
 void __interrupt(irq(IRQ_U1TX), high_priority) UART1_tx_ISR()
@@ -92,13 +91,6 @@ void __interrupt(irq(IRQ_U1TX), high_priority) UART1_tx_ISR()
     } else {
         U1TXB = buffer_read(UART1_tx_buffer);
     }
-}
-
-void UART1_tx_char(const char data)
-{
-    while(U1ERRIRbits.TXMTIF == 0);
-
-    U1TXB = data;
 }
 
 /*  Notes on using UART1_tx_string()
@@ -121,7 +113,9 @@ void UART1_tx_char(const char data)
 */
 void UART1_tx_string(const char *string, const char terminator)
 {
+    uint16_t totalBytes = 0;
     uint16_t currentByte = 0;
+    uint16_t remainingBytes = 0;
     
     // loop until hitting null
     while(string[currentByte] != terminator)
@@ -131,16 +125,18 @@ void UART1_tx_string(const char *string, const char terminator)
         {
             PIE3bits.U1TXIE = 1;
 
-            uint16_t totalBytes = 0;
-            while(string[totalBytes++] != terminator); // Find out how long the string is
-            uint16_t remainingBytes = totalBytes - currentByte;
+            // Find out how long the string is
+            if(totalBytes == 0){
+                while(string[totalBytes++] != terminator); 
+            }
+            remainingBytes = totalBytes - currentByte;
 
             if (remainingBytes < BUFFER_SIZE) {
                 // Block until there's enough room for the rest of the string
-                while(!buffer_has_space(UART1_tx_buffer, remainingBytes));
+                while(!buffer_has_at_least(UART1_tx_buffer, remainingBytes));
             } else if (remainingBytes >= BUFFER_SIZE) {
                 // Block until the buffer is almost empty
-                while(!buffer_has_space(UART1_tx_buffer, 250));
+                while(!buffer_has_at_least(UART1_tx_buffer, 250));
             }
         }
 
@@ -219,25 +215,17 @@ void UART2_init(enum baud_rates baudRate)
 */
 void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR()
 {
-    if(UART2_tx_buffer.head == UART2_tx_buffer.tail) {
-        PIE6bits.U2TXIE = 0; // buffer is empty now, disable the interrupt
+    if(buffer_is_empty(UART2_tx_buffer)) {
+        PIE6bits.U2TXIE = 0; // disable interrupt
     } else {
-        U2TXB = UART2_tx_buffer.contents[UART2_tx_buffer.tail++];
+        U2TXB = buffer_read(UART2_tx_buffer);
     }
-}
-
-void UART2_tx_char(const char data)
-{
-    while(U2ERRIRbits.TXMTIF == 0);
-
-    U2TXB = data;
 }
 
 /*  Notes on using UART2_tx_string()
 
-    The following block handles the case when this function overflows the
-    UART2_tx_buffer. There are three options for dealing with this input
-    overflow:
+    Large or frequent calls to UART2_tx_string() can cause the UART2_tx_buffer
+    to overflow. There are three options for dealing with this input overflow:
 
     1:  Check available space before writing to buffer, and abort and return an
         error if the string won't fit. This doesn't fit with the desired API.
@@ -253,32 +241,35 @@ void UART2_tx_char(const char data)
 */
 void UART2_tx_string(const char *string, const char terminator)
 {
-    uint16_t bytesSent = 0;
-    uint16_t remainingBytes = 0;
     uint16_t totalBytes = 0;
-
+    uint16_t currentByte = 0;
+    uint16_t remainingBytes = 0;
+    
     // loop until hitting null
-    while(string[bytesSent] != terminator)
+    while(string[currentByte] != terminator)
     {
         // buffer overflow handler
-        if ((UART2_tx_buffer.head + 1) == UART2_tx_buffer.tail)
+        if (buffer_is_full(UART2_tx_buffer))
         {
             PIE6bits.U2TXIE = 1;
 
-            while(string[totalBytes++]); // Find out how long the string is
-            remainingBytes = totalBytes - bytesSent;
-
+            // Find out how long the string is
+            if(totalBytes == 0){
+                while(string[totalBytes++] != terminator); 
+            }
+            remainingBytes = totalBytes - currentByte;
+            
             if (remainingBytes < BUFFER_SIZE) {
-                // Only block until there's enough room for the rest of the string
-                while(((UART2_tx_buffer.head + remainingBytes) != UART2_tx_buffer.tail));
+                // Block until there's enough room for the rest of the string
+                while(!buffer_has_at_least(UART2_tx_buffer, remainingBytes));
             } else if (remainingBytes >= BUFFER_SIZE) {
                 // Block until the buffer is almost empty
-                while((UART2_tx_buffer.head + 250) != UART2_tx_buffer.tail);
+                while(!buffer_has_at_least(UART2_tx_buffer, 250));
             }
         }
 
         begin_critical_section();
-        UART2_tx_buffer.contents[UART2_tx_buffer.head++] = string[bytesSent++];
+        buffer_write(UART2_tx_buffer, string[currentByte++]);
         end_critical_section();
     }
 
