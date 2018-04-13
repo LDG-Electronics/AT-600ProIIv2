@@ -26,6 +26,5 @@
 #include "RF_sensor.h"
 #include "stopwatch.h"
 #include "system_tick.h"
-#include "tuning.h"
 
 #endif	/* _INCLUDES_H_ */

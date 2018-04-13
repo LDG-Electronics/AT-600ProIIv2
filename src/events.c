@@ -1,6 +1,7 @@
 #include "includes.h"
 #include "pins.h"
 #include "display.h"
+#include "tuning.h"
 
 /* ************************************************************************** */
 
