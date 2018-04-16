@@ -9,7 +9,7 @@
 #include <float.h>
 
 // device header
-#include "pic18f26k42.h"
+#include "pic18f45k42.h"
 
 // modules
 #include "animations.h"

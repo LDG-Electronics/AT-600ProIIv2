@@ -1,5 +1,5 @@
-// Version 1.45
-// Generated 16/11/2017 GMT
+// Version 1.43
+// Generated 25/07/2017 GMT
 
 /*
  * Copyright © 2017, Microchip Technology Inc. and its subsidiaries ("Microchip")
@@ -30,15 +30,15 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _PIC18F26K42_H_
-#define _PIC18F26K42_H_
+#ifndef _PIC18F45K42_H_
+#define _PIC18F45K42_H_
 
 /*
  * C Header file for the Microchip PIC Microcontroller
- * PIC18F26K42
+ * PIC18F45K42
  */
 #ifndef __XC8
-#warning Header file pic18f26k42.h included directly. Use #include <xc.h> instead.
+#warning Header file pic18f45k42.h included directly. Use  instead.
 #endif
 
 /*
@@ -187,55 +187,55 @@
 
 #define DIA_MUI                                             0x3F0000
 #define DIA_MUI0                                            0x3F0000
-#define DIA_MUI1                                            0x3F0002
-#define DIA_MUI2                                            0x3F0004
-#define DIA_MUI3                                            0x3F0006
-#define DIA_MUI4                                            0x3F0008
-#define DIA_MUI5                                            0x3F000A
-#define DIA_MUI6                                            0x3F000C
-#define DIA_MUI7                                            0x3F000E
+#define DIA_MUI1                                            0x3F0001
+#define DIA_MUI2                                            0x3F0002
+#define DIA_MUI3                                            0x3F0003
+#define DIA_MUI4                                            0x3F0004
+#define DIA_MUI5                                            0x3F0005
+#define DIA_MUI6                                            0x3F0006
+#define DIA_MUI7                                            0x3F0007
 
-#define DIA_EUI                                             0x3F0010
-#define DIA_EUI0                                            0x3F0010
-#define DIA_EUI1                                            0x3F0012
-#define DIA_EUI2                                            0x3F0014
-#define DIA_EUI3                                            0x3F0016
-#define DIA_EUI4                                            0x3F0018
-#define DIA_EUI5                                            0x3F001A
-#define DIA_EUI6                                            0x3F001C
-#define DIA_EUI7                                            0x3F001E
-#define DIA_EUI8                                            0x3F0020
-#define DIA_EUI9                                            0x3F0022
+#define DIA_EUI                                             0x3F0008
+#define DIA_EUI0                                            0x3F0008
+#define DIA_EUI1                                            0x3F0009
+#define DIA_EUI2                                            0x3F000A
+#define DIA_EUI3                                            0x3F000B
+#define DIA_EUI4                                            0x3F000C
+#define DIA_EUI5                                            0x3F000D
+#define DIA_EUI6                                            0x3F000E
+#define DIA_EUI7                                            0x3F000F
+#define DIA_EUI8                                            0x3F0010
+#define DIA_EUI9                                            0x3F0011
 
-#define DIA_TSLR                                            0x3F0024
-#define DIA_TSLR1                                           0x3F0024
-#define DIA_TSLR2                                           0x3F0026
-#define DIA_TSLR3                                           0x3F0028
+#define DIA_TSLR                                            0x3F0012
+#define DIA_TSLR1                                           0x3F0012
+#define DIA_TSLR2                                           0x3F0013
+#define DIA_TSLR3                                           0x3F0014
 
-#define DIA_TSHR                                            0x3F002A
-#define DIA_TSHR1                                           0x3F002A
-#define DIA_TSHR2                                           0x3F002C
-#define DIA_TSHR3                                           0x3F002E
+#define DIA_TSHR                                            0x3F0015
+#define DIA_TSHR1                                           0x3F0015
+#define DIA_TSHR2                                           0x3F0016
+#define DIA_TSHR3                                           0x3F0017
 
-#define DIA_FVRA                                            0x3F0030
-#define DIA_FVRA1X                                          0x3F0030
-#define DIA_FVRA2X                                          0x3F0032
-#define DIA_FVRA4X                                          0x3F0034
+#define DIA_FVRA                                            0x3F0018
+#define DIA_FVRA1X                                          0x3F0018
+#define DIA_FVRA2X                                          0x3F0019
+#define DIA_FVRA4X                                          0x3F001A
 
-#define DIA_FVRC                                            0x3F0036
-#define DIA_FVRC1X                                          0x3F0036
-#define DIA_FVRC2X                                          0x3F0038
-#define DIA_FVRC4X                                          0x3F003A
+#define DIA_FVRC                                            0x3F001B
+#define DIA_FVRC1X                                          0x3F001B
+#define DIA_FVRC2X                                          0x3F001C
+#define DIA_FVRC4X                                          0x3F001D
 
 /*
  * Device Configuration Information (DCI) Table
  */
 
 #define DCI_ERSIZ                                           0x3FFF00
-#define DCI_WLSIZ                                           0x3FFF02
-#define DCI_URSIZ                                           0x3FFF04
-#define DCI_EESIZ                                           0x3FFF06
-#define DCI_PCNT                                            0x3FFF08
+#define DCI_WLSIZ                                           0x3FFF01
+#define DCI_URSIZ                                           0x3FFF02
+#define DCI_EESIZ                                           0x3FFF03
+#define DCI_PCNT                                            0x3FFF04
 
 /*
  * Register Definitions
@@ -2500,32 +2500,6 @@ typedef union {
 extern volatile NVMADRLbits_t NVMADRLbits @ 0x39E0;
 // bitfield macros
 
-// Register: NVMADRH
-#define NVMADRH NVMADRH
-extern volatile unsigned char           NVMADRH             @ 0x39E1;
-#ifndef _LIB_BUILD
-asm("NVMADRH equ 039E1h");
-#endif
-// bitfield definitions
-typedef union {
-    struct {
-        unsigned ADR                    :2;
-    };
-    struct {
-        unsigned ADR8                   :1;
-        unsigned ADR9                   :1;
-    };
-    struct {
-        unsigned NVMADR                 :2;
-    };
-    struct {
-        unsigned NVMADR8                :1;
-        unsigned NVMADR9                :1;
-    };
-} NVMADRHbits_t;
-extern volatile NVMADRHbits_t NVMADRHbits @ 0x39E1;
-// bitfield macros
-
 // Register: NVMDAT
 #define NVMDAT NVMDAT
 extern volatile unsigned char           NVMDAT              @ 0x39E3;
@@ -3223,6 +3197,215 @@ typedef union {
     };
 } RC7PPSbits_t;
 extern volatile RC7PPSbits_t RC7PPSbits @ 0x3A17;
+// bitfield macros
+
+// Register: RD0PPS
+#define RD0PPS RD0PPS
+extern volatile unsigned char           RD0PPS              @ 0x3A18;
+#ifndef _LIB_BUILD
+asm("RD0PPS equ 03A18h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD0PPS0                :1;
+        unsigned RD0PPS1                :1;
+        unsigned RD0PPS2                :1;
+        unsigned RD0PPS3                :1;
+        unsigned RD0PPS4                :1;
+    };
+} RD0PPSbits_t;
+extern volatile RD0PPSbits_t RD0PPSbits @ 0x3A18;
+// bitfield macros
+
+// Register: RD1PPS
+#define RD1PPS RD1PPS
+extern volatile unsigned char           RD1PPS              @ 0x3A19;
+#ifndef _LIB_BUILD
+asm("RD1PPS equ 03A19h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD1PPS0                :1;
+        unsigned RD1PPS1                :1;
+        unsigned RD1PPS2                :1;
+        unsigned RD1PPS3                :1;
+        unsigned RD1PPS4                :1;
+    };
+} RD1PPSbits_t;
+extern volatile RD1PPSbits_t RD1PPSbits @ 0x3A19;
+// bitfield macros
+
+// Register: RD2PPS
+#define RD2PPS RD2PPS
+extern volatile unsigned char           RD2PPS              @ 0x3A1A;
+#ifndef _LIB_BUILD
+asm("RD2PPS equ 03A1Ah");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD2PPS0                :1;
+        unsigned RD2PPS1                :1;
+        unsigned RD2PPS2                :1;
+        unsigned RD2PPS3                :1;
+        unsigned RD2PPS4                :1;
+    };
+} RD2PPSbits_t;
+extern volatile RD2PPSbits_t RD2PPSbits @ 0x3A1A;
+// bitfield macros
+
+// Register: RD3PPS
+#define RD3PPS RD3PPS
+extern volatile unsigned char           RD3PPS              @ 0x3A1B;
+#ifndef _LIB_BUILD
+asm("RD3PPS equ 03A1Bh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD3PPS0                :1;
+        unsigned RD3PPS1                :1;
+        unsigned RD3PPS2                :1;
+        unsigned RD3PPS3                :1;
+        unsigned RD3PPS4                :1;
+    };
+} RD3PPSbits_t;
+extern volatile RD3PPSbits_t RD3PPSbits @ 0x3A1B;
+// bitfield macros
+
+// Register: RD4PPS
+#define RD4PPS RD4PPS
+extern volatile unsigned char           RD4PPS              @ 0x3A1C;
+#ifndef _LIB_BUILD
+asm("RD4PPS equ 03A1Ch");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD4PPS0                :1;
+        unsigned RD4PPS1                :1;
+        unsigned RD4PPS2                :1;
+        unsigned RD4PPS3                :1;
+        unsigned RD4PPS4                :1;
+    };
+} RD4PPSbits_t;
+extern volatile RD4PPSbits_t RD4PPSbits @ 0x3A1C;
+// bitfield macros
+
+// Register: RD5PPS
+#define RD5PPS RD5PPS
+extern volatile unsigned char           RD5PPS              @ 0x3A1D;
+#ifndef _LIB_BUILD
+asm("RD5PPS equ 03A1Dh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD5PPS0                :1;
+        unsigned RD5PPS1                :1;
+        unsigned RD5PPS2                :1;
+        unsigned RD5PPS3                :1;
+        unsigned RD5PPS4                :1;
+    };
+} RD5PPSbits_t;
+extern volatile RD5PPSbits_t RD5PPSbits @ 0x3A1D;
+// bitfield macros
+
+// Register: RD6PPS
+#define RD6PPS RD6PPS
+extern volatile unsigned char           RD6PPS              @ 0x3A1E;
+#ifndef _LIB_BUILD
+asm("RD6PPS equ 03A1Eh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD6PPS0                :1;
+        unsigned RD6PPS1                :1;
+        unsigned RD6PPS2                :1;
+        unsigned RD6PPS3                :1;
+        unsigned RD6PPS4                :1;
+    };
+} RD6PPSbits_t;
+extern volatile RD6PPSbits_t RD6PPSbits @ 0x3A1E;
+// bitfield macros
+
+// Register: RD7PPS
+#define RD7PPS RD7PPS
+extern volatile unsigned char           RD7PPS              @ 0x3A1F;
+#ifndef _LIB_BUILD
+asm("RD7PPS equ 03A1Fh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD7PPS0                :1;
+        unsigned RD7PPS1                :1;
+        unsigned RD7PPS2                :1;
+        unsigned RD7PPS3                :1;
+        unsigned RD7PPS4                :1;
+    };
+} RD7PPSbits_t;
+extern volatile RD7PPSbits_t RD7PPSbits @ 0x3A1F;
+// bitfield macros
+
+// Register: RE0PPS
+#define RE0PPS RE0PPS
+extern volatile unsigned char           RE0PPS              @ 0x3A20;
+#ifndef _LIB_BUILD
+asm("RE0PPS equ 03A20h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RE0PPS0                :1;
+        unsigned RE0PPS1                :1;
+        unsigned RE0PPS2                :1;
+        unsigned RE0PPS3                :1;
+        unsigned RE0PPS4                :1;
+    };
+} RE0PPSbits_t;
+extern volatile RE0PPSbits_t RE0PPSbits @ 0x3A20;
+// bitfield macros
+
+// Register: RE1PPS
+#define RE1PPS RE1PPS
+extern volatile unsigned char           RE1PPS              @ 0x3A21;
+#ifndef _LIB_BUILD
+asm("RE1PPS equ 03A21h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RE1PPS0                :1;
+        unsigned RE1PPS1                :1;
+        unsigned RE1PPS2                :1;
+        unsigned RE1PPS3                :1;
+        unsigned RE1PPS4                :1;
+    };
+} RE1PPSbits_t;
+extern volatile RE1PPSbits_t RE1PPSbits @ 0x3A21;
+// bitfield macros
+
+// Register: RE2PPS
+#define RE2PPS RE2PPS
+extern volatile unsigned char           RE2PPS              @ 0x3A22;
+#ifndef _LIB_BUILD
+asm("RE2PPS equ 03A22h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RE2PPS0                :1;
+        unsigned RE2PPS1                :1;
+        unsigned RE2PPS2                :1;
+        unsigned RE2PPS3                :1;
+        unsigned RE2PPS4                :1;
+    };
+} RE2PPSbits_t;
+extern volatile RE2PPSbits_t RE2PPSbits @ 0x3A22;
 // bitfield macros
 
 // Register: ANSELA
@@ -4037,6 +4220,253 @@ typedef union {
 extern volatile RC4I2Cbits_t RC4I2Cbits @ 0x3A6B;
 // bitfield macros
 
+// Register: ANSELD
+#define ANSELD ANSELD
+extern volatile unsigned char           ANSELD              @ 0x3A70;
+#ifndef _LIB_BUILD
+asm("ANSELD equ 03A70h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned ANSELD0                :1;
+        unsigned ANSELD1                :1;
+        unsigned ANSELD2                :1;
+        unsigned ANSELD3                :1;
+        unsigned ANSELD4                :1;
+        unsigned ANSELD5                :1;
+        unsigned ANSELD6                :1;
+        unsigned ANSELD7                :1;
+    };
+} ANSELDbits_t;
+extern volatile ANSELDbits_t ANSELDbits @ 0x3A70;
+// bitfield macros
+
+// Register: WPUD
+#define WPUD WPUD
+extern volatile unsigned char           WPUD                @ 0x3A71;
+#ifndef _LIB_BUILD
+asm("WPUD equ 03A71h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned WPUD0                  :1;
+        unsigned WPUD1                  :1;
+        unsigned WPUD2                  :1;
+        unsigned WPUD3                  :1;
+        unsigned WPUD4                  :1;
+        unsigned WPUD5                  :1;
+        unsigned WPUD6                  :1;
+        unsigned WPUD7                  :1;
+    };
+} WPUDbits_t;
+extern volatile WPUDbits_t WPUDbits @ 0x3A71;
+// bitfield macros
+
+// Register: ODCOND
+#define ODCOND ODCOND
+extern volatile unsigned char           ODCOND              @ 0x3A72;
+#ifndef _LIB_BUILD
+asm("ODCOND equ 03A72h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned ODCD0                  :1;
+        unsigned ODCD1                  :1;
+        unsigned ODCD2                  :1;
+        unsigned ODCD3                  :1;
+        unsigned ODCD4                  :1;
+        unsigned ODCD5                  :1;
+        unsigned ODCD6                  :1;
+        unsigned ODCD7                  :1;
+    };
+} ODCONDbits_t;
+extern volatile ODCONDbits_t ODCONDbits @ 0x3A72;
+// bitfield macros
+
+// Register: SLRCOND
+#define SLRCOND SLRCOND
+extern volatile unsigned char           SLRCOND             @ 0x3A73;
+#ifndef _LIB_BUILD
+asm("SLRCOND equ 03A73h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned SLRD0                  :1;
+        unsigned SLRD1                  :1;
+        unsigned SLRD2                  :1;
+        unsigned SLRD3                  :1;
+        unsigned SLRD4                  :1;
+        unsigned SLRD5                  :1;
+        unsigned SLRD6                  :1;
+        unsigned SLRD7                  :1;
+    };
+} SLRCONDbits_t;
+extern volatile SLRCONDbits_t SLRCONDbits @ 0x3A73;
+// bitfield macros
+
+// Register: INLVLD
+#define INLVLD INLVLD
+extern volatile unsigned char           INLVLD              @ 0x3A74;
+#ifndef _LIB_BUILD
+asm("INLVLD equ 03A74h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned INLVLD0                :1;
+        unsigned INLVLD1                :1;
+        unsigned INLVLD2                :1;
+        unsigned INLVLD3                :1;
+        unsigned INLVLD4                :1;
+        unsigned INLVLD5                :1;
+        unsigned INLVLD6                :1;
+        unsigned INLVLD7                :1;
+    };
+} INLVLDbits_t;
+extern volatile INLVLDbits_t INLVLDbits @ 0x3A74;
+// bitfield macros
+
+// Register: CCDPD
+#define CCDPD CCDPD
+extern volatile unsigned char           CCDPD               @ 0x3A78;
+#ifndef _LIB_BUILD
+asm("CCDPD equ 03A78h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned CCDPD0                 :1;
+        unsigned CCDPD1                 :1;
+        unsigned CCDPD2                 :1;
+        unsigned CCDPD3                 :1;
+        unsigned CCDPD4                 :1;
+        unsigned CCDPD5                 :1;
+        unsigned CCDPD6                 :1;
+        unsigned CCDPD7                 :1;
+    };
+} CCDPDbits_t;
+extern volatile CCDPDbits_t CCDPDbits @ 0x3A78;
+// bitfield macros
+
+// Register: CCDND
+#define CCDND CCDND
+extern volatile unsigned char           CCDND               @ 0x3A79;
+#ifndef _LIB_BUILD
+asm("CCDND equ 03A79h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned CCDND0                 :1;
+        unsigned CCDND1                 :1;
+        unsigned CCDND2                 :1;
+        unsigned CCDND3                 :1;
+        unsigned CCDND4                 :1;
+        unsigned CCDND5                 :1;
+        unsigned CCDND6                 :1;
+        unsigned CCDND7                 :1;
+    };
+} CCDNDbits_t;
+extern volatile CCDNDbits_t CCDNDbits @ 0x3A79;
+// bitfield macros
+
+// Register: RD0I2C
+#define RD0I2C RD0I2C
+extern volatile unsigned char           RD0I2C              @ 0x3A7A;
+#ifndef _LIB_BUILD
+asm("RD0I2C equ 03A7Ah");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned TH                     :2;
+        unsigned                        :2;
+        unsigned PU                     :2;
+        unsigned SLEW                   :1;
+    };
+    struct {
+        unsigned TH0                    :1;
+        unsigned TH1                    :1;
+        unsigned                        :2;
+        unsigned PU0                    :1;
+        unsigned PU1                    :1;
+    };
+    struct {
+        unsigned I2CTH                  :2;
+        unsigned                        :2;
+        unsigned I2CPU                  :2;
+        unsigned I2CSLEW                :1;
+    };
+    struct {
+        unsigned I2CTH0                 :1;
+        unsigned I2CTH1                 :1;
+        unsigned                        :2;
+        unsigned I2CPU0                 :1;
+        unsigned I2CPU1                 :1;
+    };
+} RD0I2Cbits_t;
+extern volatile RD0I2Cbits_t RD0I2Cbits @ 0x3A7A;
+// bitfield macros
+
+// Register: RD1I2C
+#define RD1I2C RD1I2C
+extern volatile unsigned char           RD1I2C              @ 0x3A7B;
+#ifndef _LIB_BUILD
+asm("RD1I2C equ 03A7Bh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned TH                     :2;
+        unsigned                        :2;
+        unsigned PU                     :2;
+        unsigned SLEW                   :1;
+    };
+    struct {
+        unsigned TH0                    :1;
+        unsigned TH1                    :1;
+        unsigned                        :2;
+        unsigned PU0                    :1;
+        unsigned PU1                    :1;
+    };
+    struct {
+        unsigned I2CTH                  :2;
+        unsigned                        :2;
+        unsigned I2CPU                  :2;
+        unsigned I2CSLEW                :1;
+    };
+    struct {
+        unsigned I2CTH0                 :1;
+        unsigned I2CTH1                 :1;
+        unsigned                        :2;
+        unsigned I2CPU0                 :1;
+        unsigned I2CPU1                 :1;
+    };
+} RD1I2Cbits_t;
+extern volatile RD1I2Cbits_t RD1I2Cbits @ 0x3A7B;
+// bitfield macros
+
+// Register: ANSELE
+#define ANSELE ANSELE
+extern volatile unsigned char           ANSELE              @ 0x3A80;
+#ifndef _LIB_BUILD
+asm("ANSELE equ 03A80h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned ANSELE0                :1;
+        unsigned ANSELE1                :1;
+        unsigned ANSELE2                :1;
+    };
+} ANSELEbits_t;
+extern volatile ANSELEbits_t ANSELEbits @ 0x3A80;
+// bitfield macros
+
 // Register: WPUE
 #define WPUE WPUE
 extern volatile unsigned char           WPUE                @ 0x3A81;
@@ -4046,11 +4476,47 @@ asm("WPUE equ 03A81h");
 // bitfield definitions
 typedef union {
     struct {
-        unsigned                        :3;
+        unsigned WPUE0                  :1;
+        unsigned WPUE1                  :1;
+        unsigned WPUE2                  :1;
         unsigned WPUE3                  :1;
     };
 } WPUEbits_t;
 extern volatile WPUEbits_t WPUEbits @ 0x3A81;
+// bitfield macros
+
+// Register: ODCONE
+#define ODCONE ODCONE
+extern volatile unsigned char           ODCONE              @ 0x3A82;
+#ifndef _LIB_BUILD
+asm("ODCONE equ 03A82h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned ODCE0                  :1;
+        unsigned ODCE1                  :1;
+        unsigned ODCE2                  :1;
+    };
+} ODCONEbits_t;
+extern volatile ODCONEbits_t ODCONEbits @ 0x3A82;
+// bitfield macros
+
+// Register: SLRCONE
+#define SLRCONE SLRCONE
+extern volatile unsigned char           SLRCONE             @ 0x3A83;
+#ifndef _LIB_BUILD
+asm("SLRCONE equ 03A83h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned SLRE0                  :1;
+        unsigned SLRE1                  :1;
+        unsigned SLRE2                  :1;
+    };
+} SLRCONEbits_t;
+extern volatile SLRCONEbits_t SLRCONEbits @ 0x3A83;
 // bitfield macros
 
 // Register: INLVLE
@@ -4062,7 +4528,9 @@ asm("INLVLE equ 03A84h");
 // bitfield definitions
 typedef union {
     struct {
-        unsigned                        :3;
+        unsigned INLVLE0                :1;
+        unsigned INLVLE1                :1;
+        unsigned INLVLE2                :1;
         unsigned INLVLE3                :1;
     };
 } INLVLEbits_t;
@@ -4115,6 +4583,40 @@ typedef union {
     };
 } IOCEFbits_t;
 extern volatile IOCEFbits_t IOCEFbits @ 0x3A87;
+// bitfield macros
+
+// Register: CCDPE
+#define CCDPE CCDPE
+extern volatile unsigned char           CCDPE               @ 0x3A88;
+#ifndef _LIB_BUILD
+asm("CCDPE equ 03A88h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned CCDPE0                 :1;
+        unsigned CCDPE1                 :1;
+        unsigned CCDPE2                 :1;
+    };
+} CCDPEbits_t;
+extern volatile CCDPEbits_t CCDPEbits @ 0x3A88;
+// bitfield macros
+
+// Register: CCDNE
+#define CCDNE CCDNE
+extern volatile unsigned char           CCDNE               @ 0x3A89;
+#ifndef _LIB_BUILD
+asm("CCDNE equ 03A89h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned CCDNE0                 :1;
+        unsigned CCDNE1                 :1;
+        unsigned CCDNE2                 :1;
+    };
+} CCDNEbits_t;
+extern volatile CCDNEbits_t CCDNEbits @ 0x3A89;
 // bitfield macros
 
 // Register: CCDCON
@@ -14757,16 +15259,16 @@ typedef union {
 extern volatile T6HLTbits_t T6HLTbits @ 0x3F95;
 // bitfield macros
 
-// Register: T6CLKCON
-#define T6CLKCON T6CLKCON
-extern volatile unsigned char           T6CLKCON            @ 0x3F96;
-#ifndef _LIB_BUILD
-asm("T6CLKCON equ 03F96h");
-#endif
-// aliases
+// Register: T6CLK
+#define T6CLK T6CLK
 extern volatile unsigned char           T6CLK               @ 0x3F96;
 #ifndef _LIB_BUILD
 asm("T6CLK equ 03F96h");
+#endif
+// aliases
+extern volatile unsigned char           T6CLKCON            @ 0x3F96;
+#ifndef _LIB_BUILD
+asm("T6CLKCON equ 03F96h");
 #endif
 // bitfield definitions
 typedef union {
@@ -14788,8 +15290,8 @@ typedef union {
         unsigned T6CS2                  :1;
         unsigned T6CS3                  :1;
     };
-} T6CLKCONbits_t;
-extern volatile T6CLKCONbits_t T6CLKCONbits @ 0x3F96;
+} T6CLKbits_t;
+extern volatile T6CLKbits_t T6CLKbits @ 0x3F96;
 // bitfield macros
 // alias bitfield definitions
 typedef union {
@@ -14811,8 +15313,8 @@ typedef union {
         unsigned T6CS2                  :1;
         unsigned T6CS3                  :1;
     };
-} T6CLKbits_t;
-extern volatile T6CLKbits_t T6CLKbits @ 0x3F96;
+} T6CLKCONbits_t;
+extern volatile T6CLKCONbits_t T6CLKCONbits @ 0x3F96;
 // bitfield macros
 
 // Register: T6RST
@@ -15288,16 +15790,16 @@ typedef union {
 extern volatile T4HLTbits_t T4HLTbits @ 0x3FA1;
 // bitfield macros
 
-// Register: T4CLKCON
-#define T4CLKCON T4CLKCON
-extern volatile unsigned char           T4CLKCON            @ 0x3FA2;
-#ifndef _LIB_BUILD
-asm("T4CLKCON equ 03FA2h");
-#endif
-// aliases
+// Register: T4CLK
+#define T4CLK T4CLK
 extern volatile unsigned char           T4CLK               @ 0x3FA2;
 #ifndef _LIB_BUILD
 asm("T4CLK equ 03FA2h");
+#endif
+// aliases
+extern volatile unsigned char           T4CLKCON            @ 0x3FA2;
+#ifndef _LIB_BUILD
+asm("T4CLKCON equ 03FA2h");
 #endif
 // bitfield definitions
 typedef union {
@@ -15319,8 +15821,8 @@ typedef union {
         unsigned T4CS2                  :1;
         unsigned T4CS3                  :1;
     };
-} T4CLKCONbits_t;
-extern volatile T4CLKCONbits_t T4CLKCONbits @ 0x3FA2;
+} T4CLKbits_t;
+extern volatile T4CLKbits_t T4CLKbits @ 0x3FA2;
 // bitfield macros
 // alias bitfield definitions
 typedef union {
@@ -15342,8 +15844,8 @@ typedef union {
         unsigned T4CS2                  :1;
         unsigned T4CS3                  :1;
     };
-} T4CLKbits_t;
-extern volatile T4CLKbits_t T4CLKbits @ 0x3FA2;
+} T4CLKCONbits_t;
+extern volatile T4CLKCONbits_t T4CLKCONbits @ 0x3FA2;
 // bitfield macros
 
 // Register: T4RST
@@ -15819,16 +16321,16 @@ typedef union {
 extern volatile T2HLTbits_t T2HLTbits @ 0x3FAD;
 // bitfield macros
 
-// Register: T2CLKCON
-#define T2CLKCON T2CLKCON
-extern volatile unsigned char           T2CLKCON            @ 0x3FAE;
-#ifndef _LIB_BUILD
-asm("T2CLKCON equ 03FAEh");
-#endif
-// aliases
+// Register: T2CLK
+#define T2CLK T2CLK
 extern volatile unsigned char           T2CLK               @ 0x3FAE;
 #ifndef _LIB_BUILD
 asm("T2CLK equ 03FAEh");
+#endif
+// aliases
+extern volatile unsigned char           T2CLKCON            @ 0x3FAE;
+#ifndef _LIB_BUILD
+asm("T2CLKCON equ 03FAEh");
 #endif
 // bitfield definitions
 typedef union {
@@ -15850,8 +16352,8 @@ typedef union {
         unsigned T2CS2                  :1;
         unsigned T2CS3                  :1;
     };
-} T2CLKCONbits_t;
-extern volatile T2CLKCONbits_t T2CLKCONbits @ 0x3FAE;
+} T2CLKbits_t;
+extern volatile T2CLKbits_t T2CLKbits @ 0x3FAE;
 // bitfield macros
 // alias bitfield definitions
 typedef union {
@@ -15873,8 +16375,8 @@ typedef union {
         unsigned T2CS2                  :1;
         unsigned T2CS3                  :1;
     };
-} T2CLKbits_t;
-extern volatile T2CLKbits_t T2CLKbits @ 0x3FAE;
+} T2CLKCONbits_t;
+extern volatile T2CLKCONbits_t T2CLKCONbits @ 0x3FAE;
 // bitfield macros
 
 // Register: T2RST
@@ -16508,6 +17010,60 @@ typedef union {
 extern volatile LATCbits_t LATCbits @ 0x3FBC;
 // bitfield macros
 
+// Register: LATD
+#define LATD LATD
+extern volatile unsigned char           LATD                @ 0x3FBD;
+#ifndef _LIB_BUILD
+asm("LATD equ 03FBDh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned LATD0                  :1;
+        unsigned LATD1                  :1;
+        unsigned LATD2                  :1;
+        unsigned LATD3                  :1;
+        unsigned LATD4                  :1;
+        unsigned LATD5                  :1;
+        unsigned LATD6                  :1;
+        unsigned LATD7                  :1;
+    };
+    struct {
+        unsigned LD0                    :1;
+        unsigned LD1                    :1;
+        unsigned LD2                    :1;
+        unsigned LD3                    :1;
+        unsigned LD4                    :1;
+        unsigned LD5                    :1;
+        unsigned LD6                    :1;
+        unsigned LD7                    :1;
+    };
+} LATDbits_t;
+extern volatile LATDbits_t LATDbits @ 0x3FBD;
+// bitfield macros
+
+// Register: LATE
+#define LATE LATE
+extern volatile unsigned char           LATE                @ 0x3FBE;
+#ifndef _LIB_BUILD
+asm("LATE equ 03FBEh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned LATE0                  :1;
+        unsigned LATE1                  :1;
+        unsigned LATE2                  :1;
+    };
+    struct {
+        unsigned LE0                    :1;
+        unsigned LE1                    :1;
+        unsigned LE2                    :1;
+    };
+} LATEbits_t;
+extern volatile LATEbits_t LATEbits @ 0x3FBE;
+// bitfield macros
+
 // Register: TRISA
 #define TRISA TRISA
 extern volatile unsigned char           TRISA               @ 0x3FC2;
@@ -16572,6 +17128,45 @@ typedef union {
     };
 } TRISCbits_t;
 extern volatile TRISCbits_t TRISCbits @ 0x3FC4;
+// bitfield macros
+
+// Register: TRISD
+#define TRISD TRISD
+extern volatile unsigned char           TRISD               @ 0x3FC5;
+#ifndef _LIB_BUILD
+asm("TRISD equ 03FC5h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned TRISD0                 :1;
+        unsigned TRISD1                 :1;
+        unsigned TRISD2                 :1;
+        unsigned TRISD3                 :1;
+        unsigned TRISD4                 :1;
+        unsigned TRISD5                 :1;
+        unsigned TRISD6                 :1;
+        unsigned TRISD7                 :1;
+    };
+} TRISDbits_t;
+extern volatile TRISDbits_t TRISDbits @ 0x3FC5;
+// bitfield macros
+
+// Register: TRISE
+#define TRISE TRISE
+extern volatile unsigned char           TRISE               @ 0x3FC6;
+#ifndef _LIB_BUILD
+asm("TRISE equ 03FC6h");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned TRISE0                 :1;
+        unsigned TRISE1                 :1;
+        unsigned TRISE2                 :1;
+    };
+} TRISEbits_t;
+extern volatile TRISEbits_t TRISEbits @ 0x3FC6;
 // bitfield macros
 
 // Register: PORTA
@@ -16660,6 +17255,32 @@ typedef union {
 extern volatile PORTCbits_t PORTCbits @ 0x3FCC;
 // bitfield macros
 
+// Register: PORTD
+#define PORTD PORTD
+extern volatile unsigned char           PORTD               @ 0x3FCD;
+#ifndef _LIB_BUILD
+asm("PORTD equ 03FCDh");
+#endif
+// bitfield definitions
+typedef union {
+    struct {
+        unsigned RD0                    :1;
+        unsigned RD1                    :1;
+        unsigned RD2                    :1;
+        unsigned RD3                    :1;
+        unsigned RD4                    :1;
+        unsigned RD5                    :1;
+        unsigned RD6                    :1;
+        unsigned RD7                    :1;
+    };
+    struct {
+        unsigned                        :7;
+        unsigned SS2                    :1;
+    };
+} PORTDbits_t;
+extern volatile PORTDbits_t PORTDbits @ 0x3FCD;
+// bitfield macros
+
 // Register: PORTE
 #define PORTE PORTE
 extern volatile unsigned char           PORTE               @ 0x3FCE;
@@ -16669,7 +17290,9 @@ asm("PORTE equ 03FCEh");
 // bitfield definitions
 typedef union {
     struct {
-        unsigned                        :3;
+        unsigned RE0                    :1;
+        unsigned RE1                    :1;
+        unsigned RE2                    :1;
         unsigned RE3                    :1;
     };
     struct {
@@ -16679,6 +17302,32 @@ typedef union {
     struct {
         unsigned                        :3;
         unsigned PC3E                   :1;
+    };
+    struct {
+        unsigned                        :2;
+        unsigned CCP10                  :1;
+    };
+    struct {
+        unsigned                        :2;
+        unsigned CS                     :1;
+    };
+    struct {
+        unsigned                        :2;
+        unsigned PB2                    :1;
+    };
+    struct {
+        unsigned                        :1;
+        unsigned PC2                    :1;
+    };
+    struct {
+        unsigned PD2                    :1;
+    };
+    struct {
+        unsigned RDE                    :1;
+    };
+    struct {
+        unsigned                        :1;
+        unsigned WRE                    :1;
     };
 } PORTEbits_t;
 extern volatile PORTEbits_t PORTEbits @ 0x3FCE;
@@ -18220,10 +18869,6 @@ extern volatile __bit                   ADR6                @ (((unsigned) &NVMA
 #define                                 ADR6_bit            BANKMASK(NVMADRL), 6
 extern volatile __bit                   ADR7                @ (((unsigned) &NVMADRL)*8) + 7;
 #define                                 ADR7_bit            BANKMASK(NVMADRL), 7
-extern volatile __bit                   ADR8                @ (((unsigned) &NVMADRH)*8) + 0;
-#define                                 ADR8_bit            BANKMASK(NVMADRH), 0
-extern volatile __bit                   ADR9                @ (((unsigned) &NVMADRH)*8) + 1;
-#define                                 ADR9_bit            BANKMASK(NVMADRH), 1
 extern volatile __bit                   ADRES0              @ (((unsigned) &ADRESL)*8) + 0;
 #define                                 ADRES0_bit          BANKMASK(ADRESL), 0
 extern volatile __bit                   ADRES1              @ (((unsigned) &ADRESL)*8) + 1;
@@ -18406,6 +19051,28 @@ extern volatile __bit                   ANSELC6             @ (((unsigned) &ANSE
 #define                                 ANSELC6_bit         BANKMASK(ANSELC), 6
 extern volatile __bit                   ANSELC7             @ (((unsigned) &ANSELC)*8) + 7;
 #define                                 ANSELC7_bit         BANKMASK(ANSELC), 7
+extern volatile __bit                   ANSELD0             @ (((unsigned) &ANSELD)*8) + 0;
+#define                                 ANSELD0_bit         BANKMASK(ANSELD), 0
+extern volatile __bit                   ANSELD1             @ (((unsigned) &ANSELD)*8) + 1;
+#define                                 ANSELD1_bit         BANKMASK(ANSELD), 1
+extern volatile __bit                   ANSELD2             @ (((unsigned) &ANSELD)*8) + 2;
+#define                                 ANSELD2_bit         BANKMASK(ANSELD), 2
+extern volatile __bit                   ANSELD3             @ (((unsigned) &ANSELD)*8) + 3;
+#define                                 ANSELD3_bit         BANKMASK(ANSELD), 3
+extern volatile __bit                   ANSELD4             @ (((unsigned) &ANSELD)*8) + 4;
+#define                                 ANSELD4_bit         BANKMASK(ANSELD), 4
+extern volatile __bit                   ANSELD5             @ (((unsigned) &ANSELD)*8) + 5;
+#define                                 ANSELD5_bit         BANKMASK(ANSELD), 5
+extern volatile __bit                   ANSELD6             @ (((unsigned) &ANSELD)*8) + 6;
+#define                                 ANSELD6_bit         BANKMASK(ANSELD), 6
+extern volatile __bit                   ANSELD7             @ (((unsigned) &ANSELD)*8) + 7;
+#define                                 ANSELD7_bit         BANKMASK(ANSELD), 7
+extern volatile __bit                   ANSELE0             @ (((unsigned) &ANSELE)*8) + 0;
+#define                                 ANSELE0_bit         BANKMASK(ANSELE), 0
+extern volatile __bit                   ANSELE1             @ (((unsigned) &ANSELE)*8) + 1;
+#define                                 ANSELE1_bit         BANKMASK(ANSELE), 1
+extern volatile __bit                   ANSELE2             @ (((unsigned) &ANSELE)*8) + 2;
+#define                                 ANSELE2_bit         BANKMASK(ANSELE), 2
 extern volatile __bit                   AS                  @ (((unsigned) &SMT1STAT)*8) + 0;
 #define                                 AS_bit              BANKMASK(SMT1STAT), 0
 extern volatile __bit                   ASYNC               @ (((unsigned) &T0CON1)*8) + 4;
@@ -18630,6 +19297,28 @@ extern volatile __bit                   CCDNC6              @ (((unsigned) &CCDN
 #define                                 CCDNC6_bit          BANKMASK(CCDNC), 6
 extern volatile __bit                   CCDNC7              @ (((unsigned) &CCDNC)*8) + 7;
 #define                                 CCDNC7_bit          BANKMASK(CCDNC), 7
+extern volatile __bit                   CCDND0              @ (((unsigned) &CCDND)*8) + 0;
+#define                                 CCDND0_bit          BANKMASK(CCDND), 0
+extern volatile __bit                   CCDND1              @ (((unsigned) &CCDND)*8) + 1;
+#define                                 CCDND1_bit          BANKMASK(CCDND), 1
+extern volatile __bit                   CCDND2              @ (((unsigned) &CCDND)*8) + 2;
+#define                                 CCDND2_bit          BANKMASK(CCDND), 2
+extern volatile __bit                   CCDND3              @ (((unsigned) &CCDND)*8) + 3;
+#define                                 CCDND3_bit          BANKMASK(CCDND), 3
+extern volatile __bit                   CCDND4              @ (((unsigned) &CCDND)*8) + 4;
+#define                                 CCDND4_bit          BANKMASK(CCDND), 4
+extern volatile __bit                   CCDND5              @ (((unsigned) &CCDND)*8) + 5;
+#define                                 CCDND5_bit          BANKMASK(CCDND), 5
+extern volatile __bit                   CCDND6              @ (((unsigned) &CCDND)*8) + 6;
+#define                                 CCDND6_bit          BANKMASK(CCDND), 6
+extern volatile __bit                   CCDND7              @ (((unsigned) &CCDND)*8) + 7;
+#define                                 CCDND7_bit          BANKMASK(CCDND), 7
+extern volatile __bit                   CCDNE0              @ (((unsigned) &CCDNE)*8) + 0;
+#define                                 CCDNE0_bit          BANKMASK(CCDNE), 0
+extern volatile __bit                   CCDNE1              @ (((unsigned) &CCDNE)*8) + 1;
+#define                                 CCDNE1_bit          BANKMASK(CCDNE), 1
+extern volatile __bit                   CCDNE2              @ (((unsigned) &CCDNE)*8) + 2;
+#define                                 CCDNE2_bit          BANKMASK(CCDNE), 2
 extern volatile __bit                   CCDPA0              @ (((unsigned) &CCDPA)*8) + 0;
 #define                                 CCDPA0_bit          BANKMASK(CCDPA), 0
 extern volatile __bit                   CCDPA1              @ (((unsigned) &CCDPA)*8) + 1;
@@ -18678,12 +19367,36 @@ extern volatile __bit                   CCDPC6              @ (((unsigned) &CCDP
 #define                                 CCDPC6_bit          BANKMASK(CCDPC), 6
 extern volatile __bit                   CCDPC7              @ (((unsigned) &CCDPC)*8) + 7;
 #define                                 CCDPC7_bit          BANKMASK(CCDPC), 7
+extern volatile __bit                   CCDPD0              @ (((unsigned) &CCDPD)*8) + 0;
+#define                                 CCDPD0_bit          BANKMASK(CCDPD), 0
+extern volatile __bit                   CCDPD1              @ (((unsigned) &CCDPD)*8) + 1;
+#define                                 CCDPD1_bit          BANKMASK(CCDPD), 1
+extern volatile __bit                   CCDPD2              @ (((unsigned) &CCDPD)*8) + 2;
+#define                                 CCDPD2_bit          BANKMASK(CCDPD), 2
+extern volatile __bit                   CCDPD3              @ (((unsigned) &CCDPD)*8) + 3;
+#define                                 CCDPD3_bit          BANKMASK(CCDPD), 3
+extern volatile __bit                   CCDPD4              @ (((unsigned) &CCDPD)*8) + 4;
+#define                                 CCDPD4_bit          BANKMASK(CCDPD), 4
+extern volatile __bit                   CCDPD5              @ (((unsigned) &CCDPD)*8) + 5;
+#define                                 CCDPD5_bit          BANKMASK(CCDPD), 5
+extern volatile __bit                   CCDPD6              @ (((unsigned) &CCDPD)*8) + 6;
+#define                                 CCDPD6_bit          BANKMASK(CCDPD), 6
+extern volatile __bit                   CCDPD7              @ (((unsigned) &CCDPD)*8) + 7;
+#define                                 CCDPD7_bit          BANKMASK(CCDPD), 7
+extern volatile __bit                   CCDPE0              @ (((unsigned) &CCDPE)*8) + 0;
+#define                                 CCDPE0_bit          BANKMASK(CCDPE), 0
+extern volatile __bit                   CCDPE1              @ (((unsigned) &CCDPE)*8) + 1;
+#define                                 CCDPE1_bit          BANKMASK(CCDPE), 1
+extern volatile __bit                   CCDPE2              @ (((unsigned) &CCDPE)*8) + 2;
+#define                                 CCDPE2_bit          BANKMASK(CCDPE), 2
 extern volatile __bit                   CCH05               @ (((unsigned) &IPR5)*8) + 0;
 #define                                 CCH05_bit           BANKMASK(IPR5), 0
 extern volatile __bit                   CCH15               @ (((unsigned) &IPR5)*8) + 1;
 #define                                 CCH15_bit           BANKMASK(IPR5), 1
 extern volatile __bit                   CCIP3IP             @ (((unsigned) &IPR4)*8) + 0;
 #define                                 CCIP3IP_bit         BANKMASK(IPR4), 0
+extern volatile __bit                   CCP10               @ (((unsigned) &PORTE)*8) + 2;
+#define                                 CCP10_bit           BANKMASK(PORTE), 2
 extern volatile __bit                   CCP1CTS0            @ (((unsigned) &CCP1CAP)*8) + 0;
 #define                                 CCP1CTS0_bit        BANKMASK(CCP1CAP), 0
 extern volatile __bit                   CCP1CTS1            @ (((unsigned) &CCP1CAP)*8) + 1;
@@ -20484,6 +21197,28 @@ extern volatile __bit                   INLVLC6             @ (((unsigned) &INLV
 #define                                 INLVLC6_bit         BANKMASK(INLVLC), 6
 extern volatile __bit                   INLVLC7             @ (((unsigned) &INLVLC)*8) + 7;
 #define                                 INLVLC7_bit         BANKMASK(INLVLC), 7
+extern volatile __bit                   INLVLD0             @ (((unsigned) &INLVLD)*8) + 0;
+#define                                 INLVLD0_bit         BANKMASK(INLVLD), 0
+extern volatile __bit                   INLVLD1             @ (((unsigned) &INLVLD)*8) + 1;
+#define                                 INLVLD1_bit         BANKMASK(INLVLD), 1
+extern volatile __bit                   INLVLD2             @ (((unsigned) &INLVLD)*8) + 2;
+#define                                 INLVLD2_bit         BANKMASK(INLVLD), 2
+extern volatile __bit                   INLVLD3             @ (((unsigned) &INLVLD)*8) + 3;
+#define                                 INLVLD3_bit         BANKMASK(INLVLD), 3
+extern volatile __bit                   INLVLD4             @ (((unsigned) &INLVLD)*8) + 4;
+#define                                 INLVLD4_bit         BANKMASK(INLVLD), 4
+extern volatile __bit                   INLVLD5             @ (((unsigned) &INLVLD)*8) + 5;
+#define                                 INLVLD5_bit         BANKMASK(INLVLD), 5
+extern volatile __bit                   INLVLD6             @ (((unsigned) &INLVLD)*8) + 6;
+#define                                 INLVLD6_bit         BANKMASK(INLVLD), 6
+extern volatile __bit                   INLVLD7             @ (((unsigned) &INLVLD)*8) + 7;
+#define                                 INLVLD7_bit         BANKMASK(INLVLD), 7
+extern volatile __bit                   INLVLE0             @ (((unsigned) &INLVLE)*8) + 0;
+#define                                 INLVLE0_bit         BANKMASK(INLVLE), 0
+extern volatile __bit                   INLVLE1             @ (((unsigned) &INLVLE)*8) + 1;
+#define                                 INLVLE1_bit         BANKMASK(INLVLE), 1
+extern volatile __bit                   INLVLE2             @ (((unsigned) &INLVLE)*8) + 2;
+#define                                 INLVLE2_bit         BANKMASK(INLVLE), 2
 extern volatile __bit                   INLVLE3             @ (((unsigned) &INLVLE)*8) + 3;
 #define                                 INLVLE3_bit         BANKMASK(INLVLE), 3
 extern volatile __bit                   INT0EDG             @ (((unsigned) &INTCON0)*8) + 0;
@@ -20788,6 +21523,28 @@ extern volatile __bit                   LATC6               @ (((unsigned) &LATC
 #define                                 LATC6_bit           BANKMASK(LATC), 6
 extern volatile __bit                   LATC7               @ (((unsigned) &LATC)*8) + 7;
 #define                                 LATC7_bit           BANKMASK(LATC), 7
+extern volatile __bit                   LATD0               @ (((unsigned) &LATD)*8) + 0;
+#define                                 LATD0_bit           BANKMASK(LATD), 0
+extern volatile __bit                   LATD1               @ (((unsigned) &LATD)*8) + 1;
+#define                                 LATD1_bit           BANKMASK(LATD), 1
+extern volatile __bit                   LATD2               @ (((unsigned) &LATD)*8) + 2;
+#define                                 LATD2_bit           BANKMASK(LATD), 2
+extern volatile __bit                   LATD3               @ (((unsigned) &LATD)*8) + 3;
+#define                                 LATD3_bit           BANKMASK(LATD), 3
+extern volatile __bit                   LATD4               @ (((unsigned) &LATD)*8) + 4;
+#define                                 LATD4_bit           BANKMASK(LATD), 4
+extern volatile __bit                   LATD5               @ (((unsigned) &LATD)*8) + 5;
+#define                                 LATD5_bit           BANKMASK(LATD), 5
+extern volatile __bit                   LATD6               @ (((unsigned) &LATD)*8) + 6;
+#define                                 LATD6_bit           BANKMASK(LATD), 6
+extern volatile __bit                   LATD7               @ (((unsigned) &LATD)*8) + 7;
+#define                                 LATD7_bit           BANKMASK(LATD), 7
+extern volatile __bit                   LATE0               @ (((unsigned) &LATE)*8) + 0;
+#define                                 LATE0_bit           BANKMASK(LATE), 0
+extern volatile __bit                   LATE1               @ (((unsigned) &LATE)*8) + 1;
+#define                                 LATE1_bit           BANKMASK(LATE), 1
+extern volatile __bit                   LATE2               @ (((unsigned) &LATE)*8) + 2;
+#define                                 LATE2_bit           BANKMASK(LATE), 2
 extern volatile __bit                   LB0                 @ (((unsigned) &LATB)*8) + 0;
 #define                                 LB0_bit             BANKMASK(LATB), 0
 extern volatile __bit                   LB1                 @ (((unsigned) &LATB)*8) + 1;
@@ -21436,6 +22193,28 @@ extern volatile __bit                   LC6                 @ (((unsigned) &LATC
 #define                                 LC6_bit             BANKMASK(LATC), 6
 extern volatile __bit                   LC7                 @ (((unsigned) &LATC)*8) + 7;
 #define                                 LC7_bit             BANKMASK(LATC), 7
+extern volatile __bit                   LD0                 @ (((unsigned) &LATD)*8) + 0;
+#define                                 LD0_bit             BANKMASK(LATD), 0
+extern volatile __bit                   LD1                 @ (((unsigned) &LATD)*8) + 1;
+#define                                 LD1_bit             BANKMASK(LATD), 1
+extern volatile __bit                   LD2                 @ (((unsigned) &LATD)*8) + 2;
+#define                                 LD2_bit             BANKMASK(LATD), 2
+extern volatile __bit                   LD3                 @ (((unsigned) &LATD)*8) + 3;
+#define                                 LD3_bit             BANKMASK(LATD), 3
+extern volatile __bit                   LD4                 @ (((unsigned) &LATD)*8) + 4;
+#define                                 LD4_bit             BANKMASK(LATD), 4
+extern volatile __bit                   LD5                 @ (((unsigned) &LATD)*8) + 5;
+#define                                 LD5_bit             BANKMASK(LATD), 5
+extern volatile __bit                   LD6                 @ (((unsigned) &LATD)*8) + 6;
+#define                                 LD6_bit             BANKMASK(LATD), 6
+extern volatile __bit                   LD7                 @ (((unsigned) &LATD)*8) + 7;
+#define                                 LD7_bit             BANKMASK(LATD), 7
+extern volatile __bit                   LE0                 @ (((unsigned) &LATE)*8) + 0;
+#define                                 LE0_bit             BANKMASK(LATE), 0
+extern volatile __bit                   LE1                 @ (((unsigned) &LATE)*8) + 1;
+#define                                 LE1_bit             BANKMASK(LATE), 1
+extern volatile __bit                   LE2                 @ (((unsigned) &LATE)*8) + 2;
+#define                                 LE2_bit             BANKMASK(LATE), 2
 extern volatile __bit                   LFOEN               @ (((unsigned) &OSCEN)*8) + 4;
 #define                                 LFOEN_bit           BANKMASK(OSCEN), 4
 extern volatile __bit                   LFOR                @ (((unsigned) &OSCSTAT)*8) + 4;
@@ -21758,10 +22537,6 @@ extern volatile __bit                   NVMADR6             @ (((unsigned) &NVMA
 #define                                 NVMADR6_bit         BANKMASK(NVMADRL), 6
 extern volatile __bit                   NVMADR7             @ (((unsigned) &NVMADRL)*8) + 7;
 #define                                 NVMADR7_bit         BANKMASK(NVMADRL), 7
-extern volatile __bit                   NVMADR8             @ (((unsigned) &NVMADRH)*8) + 0;
-#define                                 NVMADR8_bit         BANKMASK(NVMADRH), 0
-extern volatile __bit                   NVMADR9             @ (((unsigned) &NVMADRH)*8) + 1;
-#define                                 NVMADR9_bit         BANKMASK(NVMADRH), 1
 extern volatile __bit                   NVMDAT0             @ (((unsigned) &NVMDAT)*8) + 0;
 #define                                 NVMDAT0_bit         BANKMASK(NVMDAT), 0
 extern volatile __bit                   NVMDAT1             @ (((unsigned) &NVMDAT)*8) + 1;
@@ -21838,6 +22613,28 @@ extern volatile __bit                   ODCC6               @ (((unsigned) &ODCO
 #define                                 ODCC6_bit           BANKMASK(ODCONC), 6
 extern volatile __bit                   ODCC7               @ (((unsigned) &ODCONC)*8) + 7;
 #define                                 ODCC7_bit           BANKMASK(ODCONC), 7
+extern volatile __bit                   ODCD0               @ (((unsigned) &ODCOND)*8) + 0;
+#define                                 ODCD0_bit           BANKMASK(ODCOND), 0
+extern volatile __bit                   ODCD1               @ (((unsigned) &ODCOND)*8) + 1;
+#define                                 ODCD1_bit           BANKMASK(ODCOND), 1
+extern volatile __bit                   ODCD2               @ (((unsigned) &ODCOND)*8) + 2;
+#define                                 ODCD2_bit           BANKMASK(ODCOND), 2
+extern volatile __bit                   ODCD3               @ (((unsigned) &ODCOND)*8) + 3;
+#define                                 ODCD3_bit           BANKMASK(ODCOND), 3
+extern volatile __bit                   ODCD4               @ (((unsigned) &ODCOND)*8) + 4;
+#define                                 ODCD4_bit           BANKMASK(ODCOND), 4
+extern volatile __bit                   ODCD5               @ (((unsigned) &ODCOND)*8) + 5;
+#define                                 ODCD5_bit           BANKMASK(ODCOND), 5
+extern volatile __bit                   ODCD6               @ (((unsigned) &ODCOND)*8) + 6;
+#define                                 ODCD6_bit           BANKMASK(ODCOND), 6
+extern volatile __bit                   ODCD7               @ (((unsigned) &ODCOND)*8) + 7;
+#define                                 ODCD7_bit           BANKMASK(ODCOND), 7
+extern volatile __bit                   ODCE0               @ (((unsigned) &ODCONE)*8) + 0;
+#define                                 ODCE0_bit           BANKMASK(ODCONE), 0
+extern volatile __bit                   ODCE1               @ (((unsigned) &ODCONE)*8) + 1;
+#define                                 ODCE1_bit           BANKMASK(ODCONE), 1
+extern volatile __bit                   ODCE2               @ (((unsigned) &ODCONE)*8) + 2;
+#define                                 ODCE2_bit           BANKMASK(ODCONE), 2
 extern volatile __bit                   OE1                 @ (((unsigned) &DAC1CON0)*8) + 5;
 #define                                 OE1_bit             BANKMASK(DAC1CON0), 5
 extern volatile __bit                   OE2                 @ (((unsigned) &DAC1CON0)*8) + 4;
@@ -21888,16 +22685,22 @@ extern volatile __bit                   PA1                 @ (((unsigned) &PORT
 #define                                 PA1_bit             BANKMASK(PORTC), 2
 extern volatile __bit                   PA2                 @ (((unsigned) &PORTC)*8) + 1;
 #define                                 PA2_bit             BANKMASK(PORTC), 1
+extern volatile __bit                   PB2                 @ (((unsigned) &PORTE)*8) + 2;
+#define                                 PB2_bit             BANKMASK(PORTE), 2
 extern volatile __bit                   PC1IE               @ (((unsigned) &I2C1PIE)*8) + 2;
 #define                                 PC1IE_bit           BANKMASK(I2C1PIE), 2
 extern volatile __bit                   PC1IF               @ (((unsigned) &I2C1PIR)*8) + 2;
 #define                                 PC1IF_bit           BANKMASK(I2C1PIR), 2
+extern volatile __bit                   PC2                 @ (((unsigned) &PORTE)*8) + 1;
+#define                                 PC2_bit             BANKMASK(PORTE), 1
 extern volatile __bit                   PC2IE               @ (((unsigned) &I2C2PIE)*8) + 2;
 #define                                 PC2IE_bit           BANKMASK(I2C2PIE), 2
 extern volatile __bit                   PC2IF               @ (((unsigned) &I2C2PIR)*8) + 2;
 #define                                 PC2IF_bit           BANKMASK(I2C2PIR), 2
 extern volatile __bit                   PC3E                @ (((unsigned) &PORTE)*8) + 3;
 #define                                 PC3E_bit            BANKMASK(PORTE), 3
+extern volatile __bit                   PD2                 @ (((unsigned) &PORTE)*8) + 0;
+#define                                 PD2_bit             BANKMASK(PORTE), 0
 extern volatile __bit                   PFM                 @ (((unsigned) &NCO1CON)*8) + 0;
 #define                                 PFM_bit             BANKMASK(NCO1CON), 0
 extern volatile __bit                   PLEN0               @ (((unsigned) &CRCCON1)*8) + 0;
@@ -22484,12 +23287,146 @@ extern volatile __bit                   RC7PPS4             @ (((unsigned) &RC7P
 #define                                 RC7PPS4_bit         BANKMASK(RC7PPS), 4
 extern volatile __bit                   RD                  @ (((unsigned) &NVMCON1)*8) + 0;
 #define                                 RD_bit              BANKMASK(NVMCON1), 0
+extern volatile __bit                   RD0                 @ (((unsigned) &PORTD)*8) + 0;
+#define                                 RD0_bit             BANKMASK(PORTD), 0
+extern volatile __bit                   RD0PPS0             @ (((unsigned) &RD0PPS)*8) + 0;
+#define                                 RD0PPS0_bit         BANKMASK(RD0PPS), 0
+extern volatile __bit                   RD0PPS1             @ (((unsigned) &RD0PPS)*8) + 1;
+#define                                 RD0PPS1_bit         BANKMASK(RD0PPS), 1
+extern volatile __bit                   RD0PPS2             @ (((unsigned) &RD0PPS)*8) + 2;
+#define                                 RD0PPS2_bit         BANKMASK(RD0PPS), 2
+extern volatile __bit                   RD0PPS3             @ (((unsigned) &RD0PPS)*8) + 3;
+#define                                 RD0PPS3_bit         BANKMASK(RD0PPS), 3
+extern volatile __bit                   RD0PPS4             @ (((unsigned) &RD0PPS)*8) + 4;
+#define                                 RD0PPS4_bit         BANKMASK(RD0PPS), 4
+extern volatile __bit                   RD1                 @ (((unsigned) &PORTD)*8) + 1;
+#define                                 RD1_bit             BANKMASK(PORTD), 1
 extern volatile __bit                   RD161               @ (((unsigned) &T1CON)*8) + 1;
 #define                                 RD161_bit           BANKMASK(T1CON), 1
 extern volatile __bit                   RD163               @ (((unsigned) &T3CON)*8) + 1;
 #define                                 RD163_bit           BANKMASK(T3CON), 1
 extern volatile __bit                   RD165               @ (((unsigned) &T5CON)*8) + 1;
 #define                                 RD165_bit           BANKMASK(T5CON), 1
+extern volatile __bit                   RD1PPS0             @ (((unsigned) &RD1PPS)*8) + 0;
+#define                                 RD1PPS0_bit         BANKMASK(RD1PPS), 0
+extern volatile __bit                   RD1PPS1             @ (((unsigned) &RD1PPS)*8) + 1;
+#define                                 RD1PPS1_bit         BANKMASK(RD1PPS), 1
+extern volatile __bit                   RD1PPS2             @ (((unsigned) &RD1PPS)*8) + 2;
+#define                                 RD1PPS2_bit         BANKMASK(RD1PPS), 2
+extern volatile __bit                   RD1PPS3             @ (((unsigned) &RD1PPS)*8) + 3;
+#define                                 RD1PPS3_bit         BANKMASK(RD1PPS), 3
+extern volatile __bit                   RD1PPS4             @ (((unsigned) &RD1PPS)*8) + 4;
+#define                                 RD1PPS4_bit         BANKMASK(RD1PPS), 4
+extern volatile __bit                   RD2                 @ (((unsigned) &PORTD)*8) + 2;
+#define                                 RD2_bit             BANKMASK(PORTD), 2
+extern volatile __bit                   RD2PPS0             @ (((unsigned) &RD2PPS)*8) + 0;
+#define                                 RD2PPS0_bit         BANKMASK(RD2PPS), 0
+extern volatile __bit                   RD2PPS1             @ (((unsigned) &RD2PPS)*8) + 1;
+#define                                 RD2PPS1_bit         BANKMASK(RD2PPS), 1
+extern volatile __bit                   RD2PPS2             @ (((unsigned) &RD2PPS)*8) + 2;
+#define                                 RD2PPS2_bit         BANKMASK(RD2PPS), 2
+extern volatile __bit                   RD2PPS3             @ (((unsigned) &RD2PPS)*8) + 3;
+#define                                 RD2PPS3_bit         BANKMASK(RD2PPS), 3
+extern volatile __bit                   RD2PPS4             @ (((unsigned) &RD2PPS)*8) + 4;
+#define                                 RD2PPS4_bit         BANKMASK(RD2PPS), 4
+extern volatile __bit                   RD3                 @ (((unsigned) &PORTD)*8) + 3;
+#define                                 RD3_bit             BANKMASK(PORTD), 3
+extern volatile __bit                   RD3PPS0             @ (((unsigned) &RD3PPS)*8) + 0;
+#define                                 RD3PPS0_bit         BANKMASK(RD3PPS), 0
+extern volatile __bit                   RD3PPS1             @ (((unsigned) &RD3PPS)*8) + 1;
+#define                                 RD3PPS1_bit         BANKMASK(RD3PPS), 1
+extern volatile __bit                   RD3PPS2             @ (((unsigned) &RD3PPS)*8) + 2;
+#define                                 RD3PPS2_bit         BANKMASK(RD3PPS), 2
+extern volatile __bit                   RD3PPS3             @ (((unsigned) &RD3PPS)*8) + 3;
+#define                                 RD3PPS3_bit         BANKMASK(RD3PPS), 3
+extern volatile __bit                   RD3PPS4             @ (((unsigned) &RD3PPS)*8) + 4;
+#define                                 RD3PPS4_bit         BANKMASK(RD3PPS), 4
+extern volatile __bit                   RD4                 @ (((unsigned) &PORTD)*8) + 4;
+#define                                 RD4_bit             BANKMASK(PORTD), 4
+extern volatile __bit                   RD4PPS0             @ (((unsigned) &RD4PPS)*8) + 0;
+#define                                 RD4PPS0_bit         BANKMASK(RD4PPS), 0
+extern volatile __bit                   RD4PPS1             @ (((unsigned) &RD4PPS)*8) + 1;
+#define                                 RD4PPS1_bit         BANKMASK(RD4PPS), 1
+extern volatile __bit                   RD4PPS2             @ (((unsigned) &RD4PPS)*8) + 2;
+#define                                 RD4PPS2_bit         BANKMASK(RD4PPS), 2
+extern volatile __bit                   RD4PPS3             @ (((unsigned) &RD4PPS)*8) + 3;
+#define                                 RD4PPS3_bit         BANKMASK(RD4PPS), 3
+extern volatile __bit                   RD4PPS4             @ (((unsigned) &RD4PPS)*8) + 4;
+#define                                 RD4PPS4_bit         BANKMASK(RD4PPS), 4
+extern volatile __bit                   RD5                 @ (((unsigned) &PORTD)*8) + 5;
+#define                                 RD5_bit             BANKMASK(PORTD), 5
+extern volatile __bit                   RD5PPS0             @ (((unsigned) &RD5PPS)*8) + 0;
+#define                                 RD5PPS0_bit         BANKMASK(RD5PPS), 0
+extern volatile __bit                   RD5PPS1             @ (((unsigned) &RD5PPS)*8) + 1;
+#define                                 RD5PPS1_bit         BANKMASK(RD5PPS), 1
+extern volatile __bit                   RD5PPS2             @ (((unsigned) &RD5PPS)*8) + 2;
+#define                                 RD5PPS2_bit         BANKMASK(RD5PPS), 2
+extern volatile __bit                   RD5PPS3             @ (((unsigned) &RD5PPS)*8) + 3;
+#define                                 RD5PPS3_bit         BANKMASK(RD5PPS), 3
+extern volatile __bit                   RD5PPS4             @ (((unsigned) &RD5PPS)*8) + 4;
+#define                                 RD5PPS4_bit         BANKMASK(RD5PPS), 4
+extern volatile __bit                   RD6                 @ (((unsigned) &PORTD)*8) + 6;
+#define                                 RD6_bit             BANKMASK(PORTD), 6
+extern volatile __bit                   RD6PPS0             @ (((unsigned) &RD6PPS)*8) + 0;
+#define                                 RD6PPS0_bit         BANKMASK(RD6PPS), 0
+extern volatile __bit                   RD6PPS1             @ (((unsigned) &RD6PPS)*8) + 1;
+#define                                 RD6PPS1_bit         BANKMASK(RD6PPS), 1
+extern volatile __bit                   RD6PPS2             @ (((unsigned) &RD6PPS)*8) + 2;
+#define                                 RD6PPS2_bit         BANKMASK(RD6PPS), 2
+extern volatile __bit                   RD6PPS3             @ (((unsigned) &RD6PPS)*8) + 3;
+#define                                 RD6PPS3_bit         BANKMASK(RD6PPS), 3
+extern volatile __bit                   RD6PPS4             @ (((unsigned) &RD6PPS)*8) + 4;
+#define                                 RD6PPS4_bit         BANKMASK(RD6PPS), 4
+extern volatile __bit                   RD7                 @ (((unsigned) &PORTD)*8) + 7;
+#define                                 RD7_bit             BANKMASK(PORTD), 7
+extern volatile __bit                   RD7PPS0             @ (((unsigned) &RD7PPS)*8) + 0;
+#define                                 RD7PPS0_bit         BANKMASK(RD7PPS), 0
+extern volatile __bit                   RD7PPS1             @ (((unsigned) &RD7PPS)*8) + 1;
+#define                                 RD7PPS1_bit         BANKMASK(RD7PPS), 1
+extern volatile __bit                   RD7PPS2             @ (((unsigned) &RD7PPS)*8) + 2;
+#define                                 RD7PPS2_bit         BANKMASK(RD7PPS), 2
+extern volatile __bit                   RD7PPS3             @ (((unsigned) &RD7PPS)*8) + 3;
+#define                                 RD7PPS3_bit         BANKMASK(RD7PPS), 3
+extern volatile __bit                   RD7PPS4             @ (((unsigned) &RD7PPS)*8) + 4;
+#define                                 RD7PPS4_bit         BANKMASK(RD7PPS), 4
+extern volatile __bit                   RDE                 @ (((unsigned) &PORTE)*8) + 0;
+#define                                 RDE_bit             BANKMASK(PORTE), 0
+extern volatile __bit                   RE0                 @ (((unsigned) &PORTE)*8) + 0;
+#define                                 RE0_bit             BANKMASK(PORTE), 0
+extern volatile __bit                   RE0PPS0             @ (((unsigned) &RE0PPS)*8) + 0;
+#define                                 RE0PPS0_bit         BANKMASK(RE0PPS), 0
+extern volatile __bit                   RE0PPS1             @ (((unsigned) &RE0PPS)*8) + 1;
+#define                                 RE0PPS1_bit         BANKMASK(RE0PPS), 1
+extern volatile __bit                   RE0PPS2             @ (((unsigned) &RE0PPS)*8) + 2;
+#define                                 RE0PPS2_bit         BANKMASK(RE0PPS), 2
+extern volatile __bit                   RE0PPS3             @ (((unsigned) &RE0PPS)*8) + 3;
+#define                                 RE0PPS3_bit         BANKMASK(RE0PPS), 3
+extern volatile __bit                   RE0PPS4             @ (((unsigned) &RE0PPS)*8) + 4;
+#define                                 RE0PPS4_bit         BANKMASK(RE0PPS), 4
+extern volatile __bit                   RE1                 @ (((unsigned) &PORTE)*8) + 1;
+#define                                 RE1_bit             BANKMASK(PORTE), 1
+extern volatile __bit                   RE1PPS0             @ (((unsigned) &RE1PPS)*8) + 0;
+#define                                 RE1PPS0_bit         BANKMASK(RE1PPS), 0
+extern volatile __bit                   RE1PPS1             @ (((unsigned) &RE1PPS)*8) + 1;
+#define                                 RE1PPS1_bit         BANKMASK(RE1PPS), 1
+extern volatile __bit                   RE1PPS2             @ (((unsigned) &RE1PPS)*8) + 2;
+#define                                 RE1PPS2_bit         BANKMASK(RE1PPS), 2
+extern volatile __bit                   RE1PPS3             @ (((unsigned) &RE1PPS)*8) + 3;
+#define                                 RE1PPS3_bit         BANKMASK(RE1PPS), 3
+extern volatile __bit                   RE1PPS4             @ (((unsigned) &RE1PPS)*8) + 4;
+#define                                 RE1PPS4_bit         BANKMASK(RE1PPS), 4
+extern volatile __bit                   RE2                 @ (((unsigned) &PORTE)*8) + 2;
+#define                                 RE2_bit             BANKMASK(PORTE), 2
+extern volatile __bit                   RE2PPS0             @ (((unsigned) &RE2PPS)*8) + 0;
+#define                                 RE2PPS0_bit         BANKMASK(RE2PPS), 0
+extern volatile __bit                   RE2PPS1             @ (((unsigned) &RE2PPS)*8) + 1;
+#define                                 RE2PPS1_bit         BANKMASK(RE2PPS), 1
+extern volatile __bit                   RE2PPS2             @ (((unsigned) &RE2PPS)*8) + 2;
+#define                                 RE2PPS2_bit         BANKMASK(RE2PPS), 2
+extern volatile __bit                   RE2PPS3             @ (((unsigned) &RE2PPS)*8) + 3;
+#define                                 RE2PPS3_bit         BANKMASK(RE2PPS), 3
+extern volatile __bit                   RE2PPS4             @ (((unsigned) &RE2PPS)*8) + 4;
+#define                                 RE2PPS4_bit         BANKMASK(RE2PPS), 4
 extern volatile __bit                   RE3                 @ (((unsigned) &PORTE)*8) + 3;
 #define                                 RE3_bit             BANKMASK(PORTE), 3
 extern volatile __bit                   REG0                @ (((unsigned) &NVMCON1)*8) + 6;
@@ -22804,6 +23741,28 @@ extern volatile __bit                   SLRC6               @ (((unsigned) &SLRC
 #define                                 SLRC6_bit           BANKMASK(SLRCONC), 6
 extern volatile __bit                   SLRC7               @ (((unsigned) &SLRCONC)*8) + 7;
 #define                                 SLRC7_bit           BANKMASK(SLRCONC), 7
+extern volatile __bit                   SLRD0               @ (((unsigned) &SLRCOND)*8) + 0;
+#define                                 SLRD0_bit           BANKMASK(SLRCOND), 0
+extern volatile __bit                   SLRD1               @ (((unsigned) &SLRCOND)*8) + 1;
+#define                                 SLRD1_bit           BANKMASK(SLRCOND), 1
+extern volatile __bit                   SLRD2               @ (((unsigned) &SLRCOND)*8) + 2;
+#define                                 SLRD2_bit           BANKMASK(SLRCOND), 2
+extern volatile __bit                   SLRD3               @ (((unsigned) &SLRCOND)*8) + 3;
+#define                                 SLRD3_bit           BANKMASK(SLRCOND), 3
+extern volatile __bit                   SLRD4               @ (((unsigned) &SLRCOND)*8) + 4;
+#define                                 SLRD4_bit           BANKMASK(SLRCOND), 4
+extern volatile __bit                   SLRD5               @ (((unsigned) &SLRCOND)*8) + 5;
+#define                                 SLRD5_bit           BANKMASK(SLRCOND), 5
+extern volatile __bit                   SLRD6               @ (((unsigned) &SLRCOND)*8) + 6;
+#define                                 SLRD6_bit           BANKMASK(SLRCOND), 6
+extern volatile __bit                   SLRD7               @ (((unsigned) &SLRCOND)*8) + 7;
+#define                                 SLRD7_bit           BANKMASK(SLRCOND), 7
+extern volatile __bit                   SLRE0               @ (((unsigned) &SLRCONE)*8) + 0;
+#define                                 SLRE0_bit           BANKMASK(SLRCONE), 0
+extern volatile __bit                   SLRE1               @ (((unsigned) &SLRCONE)*8) + 1;
+#define                                 SLRE1_bit           BANKMASK(SLRCONE), 1
+extern volatile __bit                   SLRE2               @ (((unsigned) &SLRCONE)*8) + 2;
+#define                                 SLRE2_bit           BANKMASK(SLRCONE), 2
 extern volatile __bit                   SMP                 @ (((unsigned) &SPI1CON1)*8) + 7;
 #define                                 SMP_bit             BANKMASK(SPI1CON1), 7
 extern volatile __bit                   SMT1AS              @ (((unsigned) &SMT1STAT)*8) + 0;
@@ -23196,6 +24155,8 @@ extern volatile __bit                   SRMTIE              @ (((unsigned) &SPI1
 #define                                 SRMTIE_bit          BANKMASK(SPI1INTE), 7
 extern volatile __bit                   SRMTIF              @ (((unsigned) &SPI1INTF)*8) + 7;
 #define                                 SRMTIF_bit          BANKMASK(SPI1INTF), 7
+extern volatile __bit                   SS2                 @ (((unsigned) &PORTD)*8) + 7;
+#define                                 SS2_bit             BANKMASK(PORTD), 7
 extern volatile __bit                   SSEL0               @ (((unsigned) &SMT1SIG)*8) + 0;
 #define                                 SSEL0_bit           BANKMASK(SMT1SIG), 0
 extern volatile __bit                   SSEL1               @ (((unsigned) &SMT1SIG)*8) + 1;
@@ -23362,14 +24323,14 @@ extern volatile __bit                   T2CKPS2             @ (((unsigned) &T2CO
 #define                                 T2CKPS2_bit         BANKMASK(T2CON), 6
 extern volatile __bit                   T2CKSYNC            @ (((unsigned) &T2HLT)*8) + 5;
 #define                                 T2CKSYNC_bit        BANKMASK(T2HLT), 5
-extern volatile __bit                   T2CS0               @ (((unsigned) &T2CLKCON)*8) + 0;
-#define                                 T2CS0_bit           BANKMASK(T2CLKCON), 0
-extern volatile __bit                   T2CS1               @ (((unsigned) &T2CLKCON)*8) + 1;
-#define                                 T2CS1_bit           BANKMASK(T2CLKCON), 1
-extern volatile __bit                   T2CS2               @ (((unsigned) &T2CLKCON)*8) + 2;
-#define                                 T2CS2_bit           BANKMASK(T2CLKCON), 2
-extern volatile __bit                   T2CS3               @ (((unsigned) &T2CLKCON)*8) + 3;
-#define                                 T2CS3_bit           BANKMASK(T2CLKCON), 3
+extern volatile __bit                   T2CS0               @ (((unsigned) &T2CLK)*8) + 0;
+#define                                 T2CS0_bit           BANKMASK(T2CLK), 0
+extern volatile __bit                   T2CS1               @ (((unsigned) &T2CLK)*8) + 1;
+#define                                 T2CS1_bit           BANKMASK(T2CLK), 1
+extern volatile __bit                   T2CS2               @ (((unsigned) &T2CLK)*8) + 2;
+#define                                 T2CS2_bit           BANKMASK(T2CLK), 2
+extern volatile __bit                   T2CS3               @ (((unsigned) &T2CLK)*8) + 3;
+#define                                 T2CS3_bit           BANKMASK(T2CLK), 3
 extern volatile __bit                   T2MODE0             @ (((unsigned) &T2HLT)*8) + 0;
 #define                                 T2MODE0_bit         BANKMASK(T2HLT), 0
 extern volatile __bit                   T2MODE1             @ (((unsigned) &T2HLT)*8) + 1;
@@ -23450,14 +24411,14 @@ extern volatile __bit                   T4CKPS2             @ (((unsigned) &T4CO
 #define                                 T4CKPS2_bit         BANKMASK(T4CON), 6
 extern volatile __bit                   T4CKSYNC            @ (((unsigned) &T4HLT)*8) + 5;
 #define                                 T4CKSYNC_bit        BANKMASK(T4HLT), 5
-extern volatile __bit                   T4CS0               @ (((unsigned) &T4CLKCON)*8) + 0;
-#define                                 T4CS0_bit           BANKMASK(T4CLKCON), 0
-extern volatile __bit                   T4CS1               @ (((unsigned) &T4CLKCON)*8) + 1;
-#define                                 T4CS1_bit           BANKMASK(T4CLKCON), 1
-extern volatile __bit                   T4CS2               @ (((unsigned) &T4CLKCON)*8) + 2;
-#define                                 T4CS2_bit           BANKMASK(T4CLKCON), 2
-extern volatile __bit                   T4CS3               @ (((unsigned) &T4CLKCON)*8) + 3;
-#define                                 T4CS3_bit           BANKMASK(T4CLKCON), 3
+extern volatile __bit                   T4CS0               @ (((unsigned) &T4CLK)*8) + 0;
+#define                                 T4CS0_bit           BANKMASK(T4CLK), 0
+extern volatile __bit                   T4CS1               @ (((unsigned) &T4CLK)*8) + 1;
+#define                                 T4CS1_bit           BANKMASK(T4CLK), 1
+extern volatile __bit                   T4CS2               @ (((unsigned) &T4CLK)*8) + 2;
+#define                                 T4CS2_bit           BANKMASK(T4CLK), 2
+extern volatile __bit                   T4CS3               @ (((unsigned) &T4CLK)*8) + 3;
+#define                                 T4CS3_bit           BANKMASK(T4CLK), 3
 extern volatile __bit                   T4MODE0             @ (((unsigned) &T4HLT)*8) + 0;
 #define                                 T4MODE0_bit         BANKMASK(T4HLT), 0
 extern volatile __bit                   T4MODE1             @ (((unsigned) &T4HLT)*8) + 1;
@@ -23538,14 +24499,14 @@ extern volatile __bit                   T6CKPS2             @ (((unsigned) &T6CO
 #define                                 T6CKPS2_bit         BANKMASK(T6CON), 6
 extern volatile __bit                   T6CKSYNC            @ (((unsigned) &T6HLT)*8) + 5;
 #define                                 T6CKSYNC_bit        BANKMASK(T6HLT), 5
-extern volatile __bit                   T6CS0               @ (((unsigned) &T6CLKCON)*8) + 0;
-#define                                 T6CS0_bit           BANKMASK(T6CLKCON), 0
-extern volatile __bit                   T6CS1               @ (((unsigned) &T6CLKCON)*8) + 1;
-#define                                 T6CS1_bit           BANKMASK(T6CLKCON), 1
-extern volatile __bit                   T6CS2               @ (((unsigned) &T6CLKCON)*8) + 2;
-#define                                 T6CS2_bit           BANKMASK(T6CLKCON), 2
-extern volatile __bit                   T6CS3               @ (((unsigned) &T6CLKCON)*8) + 3;
-#define                                 T6CS3_bit           BANKMASK(T6CLKCON), 3
+extern volatile __bit                   T6CS0               @ (((unsigned) &T6CLK)*8) + 0;
+#define                                 T6CS0_bit           BANKMASK(T6CLK), 0
+extern volatile __bit                   T6CS1               @ (((unsigned) &T6CLK)*8) + 1;
+#define                                 T6CS1_bit           BANKMASK(T6CLK), 1
+extern volatile __bit                   T6CS2               @ (((unsigned) &T6CLK)*8) + 2;
+#define                                 T6CS2_bit           BANKMASK(T6CLK), 2
+extern volatile __bit                   T6CS3               @ (((unsigned) &T6CLK)*8) + 3;
+#define                                 T6CS3_bit           BANKMASK(T6CLK), 3
 extern volatile __bit                   T6MODE0             @ (((unsigned) &T6HLT)*8) + 0;
 #define                                 T6MODE0_bit         BANKMASK(T6HLT), 0
 extern volatile __bit                   T6MODE1             @ (((unsigned) &T6HLT)*8) + 1;
@@ -23892,6 +24853,28 @@ extern volatile __bit                   TRISC6              @ (((unsigned) &TRIS
 #define                                 TRISC6_bit          BANKMASK(TRISC), 6
 extern volatile __bit                   TRISC7              @ (((unsigned) &TRISC)*8) + 7;
 #define                                 TRISC7_bit          BANKMASK(TRISC), 7
+extern volatile __bit                   TRISD0              @ (((unsigned) &TRISD)*8) + 0;
+#define                                 TRISD0_bit          BANKMASK(TRISD), 0
+extern volatile __bit                   TRISD1              @ (((unsigned) &TRISD)*8) + 1;
+#define                                 TRISD1_bit          BANKMASK(TRISD), 1
+extern volatile __bit                   TRISD2              @ (((unsigned) &TRISD)*8) + 2;
+#define                                 TRISD2_bit          BANKMASK(TRISD), 2
+extern volatile __bit                   TRISD3              @ (((unsigned) &TRISD)*8) + 3;
+#define                                 TRISD3_bit          BANKMASK(TRISD), 3
+extern volatile __bit                   TRISD4              @ (((unsigned) &TRISD)*8) + 4;
+#define                                 TRISD4_bit          BANKMASK(TRISD), 4
+extern volatile __bit                   TRISD5              @ (((unsigned) &TRISD)*8) + 5;
+#define                                 TRISD5_bit          BANKMASK(TRISD), 5
+extern volatile __bit                   TRISD6              @ (((unsigned) &TRISD)*8) + 6;
+#define                                 TRISD6_bit          BANKMASK(TRISD), 6
+extern volatile __bit                   TRISD7              @ (((unsigned) &TRISD)*8) + 7;
+#define                                 TRISD7_bit          BANKMASK(TRISD), 7
+extern volatile __bit                   TRISE0              @ (((unsigned) &TRISE)*8) + 0;
+#define                                 TRISE0_bit          BANKMASK(TRISE), 0
+extern volatile __bit                   TRISE1              @ (((unsigned) &TRISE)*8) + 1;
+#define                                 TRISE1_bit          BANKMASK(TRISE), 1
+extern volatile __bit                   TRISE2              @ (((unsigned) &TRISE)*8) + 2;
+#define                                 TRISE2_bit          BANKMASK(TRISE), 2
 extern volatile __bit                   TS                  @ (((unsigned) &SMT1STAT)*8) + 2;
 #define                                 TS_bit              BANKMASK(SMT1STAT), 2
 extern volatile __bit                   TSEN                @ (((unsigned) &FVRCON)*8) + 5;
@@ -24372,6 +25355,28 @@ extern volatile __bit                   WPUC6               @ (((unsigned) &WPUC
 #define                                 WPUC6_bit           BANKMASK(WPUC), 6
 extern volatile __bit                   WPUC7               @ (((unsigned) &WPUC)*8) + 7;
 #define                                 WPUC7_bit           BANKMASK(WPUC), 7
+extern volatile __bit                   WPUD0               @ (((unsigned) &WPUD)*8) + 0;
+#define                                 WPUD0_bit           BANKMASK(WPUD), 0
+extern volatile __bit                   WPUD1               @ (((unsigned) &WPUD)*8) + 1;
+#define                                 WPUD1_bit           BANKMASK(WPUD), 1
+extern volatile __bit                   WPUD2               @ (((unsigned) &WPUD)*8) + 2;
+#define                                 WPUD2_bit           BANKMASK(WPUD), 2
+extern volatile __bit                   WPUD3               @ (((unsigned) &WPUD)*8) + 3;
+#define                                 WPUD3_bit           BANKMASK(WPUD), 3
+extern volatile __bit                   WPUD4               @ (((unsigned) &WPUD)*8) + 4;
+#define                                 WPUD4_bit           BANKMASK(WPUD), 4
+extern volatile __bit                   WPUD5               @ (((unsigned) &WPUD)*8) + 5;
+#define                                 WPUD5_bit           BANKMASK(WPUD), 5
+extern volatile __bit                   WPUD6               @ (((unsigned) &WPUD)*8) + 6;
+#define                                 WPUD6_bit           BANKMASK(WPUD), 6
+extern volatile __bit                   WPUD7               @ (((unsigned) &WPUD)*8) + 7;
+#define                                 WPUD7_bit           BANKMASK(WPUD), 7
+extern volatile __bit                   WPUE0               @ (((unsigned) &WPUE)*8) + 0;
+#define                                 WPUE0_bit           BANKMASK(WPUE), 0
+extern volatile __bit                   WPUE1               @ (((unsigned) &WPUE)*8) + 1;
+#define                                 WPUE1_bit           BANKMASK(WPUE), 1
+extern volatile __bit                   WPUE2               @ (((unsigned) &WPUE)*8) + 2;
+#define                                 WPUE2_bit           BANKMASK(WPUE), 2
 extern volatile __bit                   WPUE3               @ (((unsigned) &WPUE)*8) + 3;
 #define                                 WPUE3_bit           BANKMASK(WPUE), 3
 extern volatile __bit                   WR                  @ (((unsigned) &NVMCON1)*8) + 1;
@@ -24384,6 +25389,8 @@ extern volatile __bit                   WR2IE               @ (((unsigned) &I2C2
 #define                                 WR2IE_bit           BANKMASK(I2C2PIE), 4
 extern volatile __bit                   WR2IF               @ (((unsigned) &I2C2PIR)*8) + 4;
 #define                                 WR2IF_bit           BANKMASK(I2C2PIR), 4
+extern volatile __bit                   WRE                 @ (((unsigned) &PORTE)*8) + 1;
+#define                                 WRE_bit             BANKMASK(PORTE), 1
 extern volatile __bit                   WREN                @ (((unsigned) &NVMCON1)*8) + 2;
 #define                                 WREN_bit            BANKMASK(NVMCON1), 2
 extern volatile __bit                   WRERR               @ (((unsigned) &NVMCON1)*8) + 3;
@@ -24465,4 +25472,4 @@ extern volatile __bit                   nRWDT               @ (((unsigned) &PCON
 extern volatile __bit                   nWDTWV              @ (((unsigned) &PCON0)*8) + 5;
 #define                                 nWDTWV_bit          BANKMASK(PCON0), 5
 
-#endif // _PIC18F26K42_H_
+#endif // _PIC18F45K42_H_
