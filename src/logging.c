@@ -19,7 +19,7 @@ int status;
 void log_init(void)
 {
     // PPS Setup
-    RB0PPS = PPS_UART2_TX;
+    RD2PPS = PPS_UART2_TX;
     
     UART2_init(_115200);
 }

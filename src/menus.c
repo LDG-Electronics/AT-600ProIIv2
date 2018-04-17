@@ -268,11 +268,11 @@ void func_hold(void)
             blink_scale(3);
             show_scale();
         }
-        // if (btn_is_pressed(ANT)) { //! ANT button is disabled
-        //     FuncHoldProcessed = 1;
-        //     blink_HiLoZ(2);
-        //     show_HiLoZ();
-        // }
+        if (btn_is_pressed(ANT)) {
+            FuncHoldProcessed = 1;
+            blink_HiLoZ(2);
+            show_HiLoZ();
+        }
     }
     if (FuncHoldProcessed == 0) function_submenu();
     save_flags();
@@ -284,11 +284,8 @@ void ant_hold(void)
     blink_antenna();
     update_antenna_LED();
 
-    //! This function is configured for the POWER button instead of ANT
-    // The ANT button is disabled on the dev unit
-
     // This loop ensures that the antenna is only toggled once per button press
-    while(btn_is_down(POWER))
+    while(btn_is_down(ANT))
     {
         delay_ms(1);
     }

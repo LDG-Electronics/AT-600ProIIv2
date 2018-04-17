@@ -94,9 +94,8 @@ void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void)
     buttons[LDN] <<= 1;
     buttons[LDN] |= LDN_BUTTON_PIN;
     
-    // TODO: ANT button is currently nonfunctional
-    // buttons[ANT] <<= 1;
-    // buttons[ANT] |= ANT_BUTTON_PIN;
+    buttons[ANT] <<= 1;
+    buttons[ANT] |= ANT_BUTTON_PIN;
 
     buttons[POWER] <<= 1;
     buttons[POWER] |= POWER_BUTTON_PIN;
@@ -105,22 +104,7 @@ void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void)
 /* -------------------------------------------------------------------------- */
 
 // Returns 0 if no buttons are pressed
-uint8_t get_buttons(void) // 2us
-{
-    // Grab the current state of all the button pins
-    uint8_t buttons = ~PORTB & 0xf4;
-    buttons = buttons | (!PORTAbits.RA3 << 3);
-    buttons = buttons | (!PORTAbits.RA4 << 1);
-    buttons = buttons | (!PORTAbits.RA5); 
-
-    // TODO: ANT button is currently nonfunctional
-    buttons = buttons & 0b10111111;
-
-    return buttons;
-}
-
-// Returns 0 if no buttons are pressed
-uint8_t get_buttons2(void) // 11us, will be faster after ANT buttons works
+uint8_t get_buttons(void) // 11us, will be faster after ANT buttons works
 {
     uint16_t x = 0;
     
@@ -128,9 +112,7 @@ uint8_t get_buttons2(void) // 11us, will be faster after ANT buttons works
     {
         x += buttons[i];
     }
-
-    x -= buttons[ANT]; // TODO: ANT button is currently nonfunctional
-
+    
     return x;
 }
 

@@ -96,6 +96,8 @@ void port_init(void)
     TRISA = 0xFF;
     TRISB = 0xFF;
     TRISC = 0xFF;
+    TRISD = 0xFF;
+    TRISE = 0xFF;
 
     // RF Sensor
     TRISAbits.TRISA0 = 1; // FWD_PIN
@@ -136,11 +138,15 @@ void port_init(void)
     LATA = 0;    
     LATB = 0;    
     LATC = 0;   
+    LATC = 0;   
+    LATC = 0;   
     
     // Analog Select; 0 = analog mode is disabled, 1 = analog mode is enabled
     ANSELA = 0;
     ANSELB = 0;
     ANSELC = 0;
+    ANSELD = 0;
+    ANSELE = 0;
 
     ANSELAbits.ANSELA0 = 1; // FWD_PIN
     ANSELAbits.ANSELA1 = 1; // REV_PIN
@@ -149,30 +155,40 @@ void port_init(void)
     WPUA = 0;
     WPUB = 0;
     WPUC = 0;
+    WPUD = 0;
+    WPUE = 0;
 
-    WPUAbits.WPUA3 = 1; // POWER_BUTTON
+    // WPUAbits.WPUA3 = 1; // POWER_BUTTON
+    WPUEbits.WPUE1 = 1; // POWER_BUTTON
     WPUAbits.WPUA4 = 1; // CDN_BUTTON
     WPUAbits.WPUA5 = 1; // LUP_BUTTON
     WPUBbits.WPUB2 = 1; // CUP_BUTTON
     WPUBbits.WPUB4 = 1; // FUNC_BUTTON
     WPUBbits.WPUB5 = 1; // LDN_BUTTON
-    WPUBbits.WPUB6 = 1; // ANT_BUTTON
+    // WPUBbits.WPUB6 = 1; // ANT_BUTTON
+    WPUEbits.WPUE2 = 1; // ANT_BUTTON
     WPUBbits.WPUB7 = 1; // TUNE_BUTTON
 
     // Open-Drain Control; 0 = Output drives both high and low, 1 = 
     ODCONA = 0;
     ODCONB = 0;
     ODCONC = 0;
+    ODCOND = 0;
+    ODCONE = 0;
 
     // Slew Rate Control; 0 = maximum slew rate, 1 = limited slew rate
     SLRCONA = 0;
     SLRCONB = 0;
     SLRCONC = 0;
+    SLRCOND = 0;
+    SLRCONE = 0;
 
     // Input (Logic) Level Control; 0 = TTL, 1 = Schmitt Trigger
     INLVLA = 0xff;
     INLVLB = 0xff;
     INLVLC = 0xff;
+    INLVLD = 0xff;
+    INLVLE = 0xff;
 }
 
 void interrupt_init(void)

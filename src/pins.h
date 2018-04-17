@@ -9,8 +9,10 @@
 #define CUP_BUTTON_PIN !PORTBbits.RB2
 #define FUNC_BUTTON_PIN !PORTBbits.RB4
 #define LDN_BUTTON_PIN !PORTBbits.RB5
-#define ANT_BUTTON_PIN !PORTBbits.RB6
-#define TUNE_BUTTON_PIN !PORTBbits.RB7
+// #define ANT_BUTTON_PIN !PORTBbits.RB6
+#define ANT_BUTTON_PIN !PORTEbits.RE2
+// #define TUNE_BUTTON_PIN !PORTBbits.RB7
+#define TUNE_BUTTON_PIN !PORTEbits.RE1
 
 /* -------------------------------------------------------------------------- */
 // Front Panel LEDs
@@ -26,7 +28,8 @@
 
 /* -------------------------------------------------------------------------- */
 // RF Sensor
-#define FREQ_PIN PORTBbits.RB0 // frequency counter
+// #define FREQ_PIN PORTEbits.RE3 // frequency counter
+#define FREQ_PIN PORTEbits.RE0 // frequency counter
 #define FWD_PIN PORTAbits.RA0 // forward power
 #define REV_PIN PORTAbits.RA1 // reverse power
 
@@ -45,6 +48,10 @@
 // Meter port - Unused since the completion of the UART driver
 #define METER_TX_PIN LATCbits.LATC6
 #define METER_RX_PIN PORTCbits.RC7
+
+// Serial debug
+#define DEBUG_TX_PIN LATDbits.LATD2
+#define DEBUG_RX_PIN PORTDbits.RD1
 
 /* ************************************************************************** */
 

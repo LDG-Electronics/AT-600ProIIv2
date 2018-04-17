@@ -1,5 +1,7 @@
 #include "includes.h"
 #include "pps.h"
+#include "pins.h"
+#include "delay.h"
 
 /* ************************************************************************** */
 
@@ -23,21 +25,21 @@ void clc_init(void)
     CLC1CONbits.EN = 1; // turn it on
 
     // CLC Setup
-    CLC3GLS0 = 0b00000010;
-    CLC3GLS1 = 0b00001000;
-    CLC3GLS2 = 0b00100000;
-    CLC3GLS3 = 0b10000000;
+    CLC2GLS0 = 0b00000010;
+    CLC2GLS1 = 0b00001000;
+    CLC2GLS2 = 0b00100000;
+    CLC2GLS3 = 0b10000000;
 
-    CLC3SEL0 = 0b101011; // CLC1 data 0, input is SPI Data
-    CLC3SEL1 = 0b101011; // CLC1 data 1, 
-    CLC3SEL2 = 0b101011; // CLC1 data 2, 
-    CLC3SEL3 = 0b101011; // CLC1 data 3, 
+    CLC2SEL0 = 0b101011; // CLC1 data 0, input is SPI Data
+    CLC2SEL1 = 0b101011; // CLC1 data 1, 
+    CLC2SEL2 = 0b101011; // CLC1 data 2, 
+    CLC2SEL3 = 0b101011; // CLC1 data 3, 
     
-    CLC3POL = 0b00000000; // don't invert anything
+    CLC2POL = 0b00000000; // don't invert anything
     
-    CLC3CONbits.MODE = 0b010; // 4-input AND mode
+    CLC2CONbits.MODE = 0b010; // 4-input AND mode
 
-    CLC3CONbits.EN = 1; // turn it on
+    CLC2CONbits.EN = 1; // turn it on
 }
 
 void spi_init(void)
@@ -46,8 +48,8 @@ void spi_init(void)
 
     // PPS setup
     RA6PPS = PPS_CLC1OUT; // SCK via CLC1OUT
-    RC5PPS = PPS_CLC3OUT; // SDO via CLC3OUT
-    RC4PPS = PPS_SPI1_SS; // SS
+    RC5PPS = PPS_CLC2OUT; // SDO via CLC2OUT
+    // RC4PPS = PPS_SPI1_SS; // SS
 
     SPI1CON0bits.BMODE = 1;
 
@@ -77,4 +79,11 @@ void spi_tx_word(uint16_t data)
     SPI1TCNTL = 2;
     SPI1TXB = (uint8_t)(data >> 8); // high byte
     SPI1TXB = (uint8_t)(data & 0xff); // low byte 
+
+    while(SPI1STATUSbits.TXBE == 0); // Wait until SPI1TXB is empty
+
+    FP_STROBE_PIN = 0;
+    delay_us(10);
+    FP_STROBE_PIN = 1;
+
 }
