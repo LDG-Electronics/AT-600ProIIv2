@@ -1,7 +1,6 @@
 #include "includes.h"
 #include "pps.h"
 #include "pins.h"
-#include "delay.h"
 
 /* ************************************************************************** */
 
@@ -85,5 +84,22 @@ void spi_tx_word(uint16_t data)
     FP_STROBE_PIN = 0;
     delay_us(10);
     FP_STROBE_PIN = 1;
+}
 
+void spi_tx_char(const char data)
+{
+    while(SPI1STATUSbits.TXBE == 0); // Wait until SPI1TXB is empty
+
+    SPI1TCNTL = 1;
+    SPI1TXB = data;
+}
+
+void spi_tx_string(const char *string, uint16_t length)
+{
+    uint16_t i = 0;
+
+    while (i < length)
+    {
+        spi_tx_char(string[i++]);
+    }
 }

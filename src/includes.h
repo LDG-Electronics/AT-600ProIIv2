@@ -13,6 +13,7 @@
 
 // modules
 #include "animations.h"
+#include "delay.h"
 #include "flags.h"
 #include "relays.h"
 #include "logging_switches.h"
