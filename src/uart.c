@@ -132,6 +132,7 @@ void UART1_tx_string(const char *string, const char terminator)
             }
             remainingBytes = totalBytes - currentByte;
 
+            // TODO: test me
             if (remainingBytes < BUFFER_SIZE) {
                 // Block until there's enough room for the rest of the string
                 while(!buffer_has_at_least(UART1_tx_buffer, remainingBytes));
@@ -181,6 +182,7 @@ char UART1_rx_char(void)
 // UART 2
 
 volatile uart_buffer_s UART2_tx_buffer;
+volatile uart_buffer_s UART2_rx_buffer;
 
 void UART2_baud_select(enum baud_rates baudRate)
 {
@@ -193,12 +195,15 @@ void UART2_init(enum baud_rates baudRate)
 {
     U2CON0bits.BRGS = 1; // Baud Rate is set to high speed
     U2CON0bits.TXEN = 1; // Transmit is enabled
+    U2CON0bits.RXEN = 1; // Recieve is enabled
 
     UART2_baud_select(baudRate);
 
     // initialize ring buffer pointers
     UART2_tx_buffer.head = 0;
     UART2_tx_buffer.tail = 0;
+    UART2_rx_buffer.head = 0;
+    UART2_rx_buffer.tail = 0;
 
     U2CON1bits.ON = 1; // Enable UART1
 }
@@ -260,6 +265,7 @@ void UART2_tx_string(const char *string, const char terminator)
             }
             remainingBytes = totalBytes - currentByte;
             
+            // TODO: test me
             if (remainingBytes < BUFFER_SIZE) {
                 // Block until there's enough room for the rest of the string
                 while(!buffer_has_at_least(UART2_tx_buffer, remainingBytes));
@@ -276,10 +282,39 @@ void UART2_tx_string(const char *string, const char terminator)
 
     PIE6bits.U2TXIE = 1;
 }
+
+/* -------------------------------------------------------------------------- */
+// UART2 receive
+
+/*  Notes on UART2_rx_ISR()
+
+    This function is an Interrupt Vector Table compatible ISR to respond to the
+    IRQ_U2RX interrupt signal. This signal is generated whenever there is an
+    unread byte in U2RXB. 
+*/
+
+void __interrupt(irq(IRQ_U2RX), high_priority) UART2_rx_ISR()
+{
+    buffer_write(UART2_rx_buffer, U1RXB);
+}
+
+char UART2_rx_char(void)
+{
+    char data = 0;
+
+    if(buffer_is_empty(UART2_rx_buffer)) return '\0';
+
+    begin_critical_section();
+    data = buffer_read(UART2_rx_buffer);
+    end_critical_section();
+
+    return data;
+}
+
 /* ************************************************************************** */
 // UART1 tests
 
 void UART1_tx_buffer_overflow(void)
 {
-
+    // TODO: write me
 }
