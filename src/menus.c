@@ -92,7 +92,6 @@ void shutdown_submenu(void)
     uint16_t holdCount = 0;
 
     #if LOG_LEVEL_MENUS > LOG_SILENT
-    print_format(BRIGHT, RED);
     print_str_ln("shutting down");
     #endif
 
@@ -112,7 +111,6 @@ void shutdown_submenu(void)
     }
 
     #if LOG_LEVEL_MENUS > LOG_SILENT
-    print_format(BRIGHT, RED);
     print_str_ln("Hello again!");
     #endif
     
@@ -284,8 +282,6 @@ void ant_hold(void)
     toggle_antenna();
     blink_antenna();
     update_antenna_LED();
-
-    print_str_ln("beep");
 
     // This loop ensures that the antenna is only toggled once per button press
     while(btn_is_down(ANT))

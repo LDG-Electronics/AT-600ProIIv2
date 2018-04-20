@@ -4,7 +4,6 @@
 #include "buttons.h"
 #include "display.h"
 #include "meter.h"
-#include "shell.h"
 
 /* ************************************************************************** */
 // Forward Declarations
@@ -42,14 +41,6 @@ void startup(void)
     play_animation(&right_crawl);
     display_clear();
     update_status_LEDs(); // must be after flags_init()
-
-    #if LOG_LEVEL_STARTUP > LOG_SILENT
-    // Debug greeting
-    print_ln();
-    print_ln();
-    print_format(BRIGHT, RED);
-    print_str_ln("Hello!");
-    #endif
 }
 
 void shutdown(void)

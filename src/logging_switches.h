@@ -45,9 +45,6 @@
     
     #define print_current_SWR();        log_current_SWR();
     #define print_current_SWR_ln();     log_current_SWR_ln();
-
-    #define print_format(val, val2);    log_format(val, val2);
-    #define print_format_reset();       log_format_reset();
 #else
     #define print_ln();
     #define print_int(val);
@@ -64,9 +61,6 @@
 
     #define print_current_SWR();
     #define print_current_SWR_ln();   
-
-    #define print_format(val, val2);
-    #define print_format_reset();
 #endif
 
 

@@ -87,13 +87,14 @@ void print_search_area(search_area_t *print_area)
 {
     uint32_t temp = print_area->all; // satisfy compiler whining
     
-    print_format(BRIGHT, YELLOW);
+    #if LOG_LEVEL_TUNING >= LOG_INFO
     print_str("\t");
     print_cat("area: (", print_area->maxCap);
     print_cat(" , ", print_area->minCap);
     print_cat(") (", print_area->maxInd);
     print_cat(" , ", print_area->minInd);
     print_str_ln(")");
+    #endif
 }
 
 /*  print_solution_count() shows the number of tested tuning solutions
@@ -104,11 +105,12 @@ void print_solution_count(void)
 {
     uint16_t difference = solutionCount - prevSolutionCount;
     
-    print_format(RESET, GREEN);
+    #if LOG_LEVEL_TUNING >= LOG_INFO
     print_str("\t");
     print_cat("solutionCount: ", solutionCount);
     print_cat(" new: ", difference);
     print_ln();
+    #endif
     
     prevSolutionCount = solutionCount;
 }
@@ -311,7 +313,6 @@ void test_bypass(void)
     bypassFWD = bestFWD;
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_format(BRIGHT, WHITE);
     print_str("\t\t");
     print_relays(&bypassRelays);
     print_catf(" SWR: ", bypassSWR);
@@ -340,7 +341,6 @@ void test_loz(void)
     lozFWD = bestFWD;
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_format(BRIGHT, WHITE);
     print_str("\t\t");
     print_relays(&lozSolution);
     print_catf(" SWR: ", lozSWR);
@@ -369,7 +369,6 @@ void test_hiz(void)
     hizFWD = bestFWD;
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_format(BRIGHT, WHITE);
     print_str("\t");
     print_relays(&hizSolution);
     print_catf(" SWR: ", hizSWR);
@@ -404,7 +403,6 @@ void restore_best_z(void)
     nextSolution.z = bestSolution.z;
     
     #if LOG_LEVEL_TUNING >= LOG_INFO
-    print_format(BRIGHT, WHITE);
     print_str("\t");
     print_str("best z: ");
     print_str("\t");
@@ -421,7 +419,6 @@ void restore_best_z(void)
 void hiloz_tune(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_format(BRIGHT, BLUE);
     print_str_ln("  hiloz_tune");
     #endif
     
@@ -456,7 +453,6 @@ void coarse_tune(void)
     double earlyExitSWR = (bypassSWR / 2);
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_format(BRIGHT, BLUE);
     print_str_ln("  coarse_tune");
     #endif
     
@@ -500,7 +496,6 @@ void bracket_tune(uint8_t bracket, uint8_t step)
     double earlyExitSWR = (bestSWR / 2);
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_format(BRIGHT, BLUE);
     print_str("  bracket_tune");
     print_cat(" (", bracket);
     print_cat(", ", step);
@@ -595,7 +590,6 @@ void full_tune(void)
     uint16_t address = 0;
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_format(BRIGHT, BLUE);
     print_str_ln("full_tune");
     #endif
     
@@ -741,7 +735,6 @@ void memory_tune(void)
     uint8_t i = 0;
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_format(BRIGHT, BLUE);
     print_str_ln("memory_tune");
     #endif
     

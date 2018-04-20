@@ -4,14 +4,6 @@
 
 /* ************************************************************************** */
 
-void log_init(void)
-{
-    // PPS Setup
-    RD2PPS = PPS_UART2_TX;
-    
-    UART2_init(_115200);
-}
-
 #if LOG_LEVEL_SYSTEM > LOG_SILENT
 /* ************************************************************************** */
 
@@ -25,8 +17,6 @@ char intString[NUMBER_OF_DIGITS];
 int status;
 
 /* ************************************************************************** */
-
-
 
 // wrap the UART driver so we don't have to repeat the terminator 30 times
 void log_tx_string(const char *string)
@@ -105,7 +95,6 @@ char* i_to_a(int32_t value)
 void log_ln(void)
 {
     log_tx_string("\r\n");
-    log_format_reset();
 }
 
 // Print a string.  Must be null-terminated.
@@ -191,26 +180,6 @@ void log_current_SWR_ln(void)
     log_current_SWR();
 
     log_ln();
-}
-
-/* -------------------------------------------------------------------------- */
-
-// Change the format of debug output
-void log_format(enum textAttribute attribute, enum textColor foreground)
-{
-    //  <ESC>[{attr};{fg};{bg}m
-    // log_cat("\033[", attribute);
-    // log_cat(";", (foreground + 30));
-    // log_cat(";", (BLACK + 40));
-    // log_str("m");
-}
-
-void log_format_reset(void)
-{
-    // log_cat("\033[", 0);
-    // log_cat(";", (WHITE + 30));
-    // log_cat(";", 40);
-    // log_str("m");
 }
 
 #endif

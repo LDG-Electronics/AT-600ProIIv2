@@ -140,11 +140,6 @@ void SWR_average(void)
     uint16_t tempFWD = 0;
     uint16_t tempREV = 0;
 
-    #if LOG_LEVEL_RF_SENSOR >= LOG_LABELS
-    print_format(BRIGHT, BLUE);
-    print_str_ln("\tSWR_average");
-    #endif
-
     for (i = 0; i < NUM_OF_SAMPLES; i++)
     {
         tempFWD += adc_measure(0);
@@ -173,11 +168,6 @@ int8_t SWR_stable_average(void)
 
     int32_t deltaFWD = 0;
     int32_t deltaCompare = 0;
-
-    #if LOG_LEVEL_RF_SENSOR >= LOG_LABELS
-    print_format(BRIGHT, BLUE);
-    print_str_ln("\tSWR_stable_average");
-    #endif
     
     previousFWD = adc_measure(0);
     while(1)
@@ -194,14 +184,6 @@ int8_t SWR_stable_average(void)
         previousFWD = currentFWD;
         ADcount++;
     }
-    
-    #if LOG_LEVEL_RF_SENSOR >= LOG_ERROR
-    if (ADcount != 0) 
-    {
-        print_format(BRIGHT, CYAN);
-        print_cat_ln("\t\tADcount: ", ADcount);
-    }
-    #endif
     
     SWR_average();
     
