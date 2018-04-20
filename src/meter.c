@@ -18,7 +18,7 @@ char meter_update_buffer[9];
 void meter_init(void)
 {
     // PPS Setup
-    // U1RXPPS = (PPS_PORT_C || PPS_PIN_7);
+    U1RXPPS = (PPS_PORT_C & PPS_PIN_7);
     RC6PPS = PPS_UART1_TX;
 
     UART1_init(_38400);

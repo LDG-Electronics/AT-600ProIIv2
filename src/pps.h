@@ -36,10 +36,10 @@
 
     Example PPS Input assignments:
 
-    T3CKIPPS = (PPS_PORT_B || PPS_PIN_0);
+    T3CKIPPS = (PPS_PORT_B & PPS_PIN_0);
     Connect the Timer 3 Clock input to pin RB0
     
-    U1RXPPS = (PPS_PORT_C || PPS_PIN_7);
+    U1RXPPS = (PPS_PORT_C & PPS_PIN_7);
     Connect the UART 1 Recieve input to pin RC7
 
     TODO: Write notes here in native english - not Microchipese
@@ -91,21 +91,21 @@
 */
 
 // Input pin assignment macros
-#define PPS_PORT_A 0b00000000
-#define PPS_PORT_B 0b00001000
-#define PPS_PORT_C 0b00010000
-#define PPS_PORT_D 0b00011000
-#define PPS_PORT_E 0b00100000
-#define PPS_PORT_F 0b00101000
+#define PPS_PORT_A 0b11000111
+#define PPS_PORT_B 0b11001111
+#define PPS_PORT_C 0b11010111
+#define PPS_PORT_D 0b11011111 
+#define PPS_PORT_E 0b11100111
+#define PPS_PORT_F 0b11101111
 
-#define PPS_PIN_0 0b00000000
-#define PPS_PIN_1 0b00000001
-#define PPS_PIN_2 0b00000010
-#define PPS_PIN_3 0b00000011
-#define PPS_PIN_4 0b00000100
-#define PPS_PIN_5 0b00000101
-#define PPS_PIN_6 0b00000110
-#define PPS_PIN_7 0b00000111
+#define PPS_PIN_0 0b11111000
+#define PPS_PIN_1 0b11111001
+#define PPS_PIN_2 0b11111010
+#define PPS_PIN_3 0b11111011
+#define PPS_PIN_4 0b11111100
+#define PPS_PIN_5 0b11111101
+#define PPS_PIN_6 0b11111110
+#define PPS_PIN_7 0b11111111
 
 /* ************************************************************************** */
 /* PPS Output Registers
