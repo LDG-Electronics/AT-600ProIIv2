@@ -20,7 +20,10 @@ extern void UART2_init(enum baud_rates baudRate);
 
 // Transmit a null-terminated string of any length
 extern void UART2_tx_string(const char *string, const char terminator);
+extern void UART2_putc(char data);
 
 extern char UART2_rx_char(void);
+extern int UART2_getc(char *data);
+
 
 #endif /* _UART_H_ */

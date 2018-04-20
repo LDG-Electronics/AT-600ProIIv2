@@ -2,7 +2,6 @@
 #include "uart.h"
 #include "hardware.h"
 #include "fast_ring_buffer.h"
-#include "shell.h"
 
 /* ************************************************************************** */
 // Common UART settings
@@ -256,6 +255,23 @@ void UART2_tx_string(const char *string, const char terminator)
     PIE6bits.U2TXIE = 1;
 }
 
+void UART2_putc(char data)
+{
+    // buffer overflow handler
+    if (buffer_is_full(UART2_tx_buffer))
+    {
+        PIE6bits.U2TXIE = 1;
+
+        while(buffer_is_full(UART2_tx_buffer));
+    }
+
+    begin_critical_section();
+    buffer_write(UART2_tx_buffer, data);
+    end_critical_section();
+
+    PIE6bits.U2TXIE = 1;
+}
+
 /* -------------------------------------------------------------------------- */
 // UART2 receive
 
@@ -269,20 +285,17 @@ void UART2_tx_string(const char *string, const char terminator)
 void __interrupt(irq(IRQ_U2RX), high_priority) UART2_rx_ISR()
 {
     buffer_write(UART2_rx_buffer, U2RXB);
-    if(buffer_peek_last(UART2_rx_buffer) == ';') shell_flags.delimiterReceived = 1;
 }
 
-char UART2_rx_char(void)
+int UART2_getc(char *data)
 {
-    char data = 0;
-
-    if(buffer_is_empty(UART2_rx_buffer)) return '\0';
+    if(buffer_is_empty(UART2_rx_buffer)) return 0;
 
     begin_critical_section();
-    data = buffer_read(UART2_rx_buffer);
+    *data = buffer_read(UART2_rx_buffer);
     end_critical_section();
 
-    return data;
+    return 1;
 }
 
 /* ************************************************************************** */
