@@ -55,4 +55,8 @@ extern relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
 extern void relays_init(void);
 extern int8_t put_relays(relays_s *testRelays);
 
+// Shell command handlers
+extern int shell_set_relays(int, char **);
+extern int shell_check_relays (int, char **);
+
 #endif

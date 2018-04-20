@@ -38,6 +38,9 @@ extern void SWR_measure(void);
 extern void SWR_average(void);
 extern int8_t SWR_stable_average(void);
 
+// Shell command handler
+extern int shell_get_SWR (int, char **);
+
 // Tests
 void print_SWR_samples(uint8_t delta);
 

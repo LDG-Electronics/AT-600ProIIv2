@@ -30,6 +30,8 @@ void RF_sensor_init(void)
     // SWR sensor
     adc_init();
 
+    shell_register(shell_get_SWR, "checkSWR");
+
     // Initialize the SWR 
     currentRF.forward = 0;
     currentRF.reverse = 0;
@@ -188,6 +190,13 @@ int8_t SWR_stable_average(void)
     SWR_average();
     
     return 0;
+}
+
+int shell_get_SWR(int, char **)
+{
+    print_current_SWR_ln();
+
+    return SHELL_RET_SUCCESS;
 }
 
 /* ************************************************************************** */

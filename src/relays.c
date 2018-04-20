@@ -29,6 +29,10 @@ void relays_init(void)
     RELAY_STROBE_PIN = 1;
     RELAY_CLOCK_PIN = 1;
     RELAY_DATA_PIN = 1;
+
+    // Setup shell commands
+    shell_register(shell_set_relays, "setrelays");
+    shell_register(shell_check_relays, "getrelays");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -102,4 +106,22 @@ int8_t put_relays(relays_s *testRelays)
     delay_ms(RELAY_COIL_DELAY);
 
     return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+int shell_set_relays(int, char **)
+{
+    return SHELL_RET_SUCCESS;
+}
+
+int shell_check_relays(int, char **)
+{
+    print_cat("(C", currentRelays[system_flags.antenna].caps);
+    print_cat(", L", currentRelays[system_flags.antenna].inds);
+    print_cat(", Z", currentRelays[system_flags.antenna].z);
+    print_cat(", A", currentRelays[system_flags.antenna].ant);
+    print_str(")"); 
+
+    return SHELL_RET_SUCCESS;
 }
