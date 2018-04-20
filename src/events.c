@@ -7,37 +7,65 @@
 
 /* ************************************************************************** */
 
-void set_bypass(uint8_t value)
+void read_bypass(void)
 {
-
+    print_cat("BP", bypassStatus[system_flags.antenna]);
+    print_str_ln(";");
 }
 
-void toggle_bypass(void)
+void set_bypass_off(void)
 {
     relays_s undoRelays;
     undoRelays.all = currentRelays[system_flags.antenna].all;
 
-    if (bypassStatus[system_flags.antenna] == 1) {
-        currentRelays[system_flags.antenna].all = preBypassRelays[system_flags.antenna].all;
+    currentRelays[system_flags.antenna].all = preBypassRelays[system_flags.antenna].all;
 
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].all = undoRelays.all;
-        }
-    } else {        
-        preBypassRelays[system_flags.antenna].all = currentRelays[system_flags.antenna].all;
-        currentRelays[system_flags.antenna].caps = 0;
-        currentRelays[system_flags.antenna].inds = 0;
-        currentRelays[system_flags.antenna].z = 0;
-
-        if (put_relays(&bypassRelays) == -1) {
-            currentRelays[system_flags.antenna].all = undoRelays.all;
-        }
+    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
+        currentRelays[system_flags.antenna].all = undoRelays.all;
     }
 }
 
-void set_peak(uint8_t value)
+void set_bypass_on(void)
 {
-    system_flags.peakMode = value;
+    relays_s undoRelays;
+    undoRelays.all = currentRelays[system_flags.antenna].all;
+
+    preBypassRelays[system_flags.antenna].all = currentRelays[system_flags.antenna].all;
+    currentRelays[system_flags.antenna].caps = 0;
+    currentRelays[system_flags.antenna].inds = 0;
+    currentRelays[system_flags.antenna].z = 0;
+
+    if (put_relays(&bypassRelays) == -1) {
+        currentRelays[system_flags.antenna].all = undoRelays.all;
+    }
+    
+}
+
+void toggle_bypass(void)
+{
+    if (bypassStatus[system_flags.antenna] == 1) {
+        set_bypass_off();
+    } else {        
+        set_bypass_on();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void read_peak(void)
+{
+    print_cat("PK", system_flags.peakMode);
+    print_str_ln(";");
+}
+
+void set_peak_on(void)
+{
+    system_flags.peakMode = 1;
+}
+
+void set_peak_off(void)
+{
+    system_flags.peakMode = 0;
 }
 
 void toggle_peak(void)
@@ -45,9 +73,21 @@ void toggle_peak(void)
     system_flags.peakMode = !system_flags.peakMode;
 }
 
-void set_scale(uint8_t value)
+/* -------------------------------------------------------------------------- */
+
+void read_scale(void)
 {
-    system_flags.Scale100W = value;
+    print_cat("SC", system_flags.Scale100W);
+    print_str_ln(";");
+}
+
+void set_scale_high(void)
+{
+    system_flags.Scale100W = 1;
+}
+void set_scale_low(void)
+{
+    system_flags.Scale100W = 0;
 }
 
 void toggle_scale(void)
@@ -55,14 +95,35 @@ void toggle_scale(void)
     system_flags.Scale100W = !system_flags.Scale100W;
 }
 
-void set_auto(uint8_t value)
+/* -------------------------------------------------------------------------- */
+
+void read_auto_mode(void)
 {
-    system_flags.autoMode = value;
+    print_cat("AT", system_flags.autoMode);
+    print_str_ln(";");
+}
+
+void set_auto_on(void)
+{
+    system_flags.autoMode = 1;
+}
+
+void set_auto_off(void)
+{
+    system_flags.autoMode = 0;
 }
 
 void toggle_auto(void)
 {
     system_flags.autoMode = !system_flags.autoMode;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void read_hiloz(void)
+{
+    print_cat("ZR", currentRelays[system_flags.antenna].z);
+    print_str_ln(";");
 }
 
 void set_hiloz(uint8_t value)
@@ -77,16 +138,27 @@ void set_hiloz(uint8_t value)
     }
 }
 
+void set_high_z(void)
+{
+    set_hiloz(1);
+}
+
+void set_low_z(void)
+{
+    set_hiloz(1);
+}
+
 void toggle_hiloz(void)
 {
-    uint8_t undo = currentRelays[system_flags.antenna].z;
+    set_hiloz(!currentRelays[system_flags.antenna].z);
+}
 
-    currentRelays[system_flags.antenna].z = !currentRelays[system_flags.antenna].z;
-    
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1)
-    {
-        currentRelays[system_flags.antenna].z = undo;
-    }
+/* -------------------------------------------------------------------------- */
+
+void read_antenna(void)
+{
+    print_cat("AN", system_flags.antenna);
+    print_str_ln(";");
 }
 
 void set_antenna(uint8_t value)
@@ -103,10 +175,21 @@ void set_antenna(uint8_t value)
     update_antenna_LED();
 }
 
+void set_antenna_one(void)
+{
+    set_antenna(1);
+}
+void set_antenna_two(void)
+{
+    set_antenna(0);
+}
+
 void toggle_antenna(void)
 {
     set_antenna(!system_flags.antenna);
 }
+
+/* -------------------------------------------------------------------------- */
 
 void manual_store(void)
 {
@@ -154,6 +237,12 @@ void request_full_tune(void)
 }
 
 /* -------------------------------------------------------------------------- */
+
+void read_relays(void)
+{
+    
+}
+
 
 void capacitor_increment(void)
 {

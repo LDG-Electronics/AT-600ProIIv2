@@ -3,22 +3,34 @@
 
 /* ************************************************************************** */
 
-extern void set_bypass(uint8_t value); // 0 = bypass, 1 = not
+extern void read_bypass(void);
+extern void set_bypass_on(void);
+extern void set_bypass_off(void);
 extern void toggle_bypass(void);
 
-extern void set_peak(uint8_t value); // 0 = average, 1 = peak
+extern void read_peak(void);
+extern void set_peak_on(void);
+extern void set_peak_off(void);
 extern void toggle_peak(void);
 
-extern void set_scale(uint8_t value); // 0 = low scale, 1 = high scale
+extern void read_scale(void);
+extern void set_scale_high(void);
+extern void set_scale_low(void);
 extern void toggle_scale(void);
 
-extern void set_auto(uint8_t value); // 0 = semi, 1 = auto
+extern void read_auto_mode(void);
+extern void set_auto_on(void);
+extern void set_auto_off(void);
 extern void toggle_auto(void);
 
-extern void set_hiloz(uint8_t value); // 0 = LoZ, 1 = HiZ
+extern void read_hiloz(void);
+extern void set_high_z(void);
+extern void set_low_z(void);
 extern void toggle_hiloz(void);
 
-extern void set_antenna(uint8_t value); // 0 = Ant 1, 1 = Ant 2
+extern void read_antenna(void);
+extern void set_antenna_one(void);
+extern void set_antenna_two(void);
 extern void toggle_antenna(void);
 
 extern void manual_store(void);
@@ -31,6 +43,7 @@ extern void request_full_tune(void);
 /* -------------------------------------------------------------------------- */
 
 // relay increment functions
+extern void read_relays(void);
 extern void capacitor_increment(void);
 extern void capacitor_decrement(void);
 extern void inductor_increment(void);
