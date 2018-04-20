@@ -42,55 +42,55 @@
 #define timer0_stop() TIMER0_ON = 0
 #define timer0_IF_clear() TIMER0_IF = 0
 #define timer0_IF_read() TIMER0_IF
-extern void timer0_clear(void);
-extern uint16_t timer0_read(void);
+#define timer0_clear() TMR0H = 0x00; TMR0L = 0x00;
+#define timer0_read() ((TMR0H << 8) | TMR0L)
 
 // Timer1 control functions
 #define timer1_start() TIMER1_ON = 1
 #define timer1_stop() TIMER1_ON = 0
 #define timer1_IF_clear() TIMER1_IF = 0
 #define timer1_IF_read() TIMER1_IF
-extern void timer1_clear(void);
-extern uint16_t timer1_read(void);
+#define timer1_clear() TMR1H = 0x00; TMR1L = 0x00;
+#define timer1_read() ((TMR1H << 8) | TMR1L)
 
 // Timer2 control functions
 #define timer2_start() TIMER2_ON = 1
 #define timer2_stop() TIMER2_ON = 0
 #define timer2_IF_clear() TIMER2_IF = 0
 #define timer2_IF_read() TIMER2_IF
-extern void timer2_clear(void);
-extern uint16_t timer2_read(void);
+#define timer2_clear() TMR2 = 0x00;
+#define timer2_read() TMR2
 
 // Timer3 control functions
 #define timer3_start() TIMER3_ON = 1
 #define timer3_stop() TIMER3_ON = 0
 #define timer3_IF_clear() TIMER3_IF = 0
 #define timer3_IF_read() TIMER3_IF
-extern void timer3_clear(void);
-extern uint16_t timer3_read(void);
+#define timer3_clear() TMR3H = 0x00; TMR3L = 0x00;
+#define timer3_read() ((TMR3H << 8) | TMR3L)
 
 // Timer4 control functions
 #define timer4_start() TIMER4_ON = 1
 #define timer4_stop() TIMER4_ON = 0
 #define timer4_IF_clear() TIMER4_IF = 0
 #define timer4_IF_read() TIMER4_IF
-extern void timer4_clear(void);
-extern uint16_t timer4_read(void);
+#define timer4_clear() TMR4 = 0x00;
+#define timer4_read() TMR4
 
 // Timer5 control functions
 #define timer5_start() TIMER5_ON = 1
 #define timer5_stop() TIMER5_ON = 0
 #define timer5_IF_clear() TIMER5_IF = 0
 #define timer5_IF_read() TIMER5_IF
-extern void timer5_clear(void);
-extern uint16_t timer5_read(void);
+#define timer5_clear() TMR5H = 0x00; TMR5L = 0x00;
+#define timer5_read() ((TMR5H << 8) | TMR5L)
 
 // Timer6 control functions
 #define timer6_start() TIMER6_ON = 1
 #define timer6_stop() TIMER6_ON = 0
 #define timer6_IF_clear() TIMER6_IF = 0
 #define timer6_IF_read() TIMER6_IF
-extern void timer6_clear(void);
-extern uint16_t timer6_read(void);
+#define timer6_clear() TMR6 = 0x00;
+#define timer6_read() TMR6
 
 #endif
