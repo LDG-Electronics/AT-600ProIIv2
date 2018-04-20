@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <float.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdbool.h>
 
 // device header
 #include "pic18f45k42.h"
@@ -19,6 +22,7 @@
 #include "logging_switches.h"
 #include "logging.h"
 #include "RF_sensor.h"
+#include "shell.h"
 #include "stopwatch.h"
 #include "system_tick.h"
 

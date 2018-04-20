@@ -1,22 +1,19 @@
 #include "includes.h"
 #include <xc.h>
 #include "config.h"
-#include "buttons.h"
 #include "hardware.h"
+#include "buttons.h"
 #include "menus.h"
-#include "meter.h"
-#include "shell.h"
 
 /* ************************************************************************** */
 
 void main(void)
-{    
+{
     startup();
 
     while(1)
     {
-        attempt_meter_update();
-        check_for_shell_command();
+        shell_task();
 
         // Relay buttons
         if (btn_is_pressed(CUP) || btn_is_down(CUP)) cup_hold();

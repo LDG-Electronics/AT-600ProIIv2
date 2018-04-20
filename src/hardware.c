@@ -3,7 +3,6 @@
 #include "pps.h"
 #include "buttons.h"
 #include "display.h"
-#include "meter.h"
 
 /* ************************************************************************** */
 // Forward Declarations
@@ -19,18 +18,16 @@ void startup(void)
     osc_init();
     port_init();
     interrupt_init();
+    shell_init();
     systick_init();
 
     // Driver setup
     buttons_init();
     display_init();
     flags_init();
-    log_init();
-    meter_init();
     relays_init();
     RF_sensor_init();
     stopwatch_init();
-    shell_init();
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
