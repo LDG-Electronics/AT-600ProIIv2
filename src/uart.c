@@ -165,17 +165,19 @@ void UART2_baud_select(enum baud_rates baudRate)
 
 void UART2_init(enum baud_rates baudRate)
 {
+    UART2_baud_select(baudRate);
+
     U2CON0bits.BRGS = 1; // Baud Rate is set to high speed
     U2CON0bits.TXEN = 1; // Transmit is enabled
     U2CON0bits.RXEN = 1; // Recieve is enabled
-
-    UART2_baud_select(baudRate);
 
     // initialize ring buffer pointers
     UART2_tx_buffer.head = 0;
     UART2_tx_buffer.tail = 0;
     UART2_rx_buffer.head = 0;
     UART2_rx_buffer.tail = 0;
+
+    PIE6bits.U2RXIE = 1; // Enable UART2 Recieve Interrupt
 
     U2CON1bits.ON = 1; // Enable UART1
 }
@@ -286,7 +288,7 @@ char UART2_rx_char(void)
 /* ************************************************************************** */
 // UART1 tests
 
-void UART1_tx_buffer_overflow(void)
+void UART1_tx_buffer_overflow_test(void)
 {
     // TODO: write me
 }
