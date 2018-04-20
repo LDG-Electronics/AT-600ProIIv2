@@ -39,6 +39,11 @@ void function_submenu(void)
 {
     uint16_t modeCount = SUBMENU_TIMEOUT; 
 
+    while(btn_is_down(FUNC)); // make sure FUNC is released before we continue
+
+    // TODO: There's a bug here that causes the animation to always be
+    //       interrupted. Not sure why.
+    
     play_interruptable_animation(&arrow_up);
 
     while (1)
@@ -63,22 +68,18 @@ void function_submenu(void)
             blink_thresh(4);
             return;
         }
-        // if (btn_is_pressed(ANT)) { //! ANT button is disabled
-        //     toggle_hiloz();
-        //     blink_HiLoZ(4);
-        //     return;
-        // }
-        if (btn_is_pressed(TUNE)) {
-            manual_store();
-            return;
-        }
-        if (btn_is_pressed(POWER)) {
+        if (btn_is_pressed(ANT)) { 
             toggle_hiloz();
             blink_HiLoZ(4);
             return;
         }
+        if (btn_is_pressed(TUNE)) {
+            manual_store();
+            return;
+        }
 
-        if (btn_is_pressed(FUNC)) break;
+        if (btn_is_pressed(POWER)) break;
+        if (btn_is_pressed(FUNC)) break; // Pressing FUNC again cancels and exits
         modeCount--;
         if (modeCount == 0) break;
         delay_ms(1);
@@ -283,6 +284,8 @@ void ant_hold(void)
     toggle_antenna();
     blink_antenna();
     update_antenna_LED();
+
+    print_str_ln("beep");
 
     // This loop ensures that the antenna is only toggled once per button press
     while(btn_is_down(ANT))
