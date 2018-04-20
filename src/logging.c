@@ -2,6 +2,16 @@
 #include "uart.h"
 #include "pps.h"
 
+/* ************************************************************************** */
+
+void log_init(void)
+{
+    // PPS Setup
+    RD2PPS = PPS_UART2_TX;
+    
+    UART2_init(_115200);
+}
+
 #if LOG_LEVEL_SYSTEM > LOG_SILENT
 /* ************************************************************************** */
 
@@ -16,13 +26,7 @@ int status;
 
 /* ************************************************************************** */
 
-void log_init(void)
-{
-    // PPS Setup
-    RD2PPS = PPS_UART2_TX;
-    
-    UART2_init(_115200);
-}
+
 
 // wrap the UART driver so we don't have to repeat the terminator 30 times
 void log_tx_string(const char *string)
@@ -195,18 +199,18 @@ void log_current_SWR_ln(void)
 void log_format(enum textAttribute attribute, enum textColor foreground)
 {
     //  <ESC>[{attr};{fg};{bg}m
-    log_cat("\033[", attribute);
-    log_cat(";", (foreground + 30));
-    log_cat(";", (BLACK + 40));
-    log_str("m");
+    // log_cat("\033[", attribute);
+    // log_cat(";", (foreground + 30));
+    // log_cat(";", (BLACK + 40));
+    // log_str("m");
 }
 
 void log_format_reset(void)
 {
-    log_cat("\033[", 0);
-    log_cat(";", (WHITE + 30));
-    log_cat(";", 40);
-    log_str("m");
+    // log_cat("\033[", 0);
+    // log_cat(";", (WHITE + 30));
+    // log_cat(";", 40);
+    // log_str("m");
 }
 
 #endif
