@@ -2,11 +2,10 @@
 #include "uart.h"
 #include "hardware.h"
 #include "fast_ring_buffer.h"
+#include "shell.h"
 
 /* ************************************************************************** */
 // Common UART settings
-
-
 
 /* -------------------------------------------------------------------------- */
 // UART Baud rate tools
@@ -269,7 +268,8 @@ void UART2_tx_string(const char *string, const char terminator)
 
 void __interrupt(irq(IRQ_U2RX), high_priority) UART2_rx_ISR()
 {
-    buffer_write(UART2_rx_buffer, U1RXB);
+    buffer_write(UART2_rx_buffer, U2RXB);
+    if(buffer_peek_last(UART2_rx_buffer) == ';') shell_flags.delimiterReceived = 1;
 }
 
 char UART2_rx_char(void)

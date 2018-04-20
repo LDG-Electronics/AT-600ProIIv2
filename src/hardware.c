@@ -4,6 +4,7 @@
 #include "buttons.h"
 #include "display.h"
 #include "meter.h"
+#include "shell.h"
 
 /* ************************************************************************** */
 // Forward Declarations
@@ -30,6 +31,7 @@ void startup(void)
     relays_init();
     RF_sensor_init();
     stopwatch_init();
+    shell_init();
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
@@ -133,6 +135,10 @@ void port_init(void)
     // Meter port pins
     TRISCbits.TRISC6 = 0; // Meter TX
     TRISCbits.TRISC7 = 1; // Meter RX
+
+    // Debug UART pins
+    TRISDbits.TRISD2 = 0; // Debug TX
+    TRISDbits.TRISD3 = 1; // Debug RX
 
     // Output latch - explicitly drive all outputs low
     LATA = 0;    

@@ -5,6 +5,7 @@
 #include "hardware.h"
 #include "menus.h"
 #include "meter.h"
+#include "shell.h"
 
 /* ************************************************************************** */
 
@@ -15,6 +16,7 @@ void main(void)
     while(1)
     {
         attempt_meter_update();
+        check_for_shell_command();
 
         // Relay buttons
         if (btn_is_pressed(CUP) || btn_is_down(CUP)) cup_hold();
