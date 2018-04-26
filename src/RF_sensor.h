@@ -43,7 +43,7 @@ extern void print_current_SWR(void);
 extern void print_current_SWR_ln(void);
 
 // Shell command handler
-extern int shell_get_SWR (int, char **);
+extern int shell_get_RF(int argc, char** argv);
 
 // Tests
 void print_SWR_samples(uint8_t delta);

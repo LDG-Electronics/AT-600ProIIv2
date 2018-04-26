@@ -31,7 +31,7 @@ void RF_sensor_init(void)
     // SWR sensor
     adc_init();
 
-    shell_register(shell_get_SWR, "checkSWR");
+    shell_register(shell_get_RF, "getRF");
 
     // Initialize the SWR 
     currentRF.forward = 0;
@@ -214,7 +214,21 @@ void print_current_SWR_ln(void)
 
 int shell_get_RF(int argc, char** argv)
 {
-    print_current_SWR_ln();
+    if(argc == 1) {
+        print_current_SWR_ln();
+    } else {
+        if(!strcmp(argv[1], "-fwd")) {
+            print_cat_ln("", currentRF.forward);
+        } else if(!strcmp(argv[1], "-rev")) {
+            print_cat_ln("", currentRF.reverse);
+        } else if(!strcmp(argv[1], "-swr")) {
+            print_catf_ln("", currentRF.swr);
+        } else if(!strcmp(argv[1], "-freq")) {
+            print_catf_ln("", currentRF.swr);
+        } else {
+            print_str_ln("invalid argument");
+        }
+    }   
 
     return SHELL_RET_SUCCESS;
 }
