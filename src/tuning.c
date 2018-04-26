@@ -4,6 +4,7 @@
 #include "delay.h"
 #include "display.h"
 #include "memory.h"
+#include "relays.h"
 
 /* ************************************************************************** */
 

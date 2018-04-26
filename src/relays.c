@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "relays.h"
 #include "pins.h"
 #include "delay.h"
 #include "display.h"
@@ -110,18 +111,32 @@ int8_t put_relays(relays_s *testRelays)
 
 /* -------------------------------------------------------------------------- */
 
-int shell_set_relays(int, char **)
+// Prints the contents of relay struct as "(caps, inds, z)"
+void print_relays(relays_s *relays)
+{
+    print_cat("(C", relays->caps);
+    print_cat(", L", relays->inds);
+    print_cat(", Z", relays->z);
+    print_cat(", A", relays->ant);
+    print_str(")"); 
+}
+
+// Same as log_relays(), but also appends a CRLF.
+void print_relays_ln(relays_s *relays)
+{
+    print_relays(relays);
+    
+    print_ln();
+}
+
+int shell_set_relays(int argc, char** argv)
 {
     return SHELL_RET_SUCCESS;
 }
 
-int shell_check_relays(int, char **)
+int shell_check_relays(int argc, char** argv)
 {
-    print_cat("(C", currentRelays[system_flags.antenna].caps);
-    print_cat(", L", currentRelays[system_flags.antenna].inds);
-    print_cat(", Z", currentRelays[system_flags.antenna].z);
-    print_cat(", A", currentRelays[system_flags.antenna].ant);
-    print_str(")"); 
+    print_relays(&currentRelays[system_flags.antenna]);
 
     return SHELL_RET_SUCCESS;
 }

@@ -27,12 +27,4 @@ extern void log_cat_ln(const char *string, int32_t value);
 extern void log_catf(const char *string, double value);
 extern void log_catf_ln(const char *string, double value);
 
-// Prints the contents of relay struct as "(caps, inds, z)"
-extern void log_relays(relays_s *relays);
-extern void log_relays_ln(relays_s *relays);
-
-// Prints the current Forward, Reverse, and SWR
-extern void log_current_SWR(void);
-extern void log_current_SWR_ln(void);
-
 #endif

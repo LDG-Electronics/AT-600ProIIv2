@@ -149,37 +149,4 @@ void log_catf_ln(const char *string, double value)
     log_ln();
 }
 
-// Prints the contents of relay struct as "(caps, inds, z)"
-void log_relays(relays_s *relays)
-{
-    log_cat("(C", relays->caps);
-    log_cat(", L", relays->inds);
-    log_cat(", Z", relays->z);
-    log_cat(", A", relays->ant);
-    log_str(")"); 
-}
-
-// Same as log_relays(), but also appends a CRLF.
-void log_relays_ln(relays_s *relays)
-{
-    log_relays(relays);
-    
-    log_ln();
-}
-
-void log_current_SWR(void)
-{
-    log_cat("FWD: ", currentRF.forward);
-    log_cat(", REV: ", currentRF.reverse);
-    log_catf(", SWR: ", currentRF.swr);
-    log_cat(", P: ", currentRF.period);
-}
-
-void log_current_SWR_ln(void)
-{
-    log_current_SWR();
-
-    log_ln();
-}
-
 #endif

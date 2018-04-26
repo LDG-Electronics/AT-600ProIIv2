@@ -38,6 +38,10 @@ extern void SWR_measure(void);
 extern void SWR_average(void);
 extern int8_t SWR_stable_average(void);
 
+// Prints the current Forward, Reverse, and SWR
+extern void print_current_SWR(void);
+extern void print_current_SWR_ln(void);
+
 // Shell command handler
 extern int shell_get_SWR (int, char **);
 

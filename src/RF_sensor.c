@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "RF_sensor.h"
 #include "adc.h"
 #include "calibration.h"
 #include "pps.h"
@@ -192,7 +193,26 @@ int8_t SWR_stable_average(void)
     return 0;
 }
 
-int shell_get_SWR(int, char **)
+/* -------------------------------------------------------------------------- */
+
+void print_current_SWR(void)
+{
+    print_cat("FWD: ", currentRF.forward);
+    print_cat(", REV: ", currentRF.reverse);
+    print_catf(", SWR: ", currentRF.swr);
+    print_cat(", P: ", currentRF.period);
+}
+
+void print_current_SWR_ln(void)
+{
+    print_current_SWR();
+
+    print_ln();
+}
+
+/* -------------------------------------------------------------------------- */
+
+int shell_get_RF(int argc, char** argv)
 {
     print_current_SWR_ln();
 

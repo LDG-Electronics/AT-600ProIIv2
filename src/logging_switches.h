@@ -39,12 +39,6 @@
     #define print_cat_ln(val, val2);    log_cat_ln(val, val2);
     #define print_catf(val, val2);      log_catf(val, val2);
     #define print_catf_ln(val, val2);   log_catf_ln(val, val2);
-
-    #define print_relays(val);          log_relays(val);
-    #define print_relays_ln(val);       log_relays_ln(val);
-    
-    #define print_current_SWR();        log_current_SWR();
-    #define print_current_SWR_ln();     log_current_SWR_ln();
 #else
     #define print_ln();
     #define print_int(val);
@@ -55,12 +49,6 @@
     #define print_cat_ln(val, val2);
     #define print_catf(val, val2);
     #define print_catf_ln(val, val2);
-
-    #define print_relays(val);
-    #define print_relays_ln(val);
-
-    #define print_current_SWR();
-    #define print_current_SWR_ln();   
 #endif
 
 
