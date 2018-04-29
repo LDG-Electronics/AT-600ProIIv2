@@ -65,7 +65,8 @@ bool initialized = false;
 
 // forward declarations
 static int shell_parse(char * buf, char** argv, unsigned short maxargs);
-int shell_help(int, char **);
+int shell_help(int argc, char** argv);
+int shell_test(int argc, char** argv);
 
 /* ************************************************************************** */
 
@@ -87,6 +88,7 @@ void shell_init(void)
 		list[i].shell_command_string = 0;
 	}
 	shell_register(shell_help, "help");
+	shell_register(shell_test, "test");
 
 	initialized = true;
 
@@ -95,7 +97,7 @@ void shell_init(void)
 	shell_prompt();
 }
 
-bool shell_register(shell_program_t program, const char * string)
+bool shell_register(shell_program_t program, const char *string)
 {
 	unsigned char i;
 
@@ -121,45 +123,55 @@ static int shell_parse(char * buf, char ** argv, unsigned short maxargs)
 	argv[argc] = &buf[0];
 
 	for (i = 0; i < length && argc < maxargs; i++) {
-		switch (buf[i]) {
-			// String terminator means at least one arg
-		case '\0':
-			i = length;
-			argc++;
-			break;
-
-			// Check for double quotes for strings as parameters
-		case '\"':
-			if (toggle == 0) {
-				toggle = 1;
-				buf[i] = '\0';
-				argv[argc] = &buf[i + 1];
-			} else {
-				toggle = 0;
-				buf[i] = '\0';
-
-			}
-			break;
-
-		case ' ':
-			if (toggle == 0) {
-				buf[i] = '\0';
+		switch (buf[i]) {	
+			case '\0': // String terminator means at least one arg
+				i = length;
 				argc++;
-				argv[argc] = &buf[i + 1];
-			}
-			break;
-
+				break;
+			case '\"': // Check for double quotes for strings as parameters
+				if (toggle == 0) {
+					toggle = 1;
+					buf[i] = '\0';
+					argv[argc] = &buf[i + 1];
+				} else {
+					toggle = 0;
+					buf[i] = '\0';
+				}
+				break;
+			case ' ':
+				if (toggle == 0) {
+					buf[i] = '\0';
+					argc++;
+					argv[argc] = &buf[i + 1];
+				}
+				break;
 		}
 	}
 	return argc;
 }
 
+void shell_process(void)
+{
+	unsigned int i = 0;
+	unsigned int retval = 0;
+	int argc = 0;
+
+	argc = shell_parse(shell_rx_buffer, argv_list, CONFIG_SHELL_MAX_COMMAND_ARGS);
+	// sequential search on command table
+	for (i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
+		if (list[i].shell_program == 0)
+			continue;
+		// If string matches one on the list
+		if (!strcmp(argv_list[0], list[i].shell_command_string)) {
+			// Run the appropiate function
+			retval = list[i].shell_program(argc, argv_list);
+		}
+	}	
+}
+
 void shell_task(void)
 {
-	unsigned int i = 0, retval = 0;
-	int argc = 0;
 	char rxchar = 0;
-	char finished = 0;
 
 	// Number of characters written to buffer (this should be static var)
 	static unsigned short count = 0;
@@ -187,7 +199,15 @@ void shell_task(void)
 		case SHELL_ASCII_CR: // Enter key pressed
 			shell_rx_buffer[count] = '\0';
 			shell_println("");
-			finished = 1;
+			if (count > 0) {
+				shell_process();
+
+				count = 0;
+			} else {
+				shell_println("command not found");
+			}
+			shell_println("");
+			shell_prompt();
 			break;
 
 		case SHELL_ASCII_BS: // Backspace pressed
@@ -207,27 +227,6 @@ void shell_task(void)
 				count++;
 			}
 		}
-		// Check if a full command is available on the buffer to process
-		if (finished) {
-			argc = shell_parse(shell_rx_buffer, argv_list, CONFIG_SHELL_MAX_COMMAND_ARGS);
-			// sequential search on command table
-			for (i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
-				if (list[i].shell_program == 0)
-					continue;
-				// If string matches one on the list
-				if (!strcmp(argv_list[0], list[i].shell_command_string)) {
-					// Run the appropiate function
-					retval = list[i].shell_program(argc, argv_list);
-					finished = 0;
-				}
-			}
-			if (finished != 0 && count != 0) // If no command found and buffer not empty
-				shell_println((const char *) "Command NOT found."); // Print not found!!
-
-			count = 0;
-			shell_println("");
-			shell_prompt();
-		}
 	}
 }
 
@@ -244,48 +243,31 @@ void shell_print_commands(void)
 	}
 }
 
-int shell_help(int, char **)
+int shell_help(int argc, char** argv)
 {
 	shell_print_commands();
 
 	return SHELL_RET_SUCCESS;
 }
 
-void shell_print_error(int error, const char * field)
+int shell_test(int argc, char** argv)
 {
-	if (field != 0) {
-		shell_print((const char *) "#ERROR-PARAM:");
-		shell_print(field);
-		shell_print("\r\n");
+	print_str_ln("-----------------------------------------------");
+	print_str_ln("SHELL DEBUG / TEST UTILITY");
+	print_str_ln("-----------------------------------------------");
+	print_str_ln("");
+	print_cat("Received ", argc);
+	print_str_ln(" arguments for test command\r\n");
+
+	// Print each argument with string lenghts
+	for(uint8_t i = 0; i < argc; i++)
+	{
+		// Print formatted text to terminal
+		// shell_printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i]) );
+		print_str_ln(argv[i]);
 	}
 
-	shell_print((const char *) "#ERROR-TYPE:");
-	switch (error) {
-	case E_SHELL_ERR_ARGCOUNT:
-		shell_print((const char *) "ARG-COUNT");
-		break;
-	case E_SHELL_ERR_OUTOFRANGE:
-		shell_print((const char *) "OUT-OF-RANGE");
-		break;
-	case E_SHELL_ERR_VALUE:
-		shell_print((const char *) "INVALID-VALUE");
-		break;
-	case E_SHELL_ERR_ACTION:
-		shell_print((const char *) "INVALID-ACTION");
-		break;
-	case E_SHELL_ERR_PARSE:
-		shell_print((const char *) "PARSING");
-		break;
-	case E_SHELL_ERR_STORAGE:
-		shell_print((const char *) "STORAGE");
-		break;
-	case E_SHELL_ERR_IO:
-		shell_print((const char *) "IO");
-		break;
-	default:
-		shell_print("Unknown");
-	}
-	shell_print("\r\n");
+	return SHELL_RET_SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */

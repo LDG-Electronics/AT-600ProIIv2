@@ -49,25 +49,25 @@ extern void shell_init(void);
  	@return Returns true if command was successfully added to the command list,
  	or returns false if something fails (no more commands can be registered).
 */
-extern bool shell_register(shell_program_t program, const char * string);
+extern bool shell_register(shell_program_t program, const char *string);
 
 /*	Main Shell processing loop
  	This function implements the main functionality of the command line interface
  	this function should be called frequently so it can handle the input from the
  	data stream.
 */
-extern void shell_task();
+extern void shell_task(void);
 
 /* -------------------------------------------------------------------------- */
 
 // print all registered commands
-extern void shell_print_commands();
+extern void shell_print_commands(void);
 
 // print error messages to console
-extern void shell_print_error(int error, const char * field);
+extern void shell_print_error(int error, const char *field);
 
 // Prints a null terminated string to the terminal
-extern void shell_print(const char * string);
-extern void shell_println(const char * string);
+extern void shell_print(const char *string);
+extern void shell_println(const char *string);
 
 #endif
