@@ -1,5 +1,5 @@
-#ifndef _LOGGING_SWITCHES_H_
-#define _LOGGING_SWITCHES_H_
+#ifndef _LOG_LEVELS_H_
+#define _LOG_LEVELS_H_
 
 /* ************************************************************************** */
 
@@ -13,7 +13,7 @@
 #define LOG_ALL         10
 
 // Entire log system enable/disable
-#define LOG_LEVEL_SYSTEM LOG_ALL
+#define LOG_LEVEL_SYSTEM LOG_SILENT
 
 // Subsystems
 #define LOG_LEVEL_DISPLAY LOG_SILENT
@@ -24,16 +24,14 @@
 #define LOG_LEVEL_MENUS LOG_SILENT
 #define LOG_LEVEL_RF_SENSOR LOG_SILENT
 #define LOG_LEVEL_RELAYS LOG_SILENT
-#define LOG_LEVEL_STARTUP LOG_ALL
-#define LOG_LEVEL_TUNING LOG_ALL
+#define LOG_LEVEL_STARTUP LOG_SILENT
+#define LOG_LEVEL_TUNING LOG_SILENT
 
 /* ************************************************************************** */
 
 #if LOG_LEVEL_SYSTEM > LOG_SILENT
     #define print_ln();                 log_ln();
     #define print_int(val);             log_int(val);
-    #define print_str(val);             log_str(val);
-    #define print_str_ln(val);          log_str_ln(val);
 
     #define print_cat(val, val2);       log_cat(val, val2);
     #define print_cat_ln(val, val2);    log_cat_ln(val, val2);
@@ -42,8 +40,6 @@
 #else
     #define print_ln();
     #define print_int(val);
-    #define print_str(val);
-    #define print_str_ln(val);
 
     #define print_cat(val, val2);
     #define print_cat_ln(val, val2);

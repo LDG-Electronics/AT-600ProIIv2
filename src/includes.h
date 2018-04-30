@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // device header
 #include "pic18f45k42.h"
@@ -19,8 +20,7 @@
 #include "delay.h"
 #include "flags.h"
 #include "relays.h"
-#include "logging_switches.h"
-#include "logging.h"
+#include "log_levels.h"
 #include "RF_sensor.h"
 #include "shell.h"
 #include "stopwatch.h"

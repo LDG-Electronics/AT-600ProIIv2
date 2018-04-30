@@ -9,8 +9,7 @@
 
 void read_bypass(void)
 {
-    print_cat("BP", bypassStatus[system_flags.antenna]);
-    print_str_ln(";");
+    printf("BP%d;\r\n", bypassStatus[system_flags.antenna]);
 }
 
 void set_bypass_off(void)
@@ -55,7 +54,7 @@ void toggle_bypass(void)
 void read_peak(void)
 {
     print_cat("PK", system_flags.peakMode);
-    print_str_ln(";");
+    println(";");
 }
 
 void set_peak_on(void)
@@ -78,7 +77,7 @@ void toggle_peak(void)
 void read_scale(void)
 {
     print_cat("SC", system_flags.Scale100W);
-    print_str_ln(";");
+    println(";");
 }
 
 void set_scale_high(void)
@@ -100,7 +99,7 @@ void toggle_scale(void)
 void read_auto_mode(void)
 {
     print_cat("AT", system_flags.autoMode);
-    print_str_ln(";");
+    println(";");
 }
 
 void set_auto_on(void)
@@ -123,7 +122,7 @@ void toggle_auto(void)
 void read_hiloz(void)
 {
     print_cat("ZR", currentRelays[system_flags.antenna].z);
-    print_str_ln(";");
+    println(";");
 }
 
 void set_hiloz(uint8_t value)
@@ -158,7 +157,7 @@ void toggle_hiloz(void)
 void read_antenna(void)
 {
     print_cat("AN", system_flags.antenna);
-    print_str_ln(";");
+    println(";");
 }
 
 void set_antenna(uint8_t value)

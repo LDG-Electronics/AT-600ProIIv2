@@ -39,9 +39,9 @@ void load_flags(void)
     uint8_t address = 0;
     uint8_t valid = 0;
     
-    // #if LOG_LEVEL_FLAGS >= LOG_LABELS
-    // print_str_ln("load_flags");
-    // #endif
+    #if LOG_LEVEL_FLAGS >= LOG_LABELS
+    println("load_flags");
+    #endif
     
     while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS))
     {
@@ -55,7 +55,7 @@ void load_flags(void)
 
     if (valid == 1) {
         #if LOG_LEVEL_FLAGS >= LOG_INFO
-        print_cat_ln("found valid records at: ", address);
+        printf("found valid records at: %d", address);
         #endif
         
         // Read stored values out into their containers
@@ -71,7 +71,7 @@ void load_flags(void)
         preBypassRelays[1].bot = internal_eeprom_read(address + 9);
     } else {
         #if LOG_LEVEL_FLAGS >= LOG_INFO
-        print_str_ln("  no valid record");
+        println("no valid record");
         #endif        
     }
     SWR_threshold_set();
@@ -85,9 +85,9 @@ void save_flags(void)
     relays_s tempRelays[NUM_OF_ANTENNA_PORTS * 2];
     system_flags_s temp_flags;
     
-    // #if LOG_LEVEL_FLAGS >= LOG_LABELS
-    // print_str_ln("save_flags");
-    // #endif
+    #if LOG_LEVEL_FLAGS >= LOG_LABELS
+    println("save_flags");
+    #endif
 
     while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS))
     {
@@ -124,7 +124,7 @@ void save_flags(void)
         if (address > (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) address = 0;
 
         #if LOG_LEVEL_FLAGS >= LOG_INFO
-        print_cat_ln("saving records at: ", address);
+        printf("saving records at: %d", address);
         #endif
         
         internal_eeprom_write(address, (swrThreshIndex & 0x7f));

@@ -92,7 +92,7 @@ void shutdown_submenu(void)
     uint16_t holdCount = 0;
 
     #if LOG_LEVEL_MENUS > LOG_SILENT
-    print_str_ln("shutting down");
+    println("shutting down");
     #endif
 
     // Turn off the whole front panel
@@ -111,7 +111,7 @@ void shutdown_submenu(void)
     }
 
     #if LOG_LEVEL_MENUS > LOG_SILENT
-    print_str_ln("Hello again!");
+    println("Hello again!");
     #endif
     
     // Put the Status LEDs back how we found them

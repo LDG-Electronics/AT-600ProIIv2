@@ -65,8 +65,7 @@ void us_stopwatch_end(void)
     
     // Grab final value and print it
     stopwatchCount += timer0_read();
-    print_cat("stopwatch: ", stopwatchCount);
-    print_str_ln("us");
+    printf("stopwatch: %dus\r\n", stopwatchCount);
 }
 
 static uint24_t ms_startTime = 0;
@@ -80,8 +79,7 @@ void ms_stopwatch_end(void)
 {
     uint24_t currentTime = systick_read();
 
-    print_cat("stopwatch: ", (currentTime - ms_startTime));
-    print_str_ln("ms");
+    printf("stopwatch: %dus\r\n", stopwatchCount);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -89,22 +87,22 @@ void ms_stopwatch_end(void)
 void stopwatch_and_delay_test(void)
 {
     // Microsecond tests, microsecond delays
-    print_str("10us: ");
+    print("10us: ");
     us_stopwatch_begin();
     delay_us(10);
     us_stopwatch_end();
     
-    print_str("100us: ");
+    print("100us: ");
     us_stopwatch_begin();
     delay_us(100);
     us_stopwatch_end();
     
-    print_str("1000us: ");
+    print("1000us: ");
     us_stopwatch_begin();
     delay_us(1000);
     us_stopwatch_end();
     
-    print_str("10000us: ");
+    print("10000us: ");
     us_stopwatch_begin();
     delay_us(10000);
     us_stopwatch_end();
@@ -112,27 +110,27 @@ void stopwatch_and_delay_test(void)
     print_ln();
 
     // Microsecond tests, millisecond delays
-    print_str("1ms: ");
+    print("1ms: ");
     us_stopwatch_begin();
     delay_ms(1);
     us_stopwatch_end();
     
-    print_str("10ms: ");
+    print("10ms: ");
     us_stopwatch_begin();
     delay_ms(10);
     us_stopwatch_end();
     
-    print_str("100ms: ");
+    print("100ms: ");
     us_stopwatch_begin();
     delay_ms(100);
     us_stopwatch_end();
     
-    print_str("1000ms: ");
+    print("1000ms: ");
     us_stopwatch_begin();
     delay_ms(1000);
     us_stopwatch_end();
     
-    print_str("10000ms: ");
+    print("10000ms: ");
     us_stopwatch_begin();
     delay_ms(10000);
     us_stopwatch_end();
@@ -140,42 +138,42 @@ void stopwatch_and_delay_test(void)
     print_ln();
     
     // Millisecond tests
-    print_str("1ms: ");
+    print("1ms: ");
     ms_stopwatch_begin();
     delay_ms(1);
     ms_stopwatch_end();
     
-    print_str("10ms: ");
+    print("10ms: ");
     ms_stopwatch_begin();
     delay_ms(10);
     ms_stopwatch_end();
     
-    print_str("100ms: ");
+    print("100ms: ");
     ms_stopwatch_begin();
     delay_ms(100);
     ms_stopwatch_end();
     
-    print_str("1000ms: ");
+    print("1000ms: ");
     ms_stopwatch_begin();
     delay_ms(1000);
     ms_stopwatch_end();
     
-    print_str("2000ms: ");
+    print("2000ms: ");
     ms_stopwatch_begin();
     delay_ms(2000);
     ms_stopwatch_end();
     
-    print_str("10000ms: ");
+    print("10000ms: ");
     ms_stopwatch_begin();
     delay_ms(10000);
     ms_stopwatch_end();
     
-    print_str("20000ms: ");
+    print("20000ms: ");
     ms_stopwatch_begin();
     delay_ms(20000);
     ms_stopwatch_end();
     
-    print_str("30000ms: ");
+    print("30000ms: ");
     ms_stopwatch_begin();
     delay_ms(30000);
     ms_stopwatch_end();

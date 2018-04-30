@@ -114,11 +114,7 @@ int8_t put_relays(relays_s *testRelays)
 // Prints the contents of relay struct as "(caps, inds, z)"
 void print_relays(relays_s *relays)
 {
-    print_cat("(C", relays->caps);
-    print_cat(", L", relays->inds);
-    print_cat(", Z", relays->z);
-    print_cat(", A", relays->ant);
-    print_str(")"); 
+    printf("(C%d, L%d, Z%d, A%d)", relays->caps, relays->inds, relays->z, relays->ant);
 }
 
 // Same as log_relays(), but also appends a CRLF.

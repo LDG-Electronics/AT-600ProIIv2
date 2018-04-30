@@ -52,7 +52,7 @@ void nvm_write(void)
 uint8_t internal_eeprom_read(uint16_t address)
 {
     #if LOG_LEVEL_EEPROM >= LOG_INFO
-    print_str_ln("eeprom_read");
+    println("eeprom_read");
     #endif
     
     // Load lower byte of address into register
@@ -74,7 +74,7 @@ uint8_t internal_eeprom_read(uint16_t address)
 void internal_eeprom_write(uint16_t address, uint8_t value)
 {
     #if LOG_LEVEL_EEPROM >= LOG_INFO
-    print_str_ln("eeprom_write");
+    println("eeprom_write");
     #endif
     // Wait for possible previous write to complete
     while(NVMCON1bits.WR);
@@ -135,7 +135,7 @@ void internal_eeprom_write(uint16_t address, uint8_t value)
 uint8_t flash_read(uint32_t address)
 {
     #if LOG_LEVEL_FLASH >= LOG_INFO
-    print_str_ln("flash_read");
+    println("flash_read");
     #endif
     
     // Load the address into the tablepointer registers
@@ -155,7 +155,7 @@ void flash_block_read(uint32_t address, uint8_t *buffer)
     uint32_t blockAddress;
     
     #if LOG_LEVEL_FLASH >= LOG_INFO
-    print_str_ln("flash_block_read");
+    println("flash_block_read");
     #endif
     
     // Mask off the block address
@@ -176,7 +176,7 @@ void flash_block_read(uint32_t address, uint8_t *buffer)
 void flash_block_erase(uint32_t address)
 {
     #if LOG_LEVEL_FLASH >= LOG_INFO
-    print_str_ln("flash_block_erase");
+    println("flash_block_erase");
     #endif
     
     // Load the address into the tablepointer registers
@@ -196,15 +196,14 @@ void flash_block_write(uint32_t address, uint8_t *buffer)
     uint32_t blockAddress;
     
     #if LOG_LEVEL_FLASH >= LOG_INFO
-    print_str_ln("flash_block_write");
+    println("flash_block_write");
     #endif
 
     // Mask off the block address
     blockAddress = address & 0xffffffc0;
     
     #if LOG_LEVEL_FLASH >= LOG_DETAILS
-    print_cat_ln("  address = ", address);
-    print_cat_ln("  blockAddress = ", blockAddress);
+    printf("address: %d, blockAddress: %d", address, blockAddress);
     #endif
     
     // Load the address into the tablepointer registers

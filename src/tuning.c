@@ -89,12 +89,12 @@ void print_search_area(search_area_t *print_area)
     uint32_t temp = print_area->all; // satisfy compiler whining
     
     #if LOG_LEVEL_TUNING >= LOG_INFO
-    print_str("\t");
+    print("\t");
     print_cat("area: (", print_area->maxCap);
     print_cat(" , ", print_area->minCap);
     print_cat(") (", print_area->maxInd);
     print_cat(" , ", print_area->minInd);
-    print_str_ln(")");
+    println(")");
     #endif
 }
 
@@ -107,7 +107,7 @@ void print_solution_count(void)
     uint16_t difference = solutionCount - prevSolutionCount;
     
     #if LOG_LEVEL_TUNING >= LOG_INFO
-    print_str("\t");
+    print("\t");
     print_cat("solutionCount: ", solutionCount);
     print_cat(" new: ", difference);
     print_ln();
@@ -231,7 +231,7 @@ void save_new_best_solution(void)
     bestFWD = currentRF.forward;
     
     #if LOG_LEVEL_TUNING >= LOG_INFO
-    print_str("\t\t");
+    print("\t\t");
     print_relays(&bestSolution);
     print_current_SWR();
     print_ln();
@@ -302,8 +302,8 @@ void LC_zip(void)
 void test_bypass(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str("\t");
-    print_str("bypass:");
+    print("\t");
+    print("bypass:");
     print_ln();
     #endif
     
@@ -314,7 +314,7 @@ void test_bypass(void)
     bypassFWD = bestFWD;
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_str("\t\t");
+    print("\t\t");
     print_relays(&bypassRelays);
     print_catf(" SWR: ", bypassSWR);
     print_cat(" F: ", bypassFWD);
@@ -327,8 +327,8 @@ void test_bypass(void)
 void test_loz(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str("\t");
-    print_str("loz: ")
+    print("\t");
+    print("loz: ")
     print_ln();
     #endif
     
@@ -342,7 +342,7 @@ void test_loz(void)
     lozFWD = bestFWD;
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_str("\t\t");
+    print("\t\t");
     print_relays(&lozSolution);
     print_catf(" SWR: ", lozSWR);
     print_cat(" F: ", lozFWD);
@@ -355,8 +355,8 @@ void test_loz(void)
 void test_hiz(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str("\t");
-    print_str("hiz: ");
+    print("\t");
+    print("hiz: ");
     print_ln();
     #endif
     
@@ -370,7 +370,7 @@ void test_hiz(void)
     hizFWD = bestFWD;
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_str("\t");
+    print("\t");
     print_relays(&hizSolution);
     print_catf(" SWR: ", hizSWR);
     print_cat(" F: ", hizFWD);
@@ -404,9 +404,9 @@ void restore_best_z(void)
     nextSolution.z = bestSolution.z;
     
     #if LOG_LEVEL_TUNING >= LOG_INFO
-    print_str("\t");
-    print_str("best z: ");
-    print_str("\t");
+    print("\t");
+    print("best z: ");
+    print("\t");
     print_relays(&bestSolution);
     print_catf(" SWR: ", bestSWR);
     print_cat(" F: ", bestFWD);
@@ -420,7 +420,7 @@ void restore_best_z(void)
 void hiloz_tune(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str_ln("  hiloz_tune");
+    println("  hiloz_tune");
     #endif
     
     test_bypass();
@@ -454,7 +454,7 @@ void coarse_tune(void)
     double earlyExitSWR = (bypassSWR / 2);
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str_ln("  coarse_tune");
+    println("  coarse_tune");
     #endif
     
     // Do it
@@ -497,11 +497,11 @@ void bracket_tune(uint8_t bracket, uint8_t step)
     double earlyExitSWR = (bestSWR / 2);
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str("  bracket_tune");
+    print("  bracket_tune");
     print_cat(" (", bracket);
     print_cat(", ", step);
-    print_str(") ");
-    print_str(" bestSolution:");
+    print(") ");
+    print(" bestSolution:");
     print_relays(&bestSolution);
     #endif
     
@@ -591,7 +591,7 @@ void full_tune(void)
     uint16_t address = 0;
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str_ln("full_tune");
+    println("full_tune");
     #endif
     
     clear_tuning_flags();
@@ -649,7 +649,7 @@ void full_tune(void)
     if (bestSWR < SWR1_7)
     {
         #if LOG_LEVEL_TUNING >= LOG_EVENTS
-        print_str("  Saving: ");
+        print("  Saving: ");
         print_relays(&currentRelays[system_flags.antenna]);
         print_catf_ln(" with SWR: ", bestSWR);
         #endif
@@ -676,7 +676,7 @@ void prepare_memories(void)
     uint16_t address = 0;
     
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_str_ln("  prepare_memories");
+    println("  prepare_memories");
     #endif
     
     address = convert_memory_address(currentRF.frequency);
@@ -701,7 +701,7 @@ void prepare_memories(void)
 void test_memory(relays_s* memory)
 {
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_str_ln("  test_memory");
+    println("  test_memory");
     #endif
     
     put_relays(memory);
@@ -722,7 +722,7 @@ void test_memory(relays_s* memory)
 void restore_best_memory(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
-    print_str_ln("  restore_best_memory");
+    println("  restore_best_memory");
     #endif
     currentRelays[system_flags.antenna].all = bestMemory.all;
     put_relays(&currentRelays[system_flags.antenna]);
@@ -736,7 +736,7 @@ void memory_tune(void)
     uint8_t i = 0;
     
     #if LOG_LEVEL_TUNING >= LOG_LABELS
-    print_str_ln("memory_tune");
+    println("memory_tune");
     #endif
     
     clear_tuning_flags();
@@ -795,25 +795,25 @@ void tuning_followup_animation(void)
     
     if (tuning_flags.errors != 0) {
         #if LOG_LEVEL_TUNING >= LOG_ERROR
-        print_str("Error: ");
+        print("Error: ");
         #endif
         if (tuning_flags.lostRF == 1) {
             #if LOG_LEVEL_TUNING >= LOG_ERROR
-            print_str_ln("lostRF");
+            println("lostRF");
             #endif
             
             repeat_animation(&blink_both_bars, 2);
             
         } else if (tuning_flags.noRF == 1) {
             #if LOG_LEVEL_TUNING >= LOG_ERROR
-            print_str_ln("noRF");
+            println("noRF");
             #endif
             
             repeat_animation(&blink_both_bars, 1);
             
         } else if (tuning_flags.relayError == 1) {
             #if LOG_LEVEL_TUNING >= LOG_ERROR
-            print_str_ln("relayError");
+            println("relayError");
             #endif
             
             // relay_error_blink();
@@ -821,21 +821,21 @@ void tuning_followup_animation(void)
     } else {
         if (bestSWR < SWR1_7) {
             #if LOG_LEVEL_TUNING >= LOG_DETAILS
-            print_str_ln("good match");
+            println("good match");
             #endif
             
             play_animation(&center_crawl);
             
         } else if (bestSWR < SWR3_5) {
             #if LOG_LEVEL_TUNING >= LOG_DETAILS
-            print_str_ln("decent match");
+            println("decent match");
             #endif
             
             // led_blink(2, MEDIUM);
             
         } else if (bestSWR >= SWR3_5) {
             #if LOG_LEVEL_TUNING >= LOG_DETAILS
-            print_str_ln("badMatch");
+            println("badMatch");
             #endif
             
             // led_blink(3, MEDIUM);

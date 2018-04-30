@@ -197,10 +197,8 @@ int8_t SWR_stable_average(void)
 
 void print_current_SWR(void)
 {
-    print_cat("FWD: ", currentRF.forward);
-    print_cat(", REV: ", currentRF.reverse);
-    print_catf(", SWR: ", currentRF.swr);
-    print_cat(", P: ", currentRF.period);
+    printf("FWD: %d, REV: %d, SWR: %f, P: %d", 
+            currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.period);
 }
 
 void print_current_SWR_ln(void)
@@ -218,15 +216,15 @@ int shell_get_RF(int argc, char** argv)
         print_current_SWR_ln();
     } else {
         if(!strcmp(argv[1], "-fwd")) {
-            print_cat_ln("", currentRF.forward);
+            printf("%d\n\r", currentRF.forward);
         } else if(!strcmp(argv[1], "-rev")) {
-            print_cat_ln("", currentRF.reverse);
+            printf("%d\n\r", currentRF.reverse);
         } else if(!strcmp(argv[1], "-swr")) {
-            print_catf_ln("", currentRF.swr);
+            printf("%f\n\r", currentRF.swr);
         } else if(!strcmp(argv[1], "-freq")) {
-            print_catf_ln("", currentRF.swr);
+            printf("%d\n\r", currentRF.period);
         } else {
-            print_str_ln("invalid argument");
+            println("invalid argument");
         }
     }   
 
