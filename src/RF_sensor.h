@@ -17,7 +17,7 @@ typedef union {
 extern RF_power_s currentRF;
 
 // Global SWR Threshold Settings
-extern uint16_t swrThresh;
+extern double swrThresh;
 extern uint8_t swrThreshIndex;
 
 /* ************************************************************************** */

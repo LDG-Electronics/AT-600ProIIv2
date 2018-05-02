@@ -14,9 +14,9 @@
 RF_power_s currentRF;
 
 // Global SWR Threshold Settings
-uint16_t swrThresh = SWR1_7;
+double swrThresh = SWR1_7;
 uint8_t swrThreshIndex = 0;
-const uint16_t swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
+const double swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
 /* ************************************************************************** */
 
