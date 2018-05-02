@@ -36,8 +36,14 @@ CFLAGS = -q
 CFLAGS += --OBJDIR=$(OBJ_DIR) 
 # -O tells xc8 where to put output files(.hex, .map, .cof, .as, etc)
 CFLAGS += -O$(BUILD_DIR)/$(PROJECT)
-# These set the size of floating point types to the larger 32bit settings.
+# -M tells the compiler to generate the map file
+# CFLAGS += -M$(BUILD_DIR)/$(PROJECT)
+# --ASMLIST tells the compiler to generate the assembly list file
+# CFLAGS += --ASMLIST
+# These set the size of floating point types to the larger 32bit settings
 CFLAGS += --FLOAT=24 --DOUBLE=32
+# Tells the compiler to report compilation times
+CFLAGS += --TIME
 
 # TODO: Fix the Vector Table!
 # This flag suppresses about 80 warning messages complaining that the Vector Tables
