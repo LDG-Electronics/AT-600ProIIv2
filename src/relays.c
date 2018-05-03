@@ -122,7 +122,7 @@ void print_relays_ln(relays_s *relays)
 {
     print_relays(relays);
     
-    print_ln();
+    println("");
 }
 
 int shell_set_relays(int argc, char** argv)

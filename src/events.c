@@ -53,8 +53,7 @@ void toggle_bypass(void)
 
 void read_peak(void)
 {
-    print_cat("PK", system_flags.peakMode);
-    println(";");
+    printf("PK%d;\r\n", system_flags.peakMode);
 }
 
 void set_peak_on(void)
@@ -76,8 +75,7 @@ void toggle_peak(void)
 
 void read_scale(void)
 {
-    print_cat("SC", system_flags.Scale100W);
-    println(";");
+    printf("SC%d;\r\n", system_flags.Scale100W);
 }
 
 void set_scale_high(void)
@@ -98,8 +96,7 @@ void toggle_scale(void)
 
 void read_auto_mode(void)
 {
-    print_cat("AT", system_flags.autoMode);
-    println(";");
+    printf("AT%d;\r\n", system_flags.autoMode);
 }
 
 void set_auto_on(void)
@@ -121,8 +118,7 @@ void toggle_auto(void)
 
 void read_hiloz(void)
 {
-    print_cat("ZR", currentRelays[system_flags.antenna].z);
-    println(";");
+    printf("ZR%d;\r\n", currentRelays[system_flags.antenna].z);
 }
 
 void set_hiloz(uint8_t value)
@@ -156,8 +152,7 @@ void toggle_hiloz(void)
 
 void read_antenna(void)
 {
-    print_cat("AN", system_flags.antenna);
-    println(";");
+    printf("AN%d;\r\n", system_flags.antenna);
 }
 
 void set_antenna(uint8_t value)

@@ -23,21 +23,21 @@
 #define FREQ_GROUP_5 30000
 #define FREQ_GROUP_6 55000
 
-uint16_t map_freq_to_addr(uint16_t frequency, 
-                          uint16_t old_min, uint16_t old_max, 
-                          uint16_t new_min, uint16_t new_max)
-{
-    uint32_t temp = 0;
-    uint32_t address = 0;
-    uint16_t oldRange = (old_max - old_min);
-    uint16_t newRange = (new_max - new_min);
+// uint16_t map_freq_to_addr(uint16_t frequency, 
+//                           uint16_t old_min, uint16_t old_max, 
+//                           uint16_t new_min, uint16_t new_max)
+// {
+//     uint32_t temp = 0;
+//     uint32_t address = 0;
+//     uint16_t oldRange = (old_max - old_min);
+//     uint16_t newRange = (new_max - new_min);
     
-    temp = frequency - FREQ_MIN;
+//     temp = frequency - FREQ_MIN;
     
-    address = ((temp * newRange) / oldRange) + new_min;
+//     address = ((temp * newRange) / oldRange) + new_min;
     
-    return (uint16_t)address;
-}
+//     return (uint16_t)address;
+// }
 
 // Memory configuration
 #define MEMORY_BASE_ADDRESS 26000
@@ -46,32 +46,32 @@ uint32_t convert_memory_address(uint16_t frequency)
 {
     uint32_t address = 0;
     
-    if (frequency < FREQ_MIN) {
-        // wrong
-    } else if (frequency < FREQ_GROUP_1) { // 5.5M wide, 1000 slots, 5k/slot
-        address = map_freq_to_addr(frequency, FREQ_MIN, FREQ_GROUP_1, 1, 1000);
+    // if (frequency < FREQ_MIN) {
+    //     // wrong
+    // } else if (frequency < FREQ_GROUP_1) { // 5.5M wide, 1000 slots, 5k/slot
+    //     address = map_freq_to_addr(frequency, FREQ_MIN, FREQ_GROUP_1, 1, 1000);
         
-    } else if (frequency < FREQ_GROUP_2) { // 5M wide, 500 slots, 10k/slot
-        address = map_freq_to_addr(frequency, FREQ_GROUP_1, FREQ_GROUP_2, 1000, 1500);
+    // } else if (frequency < FREQ_GROUP_2) { // 5M wide, 500 slots, 10k/slot
+    //     address = map_freq_to_addr(frequency, FREQ_GROUP_1, FREQ_GROUP_2, 1000, 1500);
         
-    } else if (frequency < FREQ_GROUP_3) { // 9.5M wide, 1000 slots, 9k/slot
-        address = map_freq_to_addr(frequency, FREQ_GROUP_2, FREQ_GROUP_3, 1501, 2500);
+    // } else if (frequency < FREQ_GROUP_3) { // 9.5M wide, 1000 slots, 9k/slot
+    //     address = map_freq_to_addr(frequency, FREQ_GROUP_2, FREQ_GROUP_3, 1501, 2500);
         
-    } else if (frequency < FREQ_GROUP_4) { // 5M wide, 500 slots, 10k/slot
-        address = map_freq_to_addr(frequency, FREQ_GROUP_3, FREQ_GROUP_4, 2501, 3000);
+    // } else if (frequency < FREQ_GROUP_4) { // 5M wide, 500 slots, 10k/slot
+    //     address = map_freq_to_addr(frequency, FREQ_GROUP_3, FREQ_GROUP_4, 2501, 3000);
         
-    } else if (frequency < FREQ_GROUP_5) { // 5M wide, 400 slots, 12k/slot
-        address = map_freq_to_addr(frequency, FREQ_GROUP_4, FREQ_GROUP_5, 3001, 3400);
+    // } else if (frequency < FREQ_GROUP_5) { // 5M wide, 400 slots, 12k/slot
+    //     address = map_freq_to_addr(frequency, FREQ_GROUP_4, FREQ_GROUP_5, 3001, 3400);
         
-    } else if (frequency < FREQ_GROUP_6) { // 25M wide, 600 slots, 41k/slot
-        address = map_freq_to_addr(frequency, FREQ_GROUP_5, FREQ_GROUP_6, 3401, 4000);
+    // } else if (frequency < FREQ_GROUP_6) { // 25M wide, 600 slots, 41k/slot
+    //     address = map_freq_to_addr(frequency, FREQ_GROUP_5, FREQ_GROUP_6, 3401, 4000);
         
-    } else if (frequency > FREQ_MAX) {
-        // wrong
-    }
+    // } else if (frequency > FREQ_MAX) {
+    //     // wrong
+    // }
     
-    address += MEMORY_BASE_ADDRESS; 
-    address &= ~1;
+    // address += MEMORY_BASE_ADDRESS; 
+    // address &= ~1;
     
     return address;
 }
@@ -94,7 +94,7 @@ void memory_store(uint32_t address)
     // if (readRelays.all == currentRelays[system_flags.antenna].all) return;
     
     // #if LOG_LEVEL_MEMORY >= LOG_EVENTS
-    // print_cat("  mem write: ", address);
+    // printf("mem write: %d", address);
     // print_relays_ln(&currentRelays[system_flags.antenna]);
     // #endif
     
@@ -126,7 +126,7 @@ uint32_t memory_recall(uint32_t address)
     // readRelays.caps &= ~1;
     
     // #if LOG_LEVEL_MEMORY >= LOG_INFO
-    // print_cat("  mem read: ", address);
+    // printf("mem read: %d", address);
     // print_relays_ln(&readRelays);  
     // #endif
     

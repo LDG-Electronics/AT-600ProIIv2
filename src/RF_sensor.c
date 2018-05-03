@@ -103,7 +103,7 @@ failure:
 double calculate_SWR(uint16_t tempFWD, uint16_t tempREV)
 {
     double x = sqrt((double)tempREV/(double)tempFWD);
-    return (1 + x) / (1 - x);
+    return ((1 + x) / (1 - x));
 }
 
 /*  SWR_measure() calculates the SWR from a single sample
@@ -135,7 +135,7 @@ void SWR_measure(void)
 
 #define NUM_OF_SAMPLES 8
 #define SAMPLE_FACTOR 3
-#define LOW_POWER_THRESHOLD 8
+#define LOW_POWER_THRESHOLD 20
 
 void SWR_average(void)
 {
@@ -197,7 +197,7 @@ int8_t SWR_stable_average(void)
 
 void print_current_SWR(void)
 {
-    printf("FWD: %d, REV: %d, SWR: %f, P: %d", 
+    printf("FWD: %d, \tREV: %d, \tSWR: %f, P: %d", 
             currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.period);
 }
 
@@ -205,7 +205,7 @@ void print_current_SWR_ln(void)
 {
     print_current_SWR();
 
-    print_ln();
+    println("");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -242,6 +242,12 @@ int shell_get_RF(int argc, char** argv)
 */
 void print_SWR_samples(uint8_t delta)
 {
+    static uint24_t nextUpdateTime = 0;
+    uint24_t currentTime = systick_read();
+
+    if(currentTime < nextUpdateTime) return;
+    nextUpdateTime = currentTime + 100;
+
     uint32_t temp = 0;
 
     uint16_t prevFWD = currentRF.forward;
@@ -252,7 +258,7 @@ void print_SWR_samples(uint8_t delta)
     uint16_t deltaREV = 0;
     // double deltaSWR = 0;
 
-    SWR_measure();
+    SWR_average();
 
     deltaFWD = abs(currentRF.forward - prevFWD);
     deltaREV = abs(currentRF.reverse - prevREV);
@@ -262,6 +268,6 @@ void print_SWR_samples(uint8_t delta)
     {
         print_current_SWR();
         
-        print_ln();
+        println("");
     }
 }

@@ -29,23 +29,4 @@
 
 /* ************************************************************************** */
 
-#if LOG_LEVEL_SYSTEM > LOG_SILENT
-    #define print_ln();                 log_ln();
-    #define print_int(val);             log_int(val);
-
-    #define print_cat(val, val2);       log_cat(val, val2);
-    #define print_cat_ln(val, val2);    log_cat_ln(val, val2);
-    #define print_catf(val, val2);      log_catf(val, val2);
-    #define print_catf_ln(val, val2);   log_catf_ln(val, val2);
-#else
-    #define print_ln();
-    #define print_int(val);
-
-    #define print_cat(val, val2);
-    #define print_cat_ln(val, val2);
-    #define print_catf(val, val2);
-    #define print_catf_ln(val, val2);
-#endif
-
-
 #endif // <- include guard
