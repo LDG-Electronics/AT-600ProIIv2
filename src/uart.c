@@ -103,10 +103,10 @@ void UART1_tx_string(const char *string, const char terminator)
             remainingBytes = totalBytes - currentByte;
 
             // TODO: test me
-            if (remainingBytes < BUFFER_SIZE) {
+            if (remainingBytes < RING_BUFFER_SIZE) {
                 // Block until there's enough room for the rest of the string
                 while(!buffer_has_at_least(UART1_tx_buffer, remainingBytes));
-            } else if (remainingBytes >= BUFFER_SIZE) {
+            } else if (remainingBytes >= RING_BUFFER_SIZE) {
                 // Block until the buffer is almost empty
                 while(!buffer_has_at_least(UART1_tx_buffer, 250));
             }
@@ -238,10 +238,10 @@ void UART2_tx_string(const char *string, const char terminator)
             remainingBytes = totalBytes - currentByte;
             
             // TODO: test me
-            if (remainingBytes < BUFFER_SIZE) {
+            if (remainingBytes < RING_BUFFER_SIZE) {
                 // Block until there's enough room for the rest of the string
                 while(!buffer_has_at_least(UART2_tx_buffer, remainingBytes));
-            } else if (remainingBytes >= BUFFER_SIZE) {
+            } else if (remainingBytes >= RING_BUFFER_SIZE) {
                 // Block until the buffer is almost empty
                 while(!buffer_has_at_least(UART2_tx_buffer, 250));
             }

@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 
 // Circular buffer tools
-/*  If BUFFER_SIZE is 256, then the head and tail indexes become significantly
+/*  If RING_BUFFER_SIZE is 256, then the head and tail indexes become significantly
     easier to manage. Bounds checking and modulus operations can be replaced
     a single postincrement(x++) instruction, because a uint8_t will wraparound
     from 0xff to 0x00 on its own.
@@ -15,15 +15,15 @@
     would require rewriting the helper macros to add the previously mentioned
     bounds checking.
 */
-#define BUFFER_SIZE 256
+#define RING_BUFFER_SIZE 256
 
 typedef struct{
-    char contents[BUFFER_SIZE];
+    char contents[RING_BUFFER_SIZE];
     uint8_t head;
     uint8_t tail;
 }uart_buffer_s;
 
-#if BUFFER_SIZE == 256
+#if RING_BUFFER_SIZE == 256
     #define buffer_is_empty(buffer) (buffer.head == buffer.tail)
     #define buffer_is_full(buffer) ((buffer.head + 1) == buffer.tail)
     #define buffer_has_at_least(buffer, space) ((buffer.head + space) >= buffer.tail)
@@ -31,7 +31,7 @@ typedef struct{
     #define buffer_read(buffer) buffer.contents[buffer.tail++]
     #define buffer_peek_last(buffer) buffer.contents[buffer.head - 1]
 #else
-    #error BUFFER_SIZE other than 256 is not currently supported because the buffer depends on uint8_t overflow behavior
+    #error RING_BUFFER_SIZE other than 256 is not currently supported because the buffer depends on uint8_t overflow behavior
 #endif
 
 #endif /* _FAST_RING_BUFFER_H_ */
