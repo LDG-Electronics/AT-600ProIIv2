@@ -107,7 +107,7 @@ void stopwatch_and_delay_test(void)
     delay_us(10000);
     us_stopwatch_end();
 
-    print_ln();
+    println("");
 
     // Microsecond tests, millisecond delays
     print("1ms: ");
@@ -135,7 +135,7 @@ void stopwatch_and_delay_test(void)
     delay_ms(10000);
     us_stopwatch_end();
 
-    print_ln();
+    println("");
     
     // Millisecond tests
     print("1ms: ");
