@@ -163,7 +163,7 @@ int8_t task_register(task_callback_s callback, uint24_t time, uint8_t repeat)
     return 0;
 }
 
-void task_manager(void)
+void task_manager_update(void)
 {
     // read current time
     uint24_t current_time = systick_read();

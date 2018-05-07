@@ -22,6 +22,7 @@
 void system_idle_block(void)
 {
     shell_update();
+    task_manager_update();
 }
 
 /* ************************************************************************** */

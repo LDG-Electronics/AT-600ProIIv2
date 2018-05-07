@@ -19,6 +19,6 @@ extern void tasks_init(void);
 
 extern int8_t task_register(task_callback_s callback, uint24_t time, uint8_t repeat);
 
-extern void task_manager(void);
+extern void task_manager_update(void);
 
 #endif
