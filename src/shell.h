@@ -95,7 +95,7 @@ extern bool shell_register(shell_program_t program, const char *string);
  	this function should be called frequently so it can handle the input from the
  	data stream.
 */
-extern void shell_task(void);
+extern void shell_update(void);
 
 /* -------------------------------------------------------------------------- */
 

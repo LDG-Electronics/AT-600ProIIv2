@@ -147,7 +147,7 @@ void shell_process(void)
 	}	
 }
 
-void shell_task(void)
+void shell_update(void)
 {
 	char rxchar = 0;
 
