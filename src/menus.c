@@ -7,6 +7,24 @@
 #include "hardware.h"
 
 /* ************************************************************************** */
+
+// Button timing constants, in 1ms increments.
+#define BTN_PRESS_DEBOUNCE  20
+#define BTN_PRESS_SHORT     350
+#define BTN_PRESS_MEDIUM    2000
+#define BTN_PRESS_LONG      10000
+
+/* ************************************************************************** */
+/*  Notes on the system idle block
+    This function contains various 'background' activities that should be
+    periodically serviced when the system isn't doing anything else important.
+*/
+void system_idle_block(void)
+{
+    shell_task();
+}
+
+/* ************************************************************************** */
 #define SUBMENU_TIMEOUT 2200
 
 void threshold_submenu(void)
@@ -31,7 +49,9 @@ void threshold_submenu(void)
         if (btn_is_pressed(FUNC)) break;
         modeCount--;
         if (modeCount == 0) break;
+
         delay_ms(1);
+        system_idle_block();
     }
 }
 
@@ -82,7 +102,9 @@ void function_submenu(void)
         if (btn_is_pressed(FUNC)) break; // Pressing FUNC again cancels and exits
         modeCount--;
         if (modeCount == 0) break;
+
         delay_ms(1);
+        system_idle_block();
     }
     play_animation(&arrow_down);
 }
@@ -108,6 +130,7 @@ void shutdown_submenu(void)
         if (holdCount == 1000) break;
 
         delay_ms(1);
+        system_idle_block();
     }
 
     #if LOG_LEVEL_MENUS > LOG_SILENT
@@ -141,6 +164,8 @@ void cup_hold(void)
         } else {
             delay_ms(RELAY_INCREMENT_SLOW_DELAY);
         }
+
+        system_idle_block();
     }
     save_flags();
 }
@@ -160,6 +185,8 @@ void cdn_hold(void)
         } else {
             delay_ms(RELAY_INCREMENT_SLOW_DELAY);
         }
+
+        system_idle_block();
     }
     save_flags();
 }
@@ -179,6 +206,8 @@ void lup_hold(void)
         } else {
             delay_ms(RELAY_INCREMENT_SLOW_DELAY);
         }
+
+        system_idle_block();
     }
     save_flags();
 }
@@ -198,6 +227,8 @@ void ldn_hold(void)
         } else {
             delay_ms(RELAY_INCREMENT_SLOW_DELAY);
         }
+
+        system_idle_block();
     }
     save_flags();
 }
@@ -221,7 +252,9 @@ void tune_hold(void)
         } else if (holdCount >= BTN_PRESS_LONG) {
             display_clear();
         }
+
         delay_ms(1);
+        system_idle_block();
     }
 
     display_clear();
@@ -272,6 +305,9 @@ void func_hold(void)
             blink_HiLoZ(2);
             show_HiLoZ();
         }
+
+        delay_ms(1);
+        system_idle_block();
     }
     if (FuncHoldProcessed == 0) function_submenu();
     save_flags();
@@ -287,6 +323,7 @@ void ant_hold(void)
     while(btn_is_down(ANT))
     {
         delay_ms(1);
+        system_idle_block();
     }
     save_flags();
 }
@@ -303,7 +340,9 @@ void power_hold(void)
             shutdown_submenu();
             break;
         }
+
         delay_ms(1);
+        system_idle_block();
     }
     save_flags();
     delay_ms(25);

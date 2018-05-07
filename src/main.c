@@ -13,8 +13,6 @@ void main(void)
 
     while(1)
     {
-        shell_task();
-
         // Relay buttons
         if (btn_is_pressed(CUP) || btn_is_down(CUP)) cup_hold();
         if (btn_is_pressed(CDN) || btn_is_down(CDN)) cdn_hold();
@@ -26,6 +24,8 @@ void main(void)
         if (btn_is_pressed(TUNE) || btn_is_down(TUNE)) tune_hold();
         if (btn_is_pressed(ANT) || btn_is_down(ANT)) ant_hold();
         if (btn_is_pressed(POWER) || btn_is_down(POWER)) power_hold();
+
+        system_idle_block();
     }
 }
 
