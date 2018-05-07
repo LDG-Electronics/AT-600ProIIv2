@@ -233,7 +233,7 @@ int shell_test(int argc, char** argv)
 	println("");
 	printf("Received %d arguments for test command\r\n",argc);
 
-	// Print each argument with string lenghts
+	// Print each argument with string lengths
 	for(uint8_t i = 0; i < argc; i++)
 	{
 		// Print formatted text to terminal
