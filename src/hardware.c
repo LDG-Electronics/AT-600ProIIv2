@@ -28,6 +28,7 @@ void startup(void)
     relays_init();
     RF_sensor_init();
     stopwatch_init();
+    tasks_init();
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 

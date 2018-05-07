@@ -25,5 +25,6 @@
 #include "shell.h"
 #include "stopwatch.h"
 #include "system_tick.h"
+#include "tasks.h"
 
 #endif	/* _INCLUDES_H_ */
