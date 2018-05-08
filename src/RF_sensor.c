@@ -216,13 +216,13 @@ int shell_get_RF(int argc, char** argv)
         print_current_SWR_ln();
     } else {
         if(!strcmp(argv[1], "-fwd")) {
-            printf("%d\n\r", currentRF.forward);
+            printf("%d\r\n", currentRF.forward);
         } else if(!strcmp(argv[1], "-rev")) {
-            printf("%d\n\r", currentRF.reverse);
+            printf("%d\r\n", currentRF.reverse);
         } else if(!strcmp(argv[1], "-swr")) {
-            printf("%f\n\r", currentRF.swr);
+            printf("%f\r\n", currentRF.swr);
         } else if(!strcmp(argv[1], "-freq")) {
-            printf("%d\n\r", currentRF.period);
+            printf("%d\r\n", currentRF.period);
         } else {
             println("invalid argument");
         }

@@ -27,7 +27,7 @@
 
 /* ************************************************************************** */
 
-#define SHELL_VERSION_STRING "\n\ruShell 1.0.1"
+#define SHELL_VERSION_STRING "\r\nuShell 1.0.1"
 #define SHELL_PROMPT_STRING "device>"
 
 // Defines the maximum number of commands that can be registered
