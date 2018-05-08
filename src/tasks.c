@@ -7,12 +7,47 @@
     This is a minimalist task scheduler that's designed to complement a
     superloop instead of replacing it.
 
-
-
+    task_manager_update() needs to be called regularly in the mainloop or
+    equivalent structure. Any possible event callback should be relatively
+    short, contain no majors delays, and should cause limited side-effects.
+    
+    Timing is not particularly strict in this scheduler, especially because it
+    allows the main program to block at will. This is desirable behavior in many
+    embedded devices.
 
 */
-/* ************************************************************************** */
 
+/* ************************************************************************** */
+/*  This structure stores the information related to a single task.
+
+    The fields are:
+    name: a string that identifies the task
+    event_callback: a function pointer that event a task performs
+    scheduled_time: the task will be performed when the current system time
+                    equals this scheduled time
+    repeat: if the task is to be repeated, it will be re-registered this number
+            of system ticks into the future
+    nextTask and prevTask: indexes used to refer to tasks neighbors in the
+                           doubly-linked-list
+*/
+typedef struct {
+    char *name;
+    task_callback_s event_callback;
+    uint24_t scheduled_time;
+    uint16_t repeat;
+    uint8_t nextTask;
+    uint8_t prevTask;
+} task_s;
+
+/* ************************************************************************** */
+/*  This structure stores the event queue and related data.
+
+    The event queue is a doubly-linked-list, but using array indexes instead of
+    pointers. This keeps us from needing dynamic memory allocation like a 
+    normal linked list, and SHOULD allow faster lookups than actual pointers,
+    considering the 8bit system this is designed for.
+
+*/
 #define MAX_NUM_OF_TASKS 32
 
 struct{
@@ -56,6 +91,9 @@ void print_task_queue(void)
 
 /* -------------------------------------------------------------------------- */
 
+/*  task_clear() initializes a new task_s object with blank default values
+
+*/
 static void task_clear(task_s *task)
 {
     task->name = NULL;
@@ -136,6 +174,7 @@ static void task_sorted_insert(task_s *newTask)
         printf("the queue now contains %d tasks\r\n", tasks.numberOfTasks);
     #endif
 }
+
 /*  task_remove() removes a specified task from the queue, and updates its
     neighbors nextTask and prevTask pointers
 

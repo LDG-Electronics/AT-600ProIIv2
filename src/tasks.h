@@ -3,16 +3,9 @@
 
 /* ************************************************************************** */
 
+// Function signature for a task callback function, to be implemented by the
+// caller of this library
 typedef void (*task_callback_s) (void);
-
-typedef struct {
-    char *name;
-    task_callback_s event_callback;
-    uint24_t scheduled_time;
-    uint16_t repeat;
-    uint8_t nextTask;
-    uint8_t prevTask;
-} task_s;
 
 /* ************************************************************************** */
 
