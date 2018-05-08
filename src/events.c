@@ -15,27 +15,27 @@ void read_bypass(void)
 void set_bypass_off(void)
 {
     relays_s undoRelays;
-    undoRelays.all = currentRelays[system_flags.antenna].all;
+    undoRelays = currentRelays[system_flags.antenna];
 
-    currentRelays[system_flags.antenna].all = preBypassRelays[system_flags.antenna].all;
+    currentRelays[system_flags.antenna] = preBypassRelays[system_flags.antenna];
 
     if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-        currentRelays[system_flags.antenna].all = undoRelays.all;
+        currentRelays[system_flags.antenna] = undoRelays;
     }
 }
 
 void set_bypass_on(void)
 {
     relays_s undoRelays;
-    undoRelays.all = currentRelays[system_flags.antenna].all;
+    undoRelays = currentRelays[system_flags.antenna];
 
-    preBypassRelays[system_flags.antenna].all = currentRelays[system_flags.antenna].all;
+    preBypassRelays[system_flags.antenna] = currentRelays[system_flags.antenna];
     currentRelays[system_flags.antenna].caps = 0;
     currentRelays[system_flags.antenna].inds = 0;
     currentRelays[system_flags.antenna].z = 0;
 
     if (put_relays(&bypassRelays) == -1) {
-        currentRelays[system_flags.antenna].all = undoRelays.all;
+        currentRelays[system_flags.antenna] = undoRelays;
     }
     
 }

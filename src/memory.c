@@ -89,9 +89,9 @@ void memory_store(uint32_t address)
     // // Make sure we aren't wasting an erase/write cycle [1]
     // readRelays.all = memory_recall(address);
     // readRelays.caps |= 1;
-    // if (readRelays.all == currentRelays[system_flags.antenna].all) return;
+    // if (readRelays == currentRelays[system_flags.antenna]) return;
     // readRelays.caps &= ~1;
-    // if (readRelays.all == currentRelays[system_flags.antenna].all) return;
+    // if (readRelays == currentRelays[system_flags.antenna]) return;
     
     // #if LOG_LEVEL_MEMORY >= LOG_EVENTS
     // printf("mem write: %d", address);
@@ -141,9 +141,9 @@ uint32_t memory_recall(uint32_t address)
     I wanted to write:
     
     readRelays.all = memory_recall(address);
-    if (readRelays.all == currentRelays[system_flags.antenna].all) return;
+    if (readRelays == currentRelays[system_flags.antenna]) return;
     readRelays.caps |= 1;
-    if (readRelays.all == currentRelays[system_flags.antenna].all) return;
+    if (readRelays == currentRelays[system_flags.antenna]) return;
     
     But that causes this output:
     Found a processor register! WREG

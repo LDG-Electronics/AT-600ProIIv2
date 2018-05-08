@@ -220,7 +220,7 @@ void reset_search_area(void)
 */
 void save_new_best_solution(void)
 {
-    bestSolution.all = nextSolution.all;
+    bestSolution = nextSolution;
     bestSWR = currentRF.swr;
     bestFWD = currentRF.forward;
     
@@ -329,7 +329,7 @@ void test_loz(void)
     L_zip(3, 0);
     L_zip(7, 1);
     
-    lozSolution.all = bestSolution.all;
+    lozSolution = bestSolution;
     lozSWR = bestSWR;
     lozFWD = bestFWD;
     
@@ -355,7 +355,7 @@ void test_hiz(void)
     L_zip(3, 0);
     L_zip(7, 1);
     
-    hizSolution.all = bestSolution.all;
+    hizSolution = bestSolution;
     hizSWR = bestSWR;
     hizFWD = bestFWD;
     
@@ -371,21 +371,21 @@ void test_hiz(void)
 void restore_best_z(void)
 {
     if (hizSWR < lozSWR) {
-        bestSolution.all = hizSolution.all;
+        bestSolution = hizSolution;
         bestSWR = hizSWR;
         bestFWD = hizFWD;
     } else if (hizSWR == lozSWR){
         if (hizFWD > lozFWD) {
-            bestSolution.all = hizSolution.all;
+            bestSolution = hizSolution;
             bestSWR = hizSWR;
             bestFWD = hizFWD;
         } else {
-            bestSolution.all = lozSolution.all;
+            bestSolution = lozSolution;
             bestSWR = lozSWR;
             bestFWD = lozFWD;
         }
     } else {
-        bestSolution.all = lozSolution.all;
+        bestSolution = lozSolution;
         bestSWR = lozSWR;
         bestFWD = lozFWD;
     }
@@ -488,7 +488,7 @@ void bracket_tune(uint8_t bracket, uint8_t step)
     #endif
     
     // Define bracket_area
-    bracket_area.all = search_area.all;
+    bracket_area = search_area;
     if (bestSolution.caps < bracket_area.maxCap - bracket) {
         bracket_area.maxCap = bestSolution.caps + bracket;
     }
@@ -619,7 +619,7 @@ void full_tune(void)
     if (tuning_flags.errors != 0) return;
     
     // If nothing failed, we can update currentRelays with the best solution
-    currentRelays[system_flags.antenna].all = bestSolution.all;
+    currentRelays[system_flags.antenna] = bestSolution;
     
     if (put_relays(&currentRelays[system_flags.antenna]) == -1)
     {
@@ -697,7 +697,7 @@ void test_memory(relays_s* memory)
     if (currentRF.swr < bestMemorySWR)
     {
         bestMemorySWR = currentRF.swr;
-        bestMemory.all = memory->all;
+        bestMemory = *memory;
     }
 }
 
@@ -706,7 +706,7 @@ void restore_best_memory(void)
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
     println("  restore_best_memory");
     #endif
-    currentRelays[system_flags.antenna].all = bestMemory.all;
+    currentRelays[system_flags.antenna] = bestMemory;
     put_relays(&currentRelays[system_flags.antenna]);
 }
 
