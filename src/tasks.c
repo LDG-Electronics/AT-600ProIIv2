@@ -21,13 +21,44 @@ struct{
     uint8_t numberOfTasks;
 }tasks;
 
-task_s test_task;
-
 /* ************************************************************************** */
 // task manipulation utilities
 
+void print_task(task_s *task)
+{
+    printf("task name: %s", task->name);
+}
+
+void print_task_queue(void)
+{
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+
+    println("-----------------------------------------------");
+	println("Task Queue Debug");
+    println("");
+
+    printf("queue contains: %d tasks", tasks.numberOfTasks);
+
+    if(tasks.numberOfTasks == 0) return;
+
+    uint8_t nextID = tasks.firstTask;
+
+    // step through the list and print each task
+    for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
+    {
+        printf("Task #%d: %s", i, tasks.queue[nextID].name);
+        // step to the next task in the queue
+        nextID = tasks.queue[nextID].nextTask;
+    }
+
+    #endif
+}
+
+/* -------------------------------------------------------------------------- */
+
 static void task_clear(task_s *task)
 {
+    task->name = NULL;
     task->event_callback = NULL;
     task->scheduled_time = 0;
     task->repeat = 0;
@@ -35,24 +66,13 @@ static void task_clear(task_s *task)
     task->prevTask = 0;
 }
 
-static void task_raw_insert(task_s *task, uint8_t index)
-{
-    tasks.queue[index].event_callback = NULL;
-    tasks.queue[index].scheduled_time = 0;
-    tasks.queue[index].repeat = 0;
-    tasks.queue[index].nextTask = 0;
-    tasks.queue[index].prevTask = 0;
-}
 /*  task_insert_sorted() inserts a new task into the queue at the correct location
 
 */
-static void task_insert_sorted(task_s *newTask)
-{
-    uint8_t newID = 0;
-    uint8_t nextID = tasks.firstTask;
-    uint8_t prevID = 0;
-
+static void task_sorted_insert(task_s *newTask)
+{   
     // identify an empty slot in the queue
+    uint8_t newID; // location of new task
     for(newID = 0; newID < MAX_NUM_OF_TASKS; newID++)
     {
         if(tasks.queue[newID].scheduled_time == 0) break;
@@ -61,6 +81,13 @@ static void task_insert_sorted(task_s *newTask)
     // copy newTask into the empty slot
     tasks.queue[newID] = *newTask;
 
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        printf("empty slot found at %d\r\n", newID);
+    #endif
+
+    uint8_t nextID = tasks.firstTask;
+    uint8_t prevID = 0;
+    
     // step through the list and find where newTask belongs
     for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
     {
@@ -73,6 +100,10 @@ static void task_insert_sorted(task_s *newTask)
         // step to the next task in the queue
         nextID = tasks.queue[nextID].nextTask;
     }
+
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        printf("newTask will be inserted before task %d\r\n", nextID);
+    #endif
 
     if (nextID == tasks.firstTask) {
         // newTask is the new firstTask
@@ -100,8 +131,15 @@ static void task_insert_sorted(task_s *newTask)
     }
 
     tasks.numberOfTasks++;
-}
 
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        printf("the queue now contains %d tasks\r\n", tasks.numberOfTasks);
+    #endif
+}
+/*  task_remove() removes a specified task from the queue, and updates its
+    neighbors nextTask and prevTask pointers
+
+*/
 static void task_remove(uint8_t taskID)
 {
     uint8_t nextID = 0;
@@ -137,16 +175,17 @@ static void task_remove(uint8_t taskID)
 void tasks_init(void)
 {
     tasks.firstTask = 0;
+    tasks.numberOfTasks = 0;
 
+    // clear task queue
     for(uint8_t i = 0; i < MAX_NUM_OF_TASKS; i++)
     {
         task_clear(&tasks.queue[i]);
     }
-
-    task_clear(&test_task);
 }
 
-int8_t task_register(task_callback_s callback, uint24_t time, uint8_t repeat)
+int8_t task_register(char *name, task_callback_s callback, 
+                     uint24_t time, uint16_t repeat)
 {
     uint8_t nextID = 0;
     uint8_t prevID = 0;
@@ -158,22 +197,40 @@ int8_t task_register(task_callback_s callback, uint24_t time, uint8_t repeat)
     task_s new_task;
     task_clear(&new_task);
 
-    task_insert_sorted(&new_task);
+    // populate the new task
+    new_task.name = name;
+    new_task.event_callback = callback;
+    new_task.scheduled_time = time;
+    new_task.repeat = repeat;
+
+    // add it to the queue
+    task_sorted_insert(&new_task);
 
     return 0;
 }
 
 void task_manager_update(void)
 {
-    // read current time
-    uint24_t current_time = systick_read();
-    
+    // return early if the queue is empty
+    if(tasks.numberOfTasks == 0) return;
+
     // return early if the first task isn't ready yet
-    if (tasks.queue[tasks.firstTask].scheduled_time < current_time) return;
+    uint24_t current_time = systick_read();
+    if(tasks.queue[tasks.firstTask].scheduled_time < current_time) return;
 
-    // execute the task
-    tasks.queue[tasks.firstTask].event_callback();
-
+    // grab a copy of the current task
+    task_s currentTask = tasks.queue[tasks.firstTask];
+    
     // remove the task from the list
     task_remove(tasks.firstTask);
+
+    // execute it
+    currentTask.event_callback();
+
+    // if the task should be repeated, re-register it
+    if(currentTask.repeat != 0)
+    {
+        currentTask.scheduled_time = current_time + currentTask.repeat;
+        task_sorted_insert(&currentTask);
+    }
 }
