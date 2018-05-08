@@ -4,10 +4,10 @@
 /* ************************************************************************** */
 /*  Notes on the task system
 
-    This is a minimalist task scheduler that's designed to complement a
-    superloop instead of replacing it.
+    This is a minimalist background task scheduler that's designed to complement
+    a superloop instead of replacing it.
 
-    task_manager_update() needs to be called regularly in the mainloop or
+    task_manager_update() needs to be called regularly in the main loop or
     equivalent structure. Any possible event callback should be relatively
     short, contain no majors delays, and should cause limited side-effects.
     
@@ -68,11 +68,12 @@ void print_task_queue(void)
 {
     #if LOG_LEVEL_TASKS >= LOG_EVENTS
 
+    println("");
     println("-----------------------------------------------");
 	println("Task Queue Debug");
     println("");
 
-    printf("queue contains: %d tasks", tasks.numberOfTasks);
+    printf("queue contains: %d tasks\r\n", tasks.numberOfTasks);
 
     if(tasks.numberOfTasks == 0) return;
 
@@ -81,17 +82,20 @@ void print_task_queue(void)
     // step through the list and print each task
     for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
     {
-        printf("Task #%d: %s", i, tasks.queue[nextID].name);
+        printf("Task #%d: %s\r\n", i, tasks.queue[nextID].name);
         // step to the next task in the queue
         nextID = tasks.queue[nextID].nextTask;
     }
+
+    println("-----------------------------------------------");
+    println("");
 
     #endif
 }
 
 /* -------------------------------------------------------------------------- */
 
-/*  task_clear() initializes a new task_s object with blank default values
+/*  task_clear() initializes a task_s object with blank default values
 
 */
 static void task_clear(task_s *task)
@@ -104,11 +108,8 @@ static void task_clear(task_s *task)
     task->prevTask = 0;
 }
 
-/*  task_insert_sorted() inserts a new task into the queue at the correct location
-
-*/
-static void task_sorted_insert(task_s *newTask)
-{   
+static void task_insert(task_s *newTask, uint8_t index)
+{
     // identify an empty slot in the queue
     uint8_t newID; // location of new task
     for(newID = 0; newID < MAX_NUM_OF_TASKS; newID++)
@@ -116,32 +117,12 @@ static void task_sorted_insert(task_s *newTask)
         if(tasks.queue[newID].scheduled_time == 0) break;
     }
 
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        printf("\tempty slot found at %d\r\n", newID);
+    #endif
+
     // copy newTask into the empty slot
     tasks.queue[newID] = *newTask;
-
-    #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        printf("empty slot found at %d\r\n", newID);
-    #endif
-
-    uint8_t nextID = tasks.firstTask;
-    uint8_t prevID = 0;
-    
-    // step through the list and find where newTask belongs
-    for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
-    {
-        if(tasks.queue[nextID].scheduled_time < tasks.queue[newID].scheduled_time)
-        {
-            // if newTask is sooner than the next task, then newTask will be
-            // inserted before the next task
-            break;
-        }
-        // step to the next task in the queue
-        nextID = tasks.queue[nextID].nextTask;
-    }
-
-    #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        printf("newTask will be inserted before task %d\r\n", nextID);
-    #endif
 
     if (nextID == tasks.firstTask) {
         // newTask is the new firstTask
@@ -171,8 +152,40 @@ static void task_sorted_insert(task_s *newTask)
     tasks.numberOfTasks++;
 
     #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        printf("the queue now contains %d tasks\r\n", tasks.numberOfTasks);
+        printf("\tthe queue now contains %d tasks\r\n", tasks.numberOfTasks);
     #endif
+}
+
+/*  task_insert_sorted() inserts a new task into the queue at the correct location
+
+*/
+static void task_sorted_insert(task_s *newTask)
+{   
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        println("task_sorted_insert");
+    #endif
+
+    uint8_t nextID = tasks.firstTask;
+    uint8_t prevID = 0;
+    
+    // step through the list and find where newTask belongs
+    for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
+    {
+        if(*newTask.scheduled_time < tasks.queue[nextID].scheduled_time)
+        {
+            // if newTask is sooner than the next task, then newTask will be
+            // inserted before the next task
+            break;
+        }
+        // step to the next task in the queue
+        nextID = tasks.queue[nextID].nextTask;
+    }
+
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        printf("\tnewTask will be inserted before task %d\r\n", nextID);
+    #endif
+    
+    task_insert(newTask, nextID)
 }
 
 /*  task_remove() removes a specified task from the queue, and updates its
@@ -272,4 +285,44 @@ void task_manager_update(void)
         currentTask.scheduled_time = current_time + currentTask.repeat;
         task_sorted_insert(&currentTask);
     }
+}
+
+/* ************************************************************************** */
+
+void task_beep(void)
+{
+    println("beep");
+}
+
+void task_boop(void)
+{
+    println("boop");
+}
+
+void task_fizz(void)
+{
+    println("fizz");
+}
+
+void task_buzz(void)
+{
+    println("buzz");
+}
+
+void task_self_test(void)
+{
+    task_register((char*)"beep", task_beep, 1000, 0);
+    delay_ms(10);
+
+    task_register((char*)"boop", task_boop, 2000, 0);
+    delay_ms(10);
+
+    task_register((char*)"fizz", task_fizz, 3000, 0);
+    delay_ms(10);
+
+    task_register((char*)"buzz", task_buzz, 4000, 0);
+    delay_ms(10);
+
+    print_task_queue();
+
 }
