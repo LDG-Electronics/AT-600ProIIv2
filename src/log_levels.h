@@ -25,6 +25,7 @@
 #define LOG_LEVEL_RF_SENSOR LOG_SILENT
 #define LOG_LEVEL_RELAYS LOG_SILENT
 #define LOG_LEVEL_STARTUP LOG_SILENT
+#define LOG_LEVEL_TASKS LOG_SILENT
 #define LOG_LEVEL_TUNING LOG_SILENT
 
 /* ************************************************************************** */
