@@ -16,4 +16,6 @@ extern int8_t task_register(char *name, task_callback_s callback,
 
 extern void task_manager_update(void);
 
+extern void task_self_test(void);
+
 #endif

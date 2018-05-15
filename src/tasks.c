@@ -14,7 +14,6 @@
     Timing is not particularly strict in this scheduler, especially because it
     allows the main program to block at will. This is desirable behavior in many
     embedded devices.
-
 */
 
 /* ************************************************************************** */
@@ -23,36 +22,28 @@
     The fields are:
     name: a string that identifies the task
     event_callback: a function pointer that event a task performs
-    scheduled_time: the task will be performed when the current system time
+    scheduledTime: the task will be performed when the current system time
                     equals this scheduled time
     repeat: if the task is to be repeated, it will be re-registered this number
             of system ticks into the future
-    nextTask and prevTask: indexes used to refer to tasks neighbors in the
-                           doubly-linked-list
 */
 typedef struct {
     char *name;
     task_callback_s event_callback;
-    uint24_t scheduled_time;
+    uint24_t scheduledTime;
     uint16_t repeat;
-    uint8_t nextTask;
-    uint8_t prevTask;
 } task_s;
 
 /* ************************************************************************** */
 /*  This structure stores the event queue and related data.
 
-    The event queue is a doubly-linked-list, but using array indexes instead of
-    pointers. This keeps us from needing dynamic memory allocation like a 
-    normal linked list, and SHOULD allow faster lookups than actual pointers,
-    considering the 8bit system this is designed for.
 
 */
 #define MAX_NUM_OF_TASKS 32
+#define FIRST_TASK 0
 
 struct{
     task_s queue[MAX_NUM_OF_TASKS];
-    uint8_t firstTask;
     uint8_t numberOfTasks;
 }tasks;
 
@@ -61,7 +52,7 @@ struct{
 
 void print_task(task_s *task)
 {
-    printf("task name: %s", task->name);
+    printf("task name: %s @%u\r\n", task->name, task->scheduledTime);
 }
 
 void print_task_queue(void)
@@ -69,25 +60,19 @@ void print_task_queue(void)
     #if LOG_LEVEL_TASKS >= LOG_EVENTS
 
     println("");
-    println("-----------------------------------------------");
-	println("Task Queue Debug");
+    println("-----");
+    printf("Task queue contains: %d tasks\r\n", tasks.numberOfTasks);
     println("");
 
-    printf("queue contains: %d tasks\r\n", tasks.numberOfTasks);
-
     if(tasks.numberOfTasks == 0) return;
-
-    uint8_t nextID = tasks.firstTask;
 
     // step through the list and print each task
     for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
     {
-        printf("Task #%d: %s\r\n", i, tasks.queue[nextID].name);
-        // step to the next task in the queue
-        nextID = tasks.queue[nextID].nextTask;
+        print_task(&tasks.queue[i]);
     }
 
-    println("-----------------------------------------------");
+    println("-----");
     println("");
 
     #endif
@@ -102,123 +87,140 @@ static void task_clear(task_s *task)
 {
     task->name = NULL;
     task->event_callback = NULL;
-    task->scheduled_time = 0;
+    task->scheduledTime = UINT24_MAX;
     task->repeat = 0;
-    task->nextTask = 0;
-    task->prevTask = 0;
 }
 
-static void task_insert(task_s *newTask, uint8_t index)
+
+// sort the task queue in ascending order of scheduledTime
+
+static void swap_tasks_in_queue(uint8_t source, uint8_t destination){
+    task_s tempCopyOfTask;
+    tempCopyOfTask = tasks.queue[destination];
+    tasks.queue[destination] = tasks.queue[source];
+    tasks.queue[source] = tempCopyOfTask;
+}
+
+
+static void ians_insertion_sort(){
+    int8_t indexOfLastSortedElement = -1;
+    uint8_t currentTaskInQueue;
+    uint8_t currentElementBeingSwappedLeft;
+    uint8_t currentSortedElement;
+    task_s tempCopyOfTask;
+
+    // us_stopwatch_begin();
+
+    if (tasks.numberOfTasks == 1){ // Todo: explain why this is weird.
+        return;
+    }
+
+    // Go through each existing task in the queue...
+    for (currentTaskInQueue = 0; currentTaskInQueue < tasks.numberOfTasks; currentTaskInQueue++){
+        // ...and compare it to all of the tasks that are going to be in the group of tasks that are sorted already.
+        // Obviously this group won't have anything in it to start of with, but it will grow over time.
+        // As it grows, we'll store them to the left of the array - closer to index zero. And we'll keep track of it with indexOfLastSortedElement.
+        // So up to and including the indexOfLastSortedElement, everything's sorted.
+        
+        // Here we go.
+        // We'll create a variable called currentSortedElement to keep track of which of the sorted elements we're working with.
+        // We'll also use the indexOftheLastSortedElement to know where to start comparing. We're starting with indexOfTheLastSortedElement because...
+        // ...we want to figure out where in the group of sorted elements we should stick the unsorted thing we're working with - the currentTaskInQueue that we're looking at.
+        // So we'll go from right to left through the sorted elements and compare each element to the element we're inserting to see which is smaller.
+        // If the element we're inserting is smaller, then we need to keep going through the array to the left until we find it isn't (or we get to the front of the array).
+        // Then we'll know that we're in the right place to insert the element.
+        // But wait - where will we put it!
+        // To ensure that there's a place to put it, we're going to move the sorted elements that are bigger than the element we're inserting to the right. 
+        // (There will always be room to the right because we'll be pulling the element that we're inserting out of the array, that will happen to be just beyond the indexOfLastSortedElement because that's the same as the currentTaskInQueue-1)
+
+        if (indexOfLastSortedElement == -1){
+            indexOfLastSortedElement++;
+        } else {
+            currentElementBeingSwappedLeft = indexOfLastSortedElement+1;
+            // while there's an element to the left of the current element, swap it left until it's in the correct place
+            // todo: check if left exists function
+            while (currentElementBeingSwappedLeft-1 > -1 && tasks.queue[currentElementBeingSwappedLeft].scheduledTime < tasks.queue[currentElementBeingSwappedLeft-1].scheduledTime){
+                swap_tasks_in_queue(currentElementBeingSwappedLeft, currentElementBeingSwappedLeft-1);
+                // tempCopyOfTask = tasks.queue[currentElementBeingSwappedLeft-1];
+                // tasks.queue[currentElementBeingSwappedLeft-1] = tasks.queue[currentElementBeingSwappedLeft];
+                // tasks.queue[currentElementBeingSwappedLeft] = tempCopyOfTask;
+                currentElementBeingSwappedLeft--;
+            }
+            indexOfLastSortedElement++;
+        }
+    }
+    // us_stopwatch_end();
+}
+
+
+
+/*
+range: 1 (the space after the empty space when the first element, 0, is removed) to tasks.numberOfTasks-1 (the last existing task); basically, every index that has a "good" task in it
+swap(source, destination)
+swap(currentIndex,currentIndex-1)
+*/
+
+/*
+        copyOfCurrentTaskInQueue = tasks.queue[currentTaskInQueue];
+
+
+        for (currentSortedElement = indexOfLastSortedElement+1; currentSortedElement > -1; currentSortedElement--){
+            if(copyOfCurrentTaskInQueue.scheduledTime < tasks.queue[currentSortedElement].scheduledTime){// TODO: Is there any chance of index out of bounds here?
+                // move currentSortedElement right 
+                tasks.queue[currentSortedElement+1] = tasks.queue[currentSortedElement];
+            } else {
+                // correct insertion point found - put in that task!
+                tasks.queue[currentSortedElement] = copyOfCurrentTaskInQueue;
+                indexOfLastSortedElement++;
+            }
+        }
+    }
+*/
+    // Edge case analysis:
+    // If queue.numberOfTasks == 0, then the first for loop won't execute.
+    // If queue.numberOfTasks == 1, then the for loops will execute enough to run the if statement once, which will trigger the else and produce the desired result.
+    // If queue.numberOfTasks == 2, 
+
+// TODO: Check the edge cases: What if there aren't any sorted elements, like at the very beginning of this process?
+// TODO: Check if there's space in the queue before we add a task.
+    //us_stopwatch_end();
+
+// insert a task into the queue and then sort it
+static void task_insert_and_sort(task_s *newTask)
 {
-    // identify an empty slot in the queue
-    uint8_t newID; // location of new task
-    for(newID = 0; newID < MAX_NUM_OF_TASKS; newID++)
+    // make sure the array isn't full
+    if(tasks.numberOfTasks == MAX_NUM_OF_TASKS)
     {
-        if(tasks.queue[newID].scheduled_time == 0) break;
+        return;
     }
 
-    #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        printf("\tempty slot found at %d\r\n", newID);
-    #endif
-
-    // copy newTask into the empty slot
-    tasks.queue[newID] = *newTask;
-
-    if (nextID == tasks.firstTask) {
-        // newTask is the new firstTask
-
-        // link the old first task to the new task
-        tasks.queue[tasks.firstTask].prevTask = newID;
-
-        // link the new task to the old first task
-        tasks.queue[newID].nextTask = nextID;
-
-        // mark the new first task
-        tasks.firstTask = newID;
-    } else {
-        // newTask is in the middle of the list
-
-        // identify the previous 
-        prevID = tasks.queue[nextID].prevTask;
-
-        // update the new tasks pointers
-        tasks.queue[newID].nextTask = nextID;
-        tasks.queue[newID].prevTask = prevID;
-        // update the neighbor's pointers
-        tasks.queue[prevID].nextTask = newID;
-        tasks.queue[nextID].prevTask = newID;
-    }
-
+    tasks.queue[tasks.numberOfTasks] = *newTask;
     tasks.numberOfTasks++;
 
-    #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        printf("\tthe queue now contains %d tasks\r\n", tasks.numberOfTasks);
-    #endif
+    // sort_task_queue();
+    ians_insertion_sort();
 }
 
-/*  task_insert_sorted() inserts a new task into the queue at the correct location
-
-*/
-static void task_sorted_insert(task_s *newTask)
-{   
-    #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        println("task_sorted_insert");
-    #endif
-
-    uint8_t nextID = tasks.firstTask;
-    uint8_t prevID = 0;
-    
-    // step through the list and find where newTask belongs
-    for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
-    {
-        if(*newTask.scheduled_time < tasks.queue[nextID].scheduled_time)
-        {
-            // if newTask is sooner than the next task, then newTask will be
-            // inserted before the next task
-            break;
-        }
-        // step to the next task in the queue
-        nextID = tasks.queue[nextID].nextTask;
-    }
-
-    #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        printf("\tnewTask will be inserted before task %d\r\n", nextID);
-    #endif
-    
-    task_insert(newTask, nextID)
-}
-
-/*  task_remove() removes a specified task from the queue, and updates its
-    neighbors nextTask and prevTask pointers
-
-*/
+// remove a specified task from the queue and then sort it
 static void task_remove(uint8_t taskID)
 {
-    uint8_t nextID = 0;
-    uint8_t prevID = 0;
-
-    if(taskID == tasks.firstTask) {
-        // the task to be removed is the first one on the list
-        nextID = tasks.queue[taskID].nextTask;
-        
-        tasks.firstTask = nextID;
-        // update the neighbor's pointers
-        tasks.queue[nextID].prevTask = 0;
-    } else {
-        // the task to be removed is in the middle of the list
-
-        // identify the neighbors of the task to be removed
-        nextID = tasks.queue[taskID].nextTask;
-        prevID = tasks.queue[taskID].prevTask;
-
-        // update the neighbor's pointers
-        tasks.queue[prevID].nextTask = nextID;
-        tasks.queue[nextID].prevTask = prevID;
+    // make sure the array isn't empty
+    if(tasks.numberOfTasks == 0)
+    {
+        #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        println("\ttask removal failed, queue already empty");
+        #endif
+        return;
     }
 
     task_clear(&tasks.queue[taskID]);
-
     tasks.numberOfTasks--;
+
+    // shuffle the array leftwards
+    for(uint8_t i = taskID; i < tasks.numberOfTasks + 1; i++)
+    {
+        swap_tasks_in_queue(i + 1, i);
+    }
 }
 
 /* ************************************************************************** */
@@ -226,7 +228,6 @@ static void task_remove(uint8_t taskID)
 
 void tasks_init(void)
 {
-    tasks.firstTask = 0;
     tasks.numberOfTasks = 0;
 
     // clear task queue
@@ -239,24 +240,25 @@ void tasks_init(void)
 int8_t task_register(char *name, task_callback_s callback, 
                      uint24_t time, uint16_t repeat)
 {
-    uint8_t nextID = 0;
-    uint8_t prevID = 0;
+    println("task_register");
 
     // check that the queue isn't full
     if(tasks.numberOfTasks == MAX_NUM_OF_TASKS) return -1;
 
     // create and init a new task object
-    task_s new_task;
-    task_clear(&new_task);
+    task_s newTask;
+    task_clear(&newTask);
 
     // populate the new task
-    new_task.name = name;
-    new_task.event_callback = callback;
-    new_task.scheduled_time = time;
-    new_task.repeat = repeat;
+    newTask.name = name;
+    newTask.event_callback = callback;
+    newTask.scheduledTime = time;
+    newTask.repeat = repeat;
+
+    print_task(&newTask);
 
     // add it to the queue
-    task_sorted_insert(&new_task);
+    task_insert_and_sort(&newTask);
 
     return 0;
 }
@@ -268,61 +270,91 @@ void task_manager_update(void)
 
     // return early if the first task isn't ready yet
     uint24_t current_time = systick_read();
-    if(tasks.queue[tasks.firstTask].scheduled_time < current_time) return;
+    if(tasks.queue[FIRST_TASK].scheduledTime > current_time) return;
+    printf("\r\ntask is ready @%u ", current_time);
 
-    // grab a copy of the current task
-    task_s currentTask = tasks.queue[tasks.firstTask];
-    
-    // remove the task from the list
-    task_remove(tasks.firstTask);
+    // Make sure we don't execute a null function pointer
+    if(tasks.queue[FIRST_TASK].event_callback == NULL){
+        print(">NULL POINTER EXCEPTION< ");
+        // while(1); // trap
+    }
+
+    print_task(&tasks.queue[FIRST_TASK]);
 
     // execute it
-    currentTask.event_callback();
+    // tasks.queue[FIRST_TASK].event_callback();
 
     // if the task should be repeated, re-register it
-    if(currentTask.repeat != 0)
+    if(tasks.queue[FIRST_TASK].repeat != 0)
     {
-        currentTask.scheduled_time = current_time + currentTask.repeat;
-        task_sorted_insert(&currentTask);
+        // grab a copy of the current task
+        task_s currentTask = tasks.queue[FIRST_TASK];
+
+        currentTask.scheduledTime = current_time + currentTask.repeat;
+        task_insert_and_sort(&currentTask);
     }
+
+    // remove the task from the list
+    task_remove(FIRST_TASK);
 }
 
 /* ************************************************************************** */
 
 void task_beep(void)
 {
+    // uint24_t currentTime = systick_read();
+    // printf("beep %d\r\n", currentTime);
     println("beep");
 }
 
 void task_boop(void)
 {
+    // uint24_t currentTime = systick_read();
+    // printf("boop %d\r\n", currentTime);
     println("boop");
 }
 
 void task_fizz(void)
 {
+    // uint24_t currentTime = systick_read();
+    // printf("fizz %d\r\n", currentTime);
     println("fizz");
 }
 
 void task_buzz(void)
 {
+    // uint24_t currentTime = systick_read();
+    // printf("buzz %d\r\n", currentTime);
     println("buzz");
 }
 
 void task_self_test(void)
 {
-    task_register((char*)"beep", task_beep, 1000, 0);
+    println("");
+    println("");
+
+    println("=====");
+    task_register((char*)"fizz", &task_fizz, 3000, 0);
+    // print_task_queue();
     delay_ms(10);
 
-    task_register((char*)"boop", task_boop, 2000, 0);
+    println("=====");
+    task_register((char*)"buzz", &task_buzz, 4000, 0);
+    // print_task_queue();
+    delay_ms(10);
+    
+    println("=====");
+    task_register((char*)"boop", &task_boop, 2000, 0);
+    // print_task_queue();
     delay_ms(10);
 
-    task_register((char*)"fizz", task_fizz, 3000, 0);
+    println("=====");
+    task_register((char*)"beep", &task_beep, 1000, 0);
+    // print_task_queue();
     delay_ms(10);
-
-    task_register((char*)"buzz", task_buzz, 4000, 0);
     delay_ms(10);
-
+    delay_ms(10);
+    delay_ms(10);
+    delay_ms(10);
     print_task_queue();
-
 }
