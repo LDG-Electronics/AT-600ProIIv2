@@ -19,6 +19,10 @@ void systick_init(void)
 
     SMT1CON0bits.EN = 1; // enable SMT peripheral
     SMT1CON1bits.GO = 1; // Incrementing, acquiring data is enabled
+
+    SMT1TMRL = 0;
+    SMT1TMRH = 0;
+    SMT1TMRU = 0;
 }
 
 /* -------------------------------------------------------------------------- */
