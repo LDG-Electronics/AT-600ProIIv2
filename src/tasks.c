@@ -240,7 +240,7 @@ void tasks_init(void)
 int8_t task_register(char *name, task_callback_s callback, 
                      uint24_t time, uint16_t repeat)
 {
-    println("task_register");
+    print("task_register: ");
 
     // check that the queue isn't full
     if(tasks.numberOfTasks == MAX_NUM_OF_TASKS) return -1;
@@ -269,9 +269,9 @@ void task_manager_update(void)
     if(tasks.numberOfTasks == 0) return;
 
     // return early if the first task isn't ready yet
-    uint24_t current_time = systick_read();
-    if(tasks.queue[FIRST_TASK].scheduledTime > current_time) return;
-    printf("\r\ntask is ready @%u ", current_time);
+    uint24_t currentTime = systick_read();
+    if(tasks.queue[FIRST_TASK].scheduledTime > currentTime) return;
+    printf("task is ready @%u ", currentTime);
 
     // Make sure we don't execute a null function pointer
     if(tasks.queue[FIRST_TASK].event_callback == NULL){
@@ -282,7 +282,8 @@ void task_manager_update(void)
     print_task(&tasks.queue[FIRST_TASK]);
 
     // execute it
-    // tasks.queue[FIRST_TASK].event_callback();
+    println("");
+    tasks.queue[FIRST_TASK].event_callback(currentTime);
 
     // if the task should be repeated, re-register it
     if(tasks.queue[FIRST_TASK].repeat != 0)
@@ -290,7 +291,7 @@ void task_manager_update(void)
         // grab a copy of the current task
         task_s currentTask = tasks.queue[FIRST_TASK];
 
-        currentTask.scheduledTime = current_time + currentTask.repeat;
+        currentTask.scheduledTime = currentTime + currentTask.repeat;
         task_insert_and_sort(&currentTask);
     }
 
@@ -300,32 +301,28 @@ void task_manager_update(void)
 
 /* ************************************************************************** */
 
-void task_beep(void)
+void task_beep(uint24_t currentTime)
 {
-    // uint24_t currentTime = systick_read();
-    // printf("beep %d\r\n", currentTime);
-    println("beep");
+    printf("beep %d\r\n", currentTime);
+    // println("beep");
 }
 
-void task_boop(void)
+void task_boop(uint24_t currentTime)
 {
-    // uint24_t currentTime = systick_read();
-    // printf("boop %d\r\n", currentTime);
-    println("boop");
+    printf("boop %d\r\n", currentTime);
+    // println("boop");
 }
 
-void task_fizz(void)
+void task_fizz(uint24_t currentTime)
 {
-    // uint24_t currentTime = systick_read();
-    // printf("fizz %d\r\n", currentTime);
-    println("fizz");
+    printf("fizz %d\r\n", currentTime);
+    // println("fizz");
 }
 
-void task_buzz(void)
+void task_buzz(uint24_t currentTime)
 {
-    // uint24_t currentTime = systick_read();
-    // printf("buzz %d\r\n", currentTime);
-    println("buzz");
+    printf("buzz %d\r\n", currentTime);
+    // println("buzz");
 }
 
 void task_self_test(void)
@@ -334,27 +331,36 @@ void task_self_test(void)
     println("");
 
     println("=====");
-    task_register((char*)"fizz", &task_fizz, 3000, 0);
+    printf("task_beep: %u\r\n", task_beep);
+    printf("task_boop: %d\r\n", task_boop);
+    printf("task_fizz: %p\r\n", task_fizz);
+    printf("task_buzz: %p\r\n", task_buzz);
+
+    println("");
+    println("=====");
+    task_register((char*)"fizz", task_fizz, 3000, 0);
     // print_task_queue();
     delay_ms(10);
 
     println("=====");
-    task_register((char*)"buzz", &task_buzz, 4000, 0);
+    task_register((char*)"buzz", task_buzz, 4000, 0);
     // print_task_queue();
     delay_ms(10);
     
     println("=====");
-    task_register((char*)"boop", &task_boop, 2000, 0);
+    task_register((char*)"boop", task_boop, 2000, 0);
     // print_task_queue();
     delay_ms(10);
 
     println("=====");
-    task_register((char*)"beep", &task_beep, 1000, 0);
+    task_register((char*)"beep", task_beep, 1000, 0);
     // print_task_queue();
     delay_ms(10);
-    delay_ms(10);
-    delay_ms(10);
-    delay_ms(10);
-    delay_ms(10);
+
     print_task_queue();
+
+    task_beep(0);
+    task_boop(0);
+    task_fizz(0);
+    task_buzz(0);
 }
