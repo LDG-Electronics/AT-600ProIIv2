@@ -13,7 +13,7 @@
 #define LOG_ALL         10
 
 // Entire log system enable/disable
-#define LOG_LEVEL_SYSTEM LOG_SILENT
+#define LOG_LEVEL_SYSTEM LOG_ALL
 
 // Subsystems
 #define LOG_LEVEL_DISPLAY LOG_SILENT
@@ -25,7 +25,7 @@
 #define LOG_LEVEL_RF_SENSOR LOG_SILENT
 #define LOG_LEVEL_RELAYS LOG_SILENT
 #define LOG_LEVEL_STARTUP LOG_SILENT
-#define LOG_LEVEL_TASKS LOG_SILENT
+#define LOG_LEVEL_TASKS LOG_ALL
 #define LOG_LEVEL_TUNING LOG_SILENT
 
 /* ************************************************************************** */

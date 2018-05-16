@@ -11,6 +11,9 @@ void main(void)
 {
     startup();
 
+    delay_ms(100);
+    task_self_test();
+
     while(1)
     {
         // Relay buttons
