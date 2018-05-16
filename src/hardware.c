@@ -60,7 +60,7 @@ void shutdown(void)
     buttons_init();
 }
 
-void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR()
+void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR(void)
 {   
     // interrupt on change for pin IOCAF3
     if(IOCAFbits.IOCAF3 == 1)
@@ -210,19 +210,31 @@ void interrupt_init(void)
 void check_reset_vector(void)
 {
     if(PCON0bits.STKOVF == 1) {
-        println("Stack Overflow");
+        println("");
+        println("");
+        println(">>> Stack Overflow <<<");
+        while(1); // trap
     }
     
     if(PCON0bits.STKUNF == 1) {
-        println("Stack Underflow");
+        println("");
+        println("");
+        println(">>> Stack Underflow <<<");
+        while(1); // trap
     }
     
     if(PCON0bits.RMCLR == 0) {
-        println("MCLR RESET");
+        println("");
+        println("");
+        println(">>> MCLR RESET <<<");
+        while(1); // trap
     }
     
     if(PCON0bits.RI == 0) {
-        println("RESET");
+        println("");
+        println("");
+        println(">>> RESET <<<");
+        while(1); // trap
     }
     
 }
