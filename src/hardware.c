@@ -9,6 +9,7 @@
 void osc_init(void);
 void port_init(void);
 void interrupt_init(void);
+void check_reset_vector(void);
 
 /* ************************************************************************** */
 
@@ -31,6 +32,8 @@ void startup(void)
     tasks_init();
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
+
+    check_reset_vector();
 
     // Push out the initial relay settings
     put_relays(&currentRelays[system_flags.antenna]); // must be after flags_init()
@@ -202,4 +205,24 @@ void interrupt_init(void)
     PIE9 = 0x0;
     
     INTCON0bits.GIE = 1;
+}
+
+void check_reset_vector(void)
+{
+    if(PCON0bits.STKOVF == 1) {
+        println("Stack Overflow");
+    }
+    
+    if(PCON0bits.STKUNF == 1) {
+        println("Stack Underflow");
+    }
+    
+    if(PCON0bits.RMCLR == 0) {
+        println("MCLR RESET");
+    }
+    
+    if(PCON0bits.RI == 0) {
+        println("RESET");
+    }
+    
 }
