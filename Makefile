@@ -44,6 +44,8 @@ CFLAGS += -O$(BUILD_DIR)/$(PROJECT)
 CFLAGS += --FLOAT=24 --DOUBLE=32
 # Tells the compiler to report compilation times
 CFLAGS += --TIME
+# Use hybrid stack style
+CFLAGS += --STACK=hybrid
 
 # TODO: Fix the Vector Table!
 # This flag suppresses about 80 warning messages complaining that the Vector Tables
