@@ -223,18 +223,18 @@ void check_reset_vector(void)
         while(1); // trap
     }
     
-    if(PCON0bits.RMCLR == 0) {
-        println("");
-        println("");
-        println(">>> MCLR RESET <<<");
-        while(1); // trap
-    }
+    // if(PCON0bits.RMCLR == 0) {
+    //     println("");
+    //     println("");
+    //     println(">>> MCLR RESET <<<");
+    //     while(1); // trap
+    // }
     
-    if(PCON0bits.RI == 0) {
-        println("");
-        println("");
-        println(">>> RESET <<<");
-        while(1); // trap
-    }
+    // if(PCON0bits.RI == 0) {
+    //     println("");
+    //     println("");
+    //     println(">>> RESET <<<");
+    //     while(1); // trap
+    // }
     
 }
