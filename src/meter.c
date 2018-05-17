@@ -1,8 +1,4 @@
 #include "includes.h"
-#include "meter.h"
-#include "adc.h"
-#include "pps.h"
-#include "uart.h"
 
 /* ************************************************************************** */
 // The meter update can contain zeros, so the terminator has to be something

@@ -1,7 +1,4 @@
 #include "includes.h"
-#include "buttons.h"
-#include "pins.h"
-#include "timer.h"
 
 /* ************************************************************************** */
 

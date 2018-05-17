@@ -1,7 +1,4 @@
 #include "includes.h"
-#include "shell.h"
-#include "uart.h"
-#include "pps.h"
 
 /* ************************************************************************** */
 

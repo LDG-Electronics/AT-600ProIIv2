@@ -1,7 +1,4 @@
 #include "includes.h"
-#include "uart.h"
-#include "hardware.h"
-#include "fast_ring_buffer.h"
 
 /* ************************************************************************** */
 // Common UART settings

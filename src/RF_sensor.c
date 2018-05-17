@@ -1,12 +1,4 @@
 #include "includes.h"
-#include "RF_sensor.h"
-#include "adc.h"
-#include "calibration.h"
-#include "pps.h"
-#include "pins.h"
-#include "hardware.h"
-#include "timer.h"
-#include <math.h>
 
 /* ************************************************************************** */
 

@@ -1,9 +1,4 @@
 #include "includes.h"
-#include "display.h"
-#include "spi.h"
-#include "pins.h"
-#include "buttons.h"
-#include "delay.h"
 
 /* ************************************************************************** */
 
