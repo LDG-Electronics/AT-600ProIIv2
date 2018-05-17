@@ -44,8 +44,9 @@ CFLAGS += -O$(BUILD_DIR)/$(PROJECT)
 CFLAGS += --FLOAT=24 --DOUBLE=32
 # Tells the compiler to report compilation times
 CFLAGS += --TIME
-# Use hybrid stack style
-CFLAGS += --STACK=hybrid
+# Use hybrid-style stack. Additional fields are the desired size of, in order:
+# stack size of (main code : low priority ISRs : high priority ISRs)
+CFLAGS += --STACK=hybrid:auto:auto:auto
 
 # TODO: Fix the Vector Table!
 # This flag suppresses about 80 warning messages complaining that the Vector Tables
