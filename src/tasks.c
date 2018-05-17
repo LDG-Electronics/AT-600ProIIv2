@@ -52,7 +52,7 @@ struct{
 
 void print_task(task_s *task)
 {
-    printf("task:(%s@%lu)\r\n", task->name, task->scheduledTime);
+    printf("task:(%s@%d)\r\n", task->name, task->scheduledTime);
 }
 
 void print_task_queue(void)
@@ -271,7 +271,7 @@ void task_manager_update(void)
     uint24_t currentTime = systick_read();
     if(tasks.queue[FIRST_TASK].scheduledTime > currentTime) return;
     printf("task is ready @%u ", currentTime);
-    print_task(&tasks.queue[FIRST_TASK]);
+    // print_task(&tasks.queue[FIRST_TASK]);
 
     // Make sure we don't execute a null function pointer
     if(tasks.queue[FIRST_TASK].event_callback == NULL){
@@ -280,7 +280,10 @@ void task_manager_update(void)
     }
 
     // execute it
-    tasks.queue[FIRST_TASK].event_callback(currentTime);
+    printf("executing task:(name:%s)(ptr:%p)(time:%d)(repeat:%d)\r\n", 
+            tasks.queue[FIRST_TASK].name, tasks.queue[FIRST_TASK].event_callback, 
+            tasks.queue[FIRST_TASK].scheduledTime, tasks.queue[FIRST_TASK].repeat);
+    tasks.queue[FIRST_TASK].event_callback();
 
     // if the task should be repeated, re-register it
     if(tasks.queue[FIRST_TASK].repeat != 0)
@@ -326,78 +329,56 @@ void task_manager_update(void)
 
 */
 // asm("GLOBAL _task_beep");
-int8_t task_beep(uint24_t currentTime)
+void task_beep(void)
 {
+    uint24_t currentTime = systick_read();
     printf("beep %d\r\n", currentTime);
-
-    return 0;
 }
 
 // asm("GLOBAL _task_boop");
-int8_t task_boop(uint24_t currentTime)
+void task_boop(void)
 {
+    uint24_t currentTime = systick_read();
     printf("boop %d\r\n", currentTime);
-
-    return 0;
 }
 
 // asm("GLOBAL _task_fizz");
-int8_t task_fizz(uint24_t currentTime)
+void task_fizz(void)
 {
+    uint24_t currentTime = systick_read();
     printf("fizz %d\r\n", currentTime);
-
-    return 0;
 }
 
 // asm("GLOBAL _task_buzz");
-int8_t task_buzz(uint24_t currentTime)
+void task_buzz(void)
 {
+    uint24_t currentTime = systick_read();
     printf("buzz %d\r\n", currentTime);
-
-    return 0;
 }
 
 void task_self_test(void)
 {
     println("");
     println("");
-
-    // check the value of the function pointers, to see if the compiler is 
-    // removing the "uncalled" task functions
     println("=====");
+    println("Check function pointer values");
     printf("task_beep: %p\r\n", task_beep);
     printf("task_boop: %p\r\n", task_boop);
     printf("task_fizz: %p\r\n", task_fizz);
     printf("task_buzz: %p\r\n", task_buzz);
+    delay_ms(10);
 
     println("");
     println("=====");
+    println("Task setup");
     task_register((char*)"fizz", task_fizz, 3000, 0);
-    // print_task_queue();
-    delay_ms(10);
-
-    println("=====");
     task_register((char*)"buzz", task_buzz, 4000, 0);
-    // print_task_queue();
-    delay_ms(10);
-    
-    println("=====");
     task_register((char*)"boop", task_boop, 2000, 0);
-    // print_task_queue();
-    delay_ms(10);
-
-    println("=====");
     task_register((char*)"beep", task_beep, 1000, 0);
-    // print_task_queue();
     delay_ms(10);
 
+    println("");
+    println("=====");
+    println("Confirm task queue is sorted");
     print_task_queue();
-
-    // calling these functions after the return prevents the compiler from 
-    // optimizing them out, even though they're never called
-    return;
-    // task_beep(1);
-    // task_boop(2);
-    // task_fizz(3);
-    // task_buzz(4);
 }
