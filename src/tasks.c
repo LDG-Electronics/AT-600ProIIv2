@@ -240,8 +240,6 @@ void tasks_init(void)
 int8_t task_register(char *name, task_callback_s callback, 
                      uint24_t time, uint16_t repeat)
 {
-    print("registering ");
-
     // check that the queue isn't full
     if(tasks.numberOfTasks == MAX_NUM_OF_TASKS) return -1;
 
@@ -255,7 +253,8 @@ int8_t task_register(char *name, task_callback_s callback,
     newTask.scheduledTime = time;
     newTask.repeat = repeat;
 
-    print_task(&newTask);
+    printf("registering task:(name:%s)(ptr:%p)(time:%d)(repeat:%d)\r\n", 
+            newTask.name, newTask.event_callback, newTask.scheduledTime, newTask.repeat);
 
     // add it to the queue
     task_insert_and_sort(&newTask);
@@ -366,8 +365,8 @@ void task_self_test(void)
     // check the value of the function pointers, to see if the compiler is 
     // removing the "uncalled" task functions
     println("=====");
-    printf("task_beep: %u\r\n", task_beep);
-    printf("task_boop: %d\r\n", task_boop);
+    printf("task_beep: %p\r\n", task_beep);
+    printf("task_boop: %p\r\n", task_boop);
     printf("task_fizz: %p\r\n", task_fizz);
     printf("task_buzz: %p\r\n", task_buzz);
 
