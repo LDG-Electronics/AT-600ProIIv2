@@ -52,7 +52,7 @@ struct{
 
 void print_task(task_s *task)
 {
-    printf("task name: %s @%u\r\n", task->name, task->scheduledTime);
+    printf("task:(%s@%lu)\r\n", task->name, task->scheduledTime);
 }
 
 void print_task_queue(void)
@@ -240,7 +240,7 @@ void tasks_init(void)
 int8_t task_register(char *name, task_callback_s callback, 
                      uint24_t time, uint16_t repeat)
 {
-    print("task_register: ");
+    print("registering ");
 
     // check that the queue isn't full
     if(tasks.numberOfTasks == MAX_NUM_OF_TASKS) return -1;
@@ -272,17 +272,15 @@ void task_manager_update(void)
     uint24_t currentTime = systick_read();
     if(tasks.queue[FIRST_TASK].scheduledTime > currentTime) return;
     printf("task is ready @%u ", currentTime);
+    print_task(&tasks.queue[FIRST_TASK]);
 
     // Make sure we don't execute a null function pointer
     if(tasks.queue[FIRST_TASK].event_callback == NULL){
-        print(">NULL POINTER EXCEPTION< ");
+        println(">>> NULL POINTER EXCEPTION <<< ");
         // while(1); // trap
     }
 
-    print_task(&tasks.queue[FIRST_TASK]);
-
     // execute it
-    println("");
     tasks.queue[FIRST_TASK].event_callback(currentTime);
 
     // if the task should be repeated, re-register it
@@ -301,28 +299,63 @@ void task_manager_update(void)
 
 /* ************************************************************************** */
 
-void task_beep(uint24_t currentTime)
+/*  Notes on task debugging
+
+    I was getting really wierd null pointer issues that turned out to be caused
+    by XC8 optimizing away the task_xxxx() functions, because it can't tell that
+    they've been called.
+
+    One attempt to fix it is to change the task function pointer signature to
+    something other that void *ptr(void). This didn't make a difference.
+
+    One attempt is to add fake calls the functions in question. If you place
+    direct calls to the functions in question AFTER the last return statement
+    in another function, then the compiler will bitch about non-reachable code,
+    but doesn't remove the task functions.
+
+    Another attempt involves using an assembly directive to register the
+    function as a symbol from the assembler's perspective. This has the
+    dramatically undesirable side effect of generating pointless reentrant
+    copies of any functions that are called from inside the task functions,
+    because the compiler still can't properly identify where they belong on the
+    call graph.
+
+    Adding --STACK=hybrid to the CFLAGS in the Makefile makes SOME difference.
+    The null pointer error is gone, the task functions seem to be making it
+    through the compiler. The indirect function calls are still not being
+    completed.
+
+*/
+// asm("GLOBAL _task_beep");
+int8_t task_beep(uint24_t currentTime)
 {
     printf("beep %d\r\n", currentTime);
-    // println("beep");
+
+    return 0;
 }
 
-void task_boop(uint24_t currentTime)
+// asm("GLOBAL _task_boop");
+int8_t task_boop(uint24_t currentTime)
 {
     printf("boop %d\r\n", currentTime);
-    // println("boop");
+
+    return 0;
 }
 
-void task_fizz(uint24_t currentTime)
+// asm("GLOBAL _task_fizz");
+int8_t task_fizz(uint24_t currentTime)
 {
     printf("fizz %d\r\n", currentTime);
-    // println("fizz");
+
+    return 0;
 }
 
-void task_buzz(uint24_t currentTime)
+// asm("GLOBAL _task_buzz");
+int8_t task_buzz(uint24_t currentTime)
 {
     printf("buzz %d\r\n", currentTime);
-    // println("buzz");
+
+    return 0;
 }
 
 void task_self_test(void)
@@ -330,6 +363,8 @@ void task_self_test(void)
     println("");
     println("");
 
+    // check the value of the function pointers, to see if the compiler is 
+    // removing the "uncalled" task functions
     println("=====");
     printf("task_beep: %u\r\n", task_beep);
     printf("task_boop: %d\r\n", task_boop);
@@ -359,8 +394,11 @@ void task_self_test(void)
 
     print_task_queue();
 
-    task_beep(0);
-    task_boop(0);
-    task_fizz(0);
-    task_buzz(0);
+    // calling these functions after the return prevents the compiler from 
+    // optimizing them out, even though they're never called
+    return;
+    // task_beep(1);
+    // task_boop(2);
+    // task_fizz(3);
+    // task_buzz(4);
 }

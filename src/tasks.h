@@ -5,7 +5,7 @@
 
 // Function signature for a task callback function, to be implemented by the
 // caller of this library
-typedef void (*task_callback_s) (uint24_t);
+typedef int8_t (*task_callback_s) (uint24_t);
 
 /* ************************************************************************** */
 
