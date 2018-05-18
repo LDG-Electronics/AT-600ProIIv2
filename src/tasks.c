@@ -20,7 +20,7 @@
 
     The fields are:
     name: a string that identifies the task
-    event_callback: a function pointer that event a task performs
+    task_callback: a function pointer that event a task performs
     scheduledTime: the task will be performed when the current system time
                     equals this scheduled time
     repeat: if the task is to be repeated, it will be re-registered this number
@@ -28,7 +28,7 @@
 */
 typedef struct {
     char *name;
-    task_callback_s event_callback;
+    task_callback_s task_callback;
     uint24_t scheduledTime;
     uint16_t repeat;
 } task_s;
@@ -85,7 +85,7 @@ void print_task_queue(void)
 static void task_clear(task_s *task)
 {
     task->name = NULL;
-    task->event_callback = NULL;
+    task->task_callback = NULL;
     task->scheduledTime = UINT24_MAX;
     task->repeat = 0;
 }
@@ -248,12 +248,12 @@ int8_t task_register(char *name, task_callback_s callback,
 
     // populate the new task
     newTask.name = name;
-    newTask.event_callback = callback;
+    newTask.task_callback = callback;
     newTask.scheduledTime = time;
     newTask.repeat = repeat;
 
     printf("registering task:(name:%s)(ptr:%p)(time:%d)(repeat:%d)\r\n", 
-            newTask.name, newTask.event_callback, newTask.scheduledTime, newTask.repeat);
+            newTask.name, newTask.task_callback, newTask.scheduledTime, newTask.repeat);
 
     // add it to the queue
     task_insert_and_sort(&newTask);
@@ -273,16 +273,16 @@ void task_manager_update(void)
     // print_task(&tasks.queue[FIRST_TASK]);
 
     // Make sure we don't execute a null function pointer
-    if(tasks.queue[FIRST_TASK].event_callback == NULL){
+    if(tasks.queue[FIRST_TASK].task_callback == NULL){
         println(">>> NULL POINTER EXCEPTION <<< ");
         // while(1); // trap
     }
 
     // execute it
     printf("executing task:(name:%s)(ptr:%p)(time:%d)(repeat:%d)\r\n", 
-            tasks.queue[FIRST_TASK].name, tasks.queue[FIRST_TASK].event_callback, 
+            tasks.queue[FIRST_TASK].name, tasks.queue[FIRST_TASK].task_callback, 
             tasks.queue[FIRST_TASK].scheduledTime, tasks.queue[FIRST_TASK].repeat);
-    tasks.queue[FIRST_TASK].event_callback();
+    tasks.queue[FIRST_TASK].task_callback();
 
     // if the task should be repeated, re-register it
     if(tasks.queue[FIRST_TASK].repeat != 0)
