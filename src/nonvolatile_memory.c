@@ -12,13 +12,9 @@ void nvm_write(void)
     NVMCON1bits.WREN = 1; // Enable NVM writes
     
     // Magic Sequence - Do Not Change
-    #asm
-        MOVLW 0x55
-        MOVWF NVMCON2
-        MOVLW 0xAA
-        MOVWF NVMCON2
-        BSF   NVMCON1, 1 ;// sets WR bit, starting the write
-    #endasm
+    NVMCON2 = 0x55;
+    NVMCON2 = 0xAA;
+    NVMCON1bits.WR = 1;
     
     NVMCON1bits.WREN = 0; // Disable NVM writes
 }
