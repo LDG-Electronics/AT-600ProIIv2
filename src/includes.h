@@ -44,7 +44,7 @@
 #include "RF_sensor.h"
 #include "shell.h"
 #include "stopwatch.h"
-#include "tasks.h"
+#include "task_manager.h"
 #include "tuning.h"
 
 #endif	/* _INCLUDES_H_ */
