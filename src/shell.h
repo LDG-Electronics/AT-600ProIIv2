@@ -3,6 +3,12 @@
 
 /* ************************************************************************** */
 
+typedef enum {
+	SUCCESS = 0, 
+	FAILURE = 1, 
+	IOPENDING = -1
+}shell_return_value_s;
+
 #define SHELL_RET_SUCCESS			0
 #define SHELL_RET_FAILURE			1
 #define SHELL_RET_IOPENDING			-1
@@ -28,7 +34,7 @@
 /* ************************************************************************** */
 
 #define SHELL_VERSION_STRING "\r\nuShell 1.0.1"
-#define SHELL_PROMPT_STRING "device>"
+#define SHELL_PROMPT_STRING "$"
 
 // Defines the maximum number of commands that can be registered
 #define CONFIG_SHELL_MAX_COMMANDS 20
@@ -69,10 +75,12 @@ enum shell_errors {
 
 /* ************************************************************************** */
 
+// print functions for printing to the serial port
 extern void putch(const char data);
 extern void print(const char *string);
 extern void println(const char *string);
 
+/* ************************************************************************** */
 extern void shell_init(void);
 
 /*	@brief Registers a command with the command line library

@@ -200,6 +200,23 @@ void print_current_SWR_ln(void)
     println("");
 }
 
+/*  print_SWR_for_calibration()
+
+    This function provides data to a calibration routine that runs on an LDG
+    Servitor. The Servitor uses this data in conjunction with data from a
+    Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
+    compensation tables to improve the accuracy of the RF sensor.
+
+    (F, R, SWR,      period)
+    (0, 0, 0.000000, -1)
+*/
+
+void print_RF_calibration_data(void)
+{
+    printf("(%d, %d, %f, %d)\r\n", 
+            currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.period);
+}
+
 /* -------------------------------------------------------------------------- */
 
 int shell_get_RF(int argc, char** argv)
@@ -223,11 +240,18 @@ int shell_get_RF(int argc, char** argv)
     return SHELL_RET_SUCCESS;
 }
 
-/* ************************************************************************** */
+void task_RF_calibration(void)
+{
+    SWR_average();
+    currentRF.period = get_period();
+    // print_current_time();
+    print_RF_calibration_data();
+}
 
+/* ************************************************************************** */
 // tests
 
-/* print_SWR_samples()
+/*  print_SWR_samples()
 
     This function takes an SWR sample and prints it if it's different enough 
     from the previous samples.

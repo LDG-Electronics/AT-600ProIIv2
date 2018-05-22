@@ -3,6 +3,7 @@
 
 /* ************************************************************************** */
 
+// Global RF data format
 typedef union {
     struct {
         uint16_t forward;
@@ -44,6 +45,9 @@ extern void print_current_SWR_ln(void);
 
 // Shell command handler
 extern int shell_get_RF(int argc, char** argv);
+extern void task_RF_calibration(void);
+
+/* ************************************************************************** */
 
 // Tests
 void print_SWR_samples(uint8_t delta);
