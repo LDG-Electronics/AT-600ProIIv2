@@ -51,7 +51,7 @@ struct{
 
 static void print_task(task_s *task)
 {
-    printf("task:(name:%s)(ptr:%p)(time:%d)(repeat:%d)\r\n", 
+    printf("task:(name:%s)(ptr:%p)(time:%u)(repeat:%u)\r\n", 
             task->name, task->event_callback, task->scheduledTime, task->repeat);
 }
 
@@ -68,11 +68,10 @@ static void print_task_queue(void)
     for(uint8_t i = 0; i < tasks.numberOfTasks; i++)
     {
         print_task(&tasks.queue[i]);
-        // every fifth task, add a line break and wait for the UART to catch up 
+        // every fifth task, add a line break
         if(((i + 1) % 5) == 0)
         {
             println("");
-            delay_ms(50);
         }
     }
 
@@ -433,7 +432,6 @@ void print_object_sizes(void)
     printf("sizeof tasks: %d bytes\r\n", sizeof(tasks));
     printf("sizeof tasks: %d bytes\r\n", sizeof(tasks.queue));
     printf("sizeof tasks: %d bytes\r\n", sizeof(tasks.queue[0]));
-    delay_ms(100);
 }
 
 // print the values of the function pointers to cross-reference against other output
@@ -446,7 +444,6 @@ void print_pointer_values(void)
     printf("task_boop: %p\r\n", task_boop);
     printf("task_fizz: %p\r\n", task_fizz);
     printf("task_buzz: %p\r\n", task_buzz);
-    delay_ms(100);
 }
 
 void task_queue_fill_test(void)
@@ -461,42 +458,36 @@ void task_queue_fill_test(void)
     task_register("3", task_dummy, 12000, 0);
     task_register("4", task_dummy, 13000, 0);
     task_register("5", task_dummy, 7000, 0);
-    delay_ms(10);
 
     task_register("6", task_dummy, 5000, 0);
     task_register("7", task_dummy, 9000, 0);
     task_register("8", task_dummy, 5000, 0);
     task_register("9", task_dummy, 5000, 0);
     task_register("10", task_dummy, 5000, 0);
-    delay_ms(10);
 
     task_register("11", task_dummy, 8000, 0);
     task_register("12", task_dummy, 30000, 0);
     task_register("13", task_dummy, 5000, 0);
     task_register("14", task_dummy, 10500, 0);
     task_register("15", task_dummy, 6000, 0);
-    delay_ms(10);
 
     task_register("16", task_dummy, 15000, 0);
     task_register("17", task_dummy, 20000, 0);
     task_register("18", task_dummy, 10000, 0);
     task_register("19", task_dummy, 1000, 0);
     task_register("20", task_dummy, 1000, 0);
-    delay_ms(10);
 
     task_register("21", task_dummy, 1000, 0);
     task_register("22", task_dummy, 1000, 0);
     task_register("23", task_dummy, 1000, 0);
     task_register("24", task_dummy, 1000, 0);
     task_register("25", task_dummy, 1000, 0);
-    // delay_ms(10);
 
     // task_register("26", task_dummy, 1000, 0);
     // task_register("27", task_dummy, 1000, 0);
     // task_register("28", task_dummy, 1000, 0);
     // task_register("29", task_dummy, 1000, 0);
     // task_register("30", task_dummy, 1000, 0);
-    // delay_ms(10);
 
     // task_register("31", task_dummy, 1000, 0);
     // task_register("32", task_dummy, 1000, 0);
@@ -516,7 +507,6 @@ void task_sorting_simple_test(void)
     task_register("buzz", task_buzz, 4000, 0);
     task_register("boop", task_boop, 2000, 0);
     task_register("beep", task_beep, 1000, 0);
-    delay_ms(100);
 
     println("");
     println("=====");
