@@ -26,7 +26,6 @@ typedef struct{
 #if RING_BUFFER_SIZE == 256
     #define buffer_is_empty(buffer) (buffer.head == buffer.tail)
     #define buffer_is_full(buffer) ((buffer.head + 1) == buffer.tail)
-    #define buffer_has_at_least(buffer, space) ((buffer.head + space) >= buffer.tail)
     #define buffer_write(buffer, data) buffer.contents[buffer.head++] = data
     #define buffer_read(buffer) buffer.contents[buffer.tail++]
     #define buffer_peek_last(buffer) buffer.contents[buffer.head - 1]

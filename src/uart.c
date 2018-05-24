@@ -91,22 +91,9 @@ void UART1_tx_string(const char *string, const char terminator)
         // buffer overflow handler
         if (buffer_is_full(UART1_tx_buffer))
         {
+            // If the buffer is ever full, wait for it to empty completely
             PIE3bits.U1TXIE = 1;
-
-            // Find out how long the string is
-            if(totalBytes == 0){
-                while(string[totalBytes++] != terminator); 
-            }
-            remainingBytes = totalBytes - currentByte;
-
-            // TODO: test me
-            if (remainingBytes < RING_BUFFER_SIZE) {
-                // Block until there's enough room for the rest of the string
-                while(!buffer_has_at_least(UART1_tx_buffer, remainingBytes));
-            } else if (remainingBytes >= RING_BUFFER_SIZE) {
-                // Block until the buffer is almost empty
-                while(!buffer_has_at_least(UART1_tx_buffer, 250));
-            }
+            while(!buffer_is_empty(UART1_tx_buffer));
         }
 
         begin_critical_section();
@@ -226,22 +213,9 @@ void UART2_tx_string(const char *string, const char terminator)
         // buffer overflow handler
         if (buffer_is_full(UART2_tx_buffer))
         {
+            // If the buffer is ever full, wait for it to empty completely
             PIE6bits.U2TXIE = 1;
-
-            // Find out how long the string is
-            if(totalBytes == 0){
-                while(string[totalBytes++] != terminator); 
-            }
-            remainingBytes = totalBytes - currentByte;
-            
-            // TODO: test me
-            if (remainingBytes < RING_BUFFER_SIZE) {
-                // Block until there's enough room for the rest of the string
-                while(!buffer_has_at_least(UART2_tx_buffer, remainingBytes));
-            } else if (remainingBytes >= RING_BUFFER_SIZE) {
-                // Block until the buffer is almost empty
-                while(!buffer_has_at_least(UART2_tx_buffer, 250));
-            }
+            while(!buffer_is_empty(UART2_tx_buffer));
         }
 
         begin_critical_section();
