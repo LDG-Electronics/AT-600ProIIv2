@@ -15,10 +15,17 @@ const double swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 void RF_sensor_init(void)
 {
     // Frequency counter
-    // T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
-    // T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
-    T3CONbits.CKPS = 0b10; // Prescale set to 1:4
+
+    // timer3
+    T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
+    T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
+    T3CONbits.CKPS = 0b01; // Prescale set to 1:4
     T3CLK = 1; // Clock source is FOSC/4
+
+    // timer3 gate
+    T3GCONbits.GPOL = 1; // Timer3 gate is active-high
+    T3GCONbits.GSPM = 1; // Timer3 Gate Single Pulse mode is enabled
+    T3GPPS = (PPS_PORT_E & PPS_PIN_0);
     
     // SWR sensor
     adc_init();
@@ -51,43 +58,59 @@ uint16_t get_period(void)
 {
     timer3_stop();
     timer3_clear();
-    timer3_IF_clear();
     
-    begin_critical_section();
+    // timer3 gate single-pulse mode
     timer3_start();
-    while (1)
-    {
-        if (FREQ_PIN != 0) break;
-        if (timer3_IF_read() != 0) goto failure;
-    }
+    T3GCONbits.GE = 1;
+
+    while(!T3GCONbits.GGO); // wait until the pulse acquistion has started
+    while(T3GCONbits.GGO); // wait until the pulse acquistion finishes
+
+    T3GCONbits.GE = 0;
     timer3_stop();
-    timer3_clear();
-    
-    timer3_start();
-    while (1)
-    {
-        if (FREQ_PIN == 0) break;
-        if (timer3_IF_read() != 0) goto failure;
-    }
-    timer3_stop();
-    timer3_clear();
-    
-    timer3_start();
-    while (1)
-    {
-        if (FREQ_PIN != 0) break;
-        if (timer3_IF_read() != 0) goto failure;
-    }
-    timer3_stop();
-    end_critical_section();
-    
+
     return timer3_read();
+
+//     timer3_stop();
+//     timer3_clear();
+//     timer3_IF_clear();
     
-failure:
-    timer3_stop();
-    end_critical_section();
+
+//     begin_critical_section();
+//     timer3_start();
+//     while (1)
+//     {
+//         if (FREQ_PIN != 0) break;
+//         if (timer3_IF_read() != 0) goto failure;
+//     }
+//     timer3_stop();
+//     timer3_clear();
     
-    return 0xffff;
+//     timer3_start();
+//     while (1)
+//     {
+//         if (FREQ_PIN == 0) break;
+//         if (timer3_IF_read() != 0) goto failure;
+//     }
+//     timer3_stop();
+//     timer3_clear();
+    
+//     timer3_start();
+//     while (1)
+//     {
+//         if (FREQ_PIN != 0) break;
+//         if (timer3_IF_read() != 0) goto failure;
+//     }
+//     timer3_stop();
+//     end_critical_section();
+    
+//     return timer3_read();
+    
+// failure:
+//     timer3_stop();
+//     end_critical_section();
+    
+//     return 0xffff;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -213,8 +236,8 @@ void print_current_SWR_ln(void)
 
 void print_RF_calibration_data(void)
 {
-    printf("(%d, %d, %f, %d)\r\n", 
-            currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.period);
+    printf("(%u, %u, %f, %ul)\r\n", 
+            currentRF.forward, currentRF.reverse, currentRF.swr, (uint32_t)currentRF.period);
 }
 
 /* -------------------------------------------------------------------------- */
