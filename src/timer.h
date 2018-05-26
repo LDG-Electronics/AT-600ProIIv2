@@ -29,6 +29,10 @@
 #define TIMER5_ON T5CONbits.ON
 #define TIMER6_ON T6CONbits.ON
 
+#define TIMER1_GATE_EN T1GCONbits.GE
+#define TIMER3_GATE_EN T3GCONbits.GE
+#define TIMER5_GATE_EN T5GCONbits.GE
+
 /* ************************************************************************** */
 
 // Setup and control function for hardware timers.
@@ -48,6 +52,8 @@
 // Timer1 control functions
 #define timer1_start() TIMER1_ON = 1
 #define timer1_stop() TIMER1_ON = 0
+#define timer1_gate_enable() TIMER1_GATE_EN = 1
+#define timer1_gate_disable() TIMER1_GATE_EN = 0
 #define timer1_IF_clear() TIMER1_IF = 0
 #define timer1_IF_read() TIMER1_IF
 #define timer1_clear() TMR1H = 0x00; TMR1L = 0x00;
@@ -64,6 +70,8 @@
 // Timer3 control functions
 #define timer3_start() TIMER3_ON = 1
 #define timer3_stop() TIMER3_ON = 0
+#define timer3_gate_enable() TIMER3_GATE_EN = 1
+#define timer3_gate_disable() TIMER3_GATE_EN = 0
 #define timer3_IF_clear() TIMER3_IF = 0
 #define timer3_IF_read() TIMER3_IF
 #define timer3_clear() TMR3H = 0x00; TMR3L = 0x00;
@@ -80,6 +88,8 @@
 // Timer5 control functions
 #define timer5_start() TIMER5_ON = 1
 #define timer5_stop() TIMER5_ON = 0
+#define timer5_gate_enable() TIMER5_GATE_EN = 1
+#define timer5_gate_disable() TIMER5_GATE_EN = 0
 #define timer5_IF_clear() TIMER5_IF = 0
 #define timer5_IF_read() TIMER5_IF
 #define timer5_clear() TMR5H = 0x00; TMR5L = 0x00;
