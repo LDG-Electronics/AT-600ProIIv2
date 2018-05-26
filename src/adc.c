@@ -4,8 +4,11 @@
 
 void adc_init(void)
 {
+    FVRCONbits.ADFVR = 0b11; // ADC voltage reference is 4.096 volts
+    FVRCONbits.EN = 1; // Enable Fixed Voltage Reference
+
     ADREFbits.NREF = 0; // Negative Voltage Reference, set to Vss
-    ADREFbits.PREF = 0b00; // Positive Voltage Reference, set to Vdd
+    ADREFbits.PREF = 0b11; // Positive Voltage Reference, set to FVR
     
     ADCON0bits.FM = 1; // adc result is right-justified
     ADCON0bits.CS = 1; //FRC Clock
