@@ -20,7 +20,6 @@ void timer3_overflow_counter_init(void)
     // timer3
     T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
     T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
-    T3CONbits.CKPS = 0b00; // Prescale set to 1:4
     T3CLK = 2; // Clock source is FOSC
 
     // timer3 gate
@@ -80,36 +79,76 @@ void __interrupt(irq(TMR3), high_priority) timer3_overflow_counter_ISR(void)
 
 uint32_t get_period(void)
 {
-    // reset our resources
-    timer3_overflow_count = 0;
     timer3_stop();
     timer3_clear();
-
-    // make sure we don't start the measurement in the middle of a high pulse
-    while(FREQ_PIN == 1);
-
-    // start the measurement
-    PIE6bits.TMR3IE = 1; // interrupt enable
-    timer3_gate_enable();
+    timer3_IF_clear();
+    
+    begin_critical_section();
     timer3_start();
-
-    // Wait for the measurement to finish
-    while(T3GCONbits.GGO == 0);
-    while(T3GCONbits.GGO == 1);
-
-    // Clean up timer resources
-    timer3_stop();
-    timer3_gate_disable();
-    PIE6bits.TMR3IE = 0; // interrupt disable
-
-    // If the timer overflowed, calculate the total number of ticks
-    if(timer3_overflow_count) {
-        uint32_t timer3_total = (timer3_overflow_count * UINT16_MAX);
-        timer3_total += timer3_read();
-        return timer3_total;
-    } else {
-        return timer3_read();
+    while (1)
+    {
+        if (FREQ_PIN != 0) break;
+        if (timer3_IF_read() != 0) goto failure;
     }
+    timer3_stop();
+    timer3_clear();
+    
+    timer3_start();
+    while (1)
+    {
+        if (FREQ_PIN == 0) break;
+        if (timer3_IF_read() != 0) goto failure;
+    }
+    timer3_stop();
+    timer3_clear();
+    
+    timer3_start();
+    while (1)
+    {
+        if (FREQ_PIN != 0) break;
+        if (timer3_IF_read() != 0) goto failure;
+    }
+    timer3_stop();
+    end_critical_section();
+    
+    return timer3_read();
+    
+failure:
+    timer3_stop();
+    end_critical_section();
+    
+    return 0xffff;
+
+    // // reset our resources
+    // timer3_overflow_count = 0;
+    // timer3_stop();
+    // timer3_clear();
+
+    // // make sure we don't start the measurement in the middle of a high pulse
+    // while(FREQ_PIN == 1);
+
+    // // start the measurement
+    // PIE6bits.TMR3IE = 1; // interrupt enable
+    // timer3_gate_enable();
+    // timer3_start();
+
+    // // Wait for the measurement to finish
+    // while(T3GCONbits.GGO == 0);
+    // while(T3GCONbits.GGO == 1);
+
+    // // Clean up timer resources
+    // timer3_stop();
+    // timer3_gate_disable();
+    // PIE6bits.TMR3IE = 0; // interrupt disable
+
+    // // If the timer overflowed, calculate the total number of ticks
+    // if(timer3_overflow_count) {
+    //     uint32_t timer3_total = (timer3_overflow_count * UINT16_MAX);
+    //     timer3_total += timer3_read();
+    //     return timer3_total;
+    // } else {
+    //     return timer3_read();
+    // }
 }
 
 /* -------------------------------------------------------------------------- */
