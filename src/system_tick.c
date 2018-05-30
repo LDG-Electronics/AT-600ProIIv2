@@ -4,10 +4,10 @@
 
 void systick_init(void)
 {
-    T2CLK = 0b00000010;
-    T2CONbits.CKPS = 0b111;
-    T2CONbits.OUTPS = 0b0001;
-    PR2 = 0xF9;
+    timer2_clock_source(TMR_CLK_FOSC);
+    timer2_prescale(TMR_PRE_1_128);
+    timer2_postscale(TMR_POST_1_2);
+    timer2_period_set(0xF9);
 
     timer2_start();
 

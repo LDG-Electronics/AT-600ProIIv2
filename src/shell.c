@@ -47,6 +47,8 @@ void println(const char *string)
 	print("\r\n");
 }
 
+/* -------------------------------------------------------------------------- */
+
 void shell_prompt(void)
 {
 	print(SHELL_PROMPT_STRING);

@@ -37,20 +37,15 @@ void buttons_init(void)
 
     // Timer 6 configured using MPLABX MCC
     // Period is calculated to be exactly 5ms
-    T6CLKbits.CS = 0b0010; // Clock source is FOSC
-    T6CONbits.CKPS = 0b111; // Prescaler set to 1:128
-    T6CONbits.OUTPS = 0b1001; // Postscaler set to 1:10
+    timer6_clock_source(TMR_CLK_FOSC);
+    timer6_prescale(TMR_PRE_1_128);
+    timer6_postscale(TMR_POST_1_10);
 
-    PR6 = 0xF9; // Timer 6 period
-    
-    PIE9bits.TMR6IE = 1; // Enable Timer6 interrupt
+    timer6_period_set(0xF9);
+
+    timer6_interrupt_enable();
     
     timer6_start();
-}
-
-void buttons_stop(void)
-{
-    timer6_stop();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,7 +67,7 @@ void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void)
 {
     timer6_IF_clear();
 
-    // Grab current state of every button
+    // Grab current state of each button
     buttons[TUNE] <<= 1;
     buttons[TUNE] |= TUNE_BUTTON_PIN;
     
