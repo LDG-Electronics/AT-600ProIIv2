@@ -21,6 +21,7 @@ void startup(void)
     interrupt_init();
     shell_init();
     systick_init();
+    task_manager_init();
 
     // Driver setup
     buttons_init();
@@ -29,7 +30,6 @@ void startup(void)
     relays_init();
     RF_sensor_init();
     stopwatch_init();
-    task_manager_init();
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
