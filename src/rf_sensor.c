@@ -48,8 +48,19 @@ void SWR_threshold_increment(void)
 /*  Notes on the Period counter
 
     TODO: write docs
+
+    F
+
 */
 
+
+/*  validate_frequency_signal()
+
+    This function confirms that a valid Frequency signal is present on the input
+    of FREQ_PIN. It does this by counting the number of state changes during a
+    20 ms window. In traditional UNIX style, return value of 0 means success,
+    and -1 means failure.
+*/
 #define PERIOD_THRESHOLD 2
 static int8_t validate_frequency_signal(void)
 {
@@ -69,9 +80,74 @@ static int8_t validate_frequency_signal(void)
     return -1;
 }
 
+/*  Notes on period measurement
+
+    Due to hardware decisions that have already been made, measuring Frequency
+    directly is impossible. All current LDG products use a frequency counter
+    design that divides the incoming signal by 32,768. This is SO SLOW that it
+    would require more than a full second to make a useful measurement. This
+    issue is compounded by the fact that many products place the frequency
+    counter input on Port E. The PIC18F2XK42 cannot remap any timer clock source
+    OR configurable logic cell input pins onto Port E, meaning that none of the
+    process can be offloaded to hardware.
+
+    This period counter is a (highly) refined version of the one designed by
+    Russ Hoffman. It sets up a hardware timer, starts it from software at the
+    rising edge of the incoming signal, and stops it at the falling edge. The
+    timer is configured to run as fast as possible. An early design concern was
+    how to best calibrate the timer to both maximize accuracy AND maintain
+    fidelity across the entire range of inputs (1-50 MHz). One possible solution
+    was a two-stage measurement, using a preliminary, less accurate period
+    measurement followed by a more precise and specific measurement. This idea
+    was rejected in favor of the current solution: Just measure a big freaking
+    number.
+
+    This brings us back to the timer overflow. Since there is no "best" timer
+    configuration that preserves both range of input AND accuracy in a 16 bit
+    result, the chosen solution to this problem is to run the timer as fast as
+    possible and use timer3_overflow_ISR() to count through the overflow.
+
+    The timer clock source is set to the raw FOSC, the 64 MHz internal
+    oscillator. At this speed, 1 timer tick = 15.625 nanoseconds.
+
+    >>> Trigger warning: Math ahead <<<
+
+    A 14 MHz square wave has a period of 71.428 nanoseconds.
+
+    The incoming signal is 32k times slower than the original, therefore each
+    square wave is 32k times longer.
+    71.428 * 32,768 = 2,340,552
+
+    But wait, we're only measuring a half period.
+    2,340,552 / 2 = 1,170,276
+
+    And we're measuring in increments of 15.625 nanoseconds.
+    1,170,276 / 15.625 = 74,897
+
+    Therefore, the expected period measurement is in the ballpark of 75,000,
+    while the observed period measurement is 75,442. 
+    
+    That's a margin of error of 0.7%.
+
+    Damn.
+
+    Frequency       Period      Period
+                    (expected)  (observed)
+    F: 01.800 MHz   Pe: 555ns   Po: 586271
+    F: 03.500 MHz   Pe: 285ns   Po: 301675
+    F: 07.000 MHz   Pe: 142ns   Po: 150797
+    F: 10.100 MHz   Pe: 99ns    Po: 104522
+    F: 14.000 MHz   Pe: 71ns    Po: 075442
+    F: 18.068 MHz   Pe: 55ns    Po: 058451
+    F: 21.000 MHz   Pe: 47ns    Po: 050267
+    F: 24.890 MHz   Pe: 40ns    Po: 042431
+    F: 28.000 MHz   Pe: 35ns    Po: 037715
+    F: 50.000 MHz   Pe: 20ns    Po: 021131
+*/ 
+
 volatile static uint32_t timer3Count;
 
-void __interrupt(irq(TMR3), high_priority) timer3_overflow_counter_ISR(void)
+void __interrupt(irq(TMR3), high_priority) timer3_overflow_ISR(void)
 {
     timer3_IF_clear();
 
@@ -101,12 +177,43 @@ uint32_t get_period(void)
     return timer3Count;
 }
 
+/*  Notes on Frequency Measurement
+
+    Frequency is computed by averaging 4 period measurements and performing a
+    big honking integer division. The MAGIC_FREQUENCY_NUMBER is derived from the
+    following calculation:
+    
+    (32,768 / 2) / 15.625 = 1048.576
+
+    1.055 is the magic number to convert observed period to frequency.
+
+    1.055 / 75442 = 1.3984 e-5
+    1,055 / 75442 = 0.013984
+    1,055,000 / 75442 = 13.984
+    1,055,000,000 / 75442 = 13,984 <- ding ding
+
+    Fine adjustments to the end result can be made by adjusting the frequency
+    constant. Possible future temperature compensation can be performed by
+    adjusting the frequency constant at runtime.
+*/
+
+#define MAGIC_FREQUENCY_NUMBER 1057000000
+#define NUM_OF_PERIOD_SAMPLES 4
 uint16_t get_frequency(void)
 {
     // Make sure there's a frequency signal
-    if(validate_frequency_signal() == -1) return 0;
+    if(validate_frequency_signal() == -1) return 0xffff;
 
-    get_period();
+    uint32_t tempPeriod = 0;
+
+    // Take measurements
+    for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++){
+        tempPeriod += get_period();
+    }
+ 
+    tempPeriod <<= 2;
+
+    return (MAGIC_FREQUENCY_NUMBER / tempPeriod);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -174,37 +281,42 @@ void SWR_average(void)
     currentRF.swr = calculate_SWR(tempFWD, tempREV);
 }
 
-#define NO_POWER_COUNT 5000
-#define LOW_POWER 30
-
 /*  Notes on SWR_stable_average()
 
     This function monitors the forward power and waits until the slope is flat.
 
+
 */
+
+int8_t wait_for_stable_FWD(void)
+{
+    uint16_t currentFWD;
+    uint16_t previousFWD = adc_measure(0);
+
+    int16_t deltaFWD = 0;
+    int16_t deltaCompare = 0;
+
+    // spend up to 500ms waiting for the Forward Power to level off
+    uint24_t currentTime = systick_read();
+    while(systick_read() <= (currentTime + 500)){
+        currentFWD = adc_measure(0);
+
+        deltaFWD = abs((int16_t)currentFWD - (int16_t)previousFWD);
+        deltaCompare = currentFWD >> 4;
+        if (deltaFWD < deltaCompare) return 0;
+        previousFWD = currentFWD;
+    }
+    return -1;
+}
+
 int8_t SWR_stable_average(void)
 {
-    uint16_t attemptsRemaining = NO_POWER_COUNT;
+    // Measure the frequency
+    currentRF.frequency = get_frequency();
 
-    int32_t currentFWD;
-    int32_t previousFWD = adc_measure(0);
-
-    int32_t deltaFWD = 0;
-    int32_t deltaCompare = 0;
-    
-    while(1)
+    if(wait_for_stable_FWD == -1)
     {
-        currentFWD = adc_measure(0);
-        deltaFWD = abs(currentFWD - previousFWD);
-        deltaCompare = currentFWD >> 4;
-        
-        if (currentFWD > LOW_POWER) {
-            if (deltaFWD < deltaCompare) break;
-        }
-        previousFWD = currentFWD;
-        
-        if (attemptsRemaining == 0) return (-1);
-        attemptsRemaining--;
+        return -1;
     }
     
     SWR_average();
@@ -235,22 +347,21 @@ void print_current_SWR_ln(void)
     Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
     compensation tables to improve the accuracy of the RF sensor.
 
-    (F, R, SWR,      period)
-    (0, 0, 0.000000, -1)
+    (F, R, SWR,      frequency)
+    (0, 0, 0.000000, 0xffff)
 */
 
 void print_RF_calibration_data(void)
 {
-    printf("(%u, %u, %f, %lu)\r\n", 
-            currentRF.forward, currentRF.reverse, currentRF.swr, (uint32_t)currentRF.period);
+    printf("(%u, %u, %f, %u)\r\n", 
+            currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.frequency);
 }
 
 // This task is used to generate calibration tables
 void task_RF_calibration(void)
 {
-    SWR_average();
-    currentRF.period = get_period();
-    // print_current_time();
+    SWR_stable_average();
+
     print_RF_calibration_data();
 }
 
