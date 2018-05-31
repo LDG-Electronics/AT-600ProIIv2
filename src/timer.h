@@ -13,36 +13,6 @@
 
 /* ************************************************************************** */
 
-#define TIMER0_IF PIR3bits.TMR0IF
-#define TIMER1_IF PIR4bits.TMR1IF
-#define TIMER2_IF PIR4bits.TMR2IF
-#define TIMER3_IF PIR6bits.TMR3IF
-#define TIMER4_IF PIR7bits.TMR4IF
-#define TIMER5_IF PIR8bits.TMR5IF
-#define TIMER6_IF PIR9bits.TMR6IF
-
-#define TIMER0_IE PIE3bits.TMR0IE
-#define TIMER1_IE PIE4bits.TMR1IE
-#define TIMER2_IE PIE4bits.TMR2IE
-#define TIMER3_IE PIE6bits.TMR3IE
-#define TIMER4_IE PIE7bits.TMR4IE
-#define TIMER5_IE PIE8bits.TMR5IE
-#define TIMER6_IE PIE9bits.TMR6IE
-
-#define TIMER0_ON T0CON0bits.EN
-#define TIMER1_ON T1CONbits.ON
-#define TIMER2_ON T2CONbits.ON
-#define TIMER3_ON T3CONbits.ON
-#define TIMER4_ON T4CONbits.ON
-#define TIMER5_ON T5CONbits.ON
-#define TIMER6_ON T6CONbits.ON
-
-#define TIMER1_GATE_EN T1GCONbits.GE
-#define TIMER3_GATE_EN T3GCONbits.GE
-#define TIMER5_GATE_EN T5GCONbits.GE
-
-/* ************************************************************************** */
-
 // Setup
 #define timer0_clock_source(value) T0CON1bits.CS = value
 #define timer0_prescale(value) T0CON1bits.CKPS = value
@@ -197,7 +167,37 @@
 
 /* ************************************************************************** */
 
-// Shared timer clock sources - not comprehensive
+#define TIMER0_IF PIR3bits.TMR0IF
+#define TIMER1_IF PIR4bits.TMR1IF
+#define TIMER2_IF PIR4bits.TMR2IF
+#define TIMER3_IF PIR6bits.TMR3IF
+#define TIMER4_IF PIR7bits.TMR4IF
+#define TIMER5_IF PIR8bits.TMR5IF
+#define TIMER6_IF PIR9bits.TMR6IF
+
+#define TIMER0_IE PIE3bits.TMR0IE
+#define TIMER1_IE PIE4bits.TMR1IE
+#define TIMER2_IE PIE4bits.TMR2IE
+#define TIMER3_IE PIE6bits.TMR3IE
+#define TIMER4_IE PIE7bits.TMR4IE
+#define TIMER5_IE PIE8bits.TMR5IE
+#define TIMER6_IE PIE9bits.TMR6IE
+
+#define TIMER0_ON T0CON0bits.EN
+#define TIMER1_ON T1CONbits.ON
+#define TIMER2_ON T2CONbits.ON
+#define TIMER3_ON T3CONbits.ON
+#define TIMER4_ON T4CONbits.ON
+#define TIMER5_ON T5CONbits.ON
+#define TIMER6_ON T6CONbits.ON
+
+#define TIMER1_GATE_EN T1GCONbits.GE
+#define TIMER3_GATE_EN T3GCONbits.GE
+#define TIMER5_GATE_EN T5GCONbits.GE
+
+/* ************************************************************************** */
+
+// Timer 1/2/3/4/5/6 clock sources - not comprehensive
 #define TMR_CLK_PPS 0
 #define TMR_CLK_FOSC4 1
 #define TMR_CLK_FOSC 2
@@ -225,7 +225,7 @@
 #define TMR_PRE_1_2 1
 #define TMR_PRE_1_4 2
 #define TMR_PRE_1_8 3
-// Timer 2/4/6 prescale values
+// Timer 0/2/4/6 prescale values
 #define TMR_PRE_1_16 4
 #define TMR_PRE_1_32 5
 #define TMR_PRE_1_64 6
@@ -242,7 +242,7 @@
 
 /* -------------------------------------------------------------------------- */
 
-// Shared timer postscale values
+// Timer 0/2/4/6 postscale values
 #define TMR_POST_1_1 0
 #define TMR_POST_1_2 1
 #define TMR_POST_1_3 2
