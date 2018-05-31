@@ -15,18 +15,14 @@ volatile static uint32_t timer3Count;
 
 /* ************************************************************************** */
 
-static void timer3_init(void)
+void RF_sensor_init(void)
 {
+    adc_init();
+    
     // timer3
     T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
     T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
     timer3_clock_source(TMR_CLK_FOSC);
-}
-
-void RF_sensor_init(void)
-{
-    adc_init();
-    timer3_init();
     
     // Initialize the Global RF Readings
     currentRF.forward = 0;
