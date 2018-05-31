@@ -10,9 +10,6 @@ double swrThresh = SWR1_7;
 uint8_t swrThreshIndex = 0;
 const double swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
-// file scope 
-volatile static uint32_t timer3Count;
-
 /* ************************************************************************** */
 
 void RF_sensor_init(void)
@@ -55,6 +52,10 @@ void SWR_threshold_increment(void)
 
 
 */
+
+// 
+volatile static uint32_t timer3Count;
+
 void __interrupt(irq(TMR3), high_priority) timer3_overflow_counter_ISR(void)
 {
     timer3_IF_clear();
