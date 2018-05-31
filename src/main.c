@@ -8,9 +8,6 @@ void main(void)
 {
     startup();
 
-    // task_register("swr", task_RF_calibration, 1000, 50);
-    task_manager_self_test();
-    
     while(1)
     {
         // Relay buttons

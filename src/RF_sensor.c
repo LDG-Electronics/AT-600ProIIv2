@@ -37,6 +37,9 @@ void RF_sensor_init(void)
 
     // shell commands
     shell_register(shell_get_RF, "getRF");
+    
+    // Calibration Task
+    task_register("swr", task_RF_calibration, 1000, 100);
 }
 
 void SWR_threshold_set(void)
