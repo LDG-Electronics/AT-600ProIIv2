@@ -11,28 +11,23 @@ uint8_t swrThreshIndex = 0;
 const double swrThreshTable[5] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
 // file scope 
-volatile uint8_t timer3_overflow_count;
+volatile static uint32_t timer3Count;
 
 /* ************************************************************************** */
 
-void timer3_overflow_counter_init(void)
+static void timer3_init(void)
 {
     // timer3
     T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
     T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
-    T3CLK = 2; // Clock source is FOSC
-
-    // timer3 gate
-    T3GCONbits.GPOL = 1; // Timer3 gate is active-high
-    T3GCONbits.GSPM = 1; // Timer3 Gate Single Pulse mode is enabled
-    T3GPPS = (PPS_PORT_E & PPS_PIN_0);
+    timer3_clock_source(TMR_CLK_FOSC);
 }
 
 void RF_sensor_init(void)
 {
     adc_init();
-    timer3_overflow_counter_init();
-
+    timer3_init();
+    
     // Initialize the Global RF Readings
     currentRF.forward = 0;
     currentRF.reverse = 0;
@@ -59,96 +54,58 @@ void SWR_threshold_increment(void)
 /* -------------------------------------------------------------------------- */
 /*  Notes on the Period counter
 
-    This module uses the timer 3 gate to measure the period of the square wave
-    coming in on FREQ_PIN. 
-
-    The timer gate only allows the timer to increment while the gate input is
-    active. The gate also has a single pulse mode, only allowing the timer to
-    increment for a single pulse of the gate input signal.
-
-    The general procedure for taking a period measurement is as follows:
-
 
 */
 void __interrupt(irq(TMR3), high_priority) timer3_overflow_counter_ISR(void)
 {
     timer3_IF_clear();
 
-    timer3_overflow_count++;
+    timer3Count += UINT16_MAX;
 }
 
+uint16_t count_freq_pin_changes(void)
+{
+    uint24_t currentTime = systick_read();
+    uint16_t freqPinCount = 0;
+    uint8_t prevFreqPin = FREQ_PIN;
+
+    while(systick_read() <= (currentTime + 20)){
+        if(prevFreqPin != FREQ_PIN){
+            prevFreqPin = FREQ_PIN;
+            freqPinCount++;
+        }
+    }
+
+    printf("freqPinCount: %d ", freqPinCount);
+
+    return freqPinCount;
+}
+
+#define PERIOD_THRESHOLD 2
 uint32_t get_period(void)
 {
-    timer3_stop();
+    // Make sure there's a frequency signal
+    if(count_freq_pin_changes() < PERIOD_THRESHOLD) return 0;
+
+    // Prepare the timer
     timer3_clear();
     timer3_IF_clear();
-    
-    begin_critical_section();
+    timer3Count = 0;
+    timer3_interrupt_enable();
+
+    // align ourselves with the rising edge of FREQ_PIN
+    while(FREQ_PIN != 0); // while high
+    while(FREQ_PIN == 0); // while low
+
+    // engage
     timer3_start();
-    while (1)
-    {
-        if (FREQ_PIN != 0) break;
-        if (timer3_IF_read() != 0) goto failure;
-    }
+    while(FREQ_PIN != 0); // while high
     timer3_stop();
-    timer3_clear();
-    
-    timer3_start();
-    while (1)
-    {
-        if (FREQ_PIN == 0) break;
-        if (timer3_IF_read() != 0) goto failure;
-    }
-    timer3_stop();
-    timer3_clear();
-    
-    timer3_start();
-    while (1)
-    {
-        if (FREQ_PIN != 0) break;
-        if (timer3_IF_read() != 0) goto failure;
-    }
-    timer3_stop();
-    end_critical_section();
-    
-    return timer3_read();
-    
-failure:
-    timer3_stop();
-    end_critical_section();
-    
-    return 0xffff;
+    timer3_interrupt_disable();
 
-    // // reset our resources
-    // timer3_overflow_count = 0;
-    // timer3_stop();
-    // timer3_clear();
-
-    // // make sure we don't start the measurement in the middle of a high pulse
-    // while(FREQ_PIN == 1);
-
-    // // start the measurement
-    // PIE6bits.TMR3IE = 1; // interrupt enable
-    // timer3_gate_enable();
-    // timer3_start();
-
-    // // Wait for the measurement to finish
-    // while(T3GCONbits.GGO == 0);
-    // while(T3GCONbits.GGO == 1);
-
-    // // Clean up timer resources
-    // timer3_stop();
-    // timer3_gate_disable();
-    // PIE6bits.TMR3IE = 0; // interrupt disable
-
-    // // If the timer overflowed, calculate the total number of ticks
-    // if(timer3_overflow_count) {
-    //     uint32_t timer3_total = (timer3_overflow_count * UINT16_MAX);
-    //     timer3_total += timer3_read();
-    //     return timer3_total;
-    // } else {
-    //     return timer3_read();
-    // }
+    // calculate total elapsed time
+    timer3Count += abs(timer3_read());
+    return timer3Count;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -156,10 +113,10 @@ failure:
 
     SWR = (1 + sqrt(Pr/Pf))/(1 - sqrt(Pr/Pf))
 */
-double calculate_SWR(uint16_t tempFWD, uint16_t tempREV)
+static double calculate_SWR(uint16_t tempFWD, uint16_t tempREV)
 {
     double x = sqrt((double)tempREV/(double)tempFWD);
-    return ((1 + x) / (1 - x));
+    return ((1.0 + x) / (1.0 - x));
 }
 
 /*  SWR_measure() calculates the SWR from a single sample
@@ -172,7 +129,7 @@ void SWR_measure(void)
 {
     currentRF.forward = adc_measure(0);
     currentRF.reverse = adc_measure(1);
-    currentRF.swr = calculate_SWR(tempFWD, tempREV);  
+    currentRF.swr = calculate_SWR(currentRF.forward, currentRF.reverse);  
 }
 
 /*  Notes on SWR_average()
@@ -283,7 +240,7 @@ void print_current_SWR_ln(void)
 
 void print_RF_calibration_data(void)
 {
-    printf("(%u, %u, %f, %ul)\r\n", 
+    printf("(%u, %u, %f, %lu)\r\n", 
             currentRF.forward, currentRF.reverse, currentRF.swr, (uint32_t)currentRF.period);
 }
 
