@@ -16,9 +16,6 @@ void RF_sensor_init(void)
 {
     adc_init();
     
-    // timer3
-    T3CONbits.RD16 = 1; // Access Timer3 as a single 16 bit operation
-    T3CONbits.NOT_SYNC = 1; // Do not synchronize the input with the system clock
     timer3_clock_source(TMR_CLK_FOSC);
     
     // Initialize the Global RF Readings
@@ -50,7 +47,7 @@ void SWR_threshold_increment(void)
 /* -------------------------------------------------------------------------- */
 /*  Notes on the Period counter
 
-
+    TODO: write docs
 */
 
 // 
@@ -75,8 +72,6 @@ uint16_t count_freq_pin_changes(void)
             freqPinCount++;
         }
     }
-
-    printf("freqPinCount: %d ", freqPinCount);
 
     return freqPinCount;
 }
@@ -104,7 +99,7 @@ uint32_t get_period(void)
     timer3_interrupt_disable();
 
     // calculate total elapsed time
-    timer3Count += abs(timer3_read());
+    timer3Count += timer3_read();
     return timer3Count;
 }
 
