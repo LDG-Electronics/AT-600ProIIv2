@@ -50,17 +50,8 @@ void SWR_threshold_increment(void)
     TODO: write docs
 */
 
-// 
-volatile static uint32_t timer3Count;
-
-void __interrupt(irq(TMR3), high_priority) timer3_overflow_counter_ISR(void)
-{
-    timer3_IF_clear();
-
-    timer3Count += UINT16_MAX;
-}
-
-uint16_t count_freq_pin_changes(void)
+#define PERIOD_THRESHOLD 2
+static int8_t validate_frequency_signal(void)
 {
     uint24_t currentTime = systick_read();
     uint16_t freqPinCount = 0;
@@ -73,15 +64,22 @@ uint16_t count_freq_pin_changes(void)
         }
     }
 
-    return freqPinCount;
+    if(freqPinCount > PERIOD_THRESHOLD) return 0;
+
+    return -1;
 }
 
-#define PERIOD_THRESHOLD 2
+volatile static uint32_t timer3Count;
+
+void __interrupt(irq(TMR3), high_priority) timer3_overflow_counter_ISR(void)
+{
+    timer3_IF_clear();
+
+    timer3Count += UINT16_MAX;
+}
+
 uint32_t get_period(void)
 {
-    // Make sure there's a frequency signal
-    if(count_freq_pin_changes() < PERIOD_THRESHOLD) return 0;
-
     // Prepare the timer
     timer3_clear();
     timer3_IF_clear();
@@ -101,6 +99,14 @@ uint32_t get_period(void)
     // calculate total elapsed time
     timer3Count += timer3_read();
     return timer3Count;
+}
+
+uint16_t get_frequency(void)
+{
+    // Make sure there's a frequency signal
+    if(validate_frequency_signal() == -1) return 0;
+
+    get_period();
 }
 
 /* -------------------------------------------------------------------------- */
