@@ -22,7 +22,7 @@
 #define timer0_start() TIMER0_ON = 1
 #define timer0_stop() TIMER0_ON = 0
 #define timer0_clear() TMR0H = 0x00; TMR0L = 0x00;
-#define timer0_read() ((TMR0H << 8) | TMR0L)
+#define timer0_read() (((uint16_t)TMR0H << 8) | (uint16_t)TMR0L)
 
 // Interrupt control
 #define timer0_interrupt_enable() TIMER0_IE = 1
@@ -43,7 +43,7 @@
 #define timer1_start() TIMER1_ON = 1
 #define timer1_stop() TIMER1_ON = 0
 #define timer1_clear() TMR1H = 0x00; TMR1L = 0x00;
-#define timer1_read() ((TMR1H << 8) | TMR1L)
+#define timer1_read() (((uint16_t)TMR1H << 8) | (uint16_t)TMR1L)
 
 // Interrupt control
 #define timer1_interrupt_enable() TIMER1_IE = 1
@@ -87,7 +87,7 @@
 #define timer3_start() TIMER3_ON = 1
 #define timer3_stop() TIMER3_ON = 0
 #define timer3_clear() TMR3H = 0x00; TMR3L = 0x00;
-#define timer3_read() ((TMR3H << 8) | TMR3L)
+#define timer3_read() (((uint16_t)TMR3H << 8) | (uint16_t)TMR3L)
 
 // Interrupt control
 #define timer3_interrupt_enable() TIMER3_IE = 1
@@ -131,7 +131,7 @@
 #define timer5_start() TIMER5_ON = 1
 #define timer5_stop() TIMER5_ON = 0
 #define timer5_clear() TMR5H = 0x00; TMR5L = 0x00;
-#define timer5_read() ((TMR5H << 8) | TMR5L)
+#define timer5_read() (((uint16_t)TMR5H << 8) | (uint16_t)TMR5L)
 
 // Interrupt control
 #define timer5_interrupt_enable() TIMER5_IE = 1
