@@ -20,7 +20,7 @@
 
     The fields are:
     name: a string that identifies the task
-    event_callback: a function pointer that event a task performs
+    eventCallback: a function pointer that event a task performs
     scheduledTime: the task will be performed when the current system time
                     equals this scheduled time
     repeat: if the task is to be repeated, it will be re-registered this number
@@ -28,7 +28,7 @@
 */
 typedef struct {
     const char *name;
-    task_callback_s event_callback;
+    task_callback_s eventCallback;
     uint24_t scheduledTime;
     uint16_t repeat;
 } task_s;
@@ -52,7 +52,7 @@ struct{
 static void print_task(task_s *task)
 {
     printf("task:(name:%s)(ptr:%p)(time:%u)(repeat:%u)\r\n", 
-            task->name, task->event_callback, task->scheduledTime, task->repeat);
+            task->name, task->eventCallback, task->scheduledTime, task->repeat);
 }
 
 static void print_task_queue(void)
@@ -92,7 +92,7 @@ static void print_task_queue(void)
 static void task_clear(task_s *task)
 {
     task->name = NULL;
-    task->event_callback = NULL;
+    task->eventCallback = NULL;
     task->scheduledTime = UINT24_MAX;
     task->repeat = 0;
 }
@@ -316,7 +316,7 @@ int8_t task_register(const char *name, task_callback_s callback, uint24_t time, 
 
     // populate the new task
     newTask.name = name;
-    newTask.event_callback = callback;
+    newTask.eventCallback = callback;
     newTask.scheduledTime = time;
     newTask.repeat = repeat;
 
@@ -364,9 +364,9 @@ void task_manager_update(void)
     #endif
 
     // Make sure we don't execute a null function pointer
-    if(tasks.queue[FIRST_TASK].event_callback != NULL){
+    if(tasks.queue[FIRST_TASK].eventCallback != NULL){
         // execute it
-        tasks.queue[FIRST_TASK].event_callback();
+        tasks.queue[FIRST_TASK].eventCallback();
 
         // if the task should be repeated, re-register it
         if(tasks.queue[FIRST_TASK].repeat != 0)
