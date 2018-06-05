@@ -58,7 +58,7 @@ void SWR_threshold_increment(void)
 
     This function confirms that a valid Frequency signal is present on the input
     of FREQ_PIN. It does this by counting the number of state changes during a
-    20 ms window. In traditional UNIX style, return value of 0 means success,
+    40 ms window. In traditional UNIX style, return value of 0 means success,
     and -1 means failure.
 */
 #define PERIOD_THRESHOLD 2
@@ -68,7 +68,7 @@ static int8_t validate_frequency_signal(void)
     uint16_t freqPinCount = 0;
     uint8_t prevFreqPin = FREQ_PIN;
 
-    while(systick_read() <= (currentTime + 20)){
+    while(systick_read() <= (currentTime + 40)){
         if(prevFreqPin != FREQ_PIN){
             prevFreqPin = FREQ_PIN;
             freqPinCount++;
