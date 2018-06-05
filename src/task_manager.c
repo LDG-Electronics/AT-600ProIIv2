@@ -307,8 +307,8 @@ int8_t task_queue_lookup(const char *name)
 // create a task object and add it to the task queue
 int8_t task_register(const char *name, task_callback_s callback, uint24_t time, uint16_t repeat)
 {
-    us_stopwatch_begin();
     if(queue_is_full()) return -1;
+    us_stopwatch_begin();
 
     // create and init a new task object
     task_s newTask;
@@ -419,7 +419,7 @@ void task_buzz(void)
 void task_dummy(void)
 {
     uint24_t currentTime = systick_read();
-    printf("time: %d\r\n", currentTime);
+    // printf("time: %d\r\n", currentTime);
 }
 /* ************************************************************************** */
 
