@@ -211,7 +211,7 @@ uint16_t get_frequency(void)
         tempPeriod += get_period();
     }
  
-    tempPeriod <<= 2;
+    tempPeriod /= NUM_OF_PERIOD_SAMPLES;
 
     return (MAGIC_FREQUENCY_NUMBER / tempPeriod);
 }
