@@ -342,4 +342,3 @@ void power_hold(void)
     save_flags();
     delay_ms(25);
 }
-

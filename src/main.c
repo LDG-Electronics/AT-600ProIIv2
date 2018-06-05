@@ -25,4 +25,3 @@ void main(void)
         system_idle_block();
     }
 }
-

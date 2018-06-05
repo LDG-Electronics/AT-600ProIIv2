@@ -234,5 +234,3 @@ void show_thresh(void)
 {
     FP_update(swrThreshDisplay[swrThreshIndex] << 8);
 }
-
-
