@@ -22,7 +22,6 @@ void RF_sensor_init(void)
     currentRF.forward = 0;
     currentRF.reverse = 0;
     currentRF.swr = 0;
-    currentRF.period = 0;
     currentRF.frequency = 0;
 
     // shell commands
@@ -314,7 +313,7 @@ int8_t SWR_stable_average(void)
     // Measure the frequency
     currentRF.frequency = get_frequency();
 
-    if(wait_for_stable_FWD == -1)
+    if(wait_for_stable_FWD() == -1)
     {
         return -1;
     }
@@ -328,8 +327,8 @@ int8_t SWR_stable_average(void)
 
 void print_current_SWR(void)
 {
-    printf("FWD: %d, \tREV: %d, \tSWR: %f, P: %d", 
-            currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.period);
+    printf("FWD: %d, \tREV: %d, \tSWR: %f, F: %d", 
+            currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.frequency);
 }
 
 void print_current_SWR_ln(void)
@@ -379,7 +378,7 @@ int shell_get_RF(int argc, char** argv)
         } else if(!strcmp(argv[1], "-swr")) {
             printf("%f\r\n", currentRF.swr);
         } else if(!strcmp(argv[1], "-freq")) {
-            printf("%d\r\n", currentRF.period);
+            printf("%d\r\n", currentRF.frequency);
         } else {
             println("invalid argument");
         }

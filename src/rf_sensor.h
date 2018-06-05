@@ -9,7 +9,6 @@ typedef union {
         uint16_t forward;
         uint16_t reverse;
         double swr;
-        uint32_t period;
         uint16_t frequency;
     };
 } RF_power_s;
@@ -23,6 +22,7 @@ extern uint8_t swrThreshIndex;
 
 /* ************************************************************************** */
 
+// Setup
 extern void RF_sensor_init(void);
 
 // SWR Threshold manipulation
