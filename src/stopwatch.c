@@ -10,7 +10,7 @@ void stopwatch_init(void)
 {
     T0CON0bits.MD16 = 1; // Timer 0 set to 16 bit mode
     timer0_clock_source(TMR0_CLK_FOSC4);
-    timer0_postscale(TMR_POST_1_16);
+    timer0_prescale(TMR_PRE_1_16);
 }
 
 /*  Notes on us_stopwatch_ISR() and the Microsecond Stopwatch
@@ -48,6 +48,7 @@ void us_stopwatch_begin(void)
 {
     // Clear old stuff
     stopwatchCount = 0;
+    timer0_IF_clear();
     timer0_clear();
 
     // Enable interrupt and engage
@@ -63,7 +64,7 @@ void us_stopwatch_end(void)
     
     // Grab final value and print it
     stopwatchCount += timer0_read();
-    printf("stopwatch: %dus\r\n", stopwatchCount);
+    printf("stopwatch: %luus\r\n", stopwatchCount);
 }
 
 static uint24_t ms_startTime = 0;
@@ -76,9 +77,8 @@ void ms_stopwatch_begin(void)
 void ms_stopwatch_end(void)
 {
     uint24_t currentTime = systick_read();
-    uint24_t temp = currentTime - ms_startTime;
 
-    printf("stopwatch: %dus\r\n", temp);
+    printf("stopwatch: %dms\r\n", (currentTime - ms_startTime));
 }
 
 /* -------------------------------------------------------------------------- */
