@@ -1,8 +1,4 @@
 #include "includes.h"
-#include "hardware.h"
-#include "pps.h"
-#include "buttons.h"
-#include "display.h"
 
 /* ************************************************************************** */
 // Forward Declarations

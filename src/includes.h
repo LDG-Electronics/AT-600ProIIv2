@@ -17,13 +17,13 @@
 #include "pic18f46k42.h"
 
 // device peripherals
-#include "adc.h"
-#include "nonvolatile_memory.h"
-#include "pps.h"
-#include "spi.h"
+#include "peripherals/adc.h"
+#include "peripherals/nonvolatile_memory.h"
+#include "peripherals/pps.h"
+#include "peripherals/spi.h"
 #include "system_tick.h"
-#include "timer.h"
-#include "uart.h"
+#include "peripherals/timer.h"
+#include "peripherals/uart.h"
 
 // modules
 #include "animations.h"
