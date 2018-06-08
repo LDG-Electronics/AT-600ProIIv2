@@ -19,11 +19,16 @@
 // device peripherals
 #include "peripherals/adc.h"
 #include "peripherals/nonvolatile_memory.h"
+#include "peripherals/pins.h"
 #include "peripherals/pps.h"
 #include "peripherals/spi.h"
-#include "system_tick.h"
 #include "peripherals/timer.h"
 #include "peripherals/uart.h"
+
+// TuneOS
+#include "os/system_tick.h"
+#include "os/shell.h"
+#include "os/task_manager.h"
 
 // modules
 #include "animations.h"
@@ -39,12 +44,9 @@
 #include "menus.h"
 #include "memory.h"
 #include "meter.h"
-#include "pins.h"
 #include "relays.h"
 #include "RF_sensor.h"
-#include "shell.h"
 #include "stopwatch.h"
-#include "task_manager.h"
 #include "tuning.h"
 
 #endif	/* _INCLUDES_H_ */
