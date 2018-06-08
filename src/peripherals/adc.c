@@ -26,5 +26,5 @@ uint16_t adc_measure(uint8_t channel)
     // Wait for the conversion to finish
     while (ADCON0bits.GO == 1); 
     
-    return ((ADRESH << 8) | ADRESL);
+    return (((uint16_t)ADRESH << 8) | (uint16_t)ADRESL);
 }
