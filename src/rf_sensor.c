@@ -44,15 +44,6 @@ void SWR_threshold_increment(void)
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Notes on the Period counter
-
-    TODO: write docs
-
-    F
-
-*/
-
-
 /*  validate_frequency_signal()
 
     This function confirms that a valid Frequency signal is present on the input
@@ -261,32 +252,29 @@ void SWR_measure(void)
     It's possible that too many samples will cause accuracy problems.
 */
 // TODO: do Science! with the number of samples
-#define NUM_OF_SAMPLES 16
+#define NUM_OF_SWR_SAMPLES 16
 void SWR_average(void)
 {
     uint16_t tempFWD = 0;
     uint16_t tempREV = 0;
 
     // Take our measurements
-    for (uint8_t i = 0; i < NUM_OF_SAMPLES; i++)
+    for (uint8_t i = 0; i < NUM_OF_SWR_SAMPLES; i++)
     {
         tempFWD += adc_measure(0);
         tempREV += adc_measure(1);
     }
 
     // publish the samples and calculate the SWR
-    currentRF.forward = tempFWD;
-    currentRF.reverse = tempREV; 
+    currentRF.forward = (tempFWD / NUM_OF_SWR_SAMPLES);
+    currentRF.reverse = (tempREV / NUM_OF_SWR_SAMPLES); 
     currentRF.swr = calculate_SWR(tempFWD, tempREV);
 }
 
-/*  Notes on SWR_stable_average()
-
-    This function monitors the forward power and waits until the slope is flat.
+/*  Notes on wait_for_stable_FWD()
 
 
 */
-
 int8_t wait_for_stable_FWD(void)
 {
     uint16_t currentFWD;
@@ -308,6 +296,12 @@ int8_t wait_for_stable_FWD(void)
     return -1;
 }
 
+/*  Notes on SWR_stable_average()
+
+    This function monitors the forward power and waits until the slope is flat.
+
+
+*/
 int8_t SWR_stable_average(void)
 {
     // Measure the frequency
