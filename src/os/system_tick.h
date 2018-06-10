@@ -7,8 +7,10 @@ extern void systick_init(void);
 
 /* -------------------------------------------------------------------------- */
 
-#define print_current_time() printf("currentTime: %ld ", systick_read())
-
 extern uint24_t systick_read(void);
+
+extern uint24_t systick_elapsed_time(uint24_t startTime);
+
+extern void systick_delay(uint16_t mseconds);
 
 #endif

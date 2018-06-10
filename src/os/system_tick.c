@@ -57,3 +57,19 @@ uint24_t systick_read(void)
 
     return result;
 }
+
+uint24_t systick_elapsed_time(uint24_t startTime)
+{
+    return (systick_read() - startTime);
+}
+
+void systick_delay(uint16_t mseconds)
+{
+    uint24_t startTime = systick_read();
+
+    while(1)
+    {
+        uint24_t elapsedTime = systick_elapsed_time(startTime);
+        if((elapsedTime) >= mseconds) break;
+    }
+}
