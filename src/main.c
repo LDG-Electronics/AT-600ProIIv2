@@ -11,10 +11,10 @@ void main(void)
     while(1)
     {
         // Relay buttons
-        if (btn_is_pressed(CUP) || btn_is_down(CUP)) cup_hold();
-        if (btn_is_pressed(CDN) || btn_is_down(CDN)) cdn_hold();
-        if (btn_is_pressed(LUP) || btn_is_down(LUP)) lup_hold();
-        if (btn_is_pressed(LDN) || btn_is_down(LDN)) ldn_hold();
+        if (btn_is_pressed(CUP) || btn_is_down(CUP)) relay_button_hold();
+        if (btn_is_pressed(CDN) || btn_is_down(CDN)) relay_button_hold();
+        if (btn_is_pressed(LUP) || btn_is_down(LUP)) relay_button_hold();
+        if (btn_is_pressed(LDN) || btn_is_down(LDN)) relay_button_hold();
 
         // Other buttons
         if (btn_is_pressed(FUNC) || btn_is_down(FUNC)) func_hold();
