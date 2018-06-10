@@ -28,6 +28,9 @@
 // This enum should contain one entry for every front panel button.
 typedef enum {TUNE, FUNC, CUP, CDN, LUP, LDN, ANT, POWER} buttonName_t;
 
+// This pointer can refer to one of the button checking functions
+typedef uint8_t (*button_check_t)(buttonName_t);
+
 /* ************************************************************************** */
 
 // Setup
@@ -53,6 +56,9 @@ extern uint8_t get_buttons(void);
     The last two states represent when a button is either being held constantly
     or not being touched at all.
 */
+
+// Returns a 1 if any of the listed buttons is experiencing the specified state
+extern uint8_t check_multiple_buttons(button_check_t btn_is_xxx, uint8_t numberOfButtons, ...);
 
 // Returns 1 if the specified button is experiencing a falling edge
 extern uint8_t btn_is_pressed(buttonName_t buttonName);

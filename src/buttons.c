@@ -108,13 +108,35 @@ uint8_t get_buttons(void) // 11us, will be faster after ANT buttons works
 
 /* -------------------------------------------------------------------------- */
 
+// Returns a 1 if any of the listed buttons is experiencing the specified state
+uint8_t check_multiple_buttons(button_check_t btn_is_xxx, uint8_t numberOfButtons, ...)
+{
+    va_list argumentList;
+    buttonName_t firstButton;
+
+    va_start(argumentList, numberOfButtons);
+
+    firstButton = va_arg(argumentList, buttonName_t);
+
+    for(uint8_t i = 0; i < numberOfButtons; i++)
+    {
+        if(btn_is_xxx(va_arg(argumentList, buttonName_t)))
+        {
+            va_end(list);
+            return 1;
+        }
+    }
+
+    va_end(list);
+    return 0;
+}
+
 // Returns 1 if rising edge is detected
 uint8_t btn_is_pressed(buttonName_t buttonName)
 {
-    /*
-        Mask out the middle three 'bouncy' bits, and compare the result with the
+    /*  Mask out the middle three 'bouncy' bits, and compare the result with the
         'pressed' binary literal.  This evaluates true if the button was
-        previously 'up', bounces in the middle, and has three continous polls of
+        previously 'up', bounces in the middle, and has three continuous polls of
         'down'.
         
         If the above conditions are met, we set the history to all down, so
@@ -135,14 +157,13 @@ uint8_t btn_is_pressed(buttonName_t buttonName)
 // Returns 1 if falling edge is detected
 uint8_t btn_is_released(buttonName_t buttonName)
 {
-    /*
-        Mask out the middle three 'bouncy' bits, and compare the result with the
+    /*  Mask out the middle three 'bouncy' bits, and compare the result with the
         'released' binary literal.  This evaluates true if the button was
-        previously 'down', bounces in the middle, and has three continous polls of
+        previously 'down', bounces in the middle, and has three continuous polls of
         'up'.
         
         If the above conditions are met, we set the history to all up, so
-        another call to this function won't falsely detect another falilng edge.
+        another call to this function won't falsely detect another falling edge.
         Then, return 1 for true.
         
         If the conditions aren't met, return 0 for false. (Duh.)
