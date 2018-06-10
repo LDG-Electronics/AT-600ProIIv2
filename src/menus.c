@@ -20,93 +20,97 @@ void system_idle_block(void)
 }
 
 /* ************************************************************************** */
-#define SUBMENU_TIMEOUT 2200
+#define SUBMENU_DURATION 2200
+
+void threshold_blink_and_hold(uint8_t blinks)
+{
+    blink_thresh(blinks); // blink for emphasis
+    show_thresh(); // leave it on the screen
+}
 
 void threshold_submenu(void)
 {
-    uint16_t modeCount = SUBMENU_TIMEOUT;
+    uint24_t startTime = systick_read(); // stash the current time
+
+    threshold_blink_and_hold(3);
     
-    blink_thresh(3);
-    show_thresh();
-    
-    while (1)
+    while(1)
     {
-        if (btn_is_pressed(LDN))
-        {
-            modeCount = SUBMENU_TIMEOUT;
+        if(btn_is_down(LDN)) {
+            startTime = systick_read(); // reset the start time
             SWR_threshold_increment();
             
-            show_thresh();
-            blink_thresh(2);
-            show_thresh();
+            threshold_blink_and_hold(2);
         }        
         
-        if (btn_is_pressed(FUNC)) break;
-        modeCount--;
-        if (modeCount == 0) break;
+        // Pressing FUNC again cancels and exits
+        if(btn_is_down(FUNC)) break;
 
-        delay_ms(1);
+        // Cancel and exit if it's been longer than SUBMENU_DURATION
+        if(systick_elapsed_time(startTime) >= SUBMENU_DURATION) break;
+
         system_idle_block();
     }
 }
 
 void function_submenu(void)
 {
-    uint16_t modeCount = SUBMENU_TIMEOUT; 
+    uint24_t startTime = systick_read(); // stash the current time
 
     while(btn_is_down(FUNC)); // make sure FUNC is released before we continue
 
-    // TODO: There's a bug here that causes the animation to always be
-    //       interrupted. Not sure why.
-    
+    delay_ms(50);
     play_interruptable_animation(&arrow_up);
 
-    while (1)
+    while(1)
     {
-        if (btn_is_pressed(CUP)) {
+        if(btn_is_down(CUP)) {
             toggle_peak();
             show_peak();
             return;
         }
-        if (btn_is_pressed(LUP)) {
+        if(btn_is_down(LUP)) {
             toggle_scale();
             blink_scale(4);
             return;
         }
-        if (btn_is_pressed(CDN)) {
+        if(btn_is_down(CDN)) {
             toggle_auto();
             blink_auto(4);
             return;
         }
-        if (btn_is_pressed(LDN)) {
+        if(btn_is_down(LDN)) {
             threshold_submenu();
             blink_thresh(4);
             return;
         }
-        if (btn_is_pressed(ANT)) { 
+        if(btn_is_down(ANT)) { 
             toggle_hiloz();
             blink_HiLoZ(4);
             return;
         }
-        if (btn_is_pressed(TUNE)) {
+        if(btn_is_down(TUNE)) {
             manual_store();
             return;
         }
 
-        if (btn_is_pressed(POWER)) break;
-        if (btn_is_pressed(FUNC)) break; // Pressing FUNC again cancels and exits
-        modeCount--;
-        if (modeCount == 0) break;
+        // Pressing POWER or FUNC cancels and exits
+        if(btn_is_down(POWER)) break;
+        if(btn_is_down(FUNC)) break;
+        
+        // Cancel and exit if it's been longer than SUBMENU_DURATION
+        if(systick_elapsed_time(startTime) >= SUBMENU_DURATION) break;
 
-        delay_ms(1);
         system_idle_block();
     }
     play_animation(&arrow_down);
 }
 
+#define POWER_BUTTON_DURATION 1000
+
 void shutdown_submenu(void)
 {
-    uint16_t holdCount = 0;
+    uint24_t startTime = systick_read(); // stash the current time
 
     #if LOG_LEVEL_MENUS > LOG_SILENT
     println("shutting down");
@@ -116,13 +120,12 @@ void shutdown_submenu(void)
     clear_status_LEDs();
     display_clear();
 
-    while(btn_is_down(POWER));
+    while(btn_is_down(POWER)); // wait until power button is released
     delay_ms(100);
 
     while(1)
     {
-        if (btn_is_down(POWER)) holdCount++;
-        if (holdCount == 1000) break;
+        if(systick_elapsed_time(startTime) >= POWER_BUTTON_DURATION) break;
 
         delay_ms(1);
         system_idle_block();
@@ -135,7 +138,7 @@ void shutdown_submenu(void)
     // Put the Status LEDs back how we found them
     update_status_LEDs();
 
-    while(btn_is_down(POWER));
+    while(btn_is_down(POWER)); // wait until power button is released
 }
 
 /* -------------------------------------------------------------------------- */
@@ -149,10 +152,10 @@ void relay_button_hold(void)
     uint16_t holdCount = 0;
 
     // stay in loop while any relay button is held
-    while(btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) || btn_is_down(LDN))
-{
+    while(check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN))
+    {
         if(holdCount < UINT16_MAX) holdCount++;
-
+        
         if(btn_is_down(CUP)) capacitor_increment();
         if(btn_is_down(CDN)) capacitor_decrement();
         if(btn_is_down(LUP)) inductor_increment();
@@ -171,41 +174,41 @@ void relay_button_hold(void)
 
 void tune_hold(void)
 {
-    uint16_t holdCount = 0;
+    uint24_t startTime = systick_read();
+    uint24_t elapsedTime;
 
-    while(btn_is_down(TUNE))
+    while(btn_is_down(TUNE)) // stay in loop while TUNE is held
     {
-        if (holdCount < UINT16_MAX) holdCount++;
+        elapsedTime = systick_elapsed_time(startTime);
 
-        if (holdCount < BTN_PRESS_DEBOUNCE) {
+        if (elapsedTime < BTN_PRESS_DEBOUNCE) {
             // button was not held long enough, do nothing
-        } else if (holdCount < BTN_PRESS_SHORT) {
+        } else if (elapsedTime < BTN_PRESS_SHORT) {
             display_single_frame(&center_crawl, 0);
-        } else if (holdCount < BTN_PRESS_MEDIUM) {
+        } else if (elapsedTime < BTN_PRESS_MEDIUM) {
             display_single_frame(&center_crawl, 2);
-        } else if (holdCount < BTN_PRESS_LONG) {
+        } else if (elapsedTime < BTN_PRESS_LONG) {
             display_single_frame(&center_crawl, 3);
-        } else if (holdCount >= BTN_PRESS_LONG) {
+        } else if (elapsedTime >= BTN_PRESS_LONG) {
             display_clear();
         }
 
-        delay_ms(1);
         system_idle_block();
     }
 
     display_clear();
 
-    if (holdCount < BTN_PRESS_DEBOUNCE) {
+    if (elapsedTime < BTN_PRESS_DEBOUNCE) {
         // button was not held long enough, do nothing
-    } else if (holdCount < BTN_PRESS_SHORT) {
+    } else if (elapsedTime < BTN_PRESS_SHORT) {
         toggle_bypass();
         blink_bypass();
-    } else if (holdCount < BTN_PRESS_MEDIUM) {
+    } else if (elapsedTime < BTN_PRESS_MEDIUM) {
         // request_memory_tune();
         request_full_tune();
-    } else if (holdCount < BTN_PRESS_LONG) {
+    } else if (elapsedTime < BTN_PRESS_LONG) {
         request_full_tune();
-    } else if (holdCount >= BTN_PRESS_LONG) {
+    } else if (elapsedTime >= BTN_PRESS_LONG) {
         // button was held for too long, do nothing
     }
     save_flags();
@@ -215,34 +218,33 @@ void func_hold(void)
 {
     uint8_t FuncHoldProcessed = 0;
 
-    while(btn_is_down(FUNC))
+    while(btn_is_down(FUNC)) // stay in loop while FUNC is held
     {
-        if (btn_is_pressed(CUP)) {
+        if(btn_is_down(CUP)) {
             FuncHoldProcessed = 1;
             show_peak();
         }
-        if (btn_is_pressed(CDN)) {
+        if(btn_is_down(CDN)) {
             FuncHoldProcessed = 1;
             blink_auto(3);
             show_auto();
         }
-        if (btn_is_pressed(LDN)) {
+        if(btn_is_down(LDN)) {
             FuncHoldProcessed = 1;
             blink_thresh(3);
             show_thresh();
         }
-        if (btn_is_pressed(LUP)) {
+        if(btn_is_down(LUP)) {
             FuncHoldProcessed = 1;
             blink_scale(3);
             show_scale();
         }
-        if (btn_is_pressed(ANT)) {
+        if(btn_is_down(ANT)) {
             FuncHoldProcessed = 1;
             blink_HiLoZ(2);
             show_HiLoZ();
         }
 
-        delay_ms(1);
         system_idle_block();
     }
     if (FuncHoldProcessed == 0) function_submenu();
@@ -255,29 +257,23 @@ void ant_hold(void)
     blink_antenna();
     update_antenna_LED();
 
-    // This loop ensures that the antenna is only toggled once per button press
-    while(btn_is_down(ANT))
+    while(btn_is_down(ANT)) // stay in loop while ANT is held
     {
-        delay_ms(1);
         system_idle_block();
     }
     save_flags();
 }
 
+#define POWER_HOLD_DURATION 1500
+
 void power_hold(void)
 {
-    uint16_t holdCount = 0;
+    uint24_t startTime = systick_read();
 
-    while(btn_is_down(POWER))
+    while(btn_is_down(POWER)) // stay in loop while POWER is held
     {
-        if (holdCount < UINT16_MAX) holdCount++;
+        if(systick_elapsed_time(startTime) >= POWER_HOLD_DURATION) break;
 
-        if (holdCount == 1500) {
-            shutdown_submenu();
-            break;
-        }
-
-        delay_ms(1);
         system_idle_block();
     }
     save_flags();
