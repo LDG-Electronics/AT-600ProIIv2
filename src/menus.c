@@ -30,9 +30,9 @@ void threshold_blink_and_hold(uint8_t blinks)
 
 void threshold_submenu(void)
 {
-    uint24_t startTime = systick_read(); // stash the current time
-
     threshold_blink_and_hold(3);
+
+    uint24_t startTime = systick_read(); // stash the current time
     
     while(1)
     {
@@ -55,12 +55,12 @@ void threshold_submenu(void)
 
 void function_submenu(void)
 {
-    uint24_t startTime = systick_read(); // stash the current time
-
     while(btn_is_down(FUNC)); // make sure FUNC is released before we continue
 
     delay_ms(50);
     play_interruptable_animation(&arrow_up);
+
+    uint24_t startTime = systick_read(); // stash the current time
 
     while(1)
     {
@@ -110,8 +110,6 @@ void function_submenu(void)
 
 void shutdown_submenu(void)
 {
-    uint24_t startTime = systick_read(); // stash the current time
-
     #if LOG_LEVEL_MENUS > LOG_SILENT
     println("shutting down");
     #endif
@@ -122,6 +120,8 @@ void shutdown_submenu(void)
 
     while(btn_is_down(POWER)); // wait until power button is released
     delay_ms(100);
+
+    uint24_t startTime = systick_read(); // stash the current time
 
     while(1)
     {
@@ -174,8 +174,8 @@ void relay_button_hold(void)
 
 void tune_hold(void)
 {
-    uint24_t startTime = systick_read();
     uint24_t elapsedTime;
+    uint24_t startTime = systick_read();
 
     while(btn_is_down(TUNE)) // stay in loop while TUNE is held
     {
