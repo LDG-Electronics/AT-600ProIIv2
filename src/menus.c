@@ -144,78 +144,19 @@ void shutdown_submenu(void)
 #define RELAY_INCREMENT_FAST_DELAY 75
 #define RELAY_INCREMENT_SLOW_DELAY 200
 
-void cup_hold(void)
+void relay_button_hold(void)
 {
     uint16_t holdCount = 0;
 
-    while(btn_is_down(CUP))
-    {
-        if (holdCount < UINT16_MAX) holdCount++;
-
-        capacitor_increment();
-
-        if(holdCount > RELAY_INCREMENT_COUNT) {
-            delay_ms(RELAY_INCREMENT_FAST_DELAY);
-        } else {
-            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
-        }
-
-        system_idle_block();
-    }
-    save_flags();
-}
-
-void cdn_hold(void)
+    // stay in loop while any relay button is held
+    while(btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) || btn_is_down(LDN))
 {
-    uint16_t holdCount = 0;
+        if(holdCount < UINT16_MAX) holdCount++;
 
-    while(btn_is_down(CDN))
-    {
-        if (holdCount < UINT16_MAX) holdCount++;
-
-        capacitor_decrement();
-
-        if(holdCount > RELAY_INCREMENT_COUNT) {
-            delay_ms(RELAY_INCREMENT_FAST_DELAY);
-        } else {
-            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
-        }
-
-        system_idle_block();
-    }
-    save_flags();
-}
-
-void lup_hold(void)
-{
-    uint16_t holdCount = 0;
-
-    while(btn_is_down(LUP))
-    {
-        if (holdCount < UINT16_MAX) holdCount++;
-
-        inductor_increment();
-
-        if(holdCount > RELAY_INCREMENT_COUNT) {
-            delay_ms(RELAY_INCREMENT_FAST_DELAY);
-        } else {
-            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
-        }
-
-        system_idle_block();
-    }
-    save_flags();
-}
-
-void ldn_hold(void)
-{
-    uint16_t holdCount = 0;
-
-    while(btn_is_down(LDN))
-    {
-        if (holdCount < UINT16_MAX) holdCount++;
-
-        inductor_decrement();
+        if(btn_is_down(CUP)) capacitor_increment();
+        if(btn_is_down(CDN)) capacitor_decrement();
+        if(btn_is_down(LUP)) inductor_increment();
+        if(btn_is_down(LDN)) inductor_decrement();
 
         if(holdCount > RELAY_INCREMENT_COUNT) {
             delay_ms(RELAY_INCREMENT_FAST_DELAY);

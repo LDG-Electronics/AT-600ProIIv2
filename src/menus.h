@@ -11,10 +11,7 @@ extern void system_idle_block(void);
 // Nested state machine handlers for front panel buttons
 
 // relay increment buttons
-extern void cup_hold(void);
-extern void cdn_hold(void);
-extern void lup_hold(void);
-extern void ldn_hold(void);
+extern void relay_button_hold(void);
 
 // other buttons
 extern void tune_hold(void);
