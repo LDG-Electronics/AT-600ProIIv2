@@ -98,14 +98,12 @@ void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void)
 // Returns 0 if no buttons are pressed
 uint8_t get_buttons(void) // 11us, will be faster after ANT buttons works
 {
-    uint16_t x = 0;
-    
     for (uint8_t i = 0; i < FRONT_PANEL_BUTTONS; i++)
     {
-        x += buttons[i];
+        if(buttons[i] != 0) return 1;
     }
     
-    return x;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
