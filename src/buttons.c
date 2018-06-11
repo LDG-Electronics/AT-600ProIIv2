@@ -111,16 +111,13 @@ uint8_t get_buttons(void) // 11us, will be faster after ANT buttons works
 // Returns a 1 if any of the listed buttons is experiencing the specified state
 uint8_t check_multiple_buttons(button_check_t btn_is_xxx, uint8_t numberOfButtons, ...)
 {
-    va_list argumentList;
-    buttonName_t firstButton;
+    va_list ap;
 
-    va_start(argumentList, numberOfButtons);
-
-    firstButton = va_arg(argumentList, buttonName_t);
+    va_start(ap, numberOfButtons);
 
     for(uint8_t i = 0; i < numberOfButtons; i++)
     {
-        if(btn_is_xxx(va_arg(argumentList, buttonName_t)))
+        if(btn_is_xxx(va_arg(ap, buttonName_t)))
         {
             va_end(list);
             return 1;
