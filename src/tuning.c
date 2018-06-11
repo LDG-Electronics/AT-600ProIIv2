@@ -661,17 +661,12 @@ void prepare_memories(void)
     bestMemory.all = 0;
     
     // Read the memory and its neighbors
-    memoryBuffer[0].all = memory_recall(address);
-    memoryBuffer[1].all = memory_recall(address);
-    memoryBuffer[2].all = memory_recall(address - MEMORY_GAP);
-    memoryBuffer[3].all = memory_recall(address - MEMORY_GAP);
-    memoryBuffer[4].all = memory_recall(address + MEMORY_GAP);
-    memoryBuffer[5].all = memory_recall(address + MEMORY_GAP);
-    
-    // Set the smallest bit of .caps equal to 1
-    memoryBuffer[1].caps |= 1;
-    memoryBuffer[3].caps |= 1;
-    memoryBuffer[5].caps |= 1;
+    memoryBuffer[0] = memory_recall(address);
+    memoryBuffer[1] = memory_recall(address);
+    memoryBuffer[2] = memory_recall(address - MEMORY_GAP);
+    memoryBuffer[3] = memory_recall(address - MEMORY_GAP);
+    memoryBuffer[4] = memory_recall(address + MEMORY_GAP);
+    memoryBuffer[5] = memory_recall(address + MEMORY_GAP);
 }
     
 void test_memory(relays_s* memory)
