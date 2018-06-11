@@ -73,4 +73,6 @@ extern void show_thresh(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern int shell_show_bargraphs(int argc, char** argv);
+
 #endif

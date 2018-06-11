@@ -13,6 +13,9 @@ void display_init(void)
     spi_init();
 
     clear_status_LEDs();
+
+    // shell command
+    shell_register(shell_show_bargraphs, "bar");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -233,4 +236,87 @@ void show_scale(void)
 void show_thresh(void)
 {
     FP_update(swrThreshDisplay[swrThreshIndex] << 8);
+}
+
+/* -------------------------------------------------------------------------- */
+
+/*  fwdIndex
+
+    AT-600ProII PWR bargraph has the following markings:
+
+    0       <- all bars off still needs a value
+    10
+    25
+    50
+    100
+    200
+    300
+    450
+    600    
+*/
+
+uint16_t fwdIndexArray[] = { 0, 10, 25, 50, 100, 200, 300, 450, 600, };
+
+uint8_t calculate_fwd_index(uint16_t forwardWatts)
+{
+    uint8_t i = 0;
+
+    while(fwdIndexArray[i] < forwardWatts) i++;
+
+    return i;
+}
+
+/*  swrIndex
+
+    AT-600ProII SWR bargraph has the following markings:
+
+    1.0     <- all bars off still needs a value
+    1.1
+    1.3
+    1.5
+    1.7
+    2.0
+    2.5
+    3.0
+    3.0+
+*/
+
+double swrIndexArray[] = { 1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5, };
+
+uint8_t calculate_swr_index(double swrValue)
+{
+    uint8_t i = 0;
+
+    while(swrIndexArray[i] < swrValue) i++;
+
+    return i;
+}
+
+void show_power_and_SWR(uint8_t fwdIndex, uint8_t swrIndex)
+{
+    uint16_t out = 0;
+    
+    out = ledBarTable[fwdIndex];
+    out |= ledBarTable[swrIndex];
+
+    FP_update(out);
+}
+
+int shell_show_bargraphs(int argc, char** argv)
+{
+    if(argc == 3)
+    {
+        print("first arg: ");
+        print(argv[1]);
+        uint16_t forwardWatts = atoi(argv[1]);
+        printf(", forwardWatts: %u\r\n", forwardWatts);
+
+        print("second arg: ");
+        print(argv[2]);
+        double swrValue = atof(argv[2]);
+        printf(", swrValue: %u\r\n", swrValue);
+
+        show_power_and_SWR(calculate_fwd_index(forwardWatts), calculate_swr_index(swrValue));
+    }
+    return 0;
 }
