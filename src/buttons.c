@@ -95,12 +95,12 @@ void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void)
 
 /* -------------------------------------------------------------------------- */
 
-// Returns 0 if no buttons are pressed
-uint8_t get_buttons(void) // 11us, will be faster after ANT buttons works
+// Returns 1 if any button is currently down
+uint8_t get_buttons(void)
 {
     for (uint8_t i = 0; i < FRONT_PANEL_BUTTONS; i++)
     {
-        if(buttons[i] != 0) return 1;
+        if(btn_is_down(i)) return 1;
     }
     
     return 0;

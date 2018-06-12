@@ -37,7 +37,7 @@ typedef uint8_t (*button_check_t)(buttonName_t);
 extern void buttons_init(void);
 extern void buttons_stop(void);
 
-// Returns 1 if any button is current being held
+// Returns 1 if any button is currently down
 extern uint8_t get_buttons(void);
 
 /* -------------------------------------------------------------------------- */
