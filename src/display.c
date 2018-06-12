@@ -257,7 +257,7 @@ void show_thresh(void)
 
 uint16_t fwdIndexArray[] = { 0, 10, 25, 50, 100, 200, 300, 450, 600, };
 
-uint8_t calculate_fwd_index(uint16_t forwardWatts)
+static uint8_t calculate_fwd_index(uint16_t forwardWatts)
 {
     uint8_t i = 0;
 
@@ -283,7 +283,7 @@ uint8_t calculate_fwd_index(uint16_t forwardWatts)
 
 double swrIndexArray[] = { 1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5, };
 
-uint8_t calculate_swr_index(double swrValue)
+static uint8_t calculate_swr_index(double swrValue)
 {
     uint8_t i = 0;
 
@@ -292,14 +292,14 @@ uint8_t calculate_swr_index(double swrValue)
     return i;
 }
 
-void show_power_and_SWR(uint8_t fwdIndex, uint8_t swrIndex)
+void show_power_and_SWR(uint16_t forwardWatts, double swrValue)
 {
-    uint16_t out = 0;
+    uint16_t frame = 0;
     
-    out = ledBarTable[fwdIndex];
-    out |= ledBarTable[swrIndex];
+    frame = ledBarTable[calculate_fwd_index(forwardWatts)];
+    frame |= (ledBarTable[calculate_swr_index(swrValue)] << 8);
 
-    FP_update(out);
+    FP_update(frame);
 }
 
 int shell_show_bargraphs(int argc, char** argv)
@@ -316,7 +316,7 @@ int shell_show_bargraphs(int argc, char** argv)
         double swrValue = atof(argv[2]);
         printf(", swrValue: %u\r\n", swrValue);
 
-        show_power_and_SWR(calculate_fwd_index(forwardWatts), calculate_swr_index(swrValue));
+        show_power_and_SWR(forwardWatts, swrValue);
     }
     return 0;
 }
