@@ -48,7 +48,7 @@ extern void internal_eeprom_write(uint16_t address, uint8_t c);
     
     Recommended procedure for writing to flash memory is as follows:
     
-    void example_write(uint32_t address, uint8_t value1, uint8_t value2)
+    void example_write(uint24_t address, uint8_t value1, uint8_t value2)
     {
         uint8_t buffer[64];
         uint8_t *pointer;
@@ -72,16 +72,16 @@ extern void internal_eeprom_write(uint16_t address, uint8_t c);
 */
 
 // Read one byte from Flash memory at (address)
-uint8_t flash_read(uint32_t address);
+uint8_t flash_read(uint24_t address);
 
 // Read an entire block of 64 bytes from Flash memory into the provided buffer
-void flash_block_read(uint32_t address, uint8_t *buffer);
+void flash_block_read(uint24_t address, uint8_t *buffer);
 
 // Erase a block of Flash memory at (address)
-void flash_block_erase(uint32_t address);
+void flash_block_erase(uint24_t address);
 
 // Write the provided buffer into flash memory at (address)
-void flash_block_write(uint32_t address, uint8_t *buffer);
+void flash_block_write(uint24_t address, uint8_t *buffer);
 
 
 #endif

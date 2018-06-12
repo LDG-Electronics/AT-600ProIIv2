@@ -11,7 +11,7 @@ void adc_init(void)
     ADREFbits.PREF = 0b11; // Positive Voltage Reference, set to FVR
     
     ADCON0bits.FM = 1; // adc result is right-justified
-    ADCON0bits.CS = 1; //FRC Clock
+    ADCON0bits.CS = 1; // FRC Clock
 
     ADCON0bits.ON = 1; // Enable ADC peripheral
 }
@@ -26,5 +26,5 @@ uint16_t adc_measure(uint8_t channel)
     // Wait for the conversion to finish
     while (ADCON0bits.GO == 1); 
     
-    return (((uint16_t)ADRESH << 8) | (uint16_t)ADRESL);
+    return ADRES;
 }

@@ -127,16 +127,14 @@ void internal_eeprom_write(uint16_t address, uint8_t value)
 
 */
 
-uint8_t flash_read(uint32_t address)
+uint8_t flash_read(uint24_t address)
 {
     #if LOG_LEVEL_FLASH >= LOG_INFO
     println("flash_read");
     #endif
     
     // Load the address into the tablepointer registers
-    TBLPTRL = address;
-    TBLPTRH = address >> 8;
-    TBLPTRU = address >> 16;
+    TBLPTR = address;
 
     // Read one byte at the given address
     asm("TBLRD*+");
@@ -144,22 +142,20 @@ uint8_t flash_read(uint32_t address)
     return TABLAT;
 }
 
-void flash_block_read(uint32_t address, uint8_t *buffer)
+void flash_block_read(uint24_t address, uint8_t *buffer)
 {
     uint8_t i = 64;
-    uint32_t blockAddress;
+    uint24_t blockAddress;
     
     #if LOG_LEVEL_FLASH >= LOG_INFO
     println("flash_block_read");
     #endif
     
     // Mask off the block address
-    blockAddress = address & 0xffffffc0;
+    blockAddress = address & 0xffffc0;
     
     // Load the address into the tablepointer registers
-    TBLPTRL = blockAddress;
-    TBLPTRH = blockAddress >> 8;
-    TBLPTRU = blockAddress >> 16;
+    TBLPTR = blockAddress;
 
     while(i--)
     {
@@ -168,16 +164,14 @@ void flash_block_read(uint32_t address, uint8_t *buffer)
     }
 }
 
-void flash_block_erase(uint32_t address)
+void flash_block_erase(uint24_t address)
 {
     #if LOG_LEVEL_FLASH >= LOG_INFO
     println("flash_block_erase");
     #endif
     
     // Load the address into the tablepointer registers
-    TBLPTRL = address;
-    TBLPTRH = address >> 8;
-    TBLPTRU = address >> 16;
+    TBLPTR = address;
 
     // Helmsman, engage
     NVMCON1bits.REG = 1;
@@ -185,10 +179,10 @@ void flash_block_erase(uint32_t address)
     nvm_write();
 }
 
-void flash_block_write(uint32_t address, uint8_t *buffer)
+void flash_block_write(uint24_t address, uint8_t *buffer)
 {
     uint8_t i = 0;
-    uint32_t blockAddress;
+    uint24_t blockAddress;
     
     #if LOG_LEVEL_FLASH >= LOG_INFO
     println("flash_block_write");
@@ -202,9 +196,7 @@ void flash_block_write(uint32_t address, uint8_t *buffer)
     #endif
     
     // Load the address into the tablepointer registers
-    TBLPTRL = blockAddress;
-    TBLPTRH = blockAddress >> 8;
-    TBLPTRU = blockAddress >> 16;
+    TBLPTR = blockAddress;
 
     // Load the first half-block into the write buffer
     while(i < 32)
