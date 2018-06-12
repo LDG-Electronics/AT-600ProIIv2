@@ -84,8 +84,8 @@ void memory_store(uint32_t address)
     relays_s readRelays;
     
     // Make sure we aren't wasting an erase/write cycle
-    readRelays = memory_recall(address);
-    if (readRelays == currentRelays[system_flags.antenna]) return;
+    readRelays.all = memory_recall(address);
+    if (readRelays.all == currentRelays[system_flags.antenna].all) return;
     
     #if LOG_LEVEL_MEMORY >= LOG_EVENTS
     printf("mem write: %d", address);
@@ -107,7 +107,7 @@ void memory_store(uint32_t address)
     flash_block_write(address, buffer);
 }
 
-relays_s memory_recall(uint32_t address)
+uint32_t memory_recall(uint32_t address)
 {
     relays_s readRelays;
     readRelays.all = 0;
