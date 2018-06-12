@@ -9,17 +9,6 @@
 #define BTN_PRESS_LONG      10000
 
 /* ************************************************************************** */
-/*  Notes on the system idle block
-    This function contains various 'background' activities that should be
-    periodically serviced when the system isn't doing anything else important.
-*/
-void system_idle_block(void)
-{
-    shell_update();
-    task_manager_update();
-}
-
-/* ************************************************************************** */
 #define SUBMENU_DURATION 2200
 
 void threshold_blink_and_hold(uint8_t blinks)

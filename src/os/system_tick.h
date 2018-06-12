@@ -13,4 +13,10 @@ extern uint24_t systick_elapsed_time(uint24_t startTime);
 
 extern void systick_delay(uint16_t mseconds);
 
+/* ************************************************************************** */
+
+// This block should be executed whenever the system is engaged in a blocking
+// loop. 
+extern void system_idle_block(void);
+
 #endif

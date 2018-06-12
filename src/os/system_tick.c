@@ -59,9 +59,19 @@ void systick_delay(uint16_t mseconds)
 {
     uint24_t startTime = systick_read();
 
-    while(1)
+    while(systick_elapsed_time(startTime) < mseconds)
     {
-        uint24_t elapsedTime = systick_elapsed_time(startTime);
-        if((elapsedTime) >= mseconds) break;
+        system_idle_block();
     }
+}
+
+/* ************************************************************************** */
+/*  Notes on the system idle block
+    This function contains various 'background' activities that should be
+    periodically serviced when the system isn't doing anything else important.
+*/
+void system_idle_block(void)
+{
+    shell_update();
+    task_manager_update();
 }
