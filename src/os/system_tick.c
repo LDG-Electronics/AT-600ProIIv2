@@ -19,9 +19,7 @@ void systick_init(void)
     SMT1CON0bits.EN = 1; // enable SMT peripheral
     SMT1CON1bits.GO = 1; // Incrementing, acquiring data is enabled
 
-    SMT1TMRL = 0;
-    SMT1TMRH = 0;
-    SMT1TMRU = 0;
+    SMT1TMR = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,16 +44,10 @@ void systick_init(void)
 */
 uint24_t systick_read(void)
 {
-    uint24_t result = 0;
+    // Latch the current value of SMT1TMR into SMT1CPR
+    SMT1STATbits.CPRUP = 1;
 
-    SMT1STATbits.CPRUP = 1; // Latch the current value of SMT1TMR into SMT1CPR
-
-    // Load the latched value into the return variable
-    result = (uint24_t)SMT1CPRU << 16; // upper byte
-    result += (uint24_t)SMT1CPRH << 8; // high byte
-    result += SMT1CPRL; // low byte
-
-    return result;
+    return SMT1CPR;
 }
 
 uint24_t systick_elapsed_time(uint24_t startTime)
