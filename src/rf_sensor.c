@@ -207,6 +207,38 @@ uint16_t get_frequency(void)
 }
 
 /* -------------------------------------------------------------------------- */
+/*
+
+*/
+static uint16_t map_adc_to_watts(uint16_t input, 
+                          uint16_t old_min, uint16_t old_max, 
+                          uint16_t new_min, uint16_t new_max)
+{
+    uint32_t result = 0;
+    uint16_t oldRange = (old_max - old_min);
+    uint16_t newRange = (new_max - new_min);
+    
+    result = ((input * newRange) / oldRange) + new_min;
+    
+    return (uint16_t)result;
+}
+
+/*
+
+*/
+static uint16_t convert_forward_adc_to_watts(uint16_t forwardADC)
+{
+    return map_adc_to_watts(forwardADC, 0, 4095, 0, 750);
+}
+
+/*
+
+*/
+static uint16_t convert_reverse_adc_to_watts(uint16_t reverseADC)
+{
+    return map_adc_to_watts(reverseADC, 0, 4095, 0, 750);
+}
+
 /*  SWR calculation
 
     SWR = (1 + sqrt(Pr/Pf))/(1 - sqrt(Pr/Pf))
@@ -267,6 +299,7 @@ void SWR_average(void)
 
     // publish the samples and calculate the SWR
     currentRF.forward = (tempFWD / NUM_OF_SWR_SAMPLES);
+    currentRF.forwardWatts = convert_forward_adc_to_watts(currentRF.forward);
     currentRF.reverse = (tempREV / NUM_OF_SWR_SAMPLES); 
     currentRF.swr = calculate_SWR(tempFWD, tempREV);
 }
@@ -299,18 +332,13 @@ int8_t wait_for_stable_FWD(void)
 /*  Notes on SWR_stable_average()
 
     This function monitors the forward power and waits until the slope is flat.
-
-
 */
 int8_t SWR_stable_average(void)
 {
     // Measure the frequency
     currentRF.frequency = get_frequency();
 
-    if(wait_for_stable_FWD() == -1)
-    {
-        return -1;
-    }
+    if(wait_for_stable_FWD() == -1) return -1;
     
     SWR_average();
     
@@ -346,8 +374,9 @@ void print_current_SWR_ln(void)
 
 void print_RF_calibration_data(void)
 {
-    printf("(%u, %u, %f, %u)\r\n", 
-            currentRF.forward, currentRF.reverse, currentRF.swr, currentRF.frequency);
+    printf("(%u, %u, %u, %f, %u)\r\n", 
+            currentRF.forward, currentRF.forwardWatts, currentRF.reverse, 
+            currentRF.swr, currentRF.frequency);
 }
 
 // This task is used to generate calibration tables
