@@ -228,10 +228,10 @@ static uint16_t convert_forward_adc_to_watts(uint16_t forwardADC)
 /*
 
 */
-static uint16_t convert_reverse_adc_to_watts(uint16_t reverseADC)
-{
-    return map_adc_to_watts(reverseADC, 0, 4095, 0, 750);
-}
+// static uint16_t convert_reverse_adc_to_watts(uint16_t reverseADC)
+// {
+//     return map_adc_to_watts(reverseADC, 0, 4095, 0, 750);
+// }
 
 /*  SWR calculation
 
@@ -377,6 +377,8 @@ void print_RF_calibration_data(void)
 void task_RF_calibration(void)
 {
     SWR_stable_average();
+
+    show_current_power_and_SWR();
 
     print_RF_calibration_data();
 }
