@@ -189,7 +189,7 @@ void flash_block_write(uint24_t address, uint8_t *buffer)
     #endif
 
     // Mask off the block address
-    blockAddress = address & 0xffffffc0;
+    blockAddress = address & 0xffffc0;
     
     #if LOG_LEVEL_FLASH >= LOG_DETAILS
     printf("address: %d, blockAddress: %d", address, blockAddress);
