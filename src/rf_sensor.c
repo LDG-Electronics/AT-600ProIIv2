@@ -20,6 +20,7 @@ void RF_sensor_init(void)
     
     // Initialize the Global RF Readings
     currentRF.forward = 0;
+    currentRF.forwardWatts = 0;
     currentRF.reverse = 0;
     currentRF.swr = 0;
     currentRF.frequency = 0;
@@ -211,12 +212,12 @@ uint16_t get_frequency(void)
 
 */
 static uint16_t map_adc_to_watts(uint16_t input, 
-                          uint16_t old_min, uint16_t old_max, 
-                          uint16_t new_min, uint16_t new_max)
+                                 uint16_t old_min, uint16_t old_max, 
+                                 uint16_t new_min, uint16_t new_max)
 {
     uint32_t result = 0;
-    uint16_t oldRange = (old_max - old_min);
-    uint16_t newRange = (new_max - new_min);
+    uint32_t oldRange = (old_max - old_min);
+    uint32_t newRange = (new_max - new_min);
     
     result = ((input * newRange) / oldRange) + new_min;
     
@@ -228,7 +229,7 @@ static uint16_t map_adc_to_watts(uint16_t input,
 */
 static uint16_t convert_forward_adc_to_watts(uint16_t forwardADC)
 {
-    return map_adc_to_watts(forwardADC, 0, 4095, 0, 750);
+    return map_adc_to_watts(forwardADC, 0, 4095, 0, 600);
 }
 
 /*
