@@ -211,17 +211,10 @@ uint16_t get_frequency(void)
 /*
 
 */
-static uint16_t map_adc_to_watts(uint16_t input,
-                                 uint16_t old_min, uint16_t old_max,
-                                 uint16_t new_min, uint16_t new_max)
-{
-    uint32_t result = 0;
-    uint32_t oldRange = (old_max - old_min);
-    uint32_t newRange = (new_max - new_min);
-    
-    result = (((input - old_min) * newRange) / oldRange) + new_min;
-    
-    return (uint16_t)result;
+double f(double x) {
+    return 2.0595782264652627e+000 * pow(x,0)
+        + 1.6324165531607232e-003 * pow(x,1)
+        + 2.6294242259022297e-005 * pow(x,2);
 }
 
 /*
@@ -229,7 +222,7 @@ static uint16_t map_adc_to_watts(uint16_t input,
 */
 static uint16_t convert_forward_adc_to_watts(uint16_t forwardADC)
 {
-    return map_adc_to_watts(forwardADC, 400, 4095, 0, 600);
+    return (uint16_t)f(forwardADC);
 }
 
 /*
