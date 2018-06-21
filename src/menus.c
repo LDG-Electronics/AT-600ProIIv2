@@ -30,7 +30,7 @@ void threshold_submenu(void)
             SWR_threshold_increment();
             
             threshold_blink_and_hold(2);
-        }        
+        }
         
         // Pressing FUNC again cancels and exits
         if(btn_is_down(FUNC)) break;
