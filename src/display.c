@@ -302,6 +302,16 @@ void show_power_and_SWR(uint16_t forwardWatts, double swrValue)
     FP_update(frame);
 }
 
+void show_current_power_and_SWR(void)
+{
+    uint16_t frame = 0;
+    
+    frame = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
+    frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
+
+    FP_update(frame);
+}
+
 int shell_show_bargraphs(int argc, char** argv)
 {
     if(argc == 3)
