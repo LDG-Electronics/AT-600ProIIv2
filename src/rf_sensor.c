@@ -211,6 +211,15 @@ uint16_t get_frequency(void)
 /*
 
 */
+typedef struct{
+    double firstCoefficient;
+    double secondCoefficient;
+    double thirdCoefficient;
+} calibration_s;
+
+/*
+
+*/
 double f(double x) {
     return 2.0595782264652627e+000 * pow(x,0)
         + 1.6324165531607232e-003 * pow(x,1)
