@@ -26,9 +26,9 @@
 #include "peripherals/uart.h"
 
 // TuneOS
-#include "os/system_tick.h"
 #include "os/shell.h"
 #include "os/stopwatch.h"
+#include "os/system_tick.h"
 #include "os/task_manager.h"
 
 // modules
