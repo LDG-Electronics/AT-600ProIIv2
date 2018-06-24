@@ -53,13 +53,14 @@ void SWR_threshold_increment(void)
     and -1 means failure.
 */
 #define PERIOD_THRESHOLD 2
+#define PERIOD_VALIDATION_WINDOW 40
 static int8_t validate_frequency_signal(void)
 {
     system_time_t currentTime = systick_read();
     uint16_t freqPinCount = 0;
     uint8_t prevFreqPin = FREQ_PIN;
 
-    while(systick_read() <= (currentTime + 40)){
+    while(systick_elapsed_time(currentTime) < PERIOD_VALIDATION_WINDOW){
         if(prevFreqPin != FREQ_PIN){
             prevFreqPin = FREQ_PIN;
             freqPinCount++;
@@ -311,17 +312,17 @@ void SWR_average(void)
 
 
 */
+#define STABLE_RF_WINDOW 500
 int8_t wait_for_stable_FWD(void)
 {
     uint16_t currentFWD;
     uint16_t previousFWD = adc_measure(0);
-
     int16_t deltaFWD = 0;
     int16_t deltaCompare = 0;
 
     // spend up to 500ms waiting for the Forward Power to level off
     system_time_t currentTime = systick_read();
-    while(systick_read() <= (currentTime + 500)){
+    while(systick_elapsed_time(currentTime) <= STABLE_RF_WINDOW){
         currentFWD = adc_measure(0);
 
         deltaFWD = abs((int16_t)currentFWD - (int16_t)previousFWD);

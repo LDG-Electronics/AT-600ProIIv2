@@ -76,9 +76,7 @@ void ms_stopwatch_begin(void)
 
 void ms_stopwatch_end(void)
 {
-    system_time_t currentTime = systick_read();
-
-    printf("stopwatch: %dms\r\n", (currentTime - ms_startTime));
+    printf("stopwatch: %lums\r\n", (uint32_t)systick_elapsed_time(ms_startTime));
 }
 
 /* -------------------------------------------------------------------------- */
