@@ -61,13 +61,13 @@ void send_meter_update(void)
 #define METER_UPDATE_INTERVAL 100
 void attempt_meter_update(void)
 {
-    static uint24_t nextUpdateTime = 0;
+    static system_time_t nextUpdateTime = 0;
     
     check_for_meter_sync();
 
     if (meter_update_status == 1) 
     {
-        uint24_t currentTime = systick_read();
+        system_time_t currentTime = systick_read();
 
         if(currentTime >= nextUpdateTime)
         {

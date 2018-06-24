@@ -67,7 +67,7 @@ void us_stopwatch_end(void)
     printf("stopwatch: %luus\r\n", stopwatchCount);
 }
 
-static uint24_t ms_startTime = 0;
+static system_time_t ms_startTime = 0;
 
 void ms_stopwatch_begin(void)
 {
@@ -76,7 +76,7 @@ void ms_stopwatch_begin(void)
 
 void ms_stopwatch_end(void)
 {
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
 
     printf("stopwatch: %dms\r\n", (currentTime - ms_startTime));
 }

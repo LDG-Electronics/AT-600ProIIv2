@@ -42,7 +42,7 @@ void systick_init(void)
     SMT1CPR, and therefore is safe to read without worrying about corrupted
     data.
 */
-uint24_t systick_read(void)
+system_time_t systick_read(void)
 {
     // Latch the current value of SMT1TMR into SMT1CPR
     SMT1STATbits.CPRUP = 1;
@@ -50,14 +50,14 @@ uint24_t systick_read(void)
     return SMT1CPR;
 }
 
-uint24_t systick_elapsed_time(uint24_t startTime)
+system_time_t systick_elapsed_time(system_time_t startTime)
 {
     return (systick_read() - startTime);
 }
 
 void systick_delay(uint16_t mseconds)
 {
-    uint24_t startTime = systick_read();
+    system_time_t startTime = systick_read();
 
     while(systick_elapsed_time(startTime) < mseconds)
     {

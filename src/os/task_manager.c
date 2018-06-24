@@ -29,7 +29,7 @@
 typedef struct {
     const char *name;
     task_callback_s eventCallback;
-    uint24_t scheduledTime;
+    system_time_t scheduledTime;
     uint16_t repeat;
 } task_s;
 
@@ -305,7 +305,7 @@ int8_t task_queue_lookup(const char *name)
 }
 
 // create a task object and add it to the task queue
-int8_t task_register(const char *name, task_callback_s callback, uint24_t time, uint16_t repeat)
+int8_t task_register(const char *name, task_callback_s callback, system_time_t time, uint16_t repeat)
 {
     if(queue_is_full()) return -1;
 
@@ -351,7 +351,7 @@ void task_manager_update(void)
     if(queue_is_empty()) return;
 
     // return early if the first task isn't ready yet
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     if(!task_is_ready(FIRST_TASK, currentTime)) return;
 
     #if LOG_LEVEL_TASKS >= LOG_EVENTS
@@ -391,31 +391,31 @@ void task_manager_update(void)
 // dummy tasks to be used as callbacks in task_self_test()
 void task_beep(void)
 {
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     printf("beep %d\r\n", currentTime);
 }
 
 void task_boop(void)
 {
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     printf("boop %d\r\n", currentTime);
 }
 
 void task_fizz(void)
 {
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     printf("fizz %d\r\n", currentTime);
 }
 
 void task_buzz(void)
 {
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     printf("buzz %d\r\n", currentTime);
 }
 
 void task_dummy(void)
 {
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     // printf("time: %d\r\n", currentTime);
 }
 /* ************************************************************************** */

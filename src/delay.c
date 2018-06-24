@@ -36,7 +36,7 @@ void delay_us(uint16_t useconds)
 
 void delay_ms(uint16_t mseconds)
 {
-    uint24_t startTime = systick_read();
+    system_time_t startTime = systick_read();
 
     while(systick_elapsed_time(startTime) < mseconds)
     {

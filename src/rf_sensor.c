@@ -55,7 +55,7 @@ void SWR_threshold_increment(void)
 #define PERIOD_THRESHOLD 2
 static int8_t validate_frequency_signal(void)
 {
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     uint16_t freqPinCount = 0;
     uint8_t prevFreqPin = FREQ_PIN;
 
@@ -320,7 +320,7 @@ int8_t wait_for_stable_FWD(void)
     int16_t deltaCompare = 0;
 
     // spend up to 500ms waiting for the Forward Power to level off
-    uint24_t currentTime = systick_read();
+    system_time_t currentTime = systick_read();
     while(systick_read() <= (currentTime + 500)){
         currentFWD = adc_measure(0);
 

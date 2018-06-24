@@ -21,7 +21,7 @@ void threshold_submenu(void)
 {
     threshold_blink_and_hold(3);
 
-    uint24_t startTime = systick_read(); // stash the current time
+    system_time_t startTime = systick_read(); // stash the current time
     
     while(1)
     {
@@ -49,7 +49,7 @@ void function_submenu(void)
     delay_ms(50);
     play_interruptable_animation(&arrow_up);
 
-    uint24_t startTime = systick_read(); // stash the current time
+    system_time_t startTime = systick_read(); // stash the current time
 
     while(1)
     {
@@ -110,7 +110,7 @@ void shutdown_submenu(void)
     while(btn_is_down(POWER)); // wait until power button is released
     delay_ms(100);
 
-    uint24_t startTime = systick_read(); // stash the current time
+    system_time_t startTime = systick_read(); // stash the current time
 
     while(1)
     {
@@ -163,8 +163,8 @@ void relay_button_hold(void)
 
 void tune_hold(void)
 {
-    uint24_t elapsedTime;
-    uint24_t startTime = systick_read();
+    system_time_t elapsedTime;
+    system_time_t startTime = systick_read();
 
     while(btn_is_down(TUNE)) // stay in loop while TUNE is held
     {
@@ -257,7 +257,7 @@ void ant_hold(void)
 
 void power_hold(void)
 {
-    uint24_t startTime = systick_read();
+    system_time_t startTime = systick_read();
 
     while(btn_is_down(POWER)) // stay in loop while POWER is held
     {
