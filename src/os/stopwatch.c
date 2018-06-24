@@ -1,8 +1,4 @@
-#include "includes.h"
-
-/* ************************************************************************** */
-
-#if LOG_LEVEL_SYSTEM > LOG_SILENT
+#include "../includes.h"
 
 /* ************************************************************************** */
 
@@ -175,5 +171,3 @@ void stopwatch_and_delay_test(void)
     delay_ms(30000);
     ms_stopwatch_end();
 }
-
-#endif

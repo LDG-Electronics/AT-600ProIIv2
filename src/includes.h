@@ -28,6 +28,7 @@
 // TuneOS
 #include "os/system_tick.h"
 #include "os/shell.h"
+#include "os/stopwatch.h"
 #include "os/task_manager.h"
 
 // modules
@@ -46,7 +47,6 @@
 #include "meter.h"
 #include "relays.h"
 #include "RF_sensor.h"
-#include "stopwatch.h"
 #include "tuning.h"
 
 #endif	/* _INCLUDES_H_ */

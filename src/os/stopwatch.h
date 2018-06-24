@@ -2,13 +2,6 @@
 #define _STOPWATCH_H_
 
 /* ************************************************************************** */
-#if LOG_LEVEL_SYSTEM == LOG_SILENT
-    #define stopwatch_init() 
-#endif
-
-#if LOG_LEVEL_SYSTEM > LOG_SILENT
-
-/* ************************************************************************** */
 
 /*  Notes on using stopwatch module:
     
@@ -43,5 +36,4 @@ extern void ms_stopwatch_end(void);
 // Test function used to calibrate the stopwatch
 extern void stopwatch_and_delay_test(void);
 
-#endif // LOG_LEVEL_SYSTEM > LOG_SILENT
 #endif // _STOPWATCH_H_
