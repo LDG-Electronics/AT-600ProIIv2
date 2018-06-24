@@ -5,7 +5,7 @@
 /*  Notes on the Task Manager subsystem
 
     task_manager_update() needs to be called periodically from the 'user' code.
-    
+
     The Task Manager supports repeat
 
     A task consists of 4 pieces of data:
@@ -33,13 +33,13 @@
         perform any polling operations
         manipulate any global state(?)
 
-    An ideal task is short, simple, and deterministic. 
+    An ideal task is short, simple, and deterministic.
 
     TODO: add task examples
     Checking a sensor and updating a display with the information, but taking no
     other action is a good example of a task.
 */
-typedef void (*task_callback_s) (void);
+typedef void (*task_callback_s)(void);
 /* ************************************************************************** */
 
 // setup
@@ -54,7 +54,7 @@ extern void task_manager_init(void);
 extern void task_manager_update(void);
 
 // Add a task to the queue
-extern int8_t task_register(const char *name, task_callback_s callback, 
+extern int8_t task_register(const char *name, task_callback_s callback,
                             system_time_t time, uint16_t repeat);
 
 // Remove a task from the queue
