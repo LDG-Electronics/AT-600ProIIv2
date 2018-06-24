@@ -263,7 +263,7 @@ int8_t task_register(const char *name, task_callback_s callback,
     // populate the new task
     newTask.name = name;
     newTask.eventCallback = callback;
-    newTask.scheduledTime = time;
+    newTask.scheduledTime = time + systick_read();
     newTask.repeat = repeat;
 
 #if LOG_LEVEL_TASKS >= LOG_EVENTS
