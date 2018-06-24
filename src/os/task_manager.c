@@ -105,84 +105,11 @@ static void swap_tasks_in_queue(uint8_t taskA, uint8_t taskB)
     tasks.queue[taskA] = copyOfTaskB;
 }
 
-// check to see if there's a task to the left of the given task
-static int8_t task_to_left_exists(uint8_t indexOfTaskInQueue){
-    if(indexOfTaskInQueue == 0){
-        return false;
-    } else {
-        return true;
-    }
-}
-
-static int8_t scheduled_time_of_task_in_queue(uint8_t indexOfTaskInQueue){
-    return tasks.queue[indexOfTaskInQueue].scheduledTime;
-}
-
 /* -------------------------------------------------------------------------- */
 
-// ::::sort the task queue in ascending order of scheduledTime::::
-
-// This sort takes the array of tasks and assumes they're all unsorted.
-// It then grows a group of tasks from the left of the array (index zero) to the right
-// until it encompasses every valid task in the array. It does this by
-// adding one task at a time to the group. 
-
-// Here's an example:
-// [] is an empty element in the array.
-// [*] is an element in the array with a task in it.
-// [g] is an element in the array with a task in it that's been added to the group.
-
-// Step 1: Nothing's in the group.
-// [*][*][*][*][*][*][*][][][][][][][]
-// Step 2: One element's in the group.
-// [g][*][*][*][*][*][*][][][][][][][]
-// Step 3: Two elements are in the group.
-// [g][g][*][*][*][*][*][][][][][][][]
-// et cetera, until all elements with tasks are in the group
-// [g][g][g][g][g][g][g][][][][][][][]
-
-// But the tasks aren't added blindly. As they're added,
-// they're moved within the group so that they're in ascending order, based on each task's scheduledTime.
-// To do this, the task being added is swapped from it's initial position to the right of the group into it's correct position in the group.
-
-// Here's an example:
-// [] is an empty element in the array.
-// [*] is an element in the array with a task in it.
-// [g] is an element in the array with a task in it that's been added to the group.
-// [s] is an element in the array with a task in it that's been added to the group and moved (sorted) into its proper position.
-
-// Step 1: Nothing's in the group.
-// [*][*][*][*][*][*][*][][][][][][][]
-// Step 2: One element's added to the group.
-// [g][*][*][*][*][*][*][][][][][][][]
-// Step 3: Since there's only one element, that element is in the correct position. The group is sorted.
-// [s][*][*][*][*][*][*][][][][][][][]
-// Step 4: Two elements are in the group. One element is sorted, the other is being added.
-// [s][g][*][*][*][*][*][][][][][][][]
-// Step 4: The new element is either swapped with the old element or it stays in place. In either case, the new task in the group is moved to the position it needs to be in for the array to be sorted.
-// [s][s][*][*][*][*][*][][][][][][][]
-// et cetera, until all elements with tasks are in the group
-
-// For clarity, let's look at what a typical case might look like midway through the sort.
-// [s] [s] [s] [s] [*][*][*][][][][][][][]
-// Let's assume that the group members have the following scheduledTimes.
-// [30][50][70][90][*][*][*][][][][][][][]
-// And that the latest addition to the group has a scheduledTime of 40.  
-// [s] [s] [s] [s] [g] [*][*][][][][][][][]
-// [30][50][70][90][40][*][*][][][][][][][]
-// The new group member will be moved to the left until it's in the correct place.
-// [30][50][70][90][40][*][*][][][][][][][]
-// [30][50][70][40][90][*][*][][][][][][][]
-// [30][50][40][70][90][*][*][][][][][][][]
-// [30][40][50][70][90][*][*][][][][][][][]
-// Now every task in the group is in order.
-// [s] [s] [s] [s] [s] [*][*][][][][][][][]
-// [30][40][50][70][90][*][*][][][][][][][]
-static void ians_insertion_sort(void)
+static void task_queue_sort(void)
 {
-    int8_t indexOfLastTaskInSortedGroup = -1;
     uint8_t currentTaskInQueue;
-    uint8_t indexOfTaskBeingAddedToSortedGroup;
 
     int8_t indexOfLastSortedElement = -1;
     uint8_t currentElementBeingSwappedLeft;
@@ -190,13 +117,24 @@ static void ians_insertion_sort(void)
     // If there aren't any tasks, then what are we doing here?
     if (queue_is_empty()) 
     {
-        println("Task Queue is empty!");
-        println("Can't sort an empty list!");
+        #if LOG_LEVEL_TASKS >= LOG_EVENTS
+            println("Task Queue is empty!");
+            println("Can't sort an empty list!");
+        #endif
+
         return;
     }
 
     // The queue can't be out of order if there's only one task
-    if (tasks.numberOfTasks == 1) return;
+    if (tasks.numberOfTasks == 1) 
+    {
+        #if LOG_LEVEL_TASKS >= LOG_EVENTS
+            println("Task Queue only contains one task!");
+            println("Can't sort a single item!");
+        #endif
+
+        return;
+    }
 
     for (currentTaskInQueue = 0; currentTaskInQueue < tasks.numberOfTasks; currentTaskInQueue++){
         if (indexOfLastSortedElement == -1){
@@ -213,31 +151,6 @@ static void ians_insertion_sort(void)
     }
 }
 
-    // TODO: Ian fix your shit
-
-    // // Go through each existing task in the queue...
-    // for (currentTaskInQueue = 0; currentTaskInQueue < tasks.numberOfTasks; currentTaskInQueue++){
-    //     // if it's the first task, then leave it in place and call it sorted
-    //     if (indexOfLastTaskInSortedGroup == -1){
-    //         indexOfLastTaskInSortedGroup++;
-    //     } else { // if it's not the first task...
-    //         taskBeingAdded = indexOfLastTaskInSortedGroup+1;
-    //         // ...while there's a task to the left of the current task, check to see if the current task needs to be swapped with the task to its left
-    //         // if it does, swap it. Continue until it doesn't.
-    //         // if it doesn't, the the task is in its proper position and the group is sorted
-    //         while (task_to_left_exists(indexOfTaskBeingAddedToSortedGroup) && scheduled_time_of_task_in_queue(indexOfTaskBeingAddedToSortedGroup) < scheduled_time_of_task_in_queue(indexOfTaskBeingAddedToSortedGroup-1)){
-    //             swap_tasks_in_queue(indexOfTaskBeingAddedToSortedGroup, indexOfTaskBeingAddedToSortedGroup-1);
-    //             indexOfTaskBeingAddedToSortedGroup--;
-    //         }
-    //         indexOfLastTaskInSortedGroup++;
-    //     }
-    // }
-
-void shell_sort(void)
-{
-
-}
-
 // insert a task into the queue and then sort it
 static void task_insert_and_sort(task_s *newTask)
 {
@@ -252,10 +165,10 @@ static void task_insert_and_sort(task_s *newTask)
     tasks.queue[tasks.numberOfTasks] = *newTask;
     tasks.numberOfTasks++;
 
-    ians_insertion_sort();
+    task_queue_sort();
 }
 
-// remove a specified task from the queue and then sort it
+// remove a specified task from the queue and then sort what's left
 static void task_remove(uint8_t taskID)
 {
     // make sure the array isn't empty
@@ -293,59 +206,14 @@ void task_manager_init(void)
     }
 }
 
-// check if a task with the given name exists in the queue
-int8_t task_queue_lookup(const char *name)
-{
-    for(uint8_t i = 0; i < MAX_NUM_OF_TASKS; i++) {
-		if (!strcmp(name, tasks.queue[i].name)) {
-			return 0; // found a match
-		}
-    }
-    return -1; // didn't find a match
-}
-
-// create a task object and add it to the task queue
-int8_t task_register(const char *name, task_callback_s callback, system_time_t time, uint16_t repeat)
-{
-    if(queue_is_full()) return -1;
-
-    // create and init a new task object
-    task_s newTask;
-    task_clear(&newTask);
-
-    // populate the new task
-    newTask.name = name;
-    newTask.eventCallback = callback;
-    newTask.scheduledTime = time;
-    newTask.repeat = repeat;
-
-    #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        print("Registering ");
-        print_task(&tasks.queue[FIRST_TASK]);
-    #endif
-
-    // add it to the queue
-    task_insert_and_sort(&newTask);
-
-    return 0;
-}
-
-// remove a task from the queue using its name as a key
-int8_t task_deregister(const char *name)
-{
-    for(uint8_t i = 0; i < MAX_NUM_OF_TASKS; i++) {
-		if (!strcmp(name, tasks.queue[i].name)) {
-			task_remove(i);
-            return 0;
-		}
-    }
-    return -1; // didn't deregister a task
-}
-
 /* -------------------------------------------------------------------------- */
 
-// This function should be called periodically to monitor the task queue and
-// execute any tasks that are ready
+/*  task_manager_update() should be called from application code at regular
+    intervals, during periods where no time-critical work is being done.
+
+    The project this task manager was designed for has a series of nested state
+    machine loops that are used to poll user input and respond.
+*/
 void task_manager_update(void)
 {
     if(queue_is_empty()) return;
@@ -385,38 +253,90 @@ void task_manager_update(void)
     task_remove(FIRST_TASK);
 }
 
-/* ************************************************************************** */
-// Task Manager testing utilities
+/* -------------------------------------------------------------------------- */
 
+// create a task object and add it to the task queue
+int8_t task_register(const char *name, task_callback_s callback, 
+                     system_time_t time, uint16_t repeat)
+{
+    if(queue_is_full()) return -1;
+
+    // create and init a new task object
+    task_s newTask;
+    task_clear(&newTask);
+
+    // populate the new task
+    newTask.name = name;
+    newTask.eventCallback = callback;
+    newTask.scheduledTime = time;
+    newTask.repeat = repeat;
+
+    #if LOG_LEVEL_TASKS >= LOG_EVENTS
+        print("Registering ");
+        print_task(&tasks.queue[FIRST_TASK]);
+    #endif
+
+    // add it to the queue
+    task_insert_and_sort(&newTask);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// remove a task from the queue using its name as a key
+int8_t task_deregister(const char *name)
+{
+    int8_t index = task_queue_lookup(name);
+
+    // the indicated task was not found
+    if (index == -1) return -1;
+
+    // remove the task
+	task_remove(index);
+    
+    return 0;
+}
+
+// check if a task with the given name exists in the queue
+int8_t task_queue_lookup(const char *name)
+{
+    for(uint8_t i = 0; i < MAX_NUM_OF_TASKS; i++) {
+		if (!strcmp(name, tasks.queue[i].name)) {
+			return 0; // found a match
+		}
+    }
+    return -1; // didn't find a match
+}
+
+/* ************************************************************************** */
+/*  Task Manager testing utilities
+
+*/
 // dummy tasks to be used as callbacks in task_self_test()
 void task_beep(void)
 {
-    system_time_t currentTime = systick_read();
-    printf("beep %d\r\n", currentTime);
+    printf("beep %d\r\n", systick_read());
 }
 
 void task_boop(void)
 {
-    system_time_t currentTime = systick_read();
-    printf("boop %d\r\n", currentTime);
+    printf("boop %d\r\n", systick_read());
 }
 
 void task_fizz(void)
 {
-    system_time_t currentTime = systick_read();
-    printf("fizz %d\r\n", currentTime);
+    printf("fizz %d\r\n", systick_read());
 }
 
 void task_buzz(void)
 {
-    system_time_t currentTime = systick_read();
-    printf("buzz %d\r\n", currentTime);
+    printf("buzz %d\r\n", systick_read());
 }
 
 void task_dummy(void)
 {
-    system_time_t currentTime = systick_read();
-    // printf("time: %d\r\n", currentTime);
+    printf("time: %d\r\n", systick_read());
 }
 /* ************************************************************************** */
 
@@ -443,51 +363,66 @@ void print_pointer_values(void)
     printf("task_buzz: %p\r\n", task_buzz);
 }
 
+const system_time_t random_times[] = {
+    6750, 5698, 8424, 3556, 1678, 6438, 8957, 586, 600, 531, // 10 items
+    4511, 106, 3014, 1309, 3065, 4848, 8870, 244, 3183, 3777, // 20 items
+    2675, 6938, 6995, 1841, 1171, 6554, 7143, 5970, 7052, 1622, // 30 items
+    // 7810, 2342, 7783, 4372, 8031, 9432, 6134, 3114, 3247, 4294, // 40 items
+    // 2768, 138, 3279, 4376, 7459, 3443, 1670, 7893, 3908, 1025, // 50 items
+    // 8667, 9322, 8222, 9365, 8866, 9266, 3125, 6630, 6584, 6697, // 60 items
+    // 1683, 8651, 9668, 9218, 9391, 299, 906, 8828, 2042, 609 // 70 items
+};
+
 void task_queue_fill_test(void)
 {
     println("");
     println("=====");
     println("Task setup");
 
+    uint8_t i = 0;
+
     // fill up that queue
-    task_register("1", task_dummy, 11000, 0);
-    task_register("2", task_dummy, 10000, 0);
-    task_register("3", task_dummy, 12000, 0);
-    task_register("4", task_dummy, 13000, 0);
-    task_register("5", task_dummy, 7000, 0);
+    task_register("1", task_dummy, random_times[i++], 0);
+    task_register("2", task_dummy, random_times[i++], 0);
+    task_register("3", task_dummy, random_times[i++], 0);
+    task_register("4", task_dummy, random_times[i++], 0);
+    task_register("5", task_dummy, random_times[i++], 0);
 
-    task_register("6", task_dummy, 5000, 0);
-    task_register("7", task_dummy, 9000, 0);
-    task_register("8", task_dummy, 5000, 0);
-    task_register("9", task_dummy, 5000, 0);
-    task_register("10", task_dummy, 5000, 0);
+    task_register("6", task_dummy, random_times[i++], 0);
+    task_register("7", task_dummy, random_times[i++], 0);
+    task_register("8", task_dummy, random_times[i++], 0);
+    task_register("9", task_dummy, random_times[i++], 0);
+    task_register("10", task_dummy, random_times[i++], 0);
 
-    task_register("11", task_dummy, 8000, 0);
-    task_register("12", task_dummy, 30000, 0);
-    task_register("13", task_dummy, 5000, 0);
-    task_register("14", task_dummy, 10500, 0);
-    task_register("15", task_dummy, 6000, 0);
+    task_register("11", task_dummy, random_times[i++], 0);
+    task_register("12", task_dummy, random_times[i++], 0);
+    task_register("13", task_dummy, random_times[i++], 0);
+    task_register("14", task_dummy, random_times[i++], 0);
+    task_register("15", task_dummy, random_times[i++], 0);
 
-    task_register("16", task_dummy, 15000, 0);
-    task_register("17", task_dummy, 20000, 0);
-    task_register("18", task_dummy, 10000, 0);
-    task_register("19", task_dummy, 1000, 0);
-    task_register("20", task_dummy, 1000, 0);
+    task_register("16", task_dummy, random_times[i++], 0);
+    task_register("17", task_dummy, random_times[i++], 0);
+    task_register("18", task_dummy, random_times[i++], 0);
+    task_register("19", task_dummy, random_times[i++], 0);
+    task_register("20", task_dummy, random_times[i++], 0);
 
-    task_register("21", task_dummy, 1000, 0);
-    task_register("22", task_dummy, 1000, 0);
-    task_register("23", task_dummy, 1000, 0);
-    task_register("24", task_dummy, 1000, 0);
-    task_register("25", task_dummy, 1000, 0);
+    task_register("21", task_dummy, random_times[i++], 0);
+    task_register("22", task_dummy, random_times[i++], 0);
+    task_register("23", task_dummy, random_times[i++], 0);
+    task_register("24", task_dummy, random_times[i++], 0);
+    task_register("25", task_dummy, random_times[i++], 0);
 
-    // task_register("26", task_dummy, 1000, 0);
-    // task_register("27", task_dummy, 1000, 0);
-    // task_register("28", task_dummy, 1000, 0);
-    // task_register("29", task_dummy, 1000, 0);
-    // task_register("30", task_dummy, 1000, 0);
+    // task_register("26", task_dummy, random_times[i++], 0);
+    // task_register("27", task_dummy, random_times[i++], 0);
+    // task_register("28", task_dummy, random_times[i++], 0);
+    // task_register("29", task_dummy, random_times[i++], 0);
+    // task_register("30", task_dummy, random_times[i++], 0);
 
-    // task_register("31", task_dummy, 1000, 0);
-    // task_register("32", task_dummy, 1000, 0);
+    // task_register("31", task_dummy, random_times[i++], 0);
+    // task_register("32", task_dummy, random_times[i++], 0);
+    // task_register("33", task_dummy, random_times[i++], 0);
+    // task_register("34", task_dummy, random_times[i++], 0);
+    // task_register("35", task_dummy, random_times[i++], 0);
 
     println("");
     println("=====");
