@@ -138,7 +138,7 @@ void play_interruptable_animation(const animation_s *animation) {
 volatile const animation_s *bgAPointer;
 volatile uint8_t bgAIndex;
 
-void begin_background_animation(const animation_s *animation) {
+void play_background_animation(const animation_s *animation) {
     // printf("begin_background_animation %d\r\n", systick_read());
     // claim the display mutex
     lock_display();
