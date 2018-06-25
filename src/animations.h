@@ -80,6 +80,16 @@ const animation_s blink_power_bar[] = {
     {0x0000,NULL},
 };
 
+const animation_s blink_power_bar_3[] = {
+    {0xff00,100},
+    {0x0000,100},
+    {0xff00,100},
+    {0x0000,100},
+    {0xff00,100},
+    {0x0000,100},
+    {0x0000,NULL},
+};
+
 const animation_s blink_swr_bar[] = {
     {0x00ff,100},
     {0x0000,100},
