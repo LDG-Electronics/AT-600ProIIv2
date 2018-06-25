@@ -29,7 +29,7 @@ void RF_sensor_init(void)
     shell_register(shell_get_RF, "getRF");
     
     // Calibration Task
-    task_register("swr", task_RF_calibration, 1000, 100);
+    // task_register("swr", task_RF_calibration, 1000, 100);
 }
 
 void SWR_threshold_set(void)
@@ -312,7 +312,7 @@ void SWR_average(void)
 
 
 */
-#define STABLE_RF_WINDOW 500
+#define STABLE_RF_WINDOW 50
 int8_t wait_for_stable_FWD(void)
 {
     uint16_t currentFWD;
@@ -320,7 +320,6 @@ int8_t wait_for_stable_FWD(void)
     int16_t deltaFWD = 0;
     int16_t deltaCompare = 0;
 
-    // spend up to 500ms waiting for the Forward Power to level off
     system_time_t currentTime = systick_read();
     while(systick_elapsed_time(currentTime) <= STABLE_RF_WINDOW){
         currentFWD = adc_measure(0);
@@ -341,6 +340,9 @@ int8_t SWR_stable_average(void)
 {
     // Measure the frequency
     currentRF.frequency = get_frequency();
+
+    // if the Frequency isn't valid then return early
+    if(currentRF.frequency == 0xffff) return -1;
 
     if(wait_for_stable_FWD() == -1) return -1;
     

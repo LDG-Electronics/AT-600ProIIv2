@@ -42,7 +42,7 @@ void startup(void)
     update_status_LEDs(); // must be after flags_init()
 
     // 
-    task_register("SWR_Monitor", check_SWR_and_update_meters, 100, 250);
+    // task_register("SWR_Monitor", check_SWR_and_update_meters, 100, 250);
 }
 
 void shutdown(void)
