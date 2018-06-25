@@ -2,6 +2,20 @@
 
 /* ************************************************************************** */
 
+void check_SWR_and_update_meters(void)
+{
+    printf("check_SWR %lu\r\n", (uint32_t)systick_read());
+
+    SWR_stable_average();
+
+    if(!display.displayIsLocked)
+    {
+        show_current_power_and_SWR();
+    }
+}
+
+/* ************************************************************************** */
+
 void read_bypass(void) {
     printf("BP%d;\r\n", bypassStatus[system_flags.antenna]);
 }
