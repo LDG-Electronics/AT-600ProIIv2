@@ -222,7 +222,7 @@ void save_new_best_solution(void)
     print("\t\t");
     print_relays(&bestSolution);
     print_current_SWR();
-    print_ln();
+    println("");
     #endif
 }
 
@@ -291,8 +291,7 @@ void test_bypass(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
     print("\t");
-    print("bypass:");
-    print_ln();
+    println("bypass:");
     #endif
     
     nextSolution.all = 0;
@@ -304,7 +303,7 @@ void test_bypass(void)
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
     print("\t\t");
     print_relays(&bypassRelays);
-    printf(" SWR: %f FWD: %d/r/n", bypassSWR, bypassFWD)
+    printf(" SWR: %f FWD: %d\r\n", bypassSWR, bypassFWD);
     #endif
     
     clear_best_solution();
@@ -314,8 +313,7 @@ void test_loz(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
     print("\t");
-    print("loz: ")
-    print_ln();
+    println("loz: ");
     #endif
     
     nextSolution.z = 0;
@@ -330,7 +328,7 @@ void test_loz(void)
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
     print("\t\t");
     print_relays(&lozSolution);
-    printf(" SWR: %f FWD: %d/r/n", lozSWR, lozFWD)
+    printf(" SWR: %f FWD: %d\r\n", lozSWR, lozFWD);
     #endif
     
     clear_best_solution();
@@ -340,8 +338,7 @@ void test_hiz(void)
 {
     #if LOG_LEVEL_TUNING >= LOG_LABELS
     print("\t");
-    print("hiz: ");
-    print_ln();
+    println("hiz: ");
     #endif
     
     nextSolution.z = 1;
@@ -356,7 +353,7 @@ void test_hiz(void)
     #if LOG_LEVEL_TUNING >= LOG_DETAILS
     print("\t");
     print_relays(&hizSolution);
-    printf(" SWR: %f FWD: %d/r/n", hizSWR, hizFWD)
+    printf(" SWR: %f FWD: %d\r\n", hizSWR, hizFWD);
     #endif
     
     clear_best_solution();
@@ -390,7 +387,7 @@ void restore_best_z(void)
     print("best z: ");
     print("\t");
     print_relays(&bestSolution);
-    printf(" SWR: %f FWD: %d/r/n", bestSWR, bestFWD)
+    printf(" SWR: %f FWD: %d\r\n", bestSWR, bestFWD);
     #endif
 }
 
