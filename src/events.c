@@ -156,19 +156,15 @@ void request_full_tune(void) {
 
 void read_relays(void) {}
 
-#define RELAY_INC_DISPLAY_LINGER_TIME 500
-
 void capacitor_increment(void) {
     if (currentRelays[system_flags.antenna].caps < MAX_CAPACITORS) {
         currentRelays[system_flags.antenna].caps++;
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].caps--;
         }
-        lock_display();
         show_relays();
-        task_register("display_release", display_release, RELAY_INC_DISPLAY_LINGER_TIME, 0);
     } else {
-        repeat_animation(&blink_power_bar, 3);
+        play_background_animation(&blink_power_bar_3);
     }
 }
 
@@ -178,11 +174,9 @@ void capacitor_decrement(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].caps++;
         }
-        lock_display();
         show_relays();
-        task_register("display_release", display_release, RELAY_INC_DISPLAY_LINGER_TIME, 0);
     } else {
-        repeat_animation(&blink_power_bar, 3);
+        play_background_animation(&blink_power_bar_3);
     }
 }
 
@@ -192,11 +186,9 @@ void inductor_increment(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].inds--;
         }
-        lock_display();
         show_relays();
-        task_register("display_release", display_release, RELAY_INC_DISPLAY_LINGER_TIME, 0);
     } else {
-        repeat_animation(&blink_swr_bar, 3);
+        play_background_animation(&blink_swr_bar_3);
     }
 }
 
@@ -206,10 +198,8 @@ void inductor_decrement(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].inds++;
         }
-        lock_display();
         show_relays();
-        task_register("display_release", display_release, RELAY_INC_DISPLAY_LINGER_TIME, 0);
     } else {
-        repeat_animation(&blink_swr_bar, 3);
+        play_background_animation(&blink_swr_bar_3);
     }
 }

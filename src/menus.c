@@ -135,6 +135,7 @@ void shutdown_submenu(void)
 #define RELAY_INCREMENT_COUNT 4
 #define RELAY_INCREMENT_FAST_DELAY 75
 #define RELAY_INCREMENT_SLOW_DELAY 200
+#define RELAY_INC_DISPLAY_LINGER_TIME 500
 
 void relay_button_hold(void)
 {
@@ -158,6 +159,8 @@ void relay_button_hold(void)
 
         system_idle_block();
     }
+    lock_display();
+    task_register("display_release", display_release, RELAY_INC_DISPLAY_LINGER_TIME, 0);
     save_flags();
 }
 
