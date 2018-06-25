@@ -139,6 +139,7 @@ volatile const animation_s *bgAPointer;
 volatile uint8_t bgAIndex;
 
 void begin_background_animation(const animation_s *animation) {
+    // printf("begin_background_animation %d\r\n", systick_read());
     // claim the display mutex
     lock_display();
 
@@ -149,12 +150,14 @@ void begin_background_animation(const animation_s *animation) {
 }
 
 void continue_background_animation(void) {
+    // printf("continue_background_animation %d\r\n", systick_read());
     
     FP_update(bgAPointer[bgAIndex].image);
 
     if (bgAPointer[bgAIndex].frame_delay == NULL) {
         unlock_display();
     } else {
+        // printf("reregistering: %d\r\n", bgAPointer[bgAIndex].frame_delay);
         task_register("animation", continue_background_animation,
                       bgAPointer[bgAIndex].frame_delay, 0);
         bgAIndex++;
@@ -335,6 +338,13 @@ void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
     frame.bottomBar = ledBarTable[calculate_swr_index(swrValue)];
 
     FP_update(frame.bothBars);
+
+    // uint16_t frame = 0;
+    
+    // frame = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
+    // frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
+
+    // FP_update(frame);
 }
 
 void show_current_power_and_SWR(void) {
@@ -344,6 +354,13 @@ void show_current_power_and_SWR(void) {
     frame.bottomBar = ledBarTable[calculate_swr_index(currentRF.swr)];
 
     FP_update(frame.bothBars);
+
+    // uint16_t frame = 0;
+    
+    // frame = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
+    // frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
+
+    // FP_update(frame);
 }
 
 int shell_show_bargraphs(int argc, char **argv) {
