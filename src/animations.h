@@ -96,6 +96,16 @@ const animation_s blink_swr_bar[] = {
     {0x0000,NULL},
 };
 
+const animation_s blink_swr_bar_3[] = {
+    {0x00ff,100},
+    {0x0000,100},
+    {0x00ff,100},
+    {0x0000,100},
+    {0x00ff,100},
+    {0x0000,100},
+    {0x0000,NULL},
+};
+
 const animation_s left_wave[] = {
     {0x3030,100},
     {0xc0c0,100},
