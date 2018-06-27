@@ -26,6 +26,7 @@
 #include "peripherals/uart.h"
 
 // TuneOS
+#include "os/mutex.h"
 #include "os/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_tick.h"
