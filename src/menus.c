@@ -137,26 +137,25 @@ void shutdown_submenu(void)
 #define RELAY_INCREMENT_SLOW_DELAY 200
 #define RELAY_INC_DISPLAY_LINGER_TIME 500
 
-void relay_button_hold(void)
-{
-    uint16_t holdCount = 0;
+void relay_button_hold(void) {
+    system_time_t currentTime = systick_read();
+    uint8_t incrementCount = 0;
+    uint8_t incrementDelay = RELAY_INCREMENT_SLOW_DELAY;
 
     // stay in loop while any relay button is held
-    while(check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN))
-    {
-        if(holdCount < UINT16_MAX) holdCount++;
-        
-        if(btn_is_down(CUP)) capacitor_increment();
-        if(btn_is_down(CDN)) capacitor_decrement();
-        if(btn_is_down(LUP)) inductor_increment();
-        if(btn_is_down(LDN)) inductor_decrement();
+    while (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
+        if (systick_elapsed_time(currentTime) >= incrementDelay) {
+            currentTime = systick_read();
 
-        if(holdCount > RELAY_INCREMENT_COUNT) {
-            delay_ms(RELAY_INCREMENT_FAST_DELAY);
-        } else {
-            delay_ms(RELAY_INCREMENT_SLOW_DELAY);
+            if(btn_is_down(CUP)) capacitor_increment();
+            if(btn_is_down(CDN)) capacitor_decrement();
+            if(btn_is_down(LUP)) inductor_increment();
+            if(btn_is_down(LDN)) inductor_decrement();
+
+            if (incrementCount < UINT8_MAX) incrementCount++;
+            if (incrementCount >= RELAY_INCREMENT_COUNT)
+                incrementDelay = RELAY_INCREMENT_FAST_DELAY;
         }
-
         system_idle_block();
     }
     lock_display();
