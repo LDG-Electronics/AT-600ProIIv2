@@ -1,5 +1,5 @@
-#ifndef _TASKS_H_
-#define _TASKS_H_
+#ifndef _EVENT_SCHEDULER_H_
+#define _EVENT_SCHEDULER_H_
 
 /* ************************************************************************** */
 /*  Notes on the Task Manager subsystem

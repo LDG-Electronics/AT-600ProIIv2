@@ -30,7 +30,7 @@
 #include "os/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_tick.h"
-#include "os/task_manager.h"
+#include "os/event_scheduler.h"
 
 // modules
 #include "animations.h"
