@@ -3,8 +3,8 @@
 /* ************************************************************************** */
 /*  Notes on the event system
 
-    This is a minimalist background event scheduler that's designed to complement
-    a superloop instead of replacing it.
+    This is a minimalist background event scheduler that's designed to
+    complement a superloop instead of replacing it.
 
     event_scheduler_update() needs to be called regularly in the main loop or
     equivalent structure. Any possible event callback should be relatively
@@ -21,26 +21,38 @@
     The fields are:
     name: a string that identifies the event
     eventCallback: a function pointer that event a event performs
-    scheduledTime: the event will be performed when the current system time
-                    equals this scheduled time
+    registrationTime: used to calculate elapsed time
+    executionTime: event is ready when elapsedTime > executionTime
     repeat: if the event is to be repeated, it will be re-registered this number
             of system ticks into the future
 */
 typedef struct {
     const char *name;
     event_callback_t eventCallback;
-    system_time_t scheduledTime;
-    uint16_t repeat;
+    system_time_t registrationTime;
+    system_time_t executionTime;
+    unsigned repeat : 1;
+    unsigned exists : 1;
 } event_t;
+
+// Delete the contents of a given event, setting its elements to 'clean' values
+static void event_clear(event_t *event) {
+    event->name = NULL;
+    event->eventCallback = NULL;
+    event->registrationTime = UINT24_MAX;
+    event->executionTime = UINT24_MAX;
+    event->repeat = 0;
+    event->exists = 0;
+}
 
 /* ************************************************************************** */
 /*  The maximum number of events appears to be limited by the PIC18's RAM page
-    size. A page of RAM is 256 bytes, and a event object is 11 bytes long.
-    Therefore, the maximum length of the queue is 11 * 23 = 253
+    size. A page of RAM is 256 bytes.
+
+    sizeof(events) * EVENT_QUEUE_LENGTH must be less than 256
 
 */
-#define EVENT_QUEUE_LENGTH 25
-#define FIRST_TASK 0
+#define EVENT_QUEUE_LENGTH 16
 
 // This structure stores the event queue and related data.
 struct {
@@ -50,11 +62,24 @@ struct {
 } events;
 
 /* ************************************************************************** */
+
+void event_scheduler_init(void) {
+    // initialize the queue
+    events.numberOfEvents = 0;
+    events.nextEvent = 0;
+
+    for (uint8_t i = 0; i < EVENT_QUEUE_LENGTH; i++) {
+        event_clear(&events.queue[i]);
+    }
+}
+
+/* ************************************************************************** */
 // event debug utilities
 
 static void print_event(event_t *event) {
-    printf("event:(name:%s)(ptr:%p)(time:%u)(repeat:%u)\r\n", event->name,
-           event->eventCallback, event->scheduledTime, event->repeat);
+    printf("event:(name:%s)(ptr:%p)(reg:%d)(exec:%d)(repeat:%d)\r\n",
+           event->name, event->eventCallback, event->registrationTime,
+           event->executionTime, event->repeat);
 }
 
 static void print_event_queue(void) {
@@ -72,6 +97,7 @@ static void print_event_queue(void) {
         // every fifth event, add a line break
         if (((i + 1) % 5) == 0) {
             println("");
+            delay_ms(50);
         }
     }
 
@@ -82,83 +108,54 @@ static void print_event_queue(void) {
 /* -------------------------------------------------------------------------- */
 // Event queue manipulation utilities
 
+// queue length checking
 #define queue_is_full() (events.numberOfEvents == EVENT_QUEUE_LENGTH)
 #define queue_is_empty() (events.numberOfEvents == 0)
-#define copy_event_in_queue(source, destination)                                \
-    (events.queue[destination] = events.queue[source])
-#define event_is_ready(eventIndex, currentTime)                                  \
-    (events.queue[eventIndex].scheduledTime < currentTime)
-#define get_event_scheduled_time(eventIndex)                                     \
-    (events.queue[eventIndex].scheduledTime)
 
-// Delete the contents of a given event, setting its elements to 'clean' values
-static void event_clear(event_t *event) {
-    event->name = NULL;
-    event->eventCallback = NULL;
-    event->scheduledTime = UINT24_MAX;
-    event->repeat = 0;
-}
+// return when the event was registered
+#define time_since_registration(eventIndex)                                    \
+    systick_elapsed_time(events.queue[(eventIndex)].registrationTime)
 
-// swap two events
-static void swap_events_in_queue(uint8_t eventA, uint8_t eventB) {
-    event_t copyOfEventB = events.queue[eventB];
-    events.queue[eventB] = events.queue[eventA];
-    events.queue[eventA] = copyOfEventB;
+// return how much time is left until an event is ready
+#define time_until_ready(eventIndex)                                           \
+    time_since_registration(eventIndex) - events.queue[eventIndex].executionTime
+
+// return 1 if the event is ready, 0 if it is not
+static int8_t event_is_ready(eventIndex) {
+    if (time_since_registration(eventIndex) >=
+        events.queue[eventIndex].executionTime)
+        return 1;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-static void event_queue_sort(void) {
-    uint8_t currentEventInQueue;
+// find out which event will be ready next
+static void recalculate_next_event(void) {
+    uint8_t validEventsChecked = 0;
+    uint8_t bestEventIndex = events.nextEvent;
+    system_time_t bestEventTime = time_until_ready(bestEventIndex);
 
-    int8_t indexOfLastSortedElement = -1;
-    uint8_t currentElementBeingSwappedLeft;
-
-    // If there aren't any events, then what are we doing here?
-    if (queue_is_empty()) {
-#if LOG_LEVEL_TASKS >= LOG_EVENTS
-        println("Event Queue is empty!");
-        println("Can't sort an empty list!");
-#endif
-
-        return;
-    }
-
-    // The queue can't be out of order if there's only one event
-    if (events.numberOfEvents == 1) {
-#if LOG_LEVEL_TASKS >= LOG_EVENTS
-        println("Event Queue only contains one event!");
-        println("Can't sort a single item!");
-#endif
-
-        return;
-    }
-
-    for (currentEventInQueue = 0; currentEventInQueue < events.numberOfEvents;
-         currentEventInQueue++) {
-        if (indexOfLastSortedElement == -1) {
-            indexOfLastSortedElement++;
-        } else {
-            currentElementBeingSwappedLeft = indexOfLastSortedElement + 1;
-            // while there's an element to the left of the current element, swap
-            // it left until it's in the correct place
-            while (currentElementBeingSwappedLeft - 1 > -1 &&
-                   events.queue[currentElementBeingSwappedLeft].scheduledTime <
-                       events.queue[currentElementBeingSwappedLeft - 1]
-                           .scheduledTime) {
-                swap_events_in_queue(currentElementBeingSwappedLeft,
-                                    currentElementBeingSwappedLeft - 1);
-                currentElementBeingSwappedLeft--;
-            }
-            indexOfLastSortedElement++;
+    // check the whole event queue and find the soonest event
+    for (uint8_t i = 0; i < EVENT_QUEUE_LENGTH; i++) {
+        if (time_until_ready(i) > bestEventTime) {
+            bestEventIndex = i;
+            bestEventTime = time_until_ready(i);
         }
+        if (events.queue[i].exists)
+            validEventsChecked++;
+        if (validEventsChecked >= events.numberOfEvents)
+            break;
     }
+
+    // update the next event
+    events.nextEvent = bestEventIndex;
 }
 
-// insert a event into the queue and then sort it
-static void insert_event_and_sort(event_t *newEvent) {
+// insert a event into the queue
+static void insert_event(event_t *newEvent) {
     if (queue_is_full()) {
-#if LOG_LEVEL_TASKS >= LOG_EVENTS
+#if LOG_LEVEL_EVENTS >= LOG_EVENTS
         println("event insertion failed, queue is full");
 #endif
         return;
@@ -167,14 +164,14 @@ static void insert_event_and_sort(event_t *newEvent) {
     events.queue[events.numberOfEvents] = *newEvent;
     events.numberOfEvents++;
 
-    event_queue_sort();
+    recalculate_next_event();
 }
 
-// remove a specified event from the queue and then sort what's left
+// remove a specified event from the queue
 static void remove_event(uint8_t eventIndex) {
     // make sure the array isn't empty
     if (queue_is_empty()) {
-#if LOG_LEVEL_TASKS >= LOG_EVENTS
+#if LOG_LEVEL_EVENTS >= LOG_EVENTS
         println("event removal failed, queue already empty");
 #endif
         return;
@@ -184,27 +181,11 @@ static void remove_event(uint8_t eventIndex) {
     event_clear(&events.queue[eventIndex]);
     events.numberOfEvents--;
 
-    // TODO: prove that this is shuffling properly
-    // shuffle the array leftwards
-    for (uint8_t i = eventIndex; i < events.numberOfEvents + 1; i++) {
-        copy_event_in_queue(i + 1, i);
-    }
+    recalculate_next_event();
 }
 
 /* ************************************************************************** */
 // event system functions
-
-void event_scheduler_init(void) {
-    // initialize the queue
-    events.numberOfEvents = 0;
-    events.nextEvent = 0;
-
-    for (uint8_t i = 0; i < EVENT_QUEUE_LENGTH; i++) {
-        event_clear(&events.queue[i]);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
 
 /*  event_scheduler_update() should be called from application code at regular
     intervals, during periods where no time-critical work is being done.
@@ -212,50 +193,61 @@ void event_scheduler_init(void) {
     The project this event manager was designed for has a series of nested state
     machine loops that are used to poll user input and respond.
 */
+system_time_t previousTime = 0;
+
 void event_scheduler_update(void) {
+    // return early if there's nothing to do
     if (queue_is_empty())
         return;
 
     // return early if the first event isn't ready yet
-    system_time_t currentTime = systick_read();
-    if (!event_is_ready(FIRST_TASK, currentTime))
+    if (!event_is_ready(events.nextEvent))
         return;
 
-#if LOG_LEVEL_TASKS >= LOG_EVENTS
-    printf("event is ready @%u\r\n", currentTime);
-    print("executing");
-    print_event(&events.queue[FIRST_TASK]);
+    // grab the time, in case we need to reregister the event
+    system_time_t currentTime = systick_read();
+
+#if LOG_LEVEL_EVENTS >= LOG_EVENTS
+    printf("event is ready @%lu, ", (uint32_t)currentTime);
+    printf("last event was %lu ago\r\n",
+           (uint32_t)systick_elapsed_time(previousTime));
+    previousTime = currentTime;
+    print("executing ");
+    print_event(&events.queue[events.nextEvent]);
 #endif
 
     // Make sure we don't execute a null function pointer
-    if (events.queue[FIRST_TASK].eventCallback != NULL) {
-        // execute it
-        events.queue[FIRST_TASK].eventCallback();
-
-        // if the event should be repeated, re-register it
-        if (events.queue[FIRST_TASK].repeat != 0) {
-            // grab a copy of the current event
-            event_t repeatingEvent = events.queue[FIRST_TASK];
-            // update its scheduledTime
-            repeatingEvent.scheduledTime = currentTime + repeatingEvent.repeat;
-            // throw it back in the queue
-            insert_event_and_sort(&repeatingEvent);
-        }
-    } else { // pointer is null, do not execute
-#if LOG_LEVEL_TASKS >= LOG_ERROR
+    if (events.queue[events.nextEvent].eventCallback == NULL) {
+#if LOG_LEVEL_EVENTS >= LOG_ERROR
         println(">>> NULL POINTER EXCEPTION <<< ");
 #endif
         // while(1); // trap
+        return;
     }
 
-    remove_event(FIRST_TASK);
+    // Execute the event
+    events.queue[events.nextEvent].eventCallback();
+
+    // if the event should be repeated, re-register it
+    if (events.queue[events.nextEvent].repeat != 0) {
+
+#if LOG_LEVEL_EVENTS >= LOG_EVENTS
+        print("Reregistering: ");
+        print_event(&events.queue[events.nextEvent]);
+#endif
+        events.queue[events.nextEvent].registrationTime = currentTime;
+
+        recalculate_next_event();
+    } else {
+        remove_event(events.nextEvent);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
 
 // create a event object and add it to the event queue
 int8_t event_register(const char *name, event_callback_t callback,
-                     system_time_t time, uint16_t repeat) {
+                      system_time_t time, uint16_t repeat) {
     if (queue_is_full())
         return -1;
 
@@ -266,16 +258,19 @@ int8_t event_register(const char *name, event_callback_t callback,
     // populate the new event
     newEvent.name = name;
     newEvent.eventCallback = callback;
-    newEvent.scheduledTime = time + systick_read();
+    newEvent.registrationTime = systick_read();
+    newEvent.executionTime = time;
     newEvent.repeat = repeat;
+    newEvent.exists = 1;
 
-#if LOG_LEVEL_TASKS >= LOG_EVENTS
-    print("Registering ");
-    print_event(&events.queue[FIRST_TASK]);
-#endif
+    // #if LOG_LEVEL_EVENTS >= LOG_EVENTS
+    //     print("Registering: ");
+    //     print_event(&newEvent);
+    //     delay_ms(10); // don't clog up the UART
+    // #endif
 
     // add it to the queue
-    insert_event_and_sort(&newEvent);
+    insert_event(&newEvent);
 
     return 0;
 }
@@ -311,27 +306,27 @@ int8_t event_queue_lookup(const char *name) {
 
 */
 // dummy events to be used as callbacks in event_telf_test()
-void event_beep(void) { printf("beep %d\r\n", systick_read()); }
-void event_boop(void) { printf("boop %d\r\n", systick_read()); }
-void event_fizz(void) { printf("fizz %d\r\n", systick_read()); }
-void event_buzz(void) { printf("buzz %d\r\n", systick_read()); }
-void dummy_event(void) { printf("time: %d\r\n", systick_read()); }
+void event_beep(void) { printf("beep %d\r\n", (uint32_t)systick_read()); }
+void event_boop(void) { printf("boop %d\r\n", (uint32_t)systick_read()); }
+void event_fizz(void) { printf("fizz %d\r\n", (uint32_t)systick_read()); }
+void event_buzz(void) { printf("buzz %d\r\n", (uint32_t)systick_read()); }
+void dummy_event(void) { printf("time: %d\r\n", (uint32_t)systick_read()); }
 
 /* ************************************************************************** */
 
 // print out the size in bytes of the various objects used in the queue
-void print_object_sizes(void) {
+static void print_object_sizes(void) {
     println("");
     println("=====");
     println("Check size of event queue objects");
     printf("sizeof events: %d bytes\r\n", sizeof(events));
-    printf("sizeof events: %d bytes\r\n", sizeof(events.queue));
-    printf("sizeof events: %d bytes\r\n", sizeof(events.queue[0]));
+    printf("sizeof events.queue: %d bytes\r\n", sizeof(events.queue));
+    printf("sizeof events.queue[0]: %d bytes\r\n", sizeof(events.queue[0]));
 }
 
 // print the values of the function pointers to cross-reference against other
 // output
-void print_pointer_values(void) {
+static void print_pointer_values(void) {
     println("");
     println("=====");
     println("Check function pointer values");
@@ -351,7 +346,7 @@ const system_time_t random_times[] = {
     // 1683, 8651, 9668, 9218, 9391, 299, 906, 8828, 2042, 609 // 70 items
 };
 
-void event_queue_fill_test(void) {
+static void event_queue_fill_test(void) {
     println("");
     println("=====");
     println("Event setup");
@@ -383,11 +378,11 @@ void event_queue_fill_test(void) {
     event_register("19", dummy_event, random_times[i++], 0);
     event_register("20", dummy_event, random_times[i++], 0);
 
-    event_register("21", dummy_event, random_times[i++], 0);
-    event_register("22", dummy_event, random_times[i++], 0);
-    event_register("23", dummy_event, random_times[i++], 0);
-    event_register("24", dummy_event, random_times[i++], 0);
-    event_register("25", dummy_event, random_times[i++], 0);
+    // event_register("21", dummy_event, random_times[i++], 0);
+    // event_register("22", dummy_event, random_times[i++], 0);
+    // event_register("23", dummy_event, random_times[i++], 0);
+    // event_register("24", dummy_event, random_times[i++], 0);
+    // event_register("25", dummy_event, random_times[i++], 0);
 
     // event_register("26", dummy_event, random_times[i++], 0);
     // event_register("27", dummy_event, random_times[i++], 0);
@@ -407,7 +402,7 @@ void event_queue_fill_test(void) {
     print_event_queue();
 }
 
-void event_torting_simple_test(void) {
+static void event_sorting_simple_test(void) {
     println("");
     println("=====");
     println("Event setup");
@@ -422,18 +417,18 @@ void event_torting_simple_test(void) {
     print_event_queue();
 }
 
-void event_torting_stress_test(void) {}
+static void event_sorting_stress_test(void) {}
 
 void event_manager_self_test(void) {
     println("");
 
-    // print_object_sizes();
+    print_object_sizes();
 
     // print_pointer_values();
 
     event_queue_fill_test();
 
-    // event_torting_simple_test();
+    // event_sorting_simple_test();
 
-    // event_torting_stress_test();
+    // event_sorting_stress_test();
 }
