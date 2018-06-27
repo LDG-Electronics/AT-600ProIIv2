@@ -27,9 +27,6 @@ void RF_sensor_init(void)
 
     // shell commands
     shell_register(shell_get_RF, "getRF");
-    
-    // Calibration Task
-    // event_register("swr", task_RF_calibration, 1000, 100);
 }
 
 void SWR_threshold_set(void)
@@ -363,36 +360,6 @@ void print_current_SWR_ln(void)
 {
     print_current_SWR();
     println("");
-}
-
-/* -------------------------------------------------------------------------- */
-
-/*  print_SWR_for_calibration()
-
-    This function provides data to a calibration routine that runs on an LDG
-    Servitor. The Servitor uses this data in conjunction with data from a
-    Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
-    compensation tables to improve the accuracy of the RF sensor.
-
-    (F, R, SWR,      frequency)
-    (0, 0, 0.000000, 0xffff)
-*/
-
-void print_RF_calibration_data(void)
-{
-    printf("(%u, %u, %u, %f, %u)\r\n", 
-            currentRF.forward, currentRF.forwardWatts, currentRF.reverse, 
-            currentRF.swr, currentRF.frequency);
-}
-
-// This task is used to generate calibration tables
-void task_RF_calibration(void)
-{
-    SWR_stable_average();
-
-    show_current_power_and_SWR();
-
-    print_RF_calibration_data();
 }
 
 /* -------------------------------------------------------------------------- */

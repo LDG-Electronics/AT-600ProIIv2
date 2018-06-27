@@ -2,14 +2,20 @@
 
 /* ************************************************************************** */
 
-void check_SWR_and_update_meters(void)
-{
+void events_init(void) {
+
+    // Calibration Task
+    event_register("swr", send_RF_data_packet, 1000, 100);
+}
+
+/* ************************************************************************** */
+
+void check_SWR_and_update_meters(void) {
     printf("check_SWR %lu\r\n", (uint32_t)systick_read());
 
     SWR_stable_average();
 
-    if(!display.displayIsLocked)
-    {
+    if (!display.displayIsLocked) {
         show_current_power_and_SWR();
     }
 }
@@ -123,7 +129,7 @@ void manual_store(void) {
 
     // success animation?
     play_animation(&center_crawl);
-    
+
     // failure animation?
     // repeat_animation(&blink_both_bars, 2);
 }
@@ -202,4 +208,32 @@ void inductor_decrement(void) {
     } else {
         play_background_animation(&blink_swr_bar_3);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+/*  print_RF_calibration_data()
+
+    This function provides data to a calibration routine that runs on an LDG
+    Servitor. The Servitor uses this data in conjunction with data from a
+    Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
+    compensation tables to improve the accuracy of the RF sensor.
+
+    (F, Fw, R, Rw, SWR,      frequency)
+    (0, 0,  0, 0,  0.000000, 0xffff)
+*/
+
+void print_RF_calibration_data(void) {
+    printf("(%u, %u, %u, %f, %u)\r\n", currentRF.forward,
+           currentRF.forwardWatts, currentRF.reverse, currentRF.swr,
+           currentRF.frequency);
+}
+
+// This event is used to generate calibration tables
+void send_RF_data_packet(void) {
+    SWR_stable_average();
+
+    show_current_power_and_SWR();
+
+    print_RF_calibration_data();
 }

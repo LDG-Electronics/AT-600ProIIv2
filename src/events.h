@@ -1,5 +1,10 @@
 #ifndef _EVENTS_H_
 #define _EVENTS_H_
+
+/* ************************************************************************** */
+
+extern void events_init(void);
+
 /* ************************************************************************** */
 
 extern void check_SWR_and_update_meters(void);
@@ -51,5 +56,9 @@ extern void capacitor_increment(void);
 extern void capacitor_decrement(void);
 extern void inductor_increment(void);
 extern void inductor_decrement(void);
+
+/* -------------------------------------------------------------------------- */
+
+extern void send_RF_data_packet(void);
 
 #endif
