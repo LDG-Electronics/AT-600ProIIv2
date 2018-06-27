@@ -27,6 +27,9 @@ extern void stopwatch_init(void);
 extern void us_stopwatch_begin(void);
 extern void us_stopwatch_end(void);
 
+#define us_stopwatch_pause() timer0_stop()
+#define us_stopwatch_resume() timer0_start()
+
 // Millisecond stopwatch functions, prints elapsed time in ms +/- 1ms
 extern void ms_stopwatch_begin(void);
 extern void ms_stopwatch_end(void);
