@@ -42,9 +42,6 @@ void startup(void)
     // play_animation(&right_crawl);
     // display_clear();
     update_status_LEDs(); // must be after flags_init()
-
-    // 
-    // event_register("SWR_Monitor", check_SWR_and_update_meters, 100, 250);
 }
 
 void shutdown(void)
