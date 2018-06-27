@@ -160,7 +160,7 @@ void relay_button_hold(void)
         system_idle_block();
     }
     lock_display();
-    task_register("display_release", display_release, RELAY_INC_DISPLAY_LINGER_TIME, 0);
+    event_register("display_release", display_release, RELAY_INC_DISPLAY_LINGER_TIME, 0);
     save_flags();
 }
 

@@ -73,5 +73,5 @@ void systick_delay(uint16_t mseconds)
 void system_idle_block(void)
 {
     shell_update();
-    task_manager_update();
+    event_scheduler_update();
 }

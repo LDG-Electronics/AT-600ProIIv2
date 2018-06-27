@@ -158,7 +158,7 @@ void continue_background_animation(void) {
         unlock_display();
     } else {
         // printf("reregistering: %d\r\n", bgAPointer[bgAIndex].frame_delay);
-        task_register("animation", continue_background_animation,
+        event_register("animation", continue_background_animation,
                       bgAPointer[bgAIndex].frame_delay, 0);
         bgAIndex++;
     }

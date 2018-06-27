@@ -18,7 +18,7 @@ void startup(void)
     interrupt_init();
     shell_init();
     systick_init();
-    task_manager_init();
+    event_scheduler_init();
 
     // Driver setup
     buttons_init();
@@ -42,7 +42,7 @@ void startup(void)
     update_status_LEDs(); // must be after flags_init()
 
     // 
-    // task_register("SWR_Monitor", check_SWR_and_update_meters, 100, 250);
+    // event_register("SWR_Monitor", check_SWR_and_update_meters, 100, 250);
 }
 
 void shutdown(void)

@@ -1,12 +1,12 @@
 #include "../includes.h"
 
 /* ************************************************************************** */
-/*  Notes on the task system
+/*  Notes on the event system
 
-    This is a minimalist background task scheduler that's designed to complement
+    This is a minimalist background event scheduler that's designed to complement
     a superloop instead of replacing it.
 
-    task_manager_update() needs to be called regularly in the main loop or
+    event_scheduler_update() needs to be called regularly in the main loop or
     equivalent structure. Any possible event callback should be relatively
     short, contain no majors delays, and should cause limited side-effects.
 
@@ -16,58 +16,60 @@
 */
 
 /* ************************************************************************** */
-/*  This structure stores the information related to a single task.
+/*  This structure stores the information related to a single event.
 
     The fields are:
-    name: a string that identifies the task
-    eventCallback: a function pointer that event a task performs
-    scheduledTime: the task will be performed when the current system time
+    name: a string that identifies the event
+    eventCallback: a function pointer that event a event performs
+    scheduledTime: the event will be performed when the current system time
                     equals this scheduled time
-    repeat: if the task is to be repeated, it will be re-registered this number
+    repeat: if the event is to be repeated, it will be re-registered this number
             of system ticks into the future
 */
 typedef struct {
     const char *name;
-    task_callback_s eventCallback;
+    event_callback_t eventCallback;
     system_time_t scheduledTime;
     uint16_t repeat;
-} task_s;
+} event_t;
 
 /* ************************************************************************** */
-/*  The maximum number of tasks appears to be limited by the PIC18's RAM page
-    size. A page of RAM is 256 bytes, and a task object is 11 bytes long.
+/*  The maximum number of events appears to be limited by the PIC18's RAM page
+    size. A page of RAM is 256 bytes, and a event object is 11 bytes long.
     Therefore, the maximum length of the queue is 11 * 23 = 253
+
 */
-#define MAX_NUM_OF_TASKS 25
+#define EVENT_QUEUE_LENGTH 25
 #define FIRST_TASK 0
 
 // This structure stores the event queue and related data.
 struct {
-    task_s queue[MAX_NUM_OF_TASKS];
-    uint8_t numberOfTasks;
-} tasks;
+    event_t queue[EVENT_QUEUE_LENGTH];
+    uint8_t numberOfEvents;
+    uint8_t nextEvent;
+} events;
 
 /* ************************************************************************** */
-// task debug utilities
+// event debug utilities
 
-static void print_task(task_s *task) {
-    printf("task:(name:%s)(ptr:%p)(time:%u)(repeat:%u)\r\n", task->name,
-           task->eventCallback, task->scheduledTime, task->repeat);
+static void print_event(event_t *event) {
+    printf("event:(name:%s)(ptr:%p)(time:%u)(repeat:%u)\r\n", event->name,
+           event->eventCallback, event->scheduledTime, event->repeat);
 }
 
-static void print_task_queue(void) {
+static void print_event_queue(void) {
     println("");
     println("-----");
-    printf("Task queue contains: %d tasks\r\n", tasks.numberOfTasks);
+    printf("Event queue contains: %d events\r\n", events.numberOfEvents);
     println("");
 
-    if (tasks.numberOfTasks == 0)
+    if (events.numberOfEvents == 0)
         return;
 
-    // step through the list and print each task
-    for (uint8_t i = 0; i < tasks.numberOfTasks; i++) {
-        print_task(&tasks.queue[i]);
-        // every fifth task, add a line break
+    // step through the list and print each event
+    for (uint8_t i = 0; i < events.numberOfEvents; i++) {
+        print_event(&events.queue[i]);
+        // every fifth event, add a line break
         if (((i + 1) % 5) == 0) {
             println("");
         }
@@ -78,62 +80,62 @@ static void print_task_queue(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-// Task queue manipulation utilities
+// Event queue manipulation utilities
 
-#define queue_is_full() (tasks.numberOfTasks == MAX_NUM_OF_TASKS)
-#define queue_is_empty() (tasks.numberOfTasks == 0)
-#define copy_task_in_queue(source, destination)                                \
-    (tasks.queue[destination] = tasks.queue[source])
-#define task_is_ready(taskIndex, currentTime)                                  \
-    (tasks.queue[taskIndex].scheduledTime < currentTime)
-#define get_task_scheduled_time(taskIndex)                                     \
-    (tasks.queue[taskIndex].scheduledTime)
+#define queue_is_full() (events.numberOfEvents == EVENT_QUEUE_LENGTH)
+#define queue_is_empty() (events.numberOfEvents == 0)
+#define copy_event_in_queue(source, destination)                                \
+    (events.queue[destination] = events.queue[source])
+#define event_is_ready(eventIndex, currentTime)                                  \
+    (events.queue[eventIndex].scheduledTime < currentTime)
+#define get_event_scheduled_time(eventIndex)                                     \
+    (events.queue[eventIndex].scheduledTime)
 
-// Delete the contents of a given task, setting its elements to 'clean' values
-static void task_clear(task_s *task) {
-    task->name = NULL;
-    task->eventCallback = NULL;
-    task->scheduledTime = UINT24_MAX;
-    task->repeat = 0;
+// Delete the contents of a given event, setting its elements to 'clean' values
+static void event_clear(event_t *event) {
+    event->name = NULL;
+    event->eventCallback = NULL;
+    event->scheduledTime = UINT24_MAX;
+    event->repeat = 0;
 }
 
-// swap two tasks
-static void swap_tasks_in_queue(uint8_t taskA, uint8_t taskB) {
-    task_s copyOfTaskB = tasks.queue[taskB];
-    tasks.queue[taskB] = tasks.queue[taskA];
-    tasks.queue[taskA] = copyOfTaskB;
+// swap two events
+static void swap_events_in_queue(uint8_t eventA, uint8_t eventB) {
+    event_t copyOfEventB = events.queue[eventB];
+    events.queue[eventB] = events.queue[eventA];
+    events.queue[eventA] = copyOfEventB;
 }
 
 /* -------------------------------------------------------------------------- */
 
-static void task_queue_sort(void) {
-    uint8_t currentTaskInQueue;
+static void event_queue_sort(void) {
+    uint8_t currentEventInQueue;
 
     int8_t indexOfLastSortedElement = -1;
     uint8_t currentElementBeingSwappedLeft;
 
-    // If there aren't any tasks, then what are we doing here?
+    // If there aren't any events, then what are we doing here?
     if (queue_is_empty()) {
 #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        println("Task Queue is empty!");
+        println("Event Queue is empty!");
         println("Can't sort an empty list!");
 #endif
 
         return;
     }
 
-    // The queue can't be out of order if there's only one task
-    if (tasks.numberOfTasks == 1) {
+    // The queue can't be out of order if there's only one event
+    if (events.numberOfEvents == 1) {
 #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        println("Task Queue only contains one task!");
+        println("Event Queue only contains one event!");
         println("Can't sort a single item!");
 #endif
 
         return;
     }
 
-    for (currentTaskInQueue = 0; currentTaskInQueue < tasks.numberOfTasks;
-         currentTaskInQueue++) {
+    for (currentEventInQueue = 0; currentEventInQueue < events.numberOfEvents;
+         currentEventInQueue++) {
         if (indexOfLastSortedElement == -1) {
             indexOfLastSortedElement++;
         } else {
@@ -141,10 +143,10 @@ static void task_queue_sort(void) {
             // while there's an element to the left of the current element, swap
             // it left until it's in the correct place
             while (currentElementBeingSwappedLeft - 1 > -1 &&
-                   tasks.queue[currentElementBeingSwappedLeft].scheduledTime <
-                       tasks.queue[currentElementBeingSwappedLeft - 1]
+                   events.queue[currentElementBeingSwappedLeft].scheduledTime <
+                       events.queue[currentElementBeingSwappedLeft - 1]
                            .scheduledTime) {
-                swap_tasks_in_queue(currentElementBeingSwappedLeft,
+                swap_events_in_queue(currentElementBeingSwappedLeft,
                                     currentElementBeingSwappedLeft - 1);
                 currentElementBeingSwappedLeft--;
             }
@@ -153,90 +155,91 @@ static void task_queue_sort(void) {
     }
 }
 
-// insert a task into the queue and then sort it
-static void task_insert_and_sort(task_s *newTask) {
+// insert a event into the queue and then sort it
+static void insert_event_and_sort(event_t *newEvent) {
     if (queue_is_full()) {
 #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        println("task insertion failed, queue is full");
+        println("event insertion failed, queue is full");
 #endif
         return;
     }
 
-    tasks.queue[tasks.numberOfTasks] = *newTask;
-    tasks.numberOfTasks++;
+    events.queue[events.numberOfEvents] = *newEvent;
+    events.numberOfEvents++;
 
-    task_queue_sort();
+    event_queue_sort();
 }
 
-// remove a specified task from the queue and then sort what's left
-static void task_remove(uint8_t taskID) {
+// remove a specified event from the queue and then sort what's left
+static void remove_event(uint8_t eventIndex) {
     // make sure the array isn't empty
     if (queue_is_empty()) {
 #if LOG_LEVEL_TASKS >= LOG_EVENTS
-        println("task removal failed, queue already empty");
+        println("event removal failed, queue already empty");
 #endif
         return;
     }
 
-    // Remove the task
-    task_clear(&tasks.queue[taskID]);
-    tasks.numberOfTasks--;
+    // Remove the event
+    event_clear(&events.queue[eventIndex]);
+    events.numberOfEvents--;
 
     // TODO: prove that this is shuffling properly
     // shuffle the array leftwards
-    for (uint8_t i = taskID; i < tasks.numberOfTasks + 1; i++) {
-        copy_task_in_queue(i + 1, i);
+    for (uint8_t i = eventIndex; i < events.numberOfEvents + 1; i++) {
+        copy_event_in_queue(i + 1, i);
     }
 }
 
 /* ************************************************************************** */
-// task system functions
+// event system functions
 
-void task_manager_init(void) {
-    tasks.numberOfTasks = 0;
+void event_scheduler_init(void) {
+    // initialize the queue
+    events.numberOfEvents = 0;
+    events.nextEvent = 0;
 
-    // clear task queue
-    for (uint8_t i = 0; i < MAX_NUM_OF_TASKS; i++) {
-        task_clear(&tasks.queue[i]);
+    for (uint8_t i = 0; i < EVENT_QUEUE_LENGTH; i++) {
+        event_clear(&events.queue[i]);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 
-/*  task_manager_update() should be called from application code at regular
+/*  event_scheduler_update() should be called from application code at regular
     intervals, during periods where no time-critical work is being done.
 
-    The project this task manager was designed for has a series of nested state
+    The project this event manager was designed for has a series of nested state
     machine loops that are used to poll user input and respond.
 */
-void task_manager_update(void) {
+void event_scheduler_update(void) {
     if (queue_is_empty())
         return;
 
-    // return early if the first task isn't ready yet
+    // return early if the first event isn't ready yet
     system_time_t currentTime = systick_read();
-    if (!task_is_ready(FIRST_TASK, currentTime))
+    if (!event_is_ready(FIRST_TASK, currentTime))
         return;
 
 #if LOG_LEVEL_TASKS >= LOG_EVENTS
-    printf("task is ready @%u\r\n", currentTime);
+    printf("event is ready @%u\r\n", currentTime);
     print("executing");
-    print_task(&tasks.queue[FIRST_TASK]);
+    print_event(&events.queue[FIRST_TASK]);
 #endif
 
     // Make sure we don't execute a null function pointer
-    if (tasks.queue[FIRST_TASK].eventCallback != NULL) {
+    if (events.queue[FIRST_TASK].eventCallback != NULL) {
         // execute it
-        tasks.queue[FIRST_TASK].eventCallback();
+        events.queue[FIRST_TASK].eventCallback();
 
-        // if the task should be repeated, re-register it
-        if (tasks.queue[FIRST_TASK].repeat != 0) {
-            // grab a copy of the current task
-            task_s repeatingTask = tasks.queue[FIRST_TASK];
+        // if the event should be repeated, re-register it
+        if (events.queue[FIRST_TASK].repeat != 0) {
+            // grab a copy of the current event
+            event_t repeatingEvent = events.queue[FIRST_TASK];
             // update its scheduledTime
-            repeatingTask.scheduledTime = currentTime + repeatingTask.repeat;
+            repeatingEvent.scheduledTime = currentTime + repeatingEvent.repeat;
             // throw it back in the queue
-            task_insert_and_sort(&repeatingTask);
+            insert_event_and_sort(&repeatingEvent);
         }
     } else { // pointer is null, do not execute
 #if LOG_LEVEL_TASKS >= LOG_ERROR
@@ -245,58 +248,58 @@ void task_manager_update(void) {
         // while(1); // trap
     }
 
-    task_remove(FIRST_TASK);
+    remove_event(FIRST_TASK);
 }
 
 /* -------------------------------------------------------------------------- */
 
-// create a task object and add it to the task queue
-int8_t task_register(const char *name, task_callback_s callback,
+// create a event object and add it to the event queue
+int8_t event_register(const char *name, event_callback_t callback,
                      system_time_t time, uint16_t repeat) {
     if (queue_is_full())
         return -1;
 
-    // create and init a new task object
-    task_s newTask;
-    task_clear(&newTask);
+    // create and init a new event object
+    event_t newEvent;
+    event_clear(&newEvent);
 
-    // populate the new task
-    newTask.name = name;
-    newTask.eventCallback = callback;
-    newTask.scheduledTime = time + systick_read();
-    newTask.repeat = repeat;
+    // populate the new event
+    newEvent.name = name;
+    newEvent.eventCallback = callback;
+    newEvent.scheduledTime = time + systick_read();
+    newEvent.repeat = repeat;
 
 #if LOG_LEVEL_TASKS >= LOG_EVENTS
     print("Registering ");
-    print_task(&tasks.queue[FIRST_TASK]);
+    print_event(&events.queue[FIRST_TASK]);
 #endif
 
     // add it to the queue
-    task_insert_and_sort(&newTask);
+    insert_event_and_sort(&newEvent);
 
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-// remove a task from the queue using its name as a key
-int8_t task_deregister(const char *name) {
-    int8_t index = task_queue_lookup(name);
+// remove a event from the queue using its name as a key
+int8_t event_deregister(const char *name) {
+    int8_t index = event_queue_lookup(name);
 
-    // the indicated task was not found
+    // the indicated event was not found
     if (index == -1)
         return -1;
 
-    // remove the task
-    task_remove(index);
+    // remove the event
+    remove_event(index);
 
     return 0;
 }
 
-// check if a task with the given name exists in the queue
-int8_t task_queue_lookup(const char *name) {
-    for (uint8_t i = 0; i < MAX_NUM_OF_TASKS; i++) {
-        if (!strcmp(name, tasks.queue[i].name)) {
+// check if a event with the given name exists in the queue
+int8_t event_queue_lookup(const char *name) {
+    for (uint8_t i = 0; i < EVENT_QUEUE_LENGTH; i++) {
+        if (!strcmp(name, events.queue[i].name)) {
             return 0; // found a match
         }
     }
@@ -304,29 +307,26 @@ int8_t task_queue_lookup(const char *name) {
 }
 
 /* ************************************************************************** */
-/*  Task Manager testing utilities
+/*  Event Manager testing utilities
 
 */
-// dummy tasks to be used as callbacks in task_self_test()
-void task_beep(void) { printf("beep %d\r\n", systick_read()); }
+// dummy events to be used as callbacks in event_telf_test()
+void event_beep(void) { printf("beep %d\r\n", systick_read()); }
+void event_boop(void) { printf("boop %d\r\n", systick_read()); }
+void event_fizz(void) { printf("fizz %d\r\n", systick_read()); }
+void event_buzz(void) { printf("buzz %d\r\n", systick_read()); }
+void dummy_event(void) { printf("time: %d\r\n", systick_read()); }
 
-void task_boop(void) { printf("boop %d\r\n", systick_read()); }
-
-void task_fizz(void) { printf("fizz %d\r\n", systick_read()); }
-
-void task_buzz(void) { printf("buzz %d\r\n", systick_read()); }
-
-void task_dummy(void) { printf("time: %d\r\n", systick_read()); }
 /* ************************************************************************** */
 
 // print out the size in bytes of the various objects used in the queue
 void print_object_sizes(void) {
     println("");
     println("=====");
-    println("Check size of task queue objects");
-    printf("sizeof tasks: %d bytes\r\n", sizeof(tasks));
-    printf("sizeof tasks: %d bytes\r\n", sizeof(tasks.queue));
-    printf("sizeof tasks: %d bytes\r\n", sizeof(tasks.queue[0]));
+    println("Check size of event queue objects");
+    printf("sizeof events: %d bytes\r\n", sizeof(events));
+    printf("sizeof events: %d bytes\r\n", sizeof(events.queue));
+    printf("sizeof events: %d bytes\r\n", sizeof(events.queue[0]));
 }
 
 // print the values of the function pointers to cross-reference against other
@@ -335,10 +335,10 @@ void print_pointer_values(void) {
     println("");
     println("=====");
     println("Check function pointer values");
-    printf("task_beep: %p\r\n", task_beep);
-    printf("task_boop: %p\r\n", task_boop);
-    printf("task_fizz: %p\r\n", task_fizz);
-    printf("task_buzz: %p\r\n", task_buzz);
+    printf("event_beep: %p\r\n", event_beep);
+    printf("event_boop: %p\r\n", event_boop);
+    printf("event_fizz: %p\r\n", event_fizz);
+    printf("event_buzz: %p\r\n", event_buzz);
 }
 
 const system_time_t random_times[] = {
@@ -351,89 +351,89 @@ const system_time_t random_times[] = {
     // 1683, 8651, 9668, 9218, 9391, 299, 906, 8828, 2042, 609 // 70 items
 };
 
-void task_queue_fill_test(void) {
+void event_queue_fill_test(void) {
     println("");
     println("=====");
-    println("Task setup");
+    println("Event setup");
 
     uint8_t i = 0;
 
     // fill up that queue
-    task_register("1", task_dummy, random_times[i++], 0);
-    task_register("2", task_dummy, random_times[i++], 0);
-    task_register("3", task_dummy, random_times[i++], 0);
-    task_register("4", task_dummy, random_times[i++], 0);
-    task_register("5", task_dummy, random_times[i++], 0);
+    event_register("1", dummy_event, random_times[i++], 0);
+    event_register("2", dummy_event, random_times[i++], 0);
+    event_register("3", dummy_event, random_times[i++], 0);
+    event_register("4", dummy_event, random_times[i++], 0);
+    event_register("5", dummy_event, random_times[i++], 0);
 
-    task_register("6", task_dummy, random_times[i++], 0);
-    task_register("7", task_dummy, random_times[i++], 0);
-    task_register("8", task_dummy, random_times[i++], 0);
-    task_register("9", task_dummy, random_times[i++], 0);
-    task_register("10", task_dummy, random_times[i++], 0);
+    event_register("6", dummy_event, random_times[i++], 0);
+    event_register("7", dummy_event, random_times[i++], 0);
+    event_register("8", dummy_event, random_times[i++], 0);
+    event_register("9", dummy_event, random_times[i++], 0);
+    event_register("10", dummy_event, random_times[i++], 0);
 
-    task_register("11", task_dummy, random_times[i++], 0);
-    task_register("12", task_dummy, random_times[i++], 0);
-    task_register("13", task_dummy, random_times[i++], 0);
-    task_register("14", task_dummy, random_times[i++], 0);
-    task_register("15", task_dummy, random_times[i++], 0);
+    event_register("11", dummy_event, random_times[i++], 0);
+    event_register("12", dummy_event, random_times[i++], 0);
+    event_register("13", dummy_event, random_times[i++], 0);
+    event_register("14", dummy_event, random_times[i++], 0);
+    event_register("15", dummy_event, random_times[i++], 0);
 
-    task_register("16", task_dummy, random_times[i++], 0);
-    task_register("17", task_dummy, random_times[i++], 0);
-    task_register("18", task_dummy, random_times[i++], 0);
-    task_register("19", task_dummy, random_times[i++], 0);
-    task_register("20", task_dummy, random_times[i++], 0);
+    event_register("16", dummy_event, random_times[i++], 0);
+    event_register("17", dummy_event, random_times[i++], 0);
+    event_register("18", dummy_event, random_times[i++], 0);
+    event_register("19", dummy_event, random_times[i++], 0);
+    event_register("20", dummy_event, random_times[i++], 0);
 
-    task_register("21", task_dummy, random_times[i++], 0);
-    task_register("22", task_dummy, random_times[i++], 0);
-    task_register("23", task_dummy, random_times[i++], 0);
-    task_register("24", task_dummy, random_times[i++], 0);
-    task_register("25", task_dummy, random_times[i++], 0);
+    event_register("21", dummy_event, random_times[i++], 0);
+    event_register("22", dummy_event, random_times[i++], 0);
+    event_register("23", dummy_event, random_times[i++], 0);
+    event_register("24", dummy_event, random_times[i++], 0);
+    event_register("25", dummy_event, random_times[i++], 0);
 
-    // task_register("26", task_dummy, random_times[i++], 0);
-    // task_register("27", task_dummy, random_times[i++], 0);
-    // task_register("28", task_dummy, random_times[i++], 0);
-    // task_register("29", task_dummy, random_times[i++], 0);
-    // task_register("30", task_dummy, random_times[i++], 0);
+    // event_register("26", dummy_event, random_times[i++], 0);
+    // event_register("27", dummy_event, random_times[i++], 0);
+    // event_register("28", dummy_event, random_times[i++], 0);
+    // event_register("29", dummy_event, random_times[i++], 0);
+    // event_register("30", dummy_event, random_times[i++], 0);
 
-    // task_register("31", task_dummy, random_times[i++], 0);
-    // task_register("32", task_dummy, random_times[i++], 0);
-    // task_register("33", task_dummy, random_times[i++], 0);
-    // task_register("34", task_dummy, random_times[i++], 0);
-    // task_register("35", task_dummy, random_times[i++], 0);
+    // event_register("31", dummy_event, random_times[i++], 0);
+    // event_register("32", dummy_event, random_times[i++], 0);
+    // event_register("33", dummy_event, random_times[i++], 0);
+    // event_register("34", dummy_event, random_times[i++], 0);
+    // event_register("35", dummy_event, random_times[i++], 0);
 
     println("");
     println("=====");
-    println("Confirm task queue is sorted");
-    print_task_queue();
+    println("Confirm event queue is sorted");
+    print_event_queue();
 }
 
-void task_sorting_simple_test(void) {
+void event_torting_simple_test(void) {
     println("");
     println("=====");
-    println("Task setup");
-    task_register("fizz", task_fizz, 3000, 0);
-    task_register("buzz", task_buzz, 4000, 0);
-    task_register("boop", task_boop, 2000, 0);
-    task_register("beep", task_beep, 1000, 0);
+    println("Event setup");
+    event_register("fizz", event_fizz, 3000, 0);
+    event_register("buzz", event_buzz, 4000, 0);
+    event_register("boop", event_boop, 2000, 0);
+    event_register("beep", event_beep, 1000, 0);
 
     println("");
     println("=====");
-    println("Confirm task queue is sorted");
-    print_task_queue();
+    println("Confirm event queue is sorted");
+    print_event_queue();
 }
 
-void task_sorting_stress_test(void) {}
+void event_torting_stress_test(void) {}
 
-void task_manager_self_test(void) {
+void event_manager_self_test(void) {
     println("");
 
     // print_object_sizes();
 
     // print_pointer_values();
 
-    task_queue_fill_test();
+    event_queue_fill_test();
 
-    // task_sorting_simple_test();
+    // event_torting_simple_test();
 
-    // task_sorting_stress_test();
+    // event_torting_stress_test();
 }
