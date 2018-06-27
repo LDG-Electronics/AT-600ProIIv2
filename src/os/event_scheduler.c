@@ -263,11 +263,10 @@ int8_t event_register(const char *name, event_callback_t callback,
     newEvent.repeat = repeat;
     newEvent.exists = 1;
 
-    // #if LOG_LEVEL_EVENTS >= LOG_EVENTS
-    //     print("Registering: ");
-    //     print_event(&newEvent);
-    //     delay_ms(10); // don't clog up the UART
-    // #endif
+    #if LOG_LEVEL_EVENTS >= LOG_EVENTS
+        print("Registering: ");
+        print_event(&newEvent);
+    #endif
 
     // add it to the queue
     insert_event(&newEvent);
