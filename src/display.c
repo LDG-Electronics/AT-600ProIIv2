@@ -132,14 +132,14 @@ void play_interruptable_animation(const animation_s *animation) {
 
 /* -------------------------------------------------------------------------- */
 
-// background animation system, using TuneOS task manager
+// background animation system, using TuneOS event scheduler
 
 // bgA = backgroundAnimation
 volatile const animation_s *bgAPointer;
 volatile uint8_t bgAIndex;
 
 void play_background_animation(const animation_s *animation) {
-    // printf("begin_background_animation %d\r\n", systick_read());
+    // printf("begin_background_animation @%d\r\n", systick_read());
     // claim the display mutex
     lock_display();
 
@@ -150,7 +150,7 @@ void play_background_animation(const animation_s *animation) {
 }
 
 void continue_background_animation(void) {
-    // printf("continue_background_animation %d\r\n", systick_read());
+    // printf("continue_background_animation @%d\r\n", systick_read());
     
     FP_update(bgAPointer[bgAIndex].image);
 

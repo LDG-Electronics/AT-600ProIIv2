@@ -73,7 +73,7 @@ extern void repeat_animation(const animation_s *animation, uint8_t repeats);
 // Play an animation from animations.h and return early if a button is pressed
 extern void play_interruptable_animation(const animation_s *animation);
 
-// Play an animation in the 'background' using the task manager
+// Play an animation in the 'background' using the event scheduler
 extern void play_background_animation(const animation_s *animation);
 extern void continue_background_animation(void);
 

@@ -4,8 +4,8 @@
 
 void events_init(void) {
 
-    // Calibration Task
-    // event_register("swr", send_RF_data_packet, 1000, 100);
+    // Calibration Event
+    // event_register("swr", send_RF_data_packet, 1000, 1);
 }
 
 /* ************************************************************************** */
