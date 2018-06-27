@@ -162,6 +162,20 @@ void continue_background_animation(void) {
                       bgAPointer[bgAIndex].frame_delay, 0);
         bgAIndex++;
     }
+
+/* -------------------------------------------------------------------------- */
+// display functions that use the frame buffer
+
+void show_cap_relays(void) {
+    display.frameBuffer.bottomBar = currentRelays[system_flags.antenna].caps;
+
+    push_frame_buffer();
+}
+
+void show_ind_relays(void) {
+    display.frameBuffer.topBar = currentRelays[system_flags.antenna].inds;
+
+    push_frame_buffer();
 }
 
 /* -------------------------------------------------------------------------- */

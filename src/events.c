@@ -168,9 +168,9 @@ void capacitor_increment(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].caps--;
         }
-        show_relays();
+        show_cap_relays();
     } else {
-        play_background_animation(&blink_power_bar_3);
+        play_background_animation(&blink_top_bar_3);
     }
 }
 
@@ -180,9 +180,9 @@ void capacitor_decrement(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].caps++;
         }
-        show_relays();
+        show_cap_relays();
     } else {
-        play_background_animation(&blink_power_bar_3);
+        play_background_animation(&blink_top_bar_3);
     }
 }
 
@@ -192,9 +192,9 @@ void inductor_increment(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].inds--;
         }
-        show_relays();
+        show_ind_relays();
     } else {
-        play_background_animation(&blink_swr_bar_3);
+        play_background_animation(&blink_bottom_bar_3);
     }
 }
 
@@ -204,9 +204,9 @@ void inductor_decrement(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].inds++;
         }
-        show_relays();
+        show_ind_relays();
     } else {
-        play_background_animation(&blink_swr_bar_3);
+        play_background_animation(&blink_bottom_bar_3);
     }
 }
 

@@ -79,6 +79,12 @@ extern void continue_background_animation(void);
 
 /* -------------------------------------------------------------------------- */
 
+// display functions that use the frame buffer
+extern void show_cap_relays(void);
+extern void show_ind_relays(void);
+
+/* -------------------------------------------------------------------------- */
+
 // function-related, blinky display functions
 // THESE HAVE BLOCKING DELAYS
 extern void blink_bypass(void);
