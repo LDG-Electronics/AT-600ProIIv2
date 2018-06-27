@@ -9,6 +9,7 @@ typedef union {
         uint16_t forward;
         uint16_t forwardWatts;
         uint16_t reverse;
+        uint16_t reverseWatts;
         double swr;
         uint16_t frequency;
     };

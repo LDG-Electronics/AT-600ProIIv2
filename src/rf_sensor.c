@@ -22,6 +22,7 @@ void RF_sensor_init(void)
     currentRF.forward = 0;
     currentRF.forwardWatts = 0;
     currentRF.reverse = 0;
+    currentRF.reverseWatts = 0;
     currentRF.swr = 0;
     currentRF.frequency = 0;
 
