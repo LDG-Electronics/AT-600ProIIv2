@@ -23,6 +23,7 @@ void startup(void)
     // Driver setup
     buttons_init();
     display_init();
+    events_init();
     flags_init();
     relays_init();
     RF_sensor_init();
