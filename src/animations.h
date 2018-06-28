@@ -46,7 +46,7 @@ const animation_s center_crawl[] = {
     {0x00, 0x00, NULL},
 };
 
-const animation_s arrow_up[] = {
+const animation_s arrow_down[] = {
     {0x18, 0x00, 100},
     {0x24, 0x18, 100},
     {0x00, 0x00, 100},
@@ -56,7 +56,7 @@ const animation_s arrow_up[] = {
     {0x00, 0x00, NULL},
 };
 
-const animation_s arrow_down[] = {
+const animation_s arrow_up[] = {
     {0x00, 0x18, 100},
     {0x18, 0x24, 100},
     {0x00, 0x00, 100},

@@ -120,8 +120,8 @@ void repeat_animation(const animation_s *animation, uint8_t repeats) {
 void play_interruptable_animation(const animation_s *animation) {
     uint8_t i = 0;
     uint16_t j = 0;
-    uint8_t topBarActive = 0;
-    uint8_t bottomBarActive = 0;
+    uint8_t topBarActive = 1;
+    uint8_t bottomBarActive = 1;
 
     // Check if the provided animation has a header frame
     if (animation[i].frame_delay == NULL) {
@@ -183,6 +183,8 @@ void play_background_animation(const animation_s *animation) {
     // set up the state variables
     bgA.animation = animation;
     bgA.frameIndex = 0;
+    bgA.topBarActive = 1;
+    bgA.bottomBarActive = 1;
 
     // Check if the provided animation has a header frame
     if (animation[0].frame_delay == NULL) {
@@ -336,7 +338,13 @@ void show_scale(void) {
     }
 }
 
-void show_thresh(void) { FP_update(swrThreshDisplay[swrThreshIndex] << 8); }
+void show_thresh(void) {
+    display_buffer_s frame;
+    frame.topBar = swrThreshDisplay[swrThreshIndex];
+    frame.bottomBar = 0;
+
+    FP_update(frame.bothBars);
+}
 
 /* -------------------------------------------------------------------------- */
 
