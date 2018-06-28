@@ -23,7 +23,6 @@ void display_init(void) {
 
     display.frameBuffer.bothBars = 0;
     display.currentFrame.bothBars = 0;
-    display.displayIsLocked = 0;
 
     // shell command
     shell_register(shell_show_bargraphs, "bar");
@@ -67,54 +66,78 @@ void push_frame_buffer(void) {
 void display_clear(void) { FP_update(0x0000); }
 
 // Clears the display and releases the display object
-void display_release(void) {
+int16_t display_release(void) {
     display_clear();
 
-    unlock_display();
+    // unlock_display();
+    return 0;
 }
 
 // Display a single from an animation
 void display_single_frame(const animation_s *animation, uint8_t frame_number) {
-    FP_update(animation[frame_number].image);
+    display.frameBuffer.topBar = animation[frame_number].topBar;
+    display.frameBuffer.bottomBar = animation[frame_number].bottomBar;
+    push_frame_buffer();
 }
 
 // Play an animation from animations.h
 void play_animation(const animation_s *animation) {
-    lock_display();
-
     uint8_t i = 0;
+    uint8_t topBarActive = 1;
+    uint8_t bottomBarActive = 1;
+
+    // Check if the provided animation has a header frame
+    if (animation[0].frame_delay == NULL) {
+        topBarActive = animation[0].topBar;
+        bottomBarActive = animation[0].bottomBar;
+
+        // first frame was metadata, animation begins on second frame
+        i = 1;
+    }
+
     while (1) {
-        FP_update(animation[i].image);
+        if (topBarActive)
+            display.frameBuffer.topBar = animation[i].topBar;
+        if (bottomBarActive)
+            display.frameBuffer.bottomBar = animation[i].bottomBar;
+        push_frame_buffer();
         if (animation[i].frame_delay == NULL)
             break;
         delay_ms(animation[i].frame_delay);
 
         i++;
     }
-
-    unlock_display();
 }
 
 // Play an animation from animations.h, and repeat it n times
 void repeat_animation(const animation_s *animation, uint8_t repeats) {
-    lock_display();
-
     for (uint8_t i = 0; i < repeats; i++) {
         play_animation(animation);
     }
-
-    unlock_display();
 }
 
 // Play an animation from animations.h and return early if a button is pressed
 void play_interruptable_animation(const animation_s *animation) {
     uint8_t i = 0;
     uint16_t j = 0;
+    uint8_t topBarActive = 0;
+    uint8_t bottomBarActive = 0;
 
-    lock_display();
+    // Check if the provided animation has a header frame
+    if (animation[i].frame_delay == NULL) {
+        topBarActive = animation[i].topBar;
+        bottomBarActive = animation[i].bottomBar;
+
+        // first frame was metadata, animation begins on second frame
+        i++;
+    }
 
     while (1) {
-        FP_update(animation[i].image);
+        if (topBarActive)
+            display.frameBuffer.topBar = animation[i].topBar;
+        if (bottomBarActive)
+            display.frameBuffer.bottomBar = animation[i].bottomBar;
+        push_frame_buffer();
         if (animation[i].frame_delay == NULL)
             break;
 
@@ -126,8 +149,6 @@ void play_interruptable_animation(const animation_s *animation) {
 
         i++;
     }
-
-    unlock_display();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -135,33 +156,63 @@ void play_interruptable_animation(const animation_s *animation) {
 // background animation system, using TuneOS event scheduler
 
 // bgA = backgroundAnimation
-volatile const animation_s *bgAPointer;
-volatile uint8_t bgAIndex;
+struct {
+    const animation_s *animation;
+    uint16_t frameIndex;
+    unsigned topBarActive : 1;
+    unsigned bottomBarActive : 1;
+} bgA;
 
 void play_background_animation(const animation_s *animation) {
-    // printf("begin_background_animation @%d\r\n", systick_read());
-    // claim the display mutex
-    lock_display();
+    // is the display available?
+    if (display.topBarMutex == 1) {
+        println("topBarMutex already claimed");
+        return;
+    }
+    if (display.bottomBarMutex == 1) {
+        println("bottomBarMutex already claimed");
+        return;
+    }
 
-    bgAPointer = animation;
-    bgAIndex = 0;
+    // is there another bgA event in the queue?
+    if (event_queue_lookup("bgA") != -1) {
+        println("bgA animation already in event queue");
+        return;
+    }
 
-    continue_background_animation();
+    // set up the state variables
+    bgA.animation = animation;
+    bgA.frameIndex = 0;
+
+    // Check if the provided animation has a header frame
+    if (animation[0].frame_delay == NULL) {
+        bgA.topBarActive = bgA.animation[0].topBar;
+        bgA.bottomBarActive = bgA.animation[0].bottomBar;
+
+        // first frame was metadata, animation begins on second frame
+        bgA.frameIndex = 1;
+    }
+
+    // Register the event
+    event_register("bgA", continue_background_animation, 1);
 }
 
-void continue_background_animation(void) {
-    // printf("continue_background_animation @%d\r\n", systick_read());
-    
-    FP_update(bgAPointer[bgAIndex].image);
+int16_t continue_background_animation(void) {
+    // publish the current frame
+    if (bgA.topBarActive)
+        display.frameBuffer.topBar = bgA.animation[bgA.frameIndex].topBar;
+    if (bgA.bottomBarActive)
+        display.frameBuffer.bottomBar = bgA.animation[bgA.frameIndex].bottomBar;
 
-    if (bgAPointer[bgAIndex].frame_delay == NULL) {
-        unlock_display();
-    } else {
-        // printf("reregistering: %d\r\n", bgAPointer[bgAIndex].frame_delay);
-        event_register("animation", continue_background_animation,
-                      bgAPointer[bgAIndex].frame_delay, 0);
-        bgAIndex++;
+    push_frame_buffer();
+
+    // a NULL delay is the signal that the animation is completed
+    if (bgA.animation[bgA.frameIndex].frame_delay == NULL) {
+        // unlock_display();
     }
+
+    return bgA.animation[bgA.frameIndex++].frame_delay;
+}
 
 /* -------------------------------------------------------------------------- */
 // display functions that use the frame buffer
@@ -272,7 +323,7 @@ void show_relays(void) {
 
     frame.topBar = ((currentRelays[system_flags.antenna].inds & 0x7f) |
                     ((currentRelays[system_flags.antenna].z & 0x01) << 7));
-    frame.bottomBar |= (uint16_t)currentRelays[system_flags.antenna].caps;
+    frame.bottomBar = currentRelays[system_flags.antenna].caps;
 
     FP_update(frame.bothBars);
 }
@@ -354,7 +405,7 @@ void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
     FP_update(frame.bothBars);
 
     // uint16_t frame = 0;
-    
+
     // frame = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
     // frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
 
@@ -370,7 +421,7 @@ void show_current_power_and_SWR(void) {
     FP_update(frame.bothBars);
 
     // uint16_t frame = 0;
-    
+
     // frame = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
     // frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
 

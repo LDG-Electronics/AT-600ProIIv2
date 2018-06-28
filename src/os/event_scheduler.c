@@ -31,7 +31,6 @@ typedef struct {
     event_callback_t eventCallback;
     system_time_t registrationTime;
     system_time_t executionTime;
-    unsigned repeat : 1;
     unsigned exists : 1;
 } event_t;
 
@@ -41,7 +40,6 @@ static void event_clear(event_t *event) {
     event->eventCallback = NULL;
     event->registrationTime = UINT24_MAX;
     event->executionTime = UINT24_MAX;
-    event->repeat = 0;
     event->exists = 0;
 }
 
@@ -76,10 +74,13 @@ void event_scheduler_init(void) {
 /* ************************************************************************** */
 // event debug utilities
 
+// TODO: printf and 24 bit ints are not cooperating
+// try casting to uint24_t?
+
 static void print_event(event_t *event) {
-    printf("event:(name:%s)(ptr:%p)(reg:%d)(exec:%d)(repeat:%d)\r\n",
+    printf("event:(name:%s)(ptr:%p)(reg:%d)(exec:%d)\r\n",
            event->name, event->eventCallback, event->registrationTime,
-           event->executionTime, event->repeat);
+           event->executionTime);
 }
 
 static void print_event_queue(void) {
@@ -226,16 +227,16 @@ void event_scheduler_update(void) {
     }
 
     // Execute the event
-    events.queue[events.nextEvent].eventCallback();
+    int16_t repeat = events.queue[events.nextEvent].eventCallback();
 
     // if the event should be repeated, re-register it
-    if (events.queue[events.nextEvent].repeat != 0) {
-
+    if (repeat != 0) {
 #if LOG_LEVEL_EVENTS >= LOG_EVENTS
         print("Reregistering: ");
         print_event(&events.queue[events.nextEvent]);
 #endif
         events.queue[events.nextEvent].registrationTime = currentTime;
+        events.queue[events.nextEvent].executionTime = repeat;
 
         recalculate_next_event();
     } else {
@@ -247,7 +248,7 @@ void event_scheduler_update(void) {
 
 // create a event object and add it to the event queue
 int8_t event_register(const char *name, event_callback_t callback,
-                      system_time_t time, uint16_t repeat) {
+                      system_time_t time) {
     if (queue_is_full())
         return -1;
 
@@ -260,13 +261,12 @@ int8_t event_register(const char *name, event_callback_t callback,
     newEvent.eventCallback = callback;
     newEvent.registrationTime = systick_read();
     newEvent.executionTime = time;
-    newEvent.repeat = repeat;
     newEvent.exists = 1;
 
-    #if LOG_LEVEL_EVENTS >= LOG_EVENTS
-        print("Registering: ");
-        print_event(&newEvent);
-    #endif
+#if LOG_LEVEL_EVENTS >= LOG_EVENTS
+    print("Registering: ");
+    print_event(&newEvent);
+#endif
 
     // add it to the queue
     insert_event(&newEvent);
@@ -305,11 +305,26 @@ int8_t event_queue_lookup(const char *name) {
 
 */
 // dummy events to be used as callbacks in event_telf_test()
-void event_beep(void) { printf("beep %d\r\n", (uint32_t)systick_read()); }
-void event_boop(void) { printf("boop %d\r\n", (uint32_t)systick_read()); }
-void event_fizz(void) { printf("fizz %d\r\n", (uint32_t)systick_read()); }
-void event_buzz(void) { printf("buzz %d\r\n", (uint32_t)systick_read()); }
-void dummy_event(void) { printf("time: %d\r\n", (uint32_t)systick_read()); }
+int16_t event_beep(void) {
+    printf("beep %d\r\n", (uint32_t)systick_read());
+    return 0;
+}
+int16_t event_boop(void) {
+    printf("boop %d\r\n", (uint32_t)systick_read());
+    return 0;
+}
+int16_t event_fizz(void) {
+    printf("fizz %d\r\n", (uint32_t)systick_read());
+    return 0;
+}
+int16_t event_buzz(void) {
+    printf("buzz %d\r\n", (uint32_t)systick_read());
+    return 0;
+}
+int16_t dummy_event(void) {
+    printf("time: %d\r\n", (uint32_t)systick_read());
+    return 0;
+}
 
 /* ************************************************************************** */
 
@@ -353,47 +368,47 @@ static void event_queue_fill_test(void) {
     uint8_t i = 0;
 
     // fill up that queue
-    event_register("1", dummy_event, random_times[i++], 0);
-    event_register("2", dummy_event, random_times[i++], 0);
-    event_register("3", dummy_event, random_times[i++], 0);
-    event_register("4", dummy_event, random_times[i++], 0);
-    event_register("5", dummy_event, random_times[i++], 0);
+    event_register("1", dummy_event, random_times[i++]);
+    event_register("2", dummy_event, random_times[i++]);
+    event_register("3", dummy_event, random_times[i++]);
+    event_register("4", dummy_event, random_times[i++]);
+    event_register("5", dummy_event, random_times[i++]);
 
-    event_register("6", dummy_event, random_times[i++], 0);
-    event_register("7", dummy_event, random_times[i++], 0);
-    event_register("8", dummy_event, random_times[i++], 0);
-    event_register("9", dummy_event, random_times[i++], 0);
-    event_register("10", dummy_event, random_times[i++], 0);
+    event_register("6", dummy_event, random_times[i++]);
+    event_register("7", dummy_event, random_times[i++]);
+    event_register("8", dummy_event, random_times[i++]);
+    event_register("9", dummy_event, random_times[i++]);
+    event_register("10", dummy_event, random_times[i++]);
 
-    event_register("11", dummy_event, random_times[i++], 0);
-    event_register("12", dummy_event, random_times[i++], 0);
-    event_register("13", dummy_event, random_times[i++], 0);
-    event_register("14", dummy_event, random_times[i++], 0);
-    event_register("15", dummy_event, random_times[i++], 0);
+    event_register("11", dummy_event, random_times[i++]);
+    event_register("12", dummy_event, random_times[i++]);
+    event_register("13", dummy_event, random_times[i++]);
+    event_register("14", dummy_event, random_times[i++]);
+    event_register("15", dummy_event, random_times[i++]);
 
-    event_register("16", dummy_event, random_times[i++], 0);
-    event_register("17", dummy_event, random_times[i++], 0);
-    event_register("18", dummy_event, random_times[i++], 0);
-    event_register("19", dummy_event, random_times[i++], 0);
-    event_register("20", dummy_event, random_times[i++], 0);
+    event_register("16", dummy_event, random_times[i++]);
+    event_register("17", dummy_event, random_times[i++]);
+    event_register("18", dummy_event, random_times[i++]);
+    event_register("19", dummy_event, random_times[i++]);
+    event_register("20", dummy_event, random_times[i++]);
 
-    // event_register("21", dummy_event, random_times[i++], 0);
-    // event_register("22", dummy_event, random_times[i++], 0);
-    // event_register("23", dummy_event, random_times[i++], 0);
-    // event_register("24", dummy_event, random_times[i++], 0);
-    // event_register("25", dummy_event, random_times[i++], 0);
+    // event_register("21", dummy_event, random_times[i++]);
+    // event_register("22", dummy_event, random_times[i++]);
+    // event_register("23", dummy_event, random_times[i++]);
+    // event_register("24", dummy_event, random_times[i++]);
+    // event_register("25", dummy_event, random_times[i++]);
 
-    // event_register("26", dummy_event, random_times[i++], 0);
-    // event_register("27", dummy_event, random_times[i++], 0);
-    // event_register("28", dummy_event, random_times[i++], 0);
-    // event_register("29", dummy_event, random_times[i++], 0);
-    // event_register("30", dummy_event, random_times[i++], 0);
+    // event_register("26", dummy_event, random_times[i++]);
+    // event_register("27", dummy_event, random_times[i++]);
+    // event_register("28", dummy_event, random_times[i++]);
+    // event_register("29", dummy_event, random_times[i++]);
+    // event_register("30", dummy_event, random_times[i++]);
 
-    // event_register("31", dummy_event, random_times[i++], 0);
-    // event_register("32", dummy_event, random_times[i++], 0);
-    // event_register("33", dummy_event, random_times[i++], 0);
-    // event_register("34", dummy_event, random_times[i++], 0);
-    // event_register("35", dummy_event, random_times[i++], 0);
+    // event_register("31", dummy_event, random_times[i++]);
+    // event_register("32", dummy_event, random_times[i++]);
+    // event_register("33", dummy_event, random_times[i++]);
+    // event_register("34", dummy_event, random_times[i++]);
+    // event_register("35", dummy_event, random_times[i++]);
 
     println("");
     println("=====");
@@ -405,10 +420,10 @@ static void event_sorting_simple_test(void) {
     println("");
     println("=====");
     println("Event setup");
-    event_register("fizz", event_fizz, 3000, 0);
-    event_register("buzz", event_buzz, 4000, 0);
-    event_register("boop", event_boop, 2000, 0);
-    event_register("beep", event_beep, 1000, 0);
+    event_register("fizz", event_fizz, 3000);
+    event_register("buzz", event_buzz, 4000);
+    event_register("boop", event_boop, 2000);
+    event_register("beep", event_beep, 1000);
 
     println("");
     println("=====");

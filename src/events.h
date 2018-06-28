@@ -7,7 +7,7 @@ extern void events_init(void);
 
 /* ************************************************************************** */
 
-extern void check_SWR_and_update_meters(void);
+extern int16_t check_SWR_and_update_meters(void);
 
 /* ************************************************************************** */
 
@@ -59,6 +59,6 @@ extern void inductor_decrement(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern void send_RF_data_packet(void);
+extern int16_t send_RF_data_packet(void);
 
 #endif

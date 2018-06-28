@@ -11,7 +11,6 @@ code.
     1: name - a string to identify the event
     2: callback - a function to called when the specified time has been reached
     3: time - when the event callback should be executed
-    4: repeat - whether the event should be re-registered after execution
 
 /* ************************************************************************** */
 
@@ -38,7 +37,7 @@ code.
     Checking a sensor and updating a display with the information, but taking no
     other action is a good example of a event.
 */
-typedef void (*event_callback_t)(void);
+typedef int16_t (*event_callback_t)(void);
 /* ************************************************************************** */
 
 // setup
@@ -54,7 +53,7 @@ extern void event_scheduler_update(void);
 
 // Add an event to the queue
 extern int8_t event_register(const char *name, event_callback_t callback,
-                             system_time_t time, uint16_t repeat);
+                             system_time_t time);
 
 // Remove an event from the queue
 extern int8_t event_deregister(const char *name);

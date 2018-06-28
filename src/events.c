@@ -5,19 +5,19 @@
 void events_init(void) {
 
     // Calibration Event
-    // event_register("swr", send_RF_data_packet, 1000, 1);
+    // event_register("swr", send_RF_data_packet, 1000);
 }
 
 /* ************************************************************************** */
 
-void check_SWR_and_update_meters(void) {
+int16_t check_SWR_and_update_meters(void) {
     printf("check_SWR %lu\r\n", (uint32_t)systick_read());
 
     SWR_stable_average();
 
-    if (!display.displayIsLocked) {
-        show_current_power_and_SWR();
-    }
+    // if (!display.displayIsLocked) {
+    //     show_current_power_and_SWR();
+    // }
 }
 
 /* ************************************************************************** */
@@ -170,7 +170,7 @@ void capacitor_increment(void) {
         }
         show_cap_relays();
     } else {
-        play_background_animation(&blink_top_bar_3);
+        play_background_animation(&blink_bottom_bar_3);
     }
 }
 
@@ -182,7 +182,7 @@ void capacitor_decrement(void) {
         }
         show_cap_relays();
     } else {
-        play_background_animation(&blink_top_bar_3);
+        play_background_animation(&blink_bottom_bar_3);
     }
 }
 
@@ -194,7 +194,7 @@ void inductor_increment(void) {
         }
         show_ind_relays();
     } else {
-        play_background_animation(&blink_bottom_bar_3);
+        play_background_animation(&blink_top_bar_3);
     }
 }
 
@@ -206,7 +206,7 @@ void inductor_decrement(void) {
         }
         show_ind_relays();
     } else {
-        play_background_animation(&blink_bottom_bar_3);
+        play_background_animation(&blink_top_bar_3);
     }
 }
 
@@ -229,11 +229,15 @@ void print_RF_calibration_data(void) {
            currentRF.frequency);
 }
 
+#define RF_DATA_PACKET_INTERVAL 100
+
 // This event is used to generate calibration tables
-void send_RF_data_packet(void) {
+int16_t send_RF_data_packet(void) {
     SWR_stable_average();
 
     show_current_power_and_SWR();
 
     print_RF_calibration_data();
+
+    return RF_DATA_PACKET_INTERVAL;
 }

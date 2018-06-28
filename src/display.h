@@ -14,8 +14,8 @@
 // struct union allowing access to each bargraph without bit shifting
 typedef union {
     struct {
-        uint8_t bottomBar;
         uint8_t topBar;
+        uint8_t bottomBar;
     };
     uint16_t bothBars;
 } display_buffer_s;
@@ -24,13 +24,11 @@ typedef union {
 typedef struct {
     display_buffer_s frameBuffer; // the frame we're about to push out
     display_buffer_s currentFrame; // the frame that's currently being displayed
-    unsigned displayIsLocked : 1; // are we im the middle of an animation?
+    unsigned topBarMutex : 1;
+    unsigned bottomBarMutex : 1;
 } display_s;
 
 extern display_s display;
-
-#define lock_display() display.displayIsLocked = 1
-#define unlock_display() display.displayIsLocked = 0
 
 /* ************************************************************************** */
 
@@ -59,7 +57,7 @@ extern void push_frame_buffer(void);
 extern void display_clear(void);
 
 // Clears the display and releases the display object
-extern void display_release(void);
+extern int16_t display_release(void);
 
 // Display a single from an animation
 extern void display_single_frame(const animation_s *animation, uint8_t frame_number);
@@ -75,7 +73,7 @@ extern void play_interruptable_animation(const animation_s *animation);
 
 // Play an animation in the 'background' using the event scheduler
 extern void play_background_animation(const animation_s *animation);
-extern void continue_background_animation(void);
+extern int16_t continue_background_animation(void);
 
 /* -------------------------------------------------------------------------- */
 
