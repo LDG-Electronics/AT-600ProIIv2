@@ -166,17 +166,17 @@ struct {
 void play_background_animation(const animation_s *animation) {
     // is the display available?
     if (display.topBarMutex == 1) {
-        println("topBarMutex already claimed");
+        // println("topBarMutex already claimed");
         return;
     }
     if (display.bottomBarMutex == 1) {
-        println("bottomBarMutex already claimed");
+        // println("bottomBarMutex already claimed");
         return;
     }
 
     // is there another bgA event in the queue?
     if (event_queue_lookup("bgA") != -1) {
-        println("bgA animation already in event queue");
+        // println("bgA animation already in event queue");
         return;
     }
 
