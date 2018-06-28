@@ -38,9 +38,7 @@ void startup(void)
     put_relays(&currentRelays[system_flags.antenna]); // must be after flags_init()
 
     // initialize the display
-    // play_animation(&blink_top_bar_3);
-    play_animation(&blink_bottom_bar_3);
-    // play_background_animation(&right_crawl);
+    play_background_animation(&right_crawl);
     update_status_LEDs(); // must be after flags_init()
 }
 
