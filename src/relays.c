@@ -79,7 +79,6 @@ void update_bypass_status(relays_s *testRelays)
 {
     bypassStatus[system_flags.antenna] = 0;
     if ((testRelays->caps == 0) && 
-        (testRelays->z == 0) && 
         (testRelays->inds == 0)) {
             
         bypassStatus[system_flags.antenna] = 1;
