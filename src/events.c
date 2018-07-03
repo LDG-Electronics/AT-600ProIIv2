@@ -170,7 +170,7 @@ void capacitor_increment(void) {
         }
         show_cap_relays();
     } else {
-        play_background_animation(&blink_bottom_bar_3);
+        play_animation_in_background(&blink_bottom_bar_3);
     }
 }
 
@@ -182,7 +182,7 @@ void capacitor_decrement(void) {
         }
         show_cap_relays();
     } else {
-        play_background_animation(&blink_bottom_bar_3);
+        play_animation_in_background(&blink_bottom_bar_3);
     }
 }
 
@@ -194,7 +194,7 @@ void inductor_increment(void) {
         }
         show_ind_relays();
     } else {
-        play_background_animation(&blink_top_bar_3);
+        play_animation_in_background(&blink_top_bar_3);
     }
 }
 
@@ -206,7 +206,7 @@ void inductor_decrement(void) {
         }
         show_ind_relays();
     } else {
-        play_background_animation(&blink_top_bar_3);
+        play_animation_in_background(&blink_top_bar_3);
     }
 }
 

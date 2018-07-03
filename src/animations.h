@@ -4,15 +4,14 @@
 /* ************************************************************************** */
 typedef struct {
     // uint16_t image;
-    uint8_t topBar;
-    uint8_t bottomBar;
+    uint8_t upper;
+    uint8_t lower;
     uint16_t frame_delay;
 } animation_s;
-// TODO: start frames and shit
 /* -------------------------------------------------------------------------- */
 // shapes
 
-//  top, bottom, delay
+//  upper, lower, delay
 
 const animation_s right_crawl[] = {
     {0x01, 0x01, 100},
@@ -79,14 +78,14 @@ const animation_s blink_both_bars[] = {
 };
 
 const animation_s blink_top_bar[] = {
-    {0x01, NULL, NULL},
+    {true, false, NULL},
     {0xff, 0x00, 100},
     {0x00, 0x00, 100},
     {0x00, 0x00, NULL},
 };
 
 const animation_s blink_top_bar_3[] = {
-    {0x01, NULL, NULL},
+    {true, false, NULL},
     {0xff, 0x00, 100},
     {0x00, 0x00, 100},
     {0xff, 0x00, 100},
@@ -98,14 +97,14 @@ const animation_s blink_top_bar_3[] = {
 };
 
 const animation_s blink_bottom_bar[] = {
-    {NULL, 0x01, NULL},
+    {false, true, NULL},
     {0x00, 0xff, 100},
     {0x00, 0x00, 100},
     {0x00, 0x00, NULL},
 };
 
 const animation_s blink_bottom_bar_3[] = {
-    {NULL, 0x01, NULL},
+    {false, true, NULL},
     {0x00, 0xff, 100},
     {0x00, 0x00, 100},
     {0x00, 0xff, 100},
@@ -184,6 +183,29 @@ const animation_s peak_off[] = {
     {0x03, 0x03, 100},
     {0x01, 0x01, 100},
     {0x00, 0x00, NULL},
+};
+
+const animation_s swrThreshold[][3] = {
+    {
+        {0x00, 0x80, 100},
+        {0x00, 0x00, 100},
+        {0x00, 0x00, NULL},
+    }, 
+    {
+        {0x00, 0x10, 100},
+        {0x00, 0x00, 100},
+        {0x00, 0x00, NULL},
+    }, 
+    {
+        {0x00, 0x20, 100},
+        {0x00, 0x00, 100},
+        {0x00, 0x00, NULL},
+    }, 
+    {
+        {0x00, 0x40, 100},
+        {0x00, 0x00, 100},
+        {0x00, 0x00, NULL},
+    }, 
 };
 
 /* -------------------------------------------------------------------------- */
