@@ -208,38 +208,37 @@ uint16_t get_frequency(void)
 
 /* -------------------------------------------------------------------------- */
 /*
-
+    Ax^2 + Bx + C
 */
 typedef struct{
-    double firstCoefficient;
-    double secondCoefficient;
-    double thirdCoefficient;
-} calibration_s;
+    double A;
+    double B;
+    double C;
+} polynomial_coefficients_s;
+
+polynomial_coefficients_s test = {2.6294242259022297e-005, 1.6324165531607232e-003, 2.0595782264652627e+000};
 
 /*
 
 */
-double f(double x) {
-    return 2.0595782264652627e+000 * pow(x,0)
-        + 1.6324165531607232e-003 * pow(x,1)
-        + 2.6294242259022297e-005 * pow(x,2);
-}
-
-/*
-
-*/
-static uint16_t convert_forward_adc_to_watts(uint16_t forwardADC)
+static double convert_forward_adc_to_watts(uint16_t forwardADC)
 {
-    return (uint16_t)f(forwardADC);
+    double x = (double)forwardADC;
+
+    return (test.A * pow(x, 2)) + (test.B * x) + test.C;
+    
 }
 
 /*
 
 */
-// static uint16_t convert_reverse_adc_to_watts(uint16_t reverseADC)
-// {
-//     return map_adc_to_watts(reverseADC, 0, 4095, 0, 750);
-// }
+static double convert_reverse_adc_to_watts(uint16_t reverseADC)
+{
+    double x = (double)reverseADC;
+
+    return test.A * pow(x, 2) + test.B * pow(x, 1) + test.C * pow(x, 0);
+    // return r(reverseADC);
+}
 
 /*  SWR calculation
 
@@ -302,7 +301,8 @@ void SWR_average(void)
     // publish the samples and calculate the SWR
     currentRF.forward = (tempFWD / NUM_OF_SWR_SAMPLES);
     currentRF.forwardWatts = convert_forward_adc_to_watts(currentRF.forward);
-    currentRF.reverse = (tempREV / NUM_OF_SWR_SAMPLES); 
+    // currentRF.reverse = (tempREV / NUM_OF_SWR_SAMPLES); 
+    currentRF.reverse = tempREV; 
     currentRF.swr = calculate_SWR(tempFWD, tempREV);
 }
 

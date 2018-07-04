@@ -7,9 +7,9 @@
 typedef union {
     struct {
         uint16_t forward;
-        uint16_t forwardWatts;
+        double forwardWatts;
         uint16_t reverse;
-        uint16_t reverseWatts;
+        double reverseWatts;
         double swr;
         uint16_t frequency;
     };

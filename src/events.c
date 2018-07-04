@@ -5,7 +5,7 @@
 void events_init(void) {
 
     // Calibration Event
-    // event_register("swr", send_RF_data_packet, 1000);
+    event_register("swr", send_RF_data_packet, 250);
 }
 
 /* ************************************************************************** */
@@ -224,7 +224,7 @@ void inductor_decrement(void) {
 */
 
 void print_RF_calibration_data(void) {
-    printf("(%u, %u, %u, %f, %u)\r\n", currentRF.forward,
+    printf("(%u, %f, %u, %f, %u)\r\n", currentRF.forward,
            currentRF.forwardWatts, currentRF.reverse, currentRF.swr,
            currentRF.frequency);
 }
