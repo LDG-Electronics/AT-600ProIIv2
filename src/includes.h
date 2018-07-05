@@ -42,6 +42,7 @@
 #include "events.h"
 #include "fast_ring_buffer.h"
 #include "flags.h"
+#include "frequency_counter.h"
 #include "hardware.h"
 #include "log_levels.h"
 #include "menus.h"

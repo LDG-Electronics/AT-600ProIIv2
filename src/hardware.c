@@ -22,6 +22,7 @@ void startup(void)
     display_init();
     events_init();
     flags_init();
+    frequency_counter_init();
     relays_init();
     RF_sensor_init();
     shell_commands_init();
