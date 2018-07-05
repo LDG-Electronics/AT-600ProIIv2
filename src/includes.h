@@ -28,6 +28,7 @@
 #include "peripherals/uart.h"
 
 // TuneOS
+#include "os/buttons.h"
 #include "os/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_tick.h"
@@ -35,7 +36,6 @@
 
 // modules
 #include "animations.h"
-#include "buttons.h"
 #include "calibration.h"
 #include "delay.h"
 #include "display.h"
