@@ -25,12 +25,14 @@ void startup(void)
     frequency_counter_init();
     relays_init();
     RF_sensor_init();
-    shell_commands_init();
     stopwatch_init();
+
+    // System setup, round 2
+    shell_commands_init();
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
-    check_reset_vector();
+    reset_vector_handler();
 
     // Push out the initial relay settings
     put_relays(&currentRelays[system_flags.antenna]); // must be after flags_init()
@@ -85,36 +87,4 @@ void interrupt_init(void)
     PIE9 = 0x0;
     
     INTCON0bits.GIE = 1;
-}
-
-void check_reset_vector(void)
-{
-    if(PCON0bits.STKOVF == 1) {
-        println("");
-        println("");
-        println(">>> Stack Overflow <<<");
-        while(1); // trap
-    }
-    
-    if(PCON0bits.STKUNF == 1) {
-        println("");
-        println("");
-        println(">>> Stack Underflow <<<");
-        while(1); // trap
-    }
-    
-    // if(PCON0bits.RMCLR == 0) {
-    //     println("");
-    //     println("");
-    //     println(">>> MCLR RESET <<<");
-    //     while(1); // trap
-    // }
-    
-    // if(PCON0bits.RI == 0) {
-    //     println("");
-    //     println("");
-    //     println(">>> RESET <<<");
-    //     while(1); // trap
-    // }
-    
 }
