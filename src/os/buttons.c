@@ -59,18 +59,18 @@ void buttons_init(void) {
     OR'd into the least significant bit.
 */
 
-// check_button() is used to expand BUTTON_LIST and generate the button ISR
-#define check_button(NAME)                                                     \
+// CHECK_BUTTON() is used to expand BUTTON_LIST and generate the button ISR
+#define CHECK_BUTTON(NAME)                                                     \
     do {                                                                       \
         buttonHistory[NAME] <<= 1;                                             \
-        buttonHistory[NAME] |= NAME##_BUTTON_PIN;                              \
+        buttonHistory[NAME] |= BUTTON_PIN_NAME_FORMAT(NAME);                   \
     } while (0);
 
 void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void) {
     timer6_IF_clear();
 
-    // X Macro, expands BUTTON_LIST using check_button(), defined above
-#define X(value) check_button(value)
+    // X Macro, expands BUTTON_LIST using CHECK_BUTTON(), defined above
+#define X(value) CHECK_BUTTON(value)
     BUTTON_LIST
 #undef X
 }

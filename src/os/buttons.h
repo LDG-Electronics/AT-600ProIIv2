@@ -40,12 +40,31 @@
     X(UP)\
     X(DOWN)
 
-    Each button name "NAME" must have a matching "NAME_BUTTON_PIN" macro defined
-    in pins.h.
+    The project software MUST define the following macros:
+
+    NUMBER_OF_BUTTONS - macro containing a non-negative, non-zero integer
+    BUTTON_LIST - X macro containing a list of button names
+    BUTTON_PIN_NAME_FORMAT - macro that converts NAME to matching pin name
+
+    Each button name "NAME" defined in BUTTON_LIST must have a matching
+    "NAME_BUTTON_PIN" macro defined in pins.h.
 */
+
+// Make sure the required macros are defined in the project
+#ifndef NUMBER_OF_BUTTONS
+#error "NUMBER_OF_BUTTONS is not defined"
+#elif NUMBER_OF_BUTTONS == 0
+#error "Can't have 0 buttons!"
+#elif NUMBER_OF_BUTTONS > 32
+#error "Can't have more than 32 buttons!"
+#endif
 
 #ifndef BUTTON_LIST
 #error "BUTTON_LIST is not defined"
+#endif
+
+#ifndef BUTTON_PIN_NAME_FORMAT
+#error "BUTTON_PIN_NAME_FORMAT is not defined"
 #endif
 
 // X Macro, expands BUTTON_LiST into contents of buttonName_t enum

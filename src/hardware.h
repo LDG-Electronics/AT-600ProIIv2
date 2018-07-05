@@ -24,6 +24,9 @@
     X(ANT)\
     X(POWER)
 
+// What is the format of the button pin names?
+#define BUTTON_PIN_NAME_FORMAT(NAME) NAME##_BUTTON_PIN
+
 /* ************************************************************************** */
 
 // Macros to control interrupt system
