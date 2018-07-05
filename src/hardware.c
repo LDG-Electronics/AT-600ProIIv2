@@ -42,6 +42,7 @@ void startup(void)
     update_status_LEDs(); // must be after flags_init()
 }
 
+// TODO: rewrite the shutdown sequence
 void shutdown(void)
 {
     // CPUDOZEbits.IDLEN = 0; // 0 = SLEEP, 1 = IDLE
@@ -55,6 +56,10 @@ void shutdown(void)
     // IOCAF = 0;
 }
 
+/* -------------------------------------------------------------------------- */
+// ISRs
+
+// Wake-from-shutdown ISR
 void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR(void)
 {   
     // interrupt on change for pin IOCAF3
