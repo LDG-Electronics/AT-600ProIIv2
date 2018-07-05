@@ -25,9 +25,6 @@ void display_init(void) {
     displayBuffer.current.frame = 0;
     displayBuffer.upperMutex = 0;
     displayBuffer.lowerMutex = 0;
-
-    // shell command
-    shell_register(shell_show_bargraphs, "bar");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -431,21 +428,4 @@ void show_current_power_and_SWR(void) {
     // frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
 
     // FP_update(frame);
-}
-
-int shell_show_bargraphs(int argc, char **argv) {
-    if (argc == 3) {
-        print("first arg: ");
-        print(argv[1]);
-        uint16_t forwardWatts = atoi(argv[1]);
-        printf(", forwardWatts: %u\r\n", forwardWatts);
-
-        print("second arg: ");
-        print(argv[2]);
-        double swrValue = atof(argv[2]);
-        printf(", swrValue: %u\r\n", swrValue);
-
-        show_power_and_SWR(forwardWatts, swrValue);
-    }
-    return 0;
 }

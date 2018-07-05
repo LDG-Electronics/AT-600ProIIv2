@@ -59,8 +59,4 @@ extern int8_t put_relays(relays_s *testRelays);
 extern void print_relays(relays_s *relays);
 extern void print_relays_ln(relays_s *relays);
 
-// Shell command handlers
-extern int shell_set_relays(int argc, char** argv);
-extern int shell_check_relays(int argc, char** argv);
-
 #endif

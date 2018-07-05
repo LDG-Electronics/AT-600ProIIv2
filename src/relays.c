@@ -28,8 +28,6 @@ void relays_init(void)
     RELAY_DATA_PIN = 1;
 
     // Setup shell commands
-    shell_register(shell_set_relays, "setrelays");
-    shell_register(shell_check_relays, "getrelays");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -118,16 +116,4 @@ void print_relays_ln(relays_s *relays)
     print_relays(relays);
     
     println("");
-}
-
-int shell_set_relays(int argc, char** argv)
-{
-    return SHELL_RET_SUCCESS;
-}
-
-int shell_check_relays(int argc, char** argv)
-{
-    print_relays(&currentRelays[system_flags.antenna]);
-
-    return SHELL_RET_SUCCESS;
 }

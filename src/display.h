@@ -105,6 +105,7 @@ extern void show_thresh(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern void show_power_and_SWR(uint16_t forwardWatts, double swrValue);
 extern void show_current_power_and_SWR(void);
 extern int shell_show_bargraphs(int argc, char** argv);
 
