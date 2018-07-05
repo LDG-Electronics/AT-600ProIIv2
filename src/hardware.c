@@ -44,18 +44,15 @@ void startup(void)
 
 void shutdown(void)
 {
-    CPUDOZEbits.IDLEN = 0; // 0 = SLEEP, 1 = IDLE
-    IOCANbits.IOCAN3 = 1; // enable Interrupt-On-Change on the power button
-    PIE0bits.IOCIE = 1; // enable Interrupt-On-Change interrupt
-    buttons_stop();
+    // CPUDOZEbits.IDLEN = 0; // 0 = SLEEP, 1 = IDLE
+    // IOCANbits.IOCAN3 = 1; // enable Interrupt-On-Change on the power button
+    // PIE0bits.IOCIE = 1; // enable Interrupt-On-Change interrupt
 
-    asm("SLEEP");
+    // asm("SLEEP");
 
-    PIE0bits.IOCIE = 0;
-    IOCANbits.IOCAN3 = 0;
-    IOCAF = 0;
-
-    buttons_init();
+    // PIE0bits.IOCIE = 0;
+    // IOCANbits.IOCAN3 = 0;
+    // IOCAF = 0;
 }
 
 void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR(void)
