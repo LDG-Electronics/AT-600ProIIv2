@@ -61,16 +61,16 @@ extern uint8_t get_buttons(void);
 extern uint8_t check_multiple_buttons(button_check_t btn_is_xxx,
                                       uint8_t numberOfButtons, ...);
 
-// Returns 1 if the specified button is experiencing a falling edge
-extern uint8_t btn_is_pressed(buttonName_t buttonName);
-
-// Returns 1 if the specified button is experiencing a rising edge
-extern uint8_t btn_is_released(buttonName_t buttonName);
-
 // Returns 1 if the specified button has been down for 8 samples
 extern uint8_t btn_is_down(buttonName_t buttonName);
 
 // Returns 1 if the specified button has been up for 8 samples
 extern uint8_t btn_is_up(buttonName_t buttonName);
+
+// Returns 1 if the specified button is experiencing a falling edge
+extern uint8_t btn_is_pressed(buttonName_t buttonName);
+
+// Returns 1 if the specified button is experiencing a rising edge
+extern uint8_t btn_is_released(buttonName_t buttonName);
 
 #endif
