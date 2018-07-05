@@ -95,8 +95,8 @@ void port_init(void)
     LATA = 0;    
     LATB = 0;    
     LATC = 0;   
-    LATC = 0;   
-    LATC = 0;   
+    LATD = 0;   
+    LATE = 0;   
     
     // Analog Select; 0 = analog mode is disabled, 1 = analog mode is enabled
     ANSELA = 0;
