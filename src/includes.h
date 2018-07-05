@@ -19,6 +19,7 @@
 // device peripherals
 #include "peripherals/adc.h"
 #include "peripherals/nonvolatile_memory.h"
+#include "peripherals/oscillator.h"
 #include "peripherals/pins.h"
 #include "peripherals/pps.h"
 #include "peripherals/spi.h"

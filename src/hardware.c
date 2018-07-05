@@ -2,8 +2,6 @@
 
 /* ************************************************************************** */
 // Forward Declarations
-void osc_init(void);
-void port_init(void);
 void interrupt_init(void);
 void check_reset_vector(void);
 
@@ -12,8 +10,7 @@ void check_reset_vector(void);
 void startup(void)
 {
     // System setup
-    osc_init();
-    port_init();
+    oscillator_init();
     pins_init();
     interrupt_init();
     shell_init();
@@ -70,69 +67,6 @@ void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR(void)
 }
 
 /* -------------------------------------------------------------------------- */
-
-void osc_init(void)
-{
-    OSCCON1 = 0x60; // NOSC HFINTOSC; NDIV 1;
-    OSCCON3 = 0x00; // CSWHOLD may proceed; SOSCPWR Low power;
-    OSCEN = 0x00; // MFOEN disabled; LFOEN disabled; ADOEN disabled; 
-                  // SOSCEN disabled; EXTOEN disabled; HFOEN disabled;
-    OSCFRQ = 0x08; // HFFRQ 64_MHz;
-    OSCTUNE = 0x00; // TUN 0;
-}
-
-void port_init(void)
-{
-    // Tri-state control; 0 = output enabled, 1 = output disabled
-    // Explicitly disable all outputs
-    TRISA = 0xFF;
-    TRISB = 0xFF;
-    TRISC = 0xFF;
-    TRISD = 0xFF;
-    TRISE = 0xFF;
-
-    // Output latch - explicitly drive all outputs low
-    LATA = 0;    
-    LATB = 0;    
-    LATC = 0;   
-    LATD = 0;   
-    LATE = 0;   
-    
-    // Analog Select; 0 = analog mode is disabled, 1 = analog mode is enabled
-    ANSELA = 0;
-    ANSELB = 0;
-    ANSELC = 0;
-    ANSELD = 0;
-    ANSELE = 0;
-
-    // Weak Pull-up; 0 = pull-up disabled, 1 = pull-up enabled
-    WPUA = 0;
-    WPUB = 0;
-    WPUC = 0;
-    WPUD = 0;
-    WPUE = 0;
-
-    // Open-Drain Control; 0 = Output drives both high and low, 1 = 
-    ODCONA = 0;
-    ODCONB = 0;
-    ODCONC = 0;
-    ODCOND = 0;
-    ODCONE = 0;
-
-    // Slew Rate Control; 0 = maximum slew rate, 1 = limited slew rate
-    SLRCONA = 0;
-    SLRCONB = 0;
-    SLRCONC = 0;
-    SLRCOND = 0;
-    SLRCONE = 0;
-
-    // Input (Logic) Level Control; 0 = TTL, 1 = Schmitt Trigger
-    INLVLA = 0xff;
-    INLVLB = 0xff;
-    INLVLC = 0xff;
-    INLVLD = 0xff;
-    INLVLE = 0xff;
-}
 
 void interrupt_init(void)
 {
