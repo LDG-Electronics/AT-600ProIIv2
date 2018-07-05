@@ -224,9 +224,9 @@ void inductor_decrement(void) {
 */
 
 void print_RF_calibration_data(void) {
-    printf("(%u, %f, %u, %f, %u)\r\n", currentRF.forward,
-           currentRF.forwardWatts, currentRF.reverse, currentRF.swr,
-           currentRF.frequency);
+    printf("(%u, %f, %u, %f, %f, %u)\r\n", currentRF.forward,
+           currentRF.forwardWatts, currentRF.reverse, currentRF.reverseWatts,
+           currentRF.swr, currentRF.frequency);
 }
 
 #define RF_DATA_PACKET_INTERVAL 100

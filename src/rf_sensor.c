@@ -214,30 +214,17 @@ typedef struct{
     double A;
     double B;
     double C;
-} polynomial_coefficients_s;
+} polynomial_s;
 
-polynomial_coefficients_s test = {2.6294242259022297e-005, 1.6324165531607232e-003, 2.0595782264652627e+000};
+polynomial_s fPoly = {2.6294242259022297e-005, 1.6324165531607232e-003, 2.0595782264652627e+000};
+polynomial_s rPoly = {6.8404355873571254e-006, -2.1771708814267987e-005, 5.4278972452307039e-001};
 
-/*
 
-*/
-static double convert_forward_adc_to_watts(uint16_t forwardADC)
+static double RF_sensor_compensation(uint16_t input, polynomial_s *poly)
 {
-    double x = (double)forwardADC;
+    double x = (double)input;
 
-    return (test.A * pow(x, 2)) + (test.B * x) + test.C;
-    
-}
-
-/*
-
-*/
-static double convert_reverse_adc_to_watts(uint16_t reverseADC)
-{
-    double x = (double)reverseADC;
-
-    return test.A * pow(x, 2) + test.B * pow(x, 1) + test.C * pow(x, 0);
-    // return r(reverseADC);
+    return (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
 }
 
 /*  SWR calculation
@@ -247,6 +234,12 @@ static double convert_reverse_adc_to_watts(uint16_t reverseADC)
 static double calculate_SWR(uint16_t tempFWD, uint16_t tempREV)
 {
     double x = sqrt((double)tempREV/(double)tempFWD);
+    return ((1.0 + x) / (1.0 - x));
+}
+
+static double calculate_SWR_by_watts(double forward, double reverse)
+{
+    double x = sqrt(reverse/forward);
     return ((1.0 + x) / (1.0 - x));
 }
 
@@ -300,10 +293,11 @@ void SWR_average(void)
 
     // publish the samples and calculate the SWR
     currentRF.forward = (tempFWD / NUM_OF_SWR_SAMPLES);
-    currentRF.forwardWatts = convert_forward_adc_to_watts(currentRF.forward);
+    currentRF.forwardWatts = RF_sensor_compensation(currentRF.forward, &fPoly);
     // currentRF.reverse = (tempREV / NUM_OF_SWR_SAMPLES); 
     currentRF.reverse = tempREV; 
-    currentRF.swr = calculate_SWR(tempFWD, tempREV);
+    currentRF.reverseWatts = RF_sensor_compensation(currentRF.reverse, &rPoly); 
+    currentRF.swr = calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 }
 
 /*  Notes on wait_for_stable_FWD()
