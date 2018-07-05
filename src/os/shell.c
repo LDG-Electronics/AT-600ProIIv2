@@ -25,29 +25,7 @@ char shell_rx_buffer[CONFIG_SHELL_MAX_INPUT];
 
 // forward declarations
 static int shell_parse(char * buf, char** argv, unsigned short maxargs);
-int shell_help(int argc, char** argv);
-int shell_test(int argc, char** argv);
-
 /* ************************************************************************** */
-
-// Needed for compiler provided printf
-void putch(const char data)
-{
-    UART2_putc(data);
-}
-
-void print(const char *string)
-{
-    UART2_tx_string(string, '\0');
-}
-
-void println(const char *string)
-{
-	print(string);
-	print("\r\n");
-}
-
-/* -------------------------------------------------------------------------- */
 
 void shell_prompt(void)
 {
@@ -66,8 +44,6 @@ void shell_init(void)
 		list[i].shell_program = 0;
 		list[i].shell_command_string = 0;
 	}
-	shell_register(shell_help, "help");
-	shell_register(shell_test, "test");
 
 	println(SHELL_VERSION_STRING);
 
@@ -217,28 +193,3 @@ void shell_print_commands(void)
 	}
 }
 
-int shell_help(int argc, char** argv)
-{
-	shell_print_commands();
-
-	return SHELL_RET_SUCCESS;
-}
-
-int shell_test(int argc, char** argv)
-{
-	println("-----------------------------------------------");
-	println("SHELL DEBUG / TEST UTILITY");
-	println("-----------------------------------------------");
-	println("");
-	printf("Received %d arguments for test command\r\n",argc);
-
-	// Print each argument with string lengths
-	for(uint8_t i = 0; i < argc; i++)
-	{
-		// Print formatted text to terminal
-		// shell_printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i]) );
-		println(argv[i]);
-	}
-
-	return SHELL_RET_SUCCESS;
-}

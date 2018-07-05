@@ -74,13 +74,6 @@ enum shell_errors {
 };
 
 /* ************************************************************************** */
-
-// print functions for printing to the serial port
-extern void putch(const char data);
-extern void print(const char *string);
-extern void println(const char *string);
-
-/* ************************************************************************** */
 extern void shell_init(void);
 
 /*	@brief Registers a command with the command line library

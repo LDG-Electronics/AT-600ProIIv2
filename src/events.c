@@ -5,7 +5,7 @@
 void events_init(void) {
 
     // Calibration Event
-    event_register("swr", send_RF_data_packet, 250);
+    // event_register("swr", send_RF_data_packet, 250);
 }
 
 /* ************************************************************************** */

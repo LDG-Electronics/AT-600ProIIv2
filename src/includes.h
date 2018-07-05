@@ -34,6 +34,7 @@
 // TuneOS
 // Must be after peripheral drivers
 #include "os/buttons.h"
+#include "os/printing.h"
 #include "os/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_tick.h"
