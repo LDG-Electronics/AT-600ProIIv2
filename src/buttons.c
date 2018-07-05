@@ -6,10 +6,10 @@
 #define DEBOUNCE_MASK 0b11000111
 
 // AT-600ProII has 8 front panel buttons
-#define FRONT_PANEL_BUTTONS 8
+#define NUMBER_OF_BUTTONS 8
 
 // Button history storage
-volatile uint8_t buttons[FRONT_PANEL_BUTTONS];
+volatile uint8_t buttons[NUMBER_OF_BUTTONS];
 
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ volatile uint8_t buttons[FRONT_PANEL_BUTTONS];
 void buttons_init(void)
 {
     // Initialize the button history array
-    for (uint8_t i = 0; i < FRONT_PANEL_BUTTONS; i++)
+    for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++)
     {
         buttons[i] = 0;
     }
@@ -98,7 +98,7 @@ void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void)
 // Returns 1 if any button is currently down
 uint8_t get_buttons(void)
 {
-    for (uint8_t i = 0; i < FRONT_PANEL_BUTTONS; i++)
+    for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++)
     {
         if(btn_is_down(i)) return 1;
     }
