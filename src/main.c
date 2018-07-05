@@ -1,6 +1,6 @@
 #include "includes.h"
 #include <xc.h>
-#include "config.h"
+#include "peripherals/config.h"
 
 /* ************************************************************************** */
 
