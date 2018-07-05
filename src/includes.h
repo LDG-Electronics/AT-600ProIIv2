@@ -16,6 +16,10 @@
 // device header
 #include "pic18f46k42.h"
 
+// Project specific hardware stuff
+// Must be before peripheral and OS headers
+#include "hardware.h"
+
 // device peripherals
 #include "peripherals/adc.h"
 #include "peripherals/nonvolatile_memory.h"
@@ -28,6 +32,7 @@
 #include "peripherals/uart.h"
 
 // TuneOS
+// Must be after peripheral drivers
 #include "os/buttons.h"
 #include "os/shell.h"
 #include "os/stopwatch.h"
@@ -43,7 +48,6 @@
 #include "fast_ring_buffer.h"
 #include "flags.h"
 #include "frequency_counter.h"
-#include "hardware.h"
 #include "log_levels.h"
 #include "menus.h"
 #include "memory.h"

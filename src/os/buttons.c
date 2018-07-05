@@ -6,7 +6,7 @@
 #define DEBOUNCE_MASK 0b11000111
 
 // Button history storage
-volatile uint8_t buttons[NUMBER_OF_BUTTONS];
+volatile uint8_t buttonHistory[NUMBER_OF_BUTTONS];
 
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ volatile uint8_t buttons[NUMBER_OF_BUTTONS];
 void buttons_init(void) {
     // Initialize the button history array
     for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
-        buttons[i] = 0;
+        buttonHistory[i] = 0;
     }
 
     // Timer 6 configured using MPLABX MCC
@@ -51,7 +51,7 @@ void buttons_init(void) {
     IRQ_TMR6 interrupt signal. This signal is generated whenever timer6
     overflows from 0xff to 0x00. The timer6 interrupt flag must be cleared by
     software.
-    
+
     The ISR then checks the state of each button and updates the correct entry
     in the button history array. The first operation is a bit shift to slide
     the existing values over one, and drop the oldest value off the top end.
@@ -59,26 +59,20 @@ void buttons_init(void) {
     OR'd into the least significant bit.
 */
 
-#define check_single_button(buttonIndex, buttonPin)                            \
+// check_button() is used to expand BUTTON_LIST and generate the button ISR
+#define check_button(NAME)                                                     \
     do {                                                                       \
-        buttons[buttonIndex] <<= 1;                                            \
-        buttons[buttonIndex] |= buttonPin;                                     \
-    } while (0)
+        buttonHistory[NAME] <<= 1;                                             \
+        buttonHistory[NAME] |= NAME##_BUTTON_PIN;                              \
+    } while (0);
 
 void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void) {
     timer6_IF_clear();
 
-    // TODO: how can I move this responsibility out of the os directory?
-
-    // Grab current state of each button
-    check_single_button(TUNE, TUNE_BUTTON_PIN);
-    check_single_button(FUNC, FUNC_BUTTON_PIN);
-    check_single_button(CUP, CUP_BUTTON_PIN);
-    check_single_button(CDN, CDN_BUTTON_PIN);
-    check_single_button(LUP, LUP_BUTTON_PIN);
-    check_single_button(LDN, LDN_BUTTON_PIN);
-    check_single_button(ANT, ANT_BUTTON_PIN);
-    check_single_button(POWER, POWER_BUTTON_PIN);
+    // X Macro, expands BUTTON_LIST using check_button(), defined above
+#define X(value) check_button(value)
+    BUTTON_LIST
+#undef X
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,12 +111,12 @@ uint8_t check_multiple_buttons(button_check_t btn_is_xxx,
 
 // Returns 1 if buttons entire history is 'down', aka button is being held.
 uint8_t btn_is_down(buttonName_t buttonName) {
-    return (buttons[buttonName] == 0b11111111);
+    return (buttonHistory[buttonName] == 0b11111111);
 }
 
 // Returns 1 if buttons entire history is 'up', aka button is NOT held.
 uint8_t btn_is_up(buttonName_t buttonName) {
-    return (buttons[buttonName] == 0b00000000);
+    return (buttonHistory[buttonName] == 0b00000000);
 }
 
 /*  Mask out the middle three 'bouncy' bits, and compare the result with the
@@ -138,8 +132,8 @@ uint8_t btn_is_up(buttonName_t buttonName) {
 */
 // Returns 1 if rising edge is detected
 uint8_t btn_is_pressed(buttonName_t buttonName) {
-    if ((buttons[buttonName] & DEBOUNCE_MASK) == 0b00000111) {
-        buttons[buttonName] = 0b11111111;
+    if ((buttonHistory[buttonName] & DEBOUNCE_MASK) == 0b00000111) {
+        buttonHistory[buttonName] = 0b11111111;
         return 1;
     }
     return 0;
@@ -158,8 +152,8 @@ uint8_t btn_is_pressed(buttonName_t buttonName) {
 */
 // Returns 1 if falling edge is detected
 uint8_t btn_is_released(buttonName_t buttonName) {
-    if ((buttons[buttonName] & DEBOUNCE_MASK) == 0b11000000) {
-        buttons[buttonName] = 0b00000000;
+    if ((buttonHistory[buttonName] & DEBOUNCE_MASK) == 0b11000000) {
+        buttonHistory[buttonName] = 0b00000000;
         return 1;
     }
     return 0;

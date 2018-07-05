@@ -3,18 +3,18 @@
 
 /* ************************************************************************** */
 
-/*  Notes on using the button processing subsystem_flags.
+/*  Notes on using the button processing subsystem.
     
     This module is designed as a publisher/subscriber model, with two loosely
     coupled components.
-    
+
     The publisher polls the physical buttons at a regular interval, 5ms is
     a typical value.  The publisher then records the current state of each
     button to a ledger or history.  This works best when it happens
     asynchronously with the subscriber half of the module, such as in an
     interrupt service routine triggered by a timer overflow, or a dedicated
     RTOS thread.
-    
+
     The subscriber half is applied wherever it is desired to check on the status
     of an external input.  A call to one of the btn_is_xxxx() functions will
     look at the history that's been recorded by the publisher and return a yes
@@ -24,10 +24,34 @@
 */
 
 /* ************************************************************************** */
+/*  Notes on BUTTON_LIST:
 
-// This enum should be defined in the project code to represent whatever
-// physical buttons the product has.
-typedef enum {} buttonName_t;
+    BUTTON_LIST is defined using X Macros. From Wikipedia: "X Macros are a
+    technique for reliable maintenance of parallel lists, of code or data, whose
+    corresponding items must appear in the same order. They are most useful
+    where at least some of the lists cannot be composed by indexing, such as
+    compile time." (see: https://en.wikipedia.org/wiki/X_Macro)
+
+    Here is a generic, example BUTTON_LIST macro that can be used as a template:
+
+    #define BUTTON_LIST \
+    X(FORWARD)\
+    X(BACK)\
+    X(UP)\
+    X(DOWN)
+
+    Each button name "NAME" must have a matching "NAME_BUTTON_PIN" macro defined
+    in pins.h.
+*/
+
+#ifndef BUTTON_LIST
+#error "BUTTON_LIST is not defined"
+#endif
+
+// X Macro, expands BUTTON_LiST into contents of buttonName_t enum
+#define X(name) name,
+typedef enum { BUTTON_LIST } buttonName_t;
+#undef X
 
 // This pointer can refer to one of the button checking functions
 typedef uint8_t (*button_check_t)(buttonName_t);
