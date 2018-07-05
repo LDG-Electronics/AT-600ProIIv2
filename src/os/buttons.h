@@ -10,8 +10,8 @@
     
     The publisher polls the physical buttons at a regular interval, 5ms is
     a typical value.  The publisher then records the current state of each
-    button to a ledger or history.  This works best when it happens 
-    asynchronously with the subscriber half of the module, such as in an 
+    button to a ledger or history.  This works best when it happens
+    asynchronously with the subscriber half of the module, such as in an
     interrupt service routine triggered by a timer overflow, or a dedicated
     RTOS thread.
     
@@ -25,8 +25,9 @@
 
 /* ************************************************************************** */
 
-// This enum should contain one entry for every front panel button.
-typedef enum {TUNE, FUNC, CUP, CDN, LUP, LDN, ANT, POWER} buttonName_t;
+// This enum should be defined in the project code to represent whatever
+// physical buttons the product has.
+typedef enum {} buttonName_t;
 
 // This pointer can refer to one of the button checking functions
 typedef uint8_t (*button_check_t)(buttonName_t);
@@ -57,7 +58,8 @@ extern uint8_t get_buttons(void);
 */
 
 // Returns a 1 if any of the listed buttons is experiencing the specified state
-extern uint8_t check_multiple_buttons(button_check_t btn_is_xxx, uint8_t numberOfButtons, ...);
+extern uint8_t check_multiple_buttons(button_check_t btn_is_xxx,
+                                      uint8_t numberOfButtons, ...);
 
 // Returns 1 if the specified button is experiencing a falling edge
 extern uint8_t btn_is_pressed(buttonName_t buttonName);

@@ -5,9 +5,6 @@
 // Bitmask used to debounce the button history
 #define DEBOUNCE_MASK 0b11000111
 
-// AT-600ProII has 8 front panel buttons
-#define NUMBER_OF_BUTTONS 8
-
 // Button history storage
 volatile uint8_t buttons[NUMBER_OF_BUTTONS];
 

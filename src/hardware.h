@@ -7,6 +7,12 @@
 #define FOSC_64_MHZ 64000000
 #define CLOCK_FREQ FOSC_64_MHZ
 
+// AT-600ProII has 8 front panel buttons
+#define NUMBER_OF_BUTTONS 8
+
+// This enum should contain one entry for every front panel button.
+typedef enum {TUNE, FUNC, CUP, CDN, LUP, LDN, ANT, POWER} buttonName_t;
+
 /* ************************************************************************** */
 
 // Macros to control interrupt system
