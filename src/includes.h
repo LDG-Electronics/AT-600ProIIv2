@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <ctype.h>
 
 // device header
 #include "pic18f46k42.h"

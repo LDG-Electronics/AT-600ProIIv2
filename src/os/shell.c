@@ -139,55 +139,70 @@ void shell_backspace(void)
 
 void shell_update(void)
 {
-	char rxchar = 0;
-	UART2_getc(&rxchar);
+	static char prevChar;
+	char currentChar = 0;
+
+	UART2_getc(&currentChar);
+	prevChar = currentChar;
 
 	// Number of characters written to buffer (this should be static var)
 	static unsigned short count = 0;
 
-	if (rxchar == NULL) return;
+	// return 
+	if (currentChar == NULL) return;
 
-	if ((rxchar == SHELL_ASCII_ESC) || (rxchar == SHELL_ASCII_ESC)) {
-		println("esc");
-	}
-
-	if (rxchar == SHELL_ASCII_DEL) {
-		println("del");
-	}
-
-	if (rxchar == SHELL_ASCII_HT) {
-		println("tab");
-	}
-
-	if (rxchar == SHELL_ASCII_CR) {
-		shell_rx_buffer[count] = '\0';
-		println("");
-		if (count > 0) {
-			shell_process();
-
-			count = 0;
-		} else {
-			println("command not found");
+	// control characters
+	if (iscntrl(currentChar)){
+		if ((currentChar == SHELL_ASCII_ESC) || (currentChar == SHELL_ASCII_ESC)) {
+			println("esc");
+			return;
 		}
-		println("");
-		shell_prompt();
+
+		if (currentChar == SHELL_ASCII_DEL) {
+			println("del");
+			return;
+		}
+
+		if (currentChar == SHELL_ASCII_HT) {
+			println("tab");
+			return;
+		}
+
+		if (currentChar == SHELL_ASCII_CR) {
+			shell_rx_buffer[count] = '\0';
+			println(""); 
+			if (count > 0) {
+				shell_process();
+
+				count = 0;
+			} else {
+				println("command not found");
+			}
+			println("");
+			shell_prompt();
+			return;
+		}
+
+		if (currentChar == SHELL_ASCII_BS) {
+			if (count > 0) {
+				count--;
+				shell_backspace();
+			} else {
+				putch(SHELL_ASCII_BEL);
+			}
+			return;
+		}
 	}
 
-	if (rxchar == SHELL_ASCII_BS) {
-		if (count > 0) {
-			count--;
-			shell_backspace();
-		} else
-			putch(SHELL_ASCII_BEL);
+	// printable characters
+	if (isprint(currentChar)){
+		if (count < CONFIG_SHELL_MAX_INPUT) {
+			shell_rx_buffer[count] = currentChar;
+			putch(currentChar);
+			count++;
+		}
+		return;
 	}
-
-	// Process printable characters, but ignore other ASCII chars
-	if (count < CONFIG_SHELL_MAX_INPUT && rxchar >= 0x20 && rxchar < 0x7F) {
-		shell_rx_buffer[count] = rxchar;
-		putch(rxchar);
-		count++;
-	}
-	
 }
 
 /* -------------------------------------------------------------------------- */
