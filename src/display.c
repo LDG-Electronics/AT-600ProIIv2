@@ -405,13 +405,6 @@ void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
     frame.lower = ledBarTable[calculate_swr_index(swrValue)];
 
     FP_update(frame.frame);
-
-    // uint16_t frame = 0;
-
-    // frame = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
-    // frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
-
-    // FP_update(frame);
 }
 
 void show_current_power_and_SWR(void) {
@@ -421,11 +414,4 @@ void show_current_power_and_SWR(void) {
     frame.lower = ledBarTable[calculate_swr_index(currentRF.swr)];
 
     FP_update(frame.frame);
-
-    // uint16_t frame = 0;
-
-    // frame = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
-    // frame |= (ledBarTable[calculate_swr_index(currentRF.swr)] << 8);
-
-    // FP_update(frame);
 }
