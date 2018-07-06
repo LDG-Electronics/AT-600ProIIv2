@@ -3,16 +3,11 @@
 
 /* ************************************************************************** */
 
-// This structure holds the data for every command registered on the shell
 struct shell_command_entry {
     shell_program_t shell_program;
     const char *shell_command_string;
 };
 
-/*	This structure array contains the available commands and they associated
-	function entry point, other data required by the commands may be added to
-	this structure
-*/
 struct shell_command_entry list[CONFIG_SHELL_MAX_COMMANDS];
 
 /* -------------------------------------------------------------------------- */
@@ -38,8 +33,6 @@ void init_shell_commands(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-
-char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
 
 char shell_rx_buffer[CONFIG_SHELL_MAX_INPUT];
 
@@ -73,7 +66,6 @@ void shell_init(void) {
     clear_shell_buffer(&shellBuffer);
 
     println(SHELL_VERSION_STRING);
-
     print(SHELL_PROMPT_STRING);
 }
 
@@ -92,16 +84,17 @@ bool shell_register(shell_program_t program, const char *string) {
 
 /* -------------------------------------------------------------------------- */
 
-static int shell_parse(char *buf, char **argv, unsigned short maxargs) {
-    int i = 0;
+void process_shell_command(void) {
     int argc = 0;
-    int length = strlen(buf) + 1; // String length to parse = strlen + 1
+    int length = strlen(shell_rx_buffer) + 1;
     char toggle = 0;
 
-    argv[argc] = &buf[0];
+	char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
 
-    for (i = 0; i < length && argc < maxargs; i++) {
-        switch (buf[i]) {
+    argv_list[argc] = &shell_rx_buffer[0];
+
+    for (uint8_t i = 0; i < length && argc < CONFIG_SHELL_MAX_COMMAND_ARGS; i++) {
+        switch (shell_rx_buffer[i]) {
         case '\0': // String terminator means at least one arg
             i = length;
             argc++;
@@ -109,35 +102,26 @@ static int shell_parse(char *buf, char **argv, unsigned short maxargs) {
         case '\"': // Check for double quotes for strings as parameters
             if (toggle == 0) {
                 toggle = 1;
-                buf[i] = '\0';
-                argv[argc] = &buf[i + 1];
+                shell_rx_buffer[i] = '\0';
+                argv_list[argc] = &shell_rx_buffer[i + 1];
             } else {
                 toggle = 0;
-                buf[i] = '\0';
+                shell_rx_buffer[i] = '\0';
             }
             break;
-        case ' ':
+        case ' ': // Command arguments are separated by spaces
             if (toggle == 0) {
-                buf[i] = '\0';
+                shell_rx_buffer[i] = '\0';
                 argc++;
-                argv[argc] = &buf[i + 1];
+                argv_list[argc] = &shell_rx_buffer[i + 1];
             }
             break;
         }
     }
-    return argc;
-}
 
-void shell_process(void) {
-    uint8_t i = 0;
-    int retval = 0;
-    int argc = 0;
-
-    argc =
-        shell_parse(shell_rx_buffer, argv_list, CONFIG_SHELL_MAX_COMMAND_ARGS);
-
+	int retval = 0;
     // sequential search on command table
-    for (i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
+    for (uint8_t i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
         if (list[i].shell_program == 0)
             continue;
 
@@ -216,8 +200,8 @@ void shell_update(void) {
             if (count > 0) {
                 count--;
                 putch(KEY_BS);
-				putch(KEY_SP);
-				putch(KEY_BS);
+                putch(KEY_SP);
+                putch(KEY_BS);
             } else {
                 putch(SHELL_ASCII_BEL);
             }
@@ -228,7 +212,7 @@ void shell_update(void) {
             shell_rx_buffer[count] = '\0';
             println("");
             if (count > 0) {
-                shell_process();
+                process_shell_command();
 
                 count = 0;
             } else {
