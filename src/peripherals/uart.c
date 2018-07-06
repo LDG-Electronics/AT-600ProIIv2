@@ -49,10 +49,14 @@ void UART1_init(enum baud_rates baudRate)
     and PIE3bits.U1TXIE is enabled.
 
 */
+
+#define UART1_TX_IE_enable() PIE3bits.U1TXIE = 1
+#define UART1_TX_IE_disable() PIE3bits.U1TXIE = 0
+
 void __interrupt(irq(IRQ_U1TX), high_priority) UART1_tx_ISR()
 {
     if(buffer_is_empty(UART1_tx_buffer)) {
-        PIE3bits.U1TXIE = 0; // disable interrupt
+        UART1_TX_IE_disable();
     } else {
         U1TXB = buffer_read(UART1_tx_buffer);
     }
@@ -89,7 +93,7 @@ void UART1_tx_string(const char *string, const char terminator)
         if (buffer_is_full(UART1_tx_buffer))
         {
             // If the buffer is ever full, wait for it to empty completely
-            PIE3bits.U1TXIE = 1;
+            UART1_TX_IE_enable();
             while(!buffer_is_empty(UART1_tx_buffer));
         }
 
@@ -98,7 +102,24 @@ void UART1_tx_string(const char *string, const char terminator)
         end_critical_section();
     }
 
-    PIE3bits.U1TXIE = 1;
+    UART1_TX_IE_enable();
+}
+
+void UART1_tx_char(char data)
+{
+    // buffer overflow handler
+    if (buffer_is_full(UART1_tx_buffer))
+    {
+        UART1_TX_IE_enable();
+
+        while(buffer_is_full(UART1_tx_buffer));
+    }
+
+    begin_critical_section();
+    buffer_write(UART1_tx_buffer, data);
+    end_critical_section();
+
+    UART1_TX_IE_enable();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -170,10 +191,14 @@ void UART2_init(enum baud_rates baudRate)
     time UART2 finishes transmitting a byte.
 
 */
+
+#define UART2_TX_IE_enable() PIE6bits.U2TXIE = 1
+#define UART2_TX_IE_disable() PIE6bits.U2TXIE = 0
+
 void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR()
 {
     if(buffer_is_empty(UART2_tx_buffer)) {
-        PIE6bits.U2TXIE = 0; // disable interrupt
+        UART2_TX_IE_disable();
     } else {
         U2TXB = buffer_read(UART2_tx_buffer);
     }
@@ -209,7 +234,7 @@ void UART2_tx_string(const char *string, const char terminator)
         if (buffer_is_full(UART2_tx_buffer))
         {
             // If the buffer is ever full, wait for it to empty completely
-            PIE6bits.U2TXIE = 1;
+            UART2_TX_IE_enable();
             while(!buffer_is_empty(UART2_tx_buffer));
         }
 
@@ -218,15 +243,15 @@ void UART2_tx_string(const char *string, const char terminator)
         end_critical_section();
     }
 
-    PIE6bits.U2TXIE = 1;
+    UART2_TX_IE_enable();
 }
 
-void UART2_putc(char data)
+void UART2_tx_char(char data)
 {
     // buffer overflow handler
     if (buffer_is_full(UART2_tx_buffer))
     {
-        PIE6bits.U2TXIE = 1;
+        UART2_TX_IE_enable();
 
         while(buffer_is_full(UART2_tx_buffer));
     }
@@ -235,7 +260,7 @@ void UART2_putc(char data)
     buffer_write(UART2_tx_buffer, data);
     end_critical_section();
 
-    PIE6bits.U2TXIE = 1;
+    UART2_TX_IE_enable();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -253,15 +278,15 @@ void __interrupt(irq(IRQ_U2RX), high_priority) UART2_rx_ISR()
     buffer_write(UART2_rx_buffer, U2RXB);
 }
 
-int UART2_getc(char *data)
+char UART2_rx_char(void)
 {
     if(buffer_is_empty(UART2_rx_buffer)) return 0;
 
     begin_critical_section();
-    *data = buffer_read(UART2_rx_buffer);
+    char data = buffer_read(UART2_rx_buffer);
     end_critical_section();
 
-    return 1;
+    return data;
 }
 
 /* ************************************************************************** */

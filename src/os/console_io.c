@@ -9,15 +9,3 @@ void console_init(void) {
 
     UART2_init(_115200);
 }
-
-/* -------------------------------------------------------------------------- */
-
-// Needed for compiler provided printf
-void putch(const char data) { UART2_putc(data); }
-
-void print(const char *string) { UART2_tx_string(string, '\0'); }
-
-void println(const char *string) {
-    print(string);
-    print("\r\n");
-}
