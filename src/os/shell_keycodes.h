@@ -54,6 +54,7 @@
 #define KEY_GS  29 // ^] Group separator 
 #define KEY_RS  30 // ^^ Record separator, block-mode terminator 
 #define KEY_US  31 // ^_ Unit separator 
+#define KEY_SP  32 // space character
 
 #define KEY_UP 'A' // Up arrow
 #define KEY_DOWN 'B' // Down arrow
