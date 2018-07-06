@@ -1,5 +1,5 @@
-#ifndef _PRINTING_H_
-#define _PRINTING_H_
+#ifndef _CONSOLE_IO_H_
+#define _CONSOLE_IO_H_
 
 /* ************************************************************************** */
 
