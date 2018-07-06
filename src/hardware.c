@@ -12,6 +12,7 @@ void startup(void)
     oscillator_init();
     pins_init();
     interrupt_init();
+    console_init();
     shell_init();
     systick_init();
     event_scheduler_init();

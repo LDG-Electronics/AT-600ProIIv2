@@ -1,16 +1,16 @@
 #include "../includes.h"
 
 /* ************************************************************************** */
-/*
-    These are copied from shell_init() in shell.c, just in case the shell gets
-    replaced.
 
-    PPS Setup
+void console_init(void) {
+    // PPS Setup
     U2RXPPS = (PPS_PORT_D & PPS_PIN_3);
     RD2PPS = PPS_UART2_TX;
 
     UART2_init(_115200);
-*/
+}
+
+/* -------------------------------------------------------------------------- */
 
 // Needed for compiler provided printf
 void putch(const char data) { UART2_putc(data); }

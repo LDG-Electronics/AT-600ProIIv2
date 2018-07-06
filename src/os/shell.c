@@ -40,12 +40,6 @@ void shell_prompt(void)
 
 void shell_init(void)
 {
-	// PPS Setup
-    U2RXPPS = (PPS_PORT_D & PPS_PIN_3);
-	RD2PPS = PPS_UART2_TX;
-
-	UART2_init(_115200);
-
 	for (uint8_t i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
 		list[i].shell_program = 0;
 		list[i].shell_command_string = 0;
