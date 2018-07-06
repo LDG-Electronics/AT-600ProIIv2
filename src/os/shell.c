@@ -21,6 +21,12 @@ char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
 
 char shell_rx_buffer[CONFIG_SHELL_MAX_INPUT];
 
+typedef struct {
+	char buffer[CONFIG_SHELL_MAX_INPUT];
+	uint8_t length;
+} shell_buffer_t;
+
+
 /* ************************************************************************** */
 
 // forward declarations
@@ -118,66 +124,70 @@ void shell_process(void)
 		if (!strcmp(argv_list[0], list[i].shell_command_string)) {
 			// Run the appropiate function
 			retval = list[i].shell_program(argc, argv_list);
+			return;
 		}
 	}	
+	printf("No command '%s' found.", argv_list[0]);
+}
+
+void shell_backspace(void)
+{
+	putch(SHELL_ASCII_BS);
+	putch(SHELL_ASCII_SP);
+	putch(SHELL_ASCII_BS);
 }
 
 void shell_update(void)
 {
 	char rxchar = 0;
+	UART2_getc(&rxchar);
 
 	// Number of characters written to buffer (this should be static var)
 	static unsigned short count = 0;
 
-	// Process each one of the received characters
-	if (UART2_getc(&rxchar)) {
+	if (rxchar == NULL) return;
 
-		switch (rxchar) {
-		case SHELL_ASCII_ESC: // For VT100 escape sequences
-		case '[':
-			// Process escape sequences: maybe later
-			break;
-
-		case SHELL_ASCII_DEL:
-			putch(SHELL_ASCII_BEL);
-			break;
-
-		case SHELL_ASCII_HT:
-			putch(SHELL_ASCII_BEL);
-			break;
-
-		case SHELL_ASCII_CR: // Enter key pressed
-			shell_rx_buffer[count] = '\0';
-			println("");
-			if (count > 0) {
-				shell_process();
-
-				count = 0;
-			} else {
-				println("command not found");
-			}
-			println("");
-			shell_prompt();
-			break;
-
-		case SHELL_ASCII_BS: // Backspace pressed
-			if (count > 0) {
-				count--;
-				putch(SHELL_ASCII_BS);
-				putch(SHELL_ASCII_SP);
-				putch(SHELL_ASCII_BS);
-			} else
-				putch(SHELL_ASCII_BEL);
-			break;
-		default:
-			// Process printable characters, but ignore other ASCII chars
-			if (count < CONFIG_SHELL_MAX_INPUT && rxchar >= 0x20 && rxchar < 0x7F) {
-				shell_rx_buffer[count] = rxchar;
-				putch(rxchar);
-				count++;
-			}
-		}
+	if ((rxchar == SHELL_ASCII_ESC) || (rxchar == SHELL_ASCII_ESC)) {
+		println("esc");
 	}
+
+	if (rxchar == SHELL_ASCII_DEL) {
+		println("del");
+	}
+
+	if (rxchar == SHELL_ASCII_HT) {
+		println("tab");
+	}
+
+	if (rxchar == SHELL_ASCII_CR) {
+		shell_rx_buffer[count] = '\0';
+		println("");
+		if (count > 0) {
+			shell_process();
+
+			count = 0;
+		} else {
+			println("command not found");
+		}
+		println("");
+		shell_prompt();
+	}
+
+	if (rxchar == SHELL_ASCII_BS) {
+		if (count > 0) {
+			count--;
+			shell_backspace();
+		} else
+			putch(SHELL_ASCII_BEL);
+	}
+
+	// Process printable characters, but ignore other ASCII chars
+	if (count < CONFIG_SHELL_MAX_INPUT && rxchar >= 0x20 && rxchar < 0x7F) {
+		shell_rx_buffer[count] = rxchar;
+		putch(rxchar);
+		count++;
+	}
+	
 }
 
 /* -------------------------------------------------------------------------- */
