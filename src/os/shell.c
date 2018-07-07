@@ -36,22 +36,18 @@ typedef struct {
 
 shell_buffer_t shell;
 
-void init_shell_data(void) {
-    for (uint8_t i = 0; i < SHELL_BUFFER_LENGTH; i++) {
-        shell.buffer[i] = 0;
-    }
-    shell.length = 0;
-    shell.cursorLocation = 0;
-    shell.escapeMode = 0;
-    shell.rawEchoMode = 0;
-}
-
 void reset_shell_buffer(void) {
     for (uint8_t i = 0; i < SHELL_BUFFER_LENGTH; i++) {
         shell.buffer[i] = 0;
     }
     shell.length = 0;
     shell.cursorLocation = 0;
+}
+
+void init_shell_data(void) {
+    reset_shell_buffer();
+    shell.escapeMode = 0;
+    shell.rawEchoMode = 0;
 }
 
 /* ************************************************************************** */
