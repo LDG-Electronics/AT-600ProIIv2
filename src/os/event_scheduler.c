@@ -438,11 +438,11 @@ void event_manager_self_test(void) {
 
     print_object_sizes();
 
-    // print_pointer_values();
+    print_pointer_values();
 
     event_queue_fill_test();
 
-    // event_sorting_simple_test();
+    event_sorting_simple_test();
 
-    // event_sorting_stress_test();
+    event_sorting_stress_test();
 }
