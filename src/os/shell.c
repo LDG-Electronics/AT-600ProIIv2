@@ -16,7 +16,7 @@ typedef struct commands {
 command_list_t commands;
 
 void init_shell_commands(void) {
-    for (uint8_t i = 0; i < SHELL_BUFFER_LENGTH; i++) {
+    for (uint8_t i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
         commands.list[i].callback = NULL;
         commands.list[i].command = NULL;
     }
