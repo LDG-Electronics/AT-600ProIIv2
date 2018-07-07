@@ -9,7 +9,7 @@
 
 /* ************************************************************************** */
 
-#define SHELL_VERSION_STRING "\r\nuShell 1.0.1"
+#define SHELL_VERSION_STRING "\r\nTuneOS Shell v0.1"
 #define SHELL_PROMPT_STRING "$ "
 
 // Defines the maximum number of commands that can be registered
