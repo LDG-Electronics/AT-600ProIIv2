@@ -46,6 +46,14 @@ void init_shell_data(void) {
     shell.rawEchoMode = 0;
 }
 
+void reset_shell_buffer(void) {
+    for (uint8_t i = 0; i < SHELL_BUFFER_LENGTH; i++) {
+        shell.buffer[i] = 0;
+    }
+    shell.length = 0;
+    shell.cursorLocation = 0;
+}
+
 /* ************************************************************************** */
 
 void shell_init(void) {
@@ -136,57 +144,124 @@ void process_shell_command(void) {
 /* -------------------------------------------------------------------------- */
 // Cursor movement
 
-void move_cursor_left(void) {
-    if (shell.cursorLocation != 0) {
-        shell.cursorLocation--;
-        putch(KEY_BS);
+void move_cursor(int16_t distance) {
+    // move right
+    if (distance > 0) {
+        if (shell.cursorLocation < shell.length) {
+            shell.cursorLocation++;
+            printf("\033[%dC", distance);
+        }
+    }
+
+    // move left
+    if (distance < 0) {
+        if (shell.cursorLocation > 0) {
+            shell.cursorLocation--;
+            printf("\033[%dD", -(distance));
+        }
     }
 }
 
-void move_cursor_right(void) {
-    if (shell.cursorLocation < shell.length) {
-        putch(shell.buffer[shell.cursorLocation]);
-        shell.cursorLocation++;
+void move_cursor_home(void) {
+    while (shell.cursorLocation > 0) {
+        move_cursor(-1);
     }
 }
 
-void move_cursor_to_home(void) {
-    while (shell.cursorLocation != 0) {
-        move_cursor_left();
-    }
-}
-
-void move_cursor_to_end(void) {
+void move_cursor_end(void) {
     while (shell.cursorLocation < shell.length) {
-        move_cursor_right();
+        move_cursor(1);
     }
 }
 
-void delete_char_to_left(void) {
-    if (shell.length > 0) {
-
-        shell.length--;
-        shell.cursorLocation--;
-        putch(KEY_BS);
-        putch(KEY_SP);
-        putch(KEY_BS);
-    } else {
-        putch(KEY_BEL);
+void insert_char_at_cursor(char currentChar) {
+    if (shell.length >= CONFIG_SHELL_MAX_INPUT) {
+        return;
     }
+
+    // process is easier if cursor is already at end of line
+    if (shell.cursorLocation == shell.length) {
+        // add the new char
+        putch(currentChar);
+        shell.buffer[shell.cursorLocation] = currentChar;
+
+        shell.length++;
+        shell.cursorLocation++;
+
+        // and we're done
+        return;
+    }
+
+    // TODO: insertion only half works
+
+    // make space for the new char
+    uint8_t i = shell.length;
+    while (i > shell.cursorLocation) {
+        shell.buffer[i + 1] = shell.buffer[i];
+        i--;
+    }
+    shell.length++;
+
+    // add the new char
+    shell.buffer[shell.cursorLocation] = currentChar;
+
+    // clear from cursor to end of line
+    print("\033[0K");
+
+    // save cursor location
+    print("\0337");
+
+    // reprint the rest of the line
+    i = shell.cursorLocation;
+    while (i < shell.length) {
+        putchar(shell.buffer[i]);
+        i++;
+    }
+
+    // restore cursor location
+    print("\0338");
+
+    shell.cursorLocation++;
 }
 
-void delete_char_to_right(void) {}
+void remove_char_at_cursor(void) {
+    if (shell.length == 0) {
+        return;
+    }
 
-void delete_word_to_left(void) {}
+    if (shell.cursorLocation == shell.length) {
+        return;
+    }
 
-void delete_word_to_right(void) {}
+    uint8_t i = shell.cursorLocation;
+
+    while (shell.buffer[i] != NULL) {
+        shell.buffer[i] = shell.buffer[i + 1];
+        i++;
+    }
+    shell.buffer[i - 1] = NULL;
+    shell.buffer[i] = NULL;
+    shell.buffer[i + 1] = NULL;
+    shell.length--;
+
+    // clear from cursor to end of line
+    print("\033[0K");
+
+    // save cursor location
+    print("\0337");
+
+    // reprint the rest of the line
+    i = shell.cursorLocation;
+    while (shell.buffer[i] != NULL) {
+        putchar(shell.buffer[i]);
+        i++;
+    }
+
+    // restore cursor location
+    print("\0338");
+}
 
 /* -------------------------------------------------------------------------- */
-
-void redraw_current_line(void) { move_cursor_to_home(); }
-
-void clear_line_buffer(void) {}
-void repack_line_buffer(void) {}
 
 void toggle_raw_echo_mode(void) {
     shell.rawEchoMode = !shell.rawEchoMode;
@@ -217,7 +292,9 @@ void process_escape_sequence(char currentChar) {
         switch (shell.prevChar) {
         case KEY_DEL:
             // println("del");
-            delete_char_to_right();
+            if (shell.cursorLocation != shell.length) {
+                remove_char_at_cursor();
+            }
             break;
         case KEY_INS:
             // println("ins");
@@ -247,19 +324,21 @@ void process_escape_sequence(char currentChar) {
             break;
         case KEY_RIGHT:
             // println("right");
-            move_cursor_right();
+            move_cursor(1);
             break;
         case KEY_LEFT:
             // println("left");
-            move_cursor_left();
+            move_cursor(-1);
             break;
         case KEY_HOME:
             // println("home");
-            move_cursor_to_home();
+            // move_cursor(-(shell.cursorLocation));
+            move_cursor_home();
             break;
         case KEY_END:
             // println("end");
-            move_cursor_to_end();
+            // move_cursor(shell.length - shell.cursorLocation);
+            move_cursor_end();
             break;
         }
     }
@@ -282,12 +361,14 @@ void process_escape_sequence(char currentChar) {
         }
     }
 
-    // If we reach this spot, then we've fully processed the current escape
-    // sequence, and we can exit escape mode.
-
+    // if we're in raw echo mode, then add a newline to seperate groups of
+    // escape sequence codes
     if (shell.rawEchoMode) {
         println("");
     }
+
+    // If we reach this spot, then we've fully processed the current escape
+    // sequence, and we can exit escape mode.
     shell.escapeMode = 0;
 }
 
@@ -307,16 +388,14 @@ void shell_update(void) {
             shell.escapeMode = 1;
             return;
         }
+
         if (shell.escapeMode) {
             process_escape_sequence(currentChar);
             return;
         }
 
-        if (!shell.escapeMode) {
-            println("");
-        }
-
         // return here because we don't process text in rawEchoMode
+        println("");
         return;
     }
 
@@ -333,13 +412,21 @@ void shell_update(void) {
             return;
         }
 
+        if (currentChar == KEY_ETX) {
+            // println("ctrl+c");
+            return;
+        }
+
         if (currentChar == KEY_HT) {
-            println("tab");
+            // println("tab");
             return;
         }
 
         if (currentChar == KEY_BS) {
-            delete_char_to_left();
+            if (shell.cursorLocation != 0) {
+                move_cursor(-1);
+                remove_char_at_cursor();
+            }
             return;
         }
 
@@ -349,8 +436,7 @@ void shell_update(void) {
             if (shell.length > 0) {
                 process_shell_command();
 
-                shell.length = 0;
-                shell.cursorLocation = 0;
+                reset_shell_buffer();
             }
             print(SHELL_PROMPT_STRING);
             return;
@@ -359,15 +445,7 @@ void shell_update(void) {
 
     // process printable characters
     if (isprint(currentChar)) {
-        if (shell.cursorLocation < CONFIG_SHELL_MAX_INPUT) {
-            shell.buffer[shell.cursorLocation] = currentChar;
-            putch(currentChar);
-
-            if (shell.cursorLocation == shell.length) {
-                shell.length++;
-            }
-            shell.cursorLocation++;
-        }
+        insert_char_at_cursor(currentChar);
         return;
     }
 }
