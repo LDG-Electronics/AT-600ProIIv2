@@ -10,7 +10,8 @@ extern void console_init(void);
 
 // Print a single character to the console
 // Also needed for compiler provided printf
-#define putch(data) UART2_tx_char(data)
+// #define putch(data) UART2_tx_char(data)
+extern void putch(char data);
 
 // Read a single character from the console
 #define getch() UART2_rx_char()

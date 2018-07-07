@@ -9,3 +9,7 @@ void console_init(void) {
 
     UART2_init(_115200);
 }
+
+/* -------------------------------------------------------------------------- */
+
+void putch(char data) { UART2_tx_char(data); }
