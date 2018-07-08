@@ -39,10 +39,9 @@ void init_shell_commands(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-#define ESCAPE_BUFFER_LENGTH 10
 
 typedef struct {
-    char buffer[SHELL_BUFFER_LENGTH];
+    char buffer[SHELL_MAX_LENGTH];
     uint8_t length;
     uint8_t cursorLocation;
     unsigned escapeMode : 1;
@@ -52,7 +51,7 @@ typedef struct {
 shell_t shell;
 
 void reset_shell_buffer(void) {
-    for (uint8_t i = 0; i < SHELL_BUFFER_LENGTH; i++) {
+    for (uint8_t i = 0; i < SHELL_MAX_LENGTH; i++) {
         shell.buffer[i] = 0;
     }
     shell.length = 0;
@@ -105,6 +104,10 @@ int8_t find_matching_command(char *string) {
 }
 
 void process_shell_command(void) {
+    if (shell.length == 0) {
+        return;
+    }
+
     int argc = 0;
     int length = strlen(shell.buffer) + 1;
     char toggle = 0;
@@ -180,15 +183,9 @@ void move_cursor_to(uint8_t position) {
         return;
     }
 
+    // make sure we don't move past the end of the line
     if (position > shell.length) {
         position = shell.length;
-    }
-
-    // 0 is the home position
-    if (position == 0) {
-        while (shell.cursorLocation > 0) {
-            move_cursor(-1);
-        }
     }
 
     // need to move right
@@ -205,7 +202,7 @@ void move_cursor_to(uint8_t position) {
 /* -------------------------------------------------------------------------- */
 
 void insert_char_at_cursor(char currentChar) {
-    if (shell.length >= CONFIG_SHELL_MAX_INPUT) {
+    if (shell.length >= SHELL_MAX_LENGTH) {
         return;
     }
 
@@ -298,6 +295,8 @@ void toggle_raw_echo_mode(void) {
 
 /* -------------------------------------------------------------------------- */
 
+#define ESCAPE_BUFFER_LENGTH 10
+
 typedef struct {
     char buffer[ESCAPE_BUFFER_LENGTH];
     uint8_t length;
@@ -370,7 +369,6 @@ void process_escape_sequence(char currentChar) {
             goto FINISHED;
         case KEY_F4:
             // print("F4");
-            toggle_raw_echo_mode();
             goto FINISHED;
         }
         return;
@@ -400,28 +398,29 @@ void process_escape_sequence(char currentChar) {
         if (currentChar == '~') {
             switch (prevChar) {
             case KEY_F5:
-                print("F5");
+                // print("F5");
                 goto FINISHED;
             case KEY_F6:
-                print("F6");
+                // print("F6");
                 goto FINISHED;
             case KEY_F7:
-                print("F7");
+                // print("F7");
                 goto FINISHED;
             case KEY_F8:
-                print("F8");
+                // print("F8");
                 goto FINISHED;
             case KEY_F9:
-                print("F9");
+                // print("F9");
+                toggle_raw_echo_mode();
                 goto FINISHED;
             case KEY_F10:
-                print("F10");
+                // print("F10");
                 goto FINISHED;
             case KEY_F11:
-                print("F11");
+                // print("F11");
                 goto FINISHED;
             case KEY_F12:
-                print("F12");
+                // print("F12");
                 goto FINISHED;
             }
         }
@@ -442,7 +441,7 @@ void process_escape_sequence(char currentChar) {
             goto FINISHED;
         case '~':
             switch (escape.buffer[3]) {
-            case KEY_HOME:
+            case KEY_DEL:
                 // print("^delete");
                 goto FINISHED;
             case KEY_END:
