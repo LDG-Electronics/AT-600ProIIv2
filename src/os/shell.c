@@ -2,21 +2,36 @@
 #include "shell_keycodes.h"
 
 /* ************************************************************************** */
+/*  shell command list
 
+    This data structure is the central registry for shell commands.
+
+    Individual commands should be defined in shell_commands.c and registered in
+    shell_commands_init().
+
+    The function signature of a shell command must be:
+    int (*shell_program_t) (int, char **)
+
+    shell_command_t contains a function pointer to the shell command body, plus
+    a pointer to string that represents the command that needs to be typed.
+
+    command_list_t contains an array of shell_command_t objects, and
+    numOfRegisteredCommands, which
+*/
 typedef struct {
     shell_program_t callback;
     const char *command;
-} shell_entry_t;
+} shell_command_t;
 
 typedef struct commands {
-    shell_entry_t list[CONFIG_SHELL_MAX_COMMANDS];
+    shell_command_t list[MAXIMUM_NUM_OF_SHELL_COMMANDS];
     uint8_t numOfRegisteredCommands;
 } command_list_t;
 
-command_list_t commands;
+static command_list_t commands;
 
 void init_shell_commands(void) {
-    for (uint8_t i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
+    for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
         commands.list[i].callback = NULL;
         commands.list[i].command = NULL;
     }
@@ -24,17 +39,17 @@ void init_shell_commands(void) {
 }
 
 /* -------------------------------------------------------------------------- */
+#define ESCAPE_BUFFER_LENGTH 10
 
 typedef struct {
     char buffer[SHELL_BUFFER_LENGTH];
-    char prevChar;
     uint8_t length;
     uint8_t cursorLocation;
     unsigned escapeMode : 1;
     unsigned rawEchoMode : 1;
-} shell_buffer_t;
+} shell_t;
 
-shell_buffer_t shell;
+shell_t shell;
 
 void reset_shell_buffer(void) {
     for (uint8_t i = 0; i < SHELL_BUFFER_LENGTH; i++) {
@@ -56,14 +71,15 @@ void shell_init(void) {
     init_shell_commands();
     init_shell_data();
 
-    println(SHELL_VERSION_STRING);
+    // println(SHELL_VERSION_STRING);
+    println("");
     print(SHELL_PROMPT_STRING);
 }
 
 bool shell_register(shell_program_t program, const char *string) {
     unsigned char i;
 
-    for (i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
+    for (i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
         if (commands.list[i].callback != 0 || commands.list[i].command != 0)
             continue;
         commands.list[i].callback = program;
@@ -76,7 +92,7 @@ bool shell_register(shell_program_t program, const char *string) {
 /* -------------------------------------------------------------------------- */
 
 int8_t find_matching_command(char *string) {
-    for (uint8_t i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
+    for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
         if (commands.list[i].callback == 0)
             continue;
 
@@ -140,7 +156,7 @@ void process_shell_command(void) {
 /* -------------------------------------------------------------------------- */
 // Cursor movement
 
-void move_cursor(int16_t distance) {
+void move_cursor(int8_t distance) {
     // move right
     if (distance > 0) {
         if (shell.cursorLocation < shell.length) {
@@ -158,17 +174,35 @@ void move_cursor(int16_t distance) {
     }
 }
 
-void move_cursor_home(void) {
-    while (shell.cursorLocation > 0) {
+void move_cursor_to(uint8_t position) {
+    // cursor is already where it needs to end up
+    if (shell.cursorLocation == position) {
+        return;
+    }
+
+    if (position > shell.length) {
+        position = shell.length;
+    }
+
+    // 0 is the home position
+    if (position == 0) {
+        while (shell.cursorLocation > 0) {
+            move_cursor(-1);
+        }
+    }
+
+    // need to move right
+    while (shell.cursorLocation < position) {
+        move_cursor(1);
+    }
+
+    // need to move right
+    while (shell.cursorLocation > position) {
         move_cursor(-1);
     }
 }
 
-void move_cursor_end(void) {
-    while (shell.cursorLocation < shell.length) {
-        move_cursor(1);
-    }
-}
+/* -------------------------------------------------------------------------- */
 
 void insert_char_at_cursor(char currentChar) {
     if (shell.length >= CONFIG_SHELL_MAX_INPUT) {
@@ -188,8 +222,6 @@ void insert_char_at_cursor(char currentChar) {
         return;
     }
 
-    // TODO: insertion only half works
-
     // make space for the new char
     uint8_t i = shell.length;
     while (i > shell.cursorLocation) {
@@ -200,9 +232,6 @@ void insert_char_at_cursor(char currentChar) {
 
     // add the new char
     shell.buffer[shell.cursorLocation] = currentChar;
-
-    // clear from cursor to end of line
-    print("\033[0K");
 
     // save cursor location
     print("\0337");
@@ -216,8 +245,6 @@ void insert_char_at_cursor(char currentChar) {
 
     // restore cursor location
     print("\0338");
-
-    shell.cursorLocation++;
 }
 
 void remove_char_at_cursor(void) {
@@ -270,102 +297,176 @@ void toggle_raw_echo_mode(void) {
 }
 
 /* -------------------------------------------------------------------------- */
+
+typedef struct {
+    char buffer[ESCAPE_BUFFER_LENGTH];
+    uint8_t length;
+} escape_t;
+
+escape_t escape;
+
+void reset_escape_buffer(void) {
+    for (uint8_t i = 0; i < ESCAPE_BUFFER_LENGTH; i++) {
+        escape.buffer[i] = 0;
+    }
+    escape.length = 1;
+}
+
 /*  Notes on escape sequences:
 
     If a block returns, that means that the escape sequence isn't over yet.
 
-    If a block breaks, that means it's the final byte of an escape sequence, and
-    it's going to fall through to the bottom of the function and exit escape
-    mode.
+    If a block ends with "goto FINISHED;", that means that we know it was a
+    valid escape sequence.
 */
 void process_escape_sequence(char currentChar) {
-    if ((currentChar == '[') || (currentChar == KEY_FN)) {
-        shell.prevChar = currentChar;
+    if (shell.escapeMode == 0) {
+        shell.escapeMode = 1;
+        reset_escape_buffer();
         return;
     }
 
-    if (currentChar == '~') {
-        switch (shell.prevChar) {
-        case KEY_DEL:
-            // println("del");
-            if (shell.cursorLocation != shell.length) {
-                remove_char_at_cursor();
-            }
-            break;
-        case KEY_INS:
-            // println("ins");
-            break;
-        case KEY_PGUP:
-            // println("pgup");
-            break;
-        case KEY_PGDN:
-            // println("pgdn");
-            break;
-        }
-    }
+    char prevChar = escape.buffer[escape.length];
+    escape.length++;
+    escape.buffer[escape.length] = currentChar;
 
-    if (shell.prevChar == '[') {
+    switch (escape.length) {
+    case 0:
+    case 1:
+    case 2:
+        return;
+    case 3:
         switch (currentChar) {
-        case KEY_DEL:
-        case KEY_INS:
-        case KEY_PGUP:
-        case KEY_PGDN:
-            shell.prevChar = currentChar;
-            return;
         case KEY_UP:
-            // println("up");
-            break;
+            // print("up");
+            goto FINISHED;
         case KEY_DOWN:
-            // println("down");
-            break;
+            // print("down");
+            goto FINISHED;
         case KEY_RIGHT:
-            // println("right");
+            // print("right");
             move_cursor(1);
-            break;
+            goto FINISHED;
         case KEY_LEFT:
-            // println("left");
+            // print("left");
             move_cursor(-1);
-            break;
+            goto FINISHED;
         case KEY_HOME:
-            // println("home");
-            // move_cursor(-(shell.cursorLocation));
-            move_cursor_home();
-            break;
+            // print("home");
+            move_cursor_to(0);
+            goto FINISHED;
         case KEY_END:
-            // println("end");
-            // move_cursor(shell.length - shell.cursorLocation);
-            move_cursor_end();
-            break;
-        }
-    }
-
-    if (shell.prevChar == KEY_FN) {
-        switch (currentChar) {
+            // print("end");
+            move_cursor_to(shell.length);
+            goto FINISHED;
         case KEY_F1:
-            // println("F1");
-            break;
+            // print("F1");
+            goto FINISHED;
         case KEY_F2:
-            // println("F2");
-            break;
+            // print("F2");
+            goto FINISHED;
         case KEY_F3:
-            // println("F3");
-            break;
+            // print("F3");
+            goto FINISHED;
         case KEY_F4:
-            // println("F4");
+            // print("F4");
             toggle_raw_echo_mode();
-            break;
+            goto FINISHED;
         }
-    }
+        return;
+    case 4:
+        switch (currentChar) {
+        case '~':
+            switch (prevChar) {
+            case KEY_PGUP:
+                // print("pgup");
+                goto FINISHED;
+            case KEY_PGDN:
+                // print("pgdn");
+                goto FINISHED;
+            case KEY_DEL:
+                // println("del");
+                if (shell.cursorLocation != shell.length) {
+                    remove_char_at_cursor();
+                }
+                goto FINISHED;
+            case KEY_INS:
+                // print("ins");
+                goto FINISHED;
+            }
+        }
+        return;
+    case 5:
+        if (currentChar == '~') {
+            switch (prevChar) {
+            case KEY_F5:
+                print("F5");
+                goto FINISHED;
+            case KEY_F6:
+                print("F6");
+                goto FINISHED;
+            case KEY_F7:
+                print("F7");
+                goto FINISHED;
+            case KEY_F8:
+                print("F8");
+                goto FINISHED;
+            case KEY_F9:
+                print("F9");
+                goto FINISHED;
+            case KEY_F10:
+                print("F10");
+                goto FINISHED;
+            case KEY_F11:
+                print("F11");
+                goto FINISHED;
+            case KEY_F12:
+                print("F12");
+                goto FINISHED;
+            }
+        }
+        return;
+    case 6:
+        switch (currentChar) {
+        case KEY_RIGHT:
+            // print("^right");
+            goto FINISHED;
+        case KEY_LEFT:
+            // print("^left");
+            goto FINISHED;
+        case KEY_HOME:
+            // print("^home");
+            goto FINISHED;
+        case KEY_END:
+            // print("^end");
+            goto FINISHED;
+        case '~':
+            switch (escape.buffer[3]) {
+            case KEY_HOME:
+                // print("^delete");
+                goto FINISHED;
+            case KEY_END:
+                // print("^insert");
+                goto FINISHED;
+            }
+        }
+        return;
+    case 7:
+        goto FINISHED;
 
-    // if we're in raw echo mode, then add a newline to seperate groups of
-    // escape sequence codes
-    if (shell.rawEchoMode) {
-        println("");
-    }
+    FINISHED:
+        // if we're in raw echo mode, then add a newline to seperate groups
+        // of escape sequence codes
+        if (shell.rawEchoMode) {
+            printf(" length: %d\r\n", escape.length);
+            println("");
+        }
 
-    // If we reach this spot, then we've fully processed the current escape
-    // sequence, and we can exit escape mode.
-    shell.escapeMode = 0;
+        // If we reach this spot, then we've fully processed the current
+        // escape sequence, and we can exit escape mode.
+        reset_escape_buffer();
+        shell.escapeMode = 0;
+    }
 }
 
 void shell_update(void) {
@@ -377,7 +478,7 @@ void shell_update(void) {
 
     if (shell.rawEchoMode) {
         // Echo the input back as a string
-        printf("%d\r\n", (int)currentChar);
+        printf("%d ", (int)currentChar);
 
         // still need to process escape sequences to exit rawEchoMode
         if (currentChar == KEY_ESC) {
@@ -403,30 +504,27 @@ void shell_update(void) {
 
     // process control characters
     if (iscntrl(currentChar)) {
-        if (currentChar == KEY_ESC) {
-            shell.escapeMode = 1;
+        switch (currentChar) {
+        case KEY_ESC:
+            process_escape_sequence(currentChar);
             return;
-        }
 
-        if (currentChar == KEY_ETX) {
-            // println("ctrl+c");
+        case KEY_ETX:
+            // println("^c");
             return;
-        }
 
-        if (currentChar == KEY_HT) {
+        case KEY_HT:
             // println("tab");
             return;
-        }
 
-        if (currentChar == KEY_BS) {
+        case KEY_BS:
             if (shell.cursorLocation != 0) {
                 move_cursor(-1);
                 remove_char_at_cursor();
             }
             return;
-        }
 
-        if (currentChar == KEY_CR) {
+        case KEY_CR:
             shell.buffer[shell.length] = '\0';
             println("");
             if (shell.length > 0) {
@@ -446,12 +544,13 @@ void shell_update(void) {
     }
 }
 
-/* -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------
+ */
 
 void shell_print_commands(void) {
     unsigned char i;
 
-    for (i = 0; i < CONFIG_SHELL_MAX_COMMANDS; i++) {
+    for (i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
         if (commands.list[i].callback != 0 || commands.list[i].command != 0) {
             println(commands.list[i].command);
         }
