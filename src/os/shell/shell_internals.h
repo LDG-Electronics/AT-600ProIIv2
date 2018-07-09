@@ -3,6 +3,7 @@
 
 /* ************************************************************************** */
 
+#include "shell_command_processing.h"
 #include "shell_escapes.h"
 #include "shell_history.h"
 #include "shell_keycodes.h"
@@ -40,14 +41,13 @@ typedef struct {
     characters while in escapeMode. escapeMode is exited after an escape
     sequence is successfully processed.
 
-    rawEchoMode
+    sequenceInspectionMode
     This is a debug mode used to diagnose escape sequences
 */
 typedef union {
     struct {
         unsigned escapeMode : 1;
-        unsigned rawEchoMode : 1;
-        unsigned keyNameDebugMode : 1;
+        unsigned sequenceInspectionMode : 1;
     };
     uint8_t allFlags;
 } shell_flags_t;
@@ -64,5 +64,9 @@ typedef struct {
 } shell_t;
 
 extern shell_t shell;
+
+/* ************************************************************************** */
+
+extern void reset_current_line(void);
 
 #endif

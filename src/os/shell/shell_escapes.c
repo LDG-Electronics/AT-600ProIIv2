@@ -20,44 +20,120 @@ void reset_escape_buffer(void) {
 /* -------------------------------------------------------------------------- */
 
 // key name debugging
+char keyName[32];
 
-void print_key_name(const char *string) {
-    if (shell.keyNameDebugMode == 1) {
-        println(string);
+void set_key_name(const char *string) {
+    if (shell.sequenceInspectionMode == 1) {
+        uint8_t i = 0;
+        while (string[i]) {
+            keyName[i] = string[i];
+            i++;
+        }
+        keyName[i] = NULL;
     }
 }
 
-void toggle_echo_key_name_debug_mode(void) {
-    shell.keyNameDebugMode = !shell.keyNameDebugMode;
-    if (shell.keyNameDebugMode == 1) {
-        println("Now printing key names.");
-    } else {
-        println("No longer printing key names");
-        print(SHELL_PROMPT_STRING);
-    }
+void print_key_name(void) {
+    print("\'");
+    print((const char *)keyName);
+    print("\'");
 }
 
 /* -------------------------------------------------------------------------- */
 
-/*  raw echo mode is a shell mode that, instead of printing characters normally,
-    only echos back the decimal values of received UART bytes, and attempts to
-    sort them into groups that represent escape sequences.
+/*  sequence inspection mode is a shell mode that, instead of printing
+    characters normally, only echos back the decimal values of received UART
+    bytes, and attempts to sort them into groups that represent escape
+    sequences.
 
     This mode is used to build escape sequence charts and to assist in
     diagnosing issues and failures when processing non-printable keypresses.
 
 */
-void toggle_raw_echo_mode(void) {
-    shell.rawEchoMode = !shell.rawEchoMode;
-    if (shell.rawEchoMode == 1) {
-        println("Entering Raw Echo Mode.");
+void toggle_sequence_inspection_mode(void) {
+    shell.sequenceInspectionMode = !shell.sequenceInspectionMode;
+    if (shell.sequenceInspectionMode == 1) {
+        println("\r\nSequence inspection mode enabled.");
     } else {
-        println("Leaving Raw Echo Mode.");
+        println("\r\nSequence inspection mode disabled.");
         print(SHELL_PROMPT_STRING);
     }
 }
 
 /* -------------------------------------------------------------------------- */
+
+/*  Notes on control character processing.
+
+*/
+void process_control_character(char currentChar) {
+    switch (currentChar) {
+    case KEY_CTRL_C:
+        set_key_name("ctrl + c");
+        goto FINISHED;
+
+    case KEY_CTRL_D: // delete one character to the right of the cursor
+        set_key_name("ctrl + d");
+        if (shell.cursor != shell.length) {
+            remove_char_at_cursor();
+        }
+        goto FINISHED;
+
+    case KEY_CTRL_E: // move cursor to the end of the line
+        set_key_name("ctrl + e");
+        move_cursor_to(shell.length);
+        goto FINISHED;
+
+    case KEY_CTRL_K: // delete all characters to the right of the cursor
+        set_key_name("ctrl + k");
+        while (shell.cursor < shell.length) {
+            remove_char_at_cursor();
+        }
+        goto FINISHED;
+
+    case KEY_CTRL_U: // delete all characters to the left of the cursor
+        set_key_name("ctrl + u");
+        while (shell.cursor > 0) {
+            move_cursor(-1);
+            remove_char_at_cursor();
+        }
+        goto FINISHED;
+
+    case KEY_HT:
+        set_key_name("tab");
+        goto FINISHED;
+
+    case KEY_BS: // delete one character to the left of the cursor
+        set_key_name("backspace");
+        if (shell.cursor != 0) {
+            move_cursor(-1);
+            remove_char_at_cursor();
+        }
+        goto FINISHED;
+
+    case KEY_CR:
+        set_key_name("Enter");
+        if (!shell.sequenceInspectionMode) {
+            shell.buffer[shell.length] = '\0';
+            println("");
+            if (shell.length > 0) {
+                process_shell_command();
+
+                reset_current_line();
+            }
+            print(SHELL_PROMPT_STRING);
+        }
+        goto FINISHED;
+    }
+
+FINISHED:
+    // if we're in raw echo mode, then add a newline to seperate groups of
+    // escape sequence codes
+    if (shell.sequenceInspectionMode) {
+        print_key_name();
+        printf(" length: %d\r\n", escape.length);
+        println("");
+    }
+}
 
 /*  Notes on escape sequences:
 
@@ -78,55 +154,61 @@ void process_escape_sequence(char currentChar) {
     escape.buffer[escape.length] = currentChar;
 
     switch (escape.length) {
-    case 0:
     case 1:
-        return; // fallthrough
+        return;
     case 2:
         switch (currentChar) {
         case KEY_ALT_BS: // delete all characters to the left of the cursor
-            print_key_name("ctrl + backspace");
+            set_key_name("ctrl + backspace");
             while (shell.cursor > 0) {
                 move_cursor(-1);
                 remove_char_at_cursor();
             }
             goto FINISHED;
+        default:
+            if (isalnum(currentChar)) {
+                char name[] = "alt + x";
+                name[6] = currentChar;
+                set_key_name(&name);
+                goto FINISHED;
+            }
+            return;
         }
-
     case 3:
         switch (currentChar) {
         case KEY_UP:
-            print_key_name("up");
+            set_key_name("up");
             goto FINISHED;
         case KEY_DOWN:
-            print_key_name("down");
+            set_key_name("down");
             goto FINISHED;
         case KEY_RIGHT:
-            print_key_name("right");
+            set_key_name("right");
             move_cursor(1);
             goto FINISHED;
         case KEY_LEFT:
-            print_key_name("left");
+            set_key_name("left");
             move_cursor(-1);
             goto FINISHED;
         case KEY_HOME:
-            print_key_name("home");
+            set_key_name("home");
             move_cursor_to(0);
             goto FINISHED;
         case KEY_END:
-            print_key_name("end");
+            set_key_name("end");
             move_cursor_to(shell.length);
             goto FINISHED;
         case KEY_F1:
-            print_key_name("F1");
+            set_key_name("F1");
             goto FINISHED;
         case KEY_F2:
-            print_key_name("F2");
+            set_key_name("F2");
             goto FINISHED;
         case KEY_F3:
-            print_key_name("F3");
+            set_key_name("F3");
             goto FINISHED;
         case KEY_F4:
-            print_key_name("F4");
+            set_key_name("F4");
             goto FINISHED;
         }
         return;
@@ -135,19 +217,19 @@ void process_escape_sequence(char currentChar) {
         case '~':
             switch (prevChar) {
             case KEY_PGUP:
-                print_key_name("pgup");
+                set_key_name("pgup");
                 goto FINISHED;
             case KEY_PGDN:
-                print_key_name("pgdn");
+                set_key_name("pgdn");
                 goto FINISHED;
             case KEY_DEL:
-                print_key_name("delete");
+                set_key_name("delete");
                 if (shell.cursor != shell.length) {
                     remove_char_at_cursor();
                 }
                 goto FINISHED;
             case KEY_INS:
-                print_key_name("insert");
+                set_key_name("insert");
                 goto FINISHED;
             }
         }
@@ -156,82 +238,105 @@ void process_escape_sequence(char currentChar) {
         if (currentChar == '~') {
             switch (prevChar) {
             case KEY_F5:
-                print_key_name("F5");
+                set_key_name("F5");
                 goto FINISHED;
             case KEY_F6:
-                print_key_name("F6");
+                set_key_name("F6");
                 goto FINISHED;
             case KEY_F7:
-                print_key_name("F7");
+                set_key_name("F7");
                 goto FINISHED;
             case KEY_F8:
-                print_key_name("F8");
+                set_key_name("F8");
                 goto FINISHED;
             case KEY_F9:
-                print_key_name("F9");
-                toggle_raw_echo_mode();
+                toggle_sequence_inspection_mode();
+                set_key_name("F9");
                 goto FINISHED;
             case KEY_F10:
-                print_key_name("F10");
-                toggle_echo_key_name_debug_mode();
+                set_key_name("F10");
                 goto FINISHED;
             case KEY_F11:
-                print_key_name("F11");
+                set_key_name("F11");
                 goto FINISHED;
             case KEY_F12:
-                print_key_name("F12");
+                set_key_name("F12");
                 goto FINISHED;
             }
         }
         return;
     case 6:
         switch (currentChar) {
+        case KEY_UP:
+            switch (escape.buffer[5]) {
+            case MOD_SHIFT:
+                set_key_name("shift + up");
+                goto FINISHED;
+            case MOD_ALT:
+                set_key_name("alt + up");
+                goto FINISHED;
+            case MOD_CTRL:
+                set_key_name("ctrl + up");
+                goto FINISHED;
+            }
+        case KEY_DOWN:
+            switch (escape.buffer[5]) {
+            case MOD_SHIFT:
+                set_key_name("shift + down");
+                goto FINISHED;
+            case MOD_ALT:
+                set_key_name("alt + down");
+                goto FINISHED;
+            case MOD_CTRL:
+                set_key_name("ctrl + down");
+                goto FINISHED;
+            }
         case KEY_RIGHT:
             switch (escape.buffer[5]) {
             case MOD_SHIFT:
-                print_key_name("shift + right");
+                set_key_name("shift + right");
                 goto FINISHED;
             case MOD_ALT:
-                print_key_name("alt + right");
+                set_key_name("alt + right");
                 goto FINISHED;
             case MOD_CTRL:
-                print_key_name("ctrl + right");
+                set_key_name("ctrl + right");
                 goto FINISHED;
             }
         case KEY_LEFT:
             switch (escape.buffer[5]) {
             case MOD_SHIFT:
-                print_key_name("shift + left");
+                set_key_name("shift + left");
                 goto FINISHED;
             case MOD_ALT:
-                print_key_name("alt + left");
+                set_key_name("alt + left");
                 goto FINISHED;
             case MOD_CTRL:
-                print_key_name("ctrl + left");
+                set_key_name("ctrl + left");
                 goto FINISHED;
             }
         case KEY_HOME:
             switch (escape.buffer[5]) {
             case MOD_SHIFT:
-                print_key_name("shift + home");
+                set_key_name("shift + home");
                 goto FINISHED;
             case MOD_ALT:
-                print_key_name("alt + home");
+                set_key_name("alt + home");
                 goto FINISHED;
             case MOD_CTRL:
-                print_key_name("ctrl + home");
+                set_key_name("ctrl + home");
                 goto FINISHED;
             }
         case KEY_END:
             switch (escape.buffer[5]) {
             case MOD_SHIFT:
-                print_key_name("shift + end");
+                set_key_name("shift + end");
                 goto FINISHED;
             case MOD_ALT:
-                print_key_name("alt + end");
+                set_key_name("alt + end");
                 goto FINISHED;
             case MOD_CTRL:
-                print_key_name("ctrl + end");
+                set_key_name("ctrl + end");
                 goto FINISHED;
             }
         case '~':
@@ -239,25 +344,25 @@ void process_escape_sequence(char currentChar) {
             case KEY_DEL:
                 switch (escape.buffer[5]) {
                 case MOD_SHIFT:
-                    print_key_name("shift + delete");
+                    set_key_name("shift + delete");
                     goto FINISHED;
                 case MOD_ALT:
-                    print_key_name("alt + delete");
+                    set_key_name("alt + delete");
                     goto FINISHED;
                 case MOD_CTRL:
-                    print_key_name("ctrl + delete");
+                    set_key_name("ctrl + delete");
                     goto FINISHED;
                 }
             case KEY_INS:
                 switch (escape.buffer[5]) {
                 case MOD_SHIFT:
-                    print_key_name("shift + insert");
+                    set_key_name("shift + insert");
                     goto FINISHED;
                 case MOD_ALT:
-                    print_key_name("alt + insert");
+                    set_key_name("alt + insert");
                     goto FINISHED;
                 case MOD_CTRL:
-                    print_key_name("ctrl + insert");
+                    set_key_name("ctrl + insert");
                     goto FINISHED;
                 }
             }
@@ -270,7 +375,8 @@ void process_escape_sequence(char currentChar) {
 FINISHED:
     // if we're in raw echo mode, then add a newline to seperate groups of
     // escape sequence codes
-    if (shell.rawEchoMode) {
+    if (shell.sequenceInspectionMode) {
+        print_key_name();
         printf(" length: %d\r\n", escape.length);
         println("");
     }
