@@ -55,14 +55,8 @@ void shell_update(void) {
     }
 
     // Deal with escape sequences
-    if (currentChar == KEY_ESC || shell.escapeMode) {
+    if (iscntrl(currentChar) || currentChar == KEY_ESC || shell.escapeMode) {
         process_escape_sequence(currentChar);
-        return;
-    }
-
-    // process control characters
-    if (iscntrl(currentChar)) {
-        process_control_character(currentChar);
         return;
     }
 

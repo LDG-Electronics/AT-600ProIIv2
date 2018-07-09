@@ -14,7 +14,7 @@ void reset_escape_buffer(void) {
     for (uint8_t i = 0; i < ESCAPE_BUFFER_LENGTH; i++) {
         escape.buffer[i] = 0;
     }
-    escape.length = 1;
+    escape.length = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -62,79 +62,6 @@ void toggle_sequence_inspection_mode(void) {
 
 /* -------------------------------------------------------------------------- */
 
-/*  Notes on control character processing.
-
-*/
-void process_control_character(char currentChar) {
-    switch (currentChar) {
-    case KEY_CTRL_C:
-        set_key_name("ctrl + c");
-        goto FINISHED;
-
-    case KEY_CTRL_D: // delete one character to the right of the cursor
-        set_key_name("ctrl + d");
-        if (shell.cursor != shell.length) {
-            remove_char_at_cursor();
-        }
-        goto FINISHED;
-
-    case KEY_CTRL_E: // move cursor to the end of the line
-        set_key_name("ctrl + e");
-        move_cursor_to(shell.length);
-        goto FINISHED;
-
-    case KEY_CTRL_K: // delete all characters to the right of the cursor
-        set_key_name("ctrl + k");
-        while (shell.cursor < shell.length) {
-            remove_char_at_cursor();
-        }
-        goto FINISHED;
-
-    case KEY_CTRL_U: // delete all characters to the left of the cursor
-        set_key_name("ctrl + u");
-        while (shell.cursor > 0) {
-            move_cursor(-1);
-            remove_char_at_cursor();
-        }
-        goto FINISHED;
-
-    case KEY_HT:
-        set_key_name("tab");
-        goto FINISHED;
-
-    case KEY_BS: // delete one character to the left of the cursor
-        set_key_name("backspace");
-        if (shell.cursor != 0) {
-            move_cursor(-1);
-            remove_char_at_cursor();
-        }
-        goto FINISHED;
-
-    case KEY_CR:
-        set_key_name("Enter");
-        if (!shell.sequenceInspectionMode) {
-            shell.buffer[shell.length] = '\0';
-            println("");
-            if (shell.length > 0) {
-                process_shell_command();
-
-                reset_current_line();
-            }
-            print(SHELL_PROMPT_STRING);
-        }
-        goto FINISHED;
-    }
-
-FINISHED:
-    // if we're in raw echo mode, then add a newline to seperate groups of
-    // escape sequence codes
-    if (shell.sequenceInspectionMode) {
-        print_key_name();
-        printf(" length: %d\r\n", escape.length);
-        println("");
-    }
-}
-
 /*  Notes on escape sequences:
 
     If a block returns, that means that the escape sequence isn't over yet.
@@ -146,7 +73,6 @@ void process_escape_sequence(char currentChar) {
     if (shell.escapeMode == 0) {
         shell.escapeMode = 1;
         reset_escape_buffer();
-        return;
     }
 
     char prevChar = escape.buffer[escape.length];
@@ -155,7 +81,66 @@ void process_escape_sequence(char currentChar) {
 
     switch (escape.length) {
     case 1:
-        return;
+        switch (currentChar) {
+        case KEY_CTRL_C:
+            set_key_name("ctrl + c");
+            goto FINISHED;
+
+        case KEY_CTRL_D: // delete one character to the right of the cursor
+            set_key_name("ctrl + d");
+            if (shell.cursor != shell.length) {
+                remove_char_at_cursor();
+            }
+            goto FINISHED;
+
+        case KEY_CTRL_E: // move cursor to the end of the line
+            set_key_name("ctrl + e");
+            move_cursor_to(shell.length);
+            goto FINISHED;
+
+        case KEY_CTRL_K: // delete all characters to the right of the cursor
+            set_key_name("ctrl + k");
+            while (shell.cursor < shell.length) {
+                remove_char_at_cursor();
+            }
+            goto FINISHED;
+
+        case KEY_CTRL_U: // delete all characters to the left of the cursor
+            set_key_name("ctrl + u");
+            while (shell.cursor > 0) {
+                move_cursor(-1);
+                remove_char_at_cursor();
+            }
+            goto FINISHED;
+
+        case KEY_HT:
+            set_key_name("tab");
+            goto FINISHED;
+
+        case KEY_BS: // delete one character to the left of the cursor
+            set_key_name("backspace");
+            if (shell.cursor != 0) {
+                move_cursor(-1);
+                remove_char_at_cursor();
+            }
+            goto FINISHED;
+
+        case KEY_CR:
+            set_key_name("Enter");
+            if (!shell.sequenceInspectionMode) {
+                shell.buffer[shell.length] = '\0';
+                println("");
+                if (shell.length > 0) {
+                    process_shell_command();
+
+                    reset_current_line();
+                }
+                print(SHELL_PROMPT_STRING);
+            }
+            goto FINISHED;
+        default:
+            return;
+        }
     case 2:
         switch (currentChar) {
         case KEY_ALT_BS: // delete all characters to the left of the cursor
@@ -210,8 +195,9 @@ void process_escape_sequence(char currentChar) {
         case KEY_F4:
             set_key_name("F4");
             goto FINISHED;
+        default:
+            return;
         }
-        return;
     case 4:
         switch (currentChar) {
         case '~':
@@ -232,8 +218,9 @@ void process_escape_sequence(char currentChar) {
                 set_key_name("insert");
                 goto FINISHED;
             }
+        default:
+            return;
         }
-        return;
     case 5:
         if (currentChar == '~') {
             switch (prevChar) {
@@ -263,8 +250,9 @@ void process_escape_sequence(char currentChar) {
                 set_key_name("F12");
                 goto FINISHED;
             }
+        default:
+            return;
         }
-        return;
     case 6:
         switch (currentChar) {
         case KEY_UP:
@@ -366,8 +354,9 @@ void process_escape_sequence(char currentChar) {
                     goto FINISHED;
                 }
             }
+        default:
+            return;
         }
-        return;
     case 7:
         goto FINISHED;
     }
