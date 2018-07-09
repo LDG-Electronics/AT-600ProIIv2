@@ -21,7 +21,6 @@ void shell_commands_init(void) {
     shell_register(shell_test, "test");
 }
 
-
 // Add a command to the command list
 bool shell_register(shell_program_t program, const char *string) {
     unsigned char i;
@@ -34,6 +33,33 @@ bool shell_register(shell_program_t program, const char *string) {
         return true;
     }
     return false;
+}
+
+/* -------------------------------------------------------------------------- */
+// from shell.c
+
+int shell_help(int argc, char **argv) {
+    shell_print_commands();
+
+    return SHELL_RET_SUCCESS;
+}
+
+int shell_test(int argc, char **argv) {
+    println("-----------------------------------------------");
+    println("SHELL DEBUG / TEST UTILITY");
+    println("-----------------------------------------------");
+    println("");
+    printf("Received %d arguments for test command\r\n", argc);
+
+    // Print each argument with string lengths
+    for (uint8_t i = 0; i < argc; i++) {
+        // Print formatted text to terminal
+        // shell_printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i])
+        // );
+        println(argv[i]);
+    }
+
+    return SHELL_RET_SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -86,33 +112,6 @@ int shell_set_relays(int argc, char **argv) { return SHELL_RET_SUCCESS; }
 
 int shell_check_relays(int argc, char **argv) {
     print_relays(&currentRelays[system_flags.antenna]);
-
-    return SHELL_RET_SUCCESS;
-}
-
-/* -------------------------------------------------------------------------- */
-// from shell.c
-
-int shell_help(int argc, char **argv) {
-    shell_print_commands();
-
-    return SHELL_RET_SUCCESS;
-}
-
-int shell_test(int argc, char **argv) {
-    println("-----------------------------------------------");
-    println("SHELL DEBUG / TEST UTILITY");
-    println("-----------------------------------------------");
-    println("");
-    printf("Received %d arguments for test command\r\n", argc);
-
-    // Print each argument with string lengths
-    for (uint8_t i = 0; i < argc; i++) {
-        // Print formatted text to terminal
-        // shell_printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i])
-        // );
-        println(argv[i]);
-    }
 
     return SHELL_RET_SUCCESS;
 }
