@@ -5,8 +5,7 @@
 
 #include "shell_config.h"
 
-// Type definition for all the programs invoked by the shell (function pointer)
-typedef int (*shell_program_t) (int, char **);
+
 
 /* ************************************************************************** */
 extern void shell_init(void);

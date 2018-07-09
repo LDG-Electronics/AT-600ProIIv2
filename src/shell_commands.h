@@ -2,6 +2,19 @@
 #define SHELL_COMMANDS_H
 
 /* ************************************************************************** */
+// Shell command stuff
+
+// Type definition for all the programs invoked by the shell (function pointer)
+typedef int (*shell_program_t) (int, char **);
+
+// Shell command standard return values
+#define SHELL_RET_SUCCESS 0
+#define SHELL_RET_FAILURE 1
+
+// Shell command standard return values
+typedef enum { SUCCESS, FAILURE} shell_return_t;
+
+/* ************************************************************************** */
 
 /*  shell command list
 

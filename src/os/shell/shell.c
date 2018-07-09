@@ -19,6 +19,7 @@ void reset_current_line(void) {
 void reset_shell_flags(void) {
     shell.escapeMode = 0;
     shell.rawEchoMode = 0;
+    shell.keyNameDebugMode = 0;
 }
 
 /* ************************************************************************** */
@@ -137,7 +138,7 @@ void shell_update(void) {
     char currentChar = getch();
 
     // return early if we haven't rx'd a character
-    if (currentChar == KEY_NUL)
+    if (currentChar == NULL)
         return;
 
     if (shell.rawEchoMode) {
@@ -173,15 +174,43 @@ void shell_update(void) {
             process_escape_sequence(currentChar);
             return;
 
-        case KEY_ETX:
-            // println("^c");
+        case KEY_CTRL_C:
+            print_key_name("ctrl + c");
+            return;
+
+        case KEY_CTRL_D: // delete one character to the right of the cursor
+            print_key_name("ctrl + d");
+            if (shell.cursor != shell.length) {
+                remove_char_at_cursor();
+            }
+            return;
+
+        case KEY_CTRL_E: // move cursor to the end of the line
+            print_key_name("ctrl + e");
+            move_cursor_to(shell.length);
+            return;
+
+        case KEY_CTRL_K: // delete all characters to the right of the cursor
+            print_key_name("ctrl + k");
+            while (shell.cursor < shell.length) {
+                remove_char_at_cursor();
+            }
+            return;
+
+        case KEY_CTRL_U: // delete all characters to the left of the cursor
+            print_key_name("ctrl + u");
+            while (shell.cursor > 0) {
+                move_cursor(-1);
+                remove_char_at_cursor();
+            }
             return;
 
         case KEY_HT:
-            // println("tab");
+            print_key_name("tab");
             return;
 
-        case KEY_BS:
+        case KEY_BS: // delete one character to the left of the cursor
+            print_key_name("backspace");
             if (shell.cursor != 0) {
                 move_cursor(-1);
                 remove_char_at_cursor();
@@ -189,6 +218,7 @@ void shell_update(void) {
             return;
 
         case KEY_CR:
+            print_key_name("Enter");
             shell.buffer[shell.length] = '\0';
             println("");
             if (shell.length > 0) {

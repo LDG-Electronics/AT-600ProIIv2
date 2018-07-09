@@ -47,6 +47,7 @@ typedef union {
     struct {
         unsigned escapeMode : 1;
         unsigned rawEchoMode : 1;
+        unsigned keyNameDebugMode : 1;
     };
     uint8_t allFlags;
 } shell_flags_t;

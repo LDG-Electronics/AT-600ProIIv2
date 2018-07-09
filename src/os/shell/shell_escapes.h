@@ -3,6 +3,8 @@
 
 /* ************************************************************************** */
 
+extern void print_key_name(const char * string);
+
 extern void process_escape_sequence(char currentChar);
 
 #endif
