@@ -4,17 +4,17 @@
 /* ************************************************************************** */
 
 typedef struct {
-    char buffer[ESCAPE_BUFFER_LENGTH];
+    char buffer[SEQUENCE_BUFFER_LENGTH];
     uint8_t length;
-} escape_t;
+} sequence_t;
 
-escape_t escape;
+sequence_t sequence;
 
-void reset_escape_buffer(void) {
-    for (uint8_t i = 0; i < ESCAPE_BUFFER_LENGTH; i++) {
-        escape.buffer[i] = 0;
+void reset_sequence_buffer(void) {
+    for (uint8_t i = 0; i < SEQUENCE_BUFFER_LENGTH; i++) {
+        sequence.buffer[i] = 0;
     }
-    escape.length = 0;
+    sequence.length = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,39 +72,35 @@ void toggle_sequence_inspection_mode(void) {
 void process_escape_sequence(char currentChar) {
     if (shell.escapeMode == 0) {
         shell.escapeMode = 1;
-        reset_escape_buffer();
+        reset_sequence_buffer();
     }
 
-    char prevChar = escape.buffer[escape.length];
-    escape.length++;
-    escape.buffer[escape.length] = currentChar;
+    char prevChar = sequence.buffer[sequence.length];
+    sequence.length++;
+    sequence.buffer[sequence.length] = currentChar;
 
-    switch (escape.length) {
+    switch (sequence.length) {
     case 1:
         switch (currentChar) {
         case KEY_CTRL_C:
             set_key_name("ctrl + c");
             goto FINISHED;
-
         case KEY_CTRL_D: // delete one character to the right of the cursor
             set_key_name("ctrl + d");
             if (shell.cursor != shell.length) {
                 remove_char_at_cursor();
             }
             goto FINISHED;
-
         case KEY_CTRL_E: // move cursor to the end of the line
             set_key_name("ctrl + e");
             move_cursor_to(shell.length);
             goto FINISHED;
-
         case KEY_CTRL_K: // delete all characters to the right of the cursor
             set_key_name("ctrl + k");
             while (shell.cursor < shell.length) {
                 remove_char_at_cursor();
             }
             goto FINISHED;
-
         case KEY_CTRL_U: // delete all characters to the left of the cursor
             set_key_name("ctrl + u");
             while (shell.cursor > 0) {
@@ -116,7 +112,6 @@ void process_escape_sequence(char currentChar) {
         case KEY_HT:
             set_key_name("tab");
             goto FINISHED;
-
         case KEY_BS: // delete one character to the left of the cursor
             set_key_name("backspace");
             if (shell.cursor != 0) {
@@ -124,9 +119,8 @@ void process_escape_sequence(char currentChar) {
                 remove_char_at_cursor();
             }
             goto FINISHED;
-
         case KEY_CR:
-            set_key_name("Enter");
+            set_key_name("enter");
             if (!shell.sequenceInspectionMode) {
                 shell.buffer[shell.length] = '\0';
                 println("");
@@ -137,6 +131,10 @@ void process_escape_sequence(char currentChar) {
                 }
                 print(SHELL_PROMPT_STRING);
             }
+            goto FINISHED;
+
+        case KEY_CTRL_CR:
+            set_key_name("ctrl + enter");
             goto FINISHED;
         default:
             return;
@@ -256,7 +254,7 @@ void process_escape_sequence(char currentChar) {
     case 6:
         switch (currentChar) {
         case KEY_UP:
-            switch (escape.buffer[5]) {
+            switch (sequence.buffer[5]) {
             case MOD_SHIFT:
                 set_key_name("shift + up");
                 goto FINISHED;
@@ -268,7 +266,7 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             }
         case KEY_DOWN:
-            switch (escape.buffer[5]) {
+            switch (sequence.buffer[5]) {
             case MOD_SHIFT:
                 set_key_name("shift + down");
                 goto FINISHED;
@@ -280,7 +278,7 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             }
         case KEY_RIGHT:
-            switch (escape.buffer[5]) {
+            switch (sequence.buffer[5]) {
             case MOD_SHIFT:
                 set_key_name("shift + right");
                 goto FINISHED;
@@ -289,10 +287,14 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             case MOD_CTRL:
                 set_key_name("ctrl + right");
+                do {
+                    move_cursor(1);
+                } while (shell.buffer[shell.cursor] != ' ' &&
+                         shell.cursor < shell.length);
                 goto FINISHED;
             }
         case KEY_LEFT:
-            switch (escape.buffer[5]) {
+            switch (sequence.buffer[5]) {
             case MOD_SHIFT:
                 set_key_name("shift + left");
                 goto FINISHED;
@@ -301,10 +303,13 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             case MOD_CTRL:
                 set_key_name("ctrl + left");
+                do {
+                    move_cursor(-1);
+                } while (shell.buffer[shell.cursor] != ' ' && shell.cursor > 0);
                 goto FINISHED;
             }
         case KEY_HOME:
-            switch (escape.buffer[5]) {
+            switch (sequence.buffer[5]) {
             case MOD_SHIFT:
                 set_key_name("shift + home");
                 goto FINISHED;
@@ -316,7 +321,7 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             }
         case KEY_END:
-            switch (escape.buffer[5]) {
+            switch (sequence.buffer[5]) {
             case MOD_SHIFT:
                 set_key_name("shift + end");
                 goto FINISHED;
@@ -328,9 +333,9 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             }
         case '~':
-            switch (escape.buffer[3]) {
+            switch (sequence.buffer[3]) {
             case KEY_DEL:
-                switch (escape.buffer[5]) {
+                switch (sequence.buffer[5]) {
                 case MOD_SHIFT:
                     set_key_name("shift + delete");
                     goto FINISHED;
@@ -342,7 +347,7 @@ void process_escape_sequence(char currentChar) {
                     goto FINISHED;
                 }
             case KEY_INS:
-                switch (escape.buffer[5]) {
+                switch (sequence.buffer[5]) {
                 case MOD_SHIFT:
                     set_key_name("shift + insert");
                     goto FINISHED;
@@ -366,12 +371,12 @@ FINISHED:
     // escape sequence codes
     if (shell.sequenceInspectionMode) {
         print_key_name();
-        printf(" length: %d\r\n", escape.length);
+        printf(" length: %d\r\n", sequence.length);
         println("");
     }
 
     // If we reach this spot, then we've fully processed the current
     // escape sequence, and we can exit escape mode.
-    reset_escape_buffer();
+    reset_sequence_buffer();
     shell.escapeMode = 0;
 }

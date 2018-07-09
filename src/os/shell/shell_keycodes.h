@@ -12,21 +12,12 @@
 #define KEY_CTRL_U 21
 #define KEY_CTRL_Y 25
 #define KEY_CTRL_Z 26
+#define KEY_CTRL_CR 10
 
-// alt + some key
-#define KEY_ALT_A 97
-#define KEY_ALT_C 99
-#define KEY_ALT_D 100
-#define KEY_ALT_E 101
-#define KEY_ALT_K 107
-#define KEY_ALT_U 117
-#define KEY_ALT_Y 121
-#define KEY_ALT_Z 122
-
-#define KEY_BS 8 // backspace
-#define KEY_HT 9 // tab
-#define KEY_LF 10   // Line Feed
-#define KEY_CR 13   // Carriage Return
+#define KEY_BS 8  // backspace
+#define KEY_HT 9  // tab
+#define KEY_LF 10 // Line Feed
+#define KEY_CR 13 // Carriage Return
 
 #define KEY_TLD 126 // ~
 #define KEY_BRKT 91

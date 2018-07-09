@@ -25,7 +25,7 @@
 // Escape Sequence Processing options
 
 // Configures the length of the buffer used to process escape sequences
-#define ESCAPE_BUFFER_LENGTH 10
+#define SEQUENCE_BUFFER_LENGTH 10
 
 /* -------------------------------------------------------------------------- */
 // Command processing options
