@@ -2,90 +2,114 @@
 #include "shell_keycodes.h"
 
 /* ************************************************************************** */
-/*  shell command list
 
-    This data structure is the central registry for shell commands.
+/*  line_t
 
-    Individual commands should be defined in shell_commands.c and registered in
-    shell_commands_init().
-
-    The function signature of a shell command must be:
-    int (*shell_program_t) (int, char **)
-
-    shell_command_t contains a function pointer to the shell command body, plus
-    a pointer to string that represents the command that needs to be typed.
-
-    command_list_t contains an array of shell_command_t objects, and
-    numOfRegisteredCommands, which
+    A shell line contains a char buffer that is SHELL_MAX_LENGTH long, and two
+    variables to keep track of the current length of the buffer and the current
+    location of the cursor.
 */
-typedef struct {
-    shell_program_t callback;
-    const char *command;
-} shell_command_t;
-
-typedef struct commands {
-    shell_command_t list[MAXIMUM_NUM_OF_SHELL_COMMANDS];
-    uint8_t numOfRegisteredCommands;
-} command_list_t;
-
-static command_list_t commands;
-
-void init_shell_commands(void) {
-    for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
-        commands.list[i].callback = NULL;
-        commands.list[i].command = NULL;
-    }
-    commands.numOfRegisteredCommands = 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
 typedef struct {
     char buffer[SHELL_MAX_LENGTH];
     uint8_t length;
     uint8_t cursorLocation;
-    unsigned escapeMode : 1;
-    unsigned rawEchoMode : 1;
+} line_t;
+
+/* -------------------------------------------------------------------------- */
+
+/*  shell_flags_t stores flags to keep track of various shell modes
+
+    escapeMope
+    This mode is used to process escape sequences. escapeMode is entered the
+    shell receives an escape character(KEY_ESC). Sequences commonly contains
+    printable ascii characters, so we make sure not to process printable
+    characters while in escapeMode. escapeMode is exited after an escape
+    sequence is successfully processed.
+
+    rawEchoMode
+    This is a debug mode used to diagnose escape sequences
+*/
+typedef union {
+    struct {
+        unsigned escapeMode : 1;
+        unsigned rawEchoMode : 1;
+    };
+    uint8_t allFlags;
+} shell_flags_t;
+
+/* -------------------------------------------------------------------------- */
+
+/*  shell_t current state of the shell
+
+*/
+typedef struct {
+    line_t; // <- NOT PORTABLE - anonymous member struct via typedef
+    line_t history[SHELL_HISTORY_LENGTH];
+    shell_flags_t; // <- NOT PORTABLE - anonymous member struct via typedef
 } shell_t;
 
 shell_t shell;
 
-void reset_shell_buffer(void) {
+/* ************************************************************************** */
+
+// reset a line in the shell history
+void reset_history_line(uint8_t line) {
     for (uint8_t i = 0; i < SHELL_MAX_LENGTH; i++) {
-        shell.buffer[i] = 0;
+        shell.history[line].buffer[i] = 0;
     }
+    shell.history[line].length = 0;
+    shell.history[line].cursorLocation = 0;
+}
+
+// 
+void copy_current_line_to_history(uint8_t line) {
+    memcpy(&shell.history[line].buffer[0], &shell.buffer[0], sizeof(line_t));
+
+    // shell.history[line].buffer[i] = shell.buffer[i];
+    shell.history[line].length = shell.length;
+    shell.history[line].cursorLocation = shell.cursorLocation;
+}
+
+// 
+void copy_current_line_from_history(uint8_t line) {
+    memcpy(&shell.buffer[0], &shell.history[line].buffer[0], sizeof(line_t));
+
+    // shell.buffer[i] = shell.history[line].buffer[i];
+    shell.length = shell.history[line].length;
+    shell.cursorLocation = shell.history[line].cursorLocation;
+}
+
+// reset shell.buffer to 0
+void reset_current_line(void) {
+    memset(&shell.buffer[0], NULL, SHELL_MAX_LENGTH);
+
     shell.length = 0;
     shell.cursorLocation = 0;
 }
 
-void init_shell_data(void) {
-    reset_shell_buffer();
+// reset all shell state flags to default values
+void reset_shell_flags(void) {
     shell.escapeMode = 0;
     shell.rawEchoMode = 0;
 }
 
 /* ************************************************************************** */
 
+// setup the whole shell subsystem
 void shell_init(void) {
-    init_shell_commands();
-    init_shell_data();
+    // --------------------------------------------------
+    // initialize shell
+    reset_current_line();
+    for (uint8_t i = 0; i < SHELL_HISTORY_LENGTH; i++) {
+        reset_history_line(i);
+    }
 
+    reset_shell_flags();
+
+    // --------------------------------------------------
     // println(SHELL_VERSION_STRING);
     println("");
     print(SHELL_PROMPT_STRING);
-}
-
-bool shell_register(shell_program_t program, const char *string) {
-    unsigned char i;
-
-    for (i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
-        if (commands.list[i].callback != 0 || commands.list[i].command != 0)
-            continue;
-        commands.list[i].callback = program;
-        commands.list[i].command = string;
-        return true;
-    }
-    return false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -333,6 +357,7 @@ void process_escape_sequence(char currentChar) {
     case 0:
     case 1:
     case 2:
+        // fallthrough
         return;
     case 3:
         switch (currentChar) {
@@ -529,7 +554,7 @@ void shell_update(void) {
             if (shell.length > 0) {
                 process_shell_command();
 
-                reset_shell_buffer();
+                reset_current_line();
             }
             print(SHELL_PROMPT_STRING);
             return;

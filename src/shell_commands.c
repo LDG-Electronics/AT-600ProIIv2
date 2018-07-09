@@ -2,6 +2,8 @@
 
 /* ************************************************************************** */
 
+command_list_t commands;
+
 void shell_commands_init(void) {
 
     // from RF_sensor.c
@@ -17,6 +19,21 @@ void shell_commands_init(void) {
     // from shell.c
     shell_register(shell_help, "help");
     shell_register(shell_test, "test");
+}
+
+
+// Add a command to the command list
+bool shell_register(shell_program_t program, const char *string) {
+    unsigned char i;
+
+    for (i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
+        if (commands.list[i].callback != 0 || commands.list[i].command != 0)
+            continue;
+        commands.list[i].callback = program;
+        commands.list[i].command = string;
+        return true;
+    }
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */
