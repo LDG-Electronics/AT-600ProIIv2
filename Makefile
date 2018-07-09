@@ -84,7 +84,7 @@ CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
 # Puttin' stuff together
 
 # Get a space separated string of .c and .h files from the SRC_DIR, including subdirs
-SRC_FILES := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c)
+SRC_FILES := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/**/**/*.c)
 
 # ---------------------------------------------------------------------------- #
 # Rules
