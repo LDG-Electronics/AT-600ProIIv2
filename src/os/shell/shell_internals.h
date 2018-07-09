@@ -3,6 +3,7 @@
 
 /* ************************************************************************** */
 
+#include "shell_escapes.h"
 #include "shell_history.h"
 #include "shell_keycodes.h"
 #include "shell_cursor.h"
