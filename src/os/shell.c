@@ -1,62 +1,9 @@
 #include "../includes.h"
-#include "shell_keycodes.h"
+#include "shell_internals.h"
 
 /* ************************************************************************** */
 
-/*  line_t
-
-    A shell line contains a char buffer that is SHELL_MAX_LENGTH long, and two
-    variables to keep track of the current length of the buffer and the current
-    location of the cursor.
-*/
-typedef struct {
-    char buffer[SHELL_MAX_LENGTH];
-    uint8_t length;
-    uint8_t cursor;
-} line_t;
-
-// alternate line_t definition with an anonymous array
-typedef struct {
-    char[SHELL_MAX_LENGTH];
-    uint8_t length;
-    uint8_t cursor;
-} alt_line_t;
-
-/* -------------------------------------------------------------------------- */
-
-/*  shell_flags_t stores flags to keep track of various shell modes
-
-    escapeMope
-    This mode is used to process escape sequences. escapeMode is entered the
-    shell receives an escape character(KEY_ESC). Sequences commonly contains
-    printable ascii characters, so we make sure not to process printable
-    characters while in escapeMode. escapeMode is exited after an escape
-    sequence is successfully processed.
-
-    rawEchoMode
-    This is a debug mode used to diagnose escape sequences
-*/
-typedef union {
-    struct {
-        unsigned escapeMode : 1;
-        unsigned rawEchoMode : 1;
-    };
-    uint8_t allFlags;
-} shell_flags_t;
-
-/* -------------------------------------------------------------------------- */
-
-/*  shell_t current state of the shell
-
-*/
-typedef struct {
-    line_t; // <- NOT PORTABLE - anonymous member struct via typedef
-    line_t history[SHELL_HISTORY_LENGTH];
-    shell_flags_t; // <- NOT PORTABLE - anonymous member struct via typedef
-} shell_t;
-
 shell_t shell;
-// line_t history[SHELL_HISTORY_LENGTH];
 
 /* ************************************************************************** */
 
@@ -66,32 +13,6 @@ void reset_current_line(void) {
 
     shell.length = 0;
     shell.cursor = 0;
-}
-
-// reset a line in the shell history
-void reset_history_line(uint8_t line) {
-    memset(&shell.history[line].buffer[0], NULL, SHELL_MAX_LENGTH);
-
-    shell.history[line].length = 0;
-    shell.history[line].cursor = 0;
-}
-
-// Store the current line in the history buffer
-void copy_current_line_to_history(uint8_t line) {
-    memcpy(&shell.history[line].buffer[0], &shell.buffer[0], sizeof(line_t));
-
-    // shell.history[line].buffer[i] = shell.buffer[i];
-    shell.history[line].length = shell.length;
-    shell.history[line].cursor = shell.cursor;
-}
-
-// Copy a line from the history buffer to the current line
-void copy_current_line_from_history(uint8_t line) {
-    memcpy(&shell.buffer[0], &shell.history[line].buffer[0], sizeof(line_t));
-
-    // shell.buffer[i] = shell.history[line].buffer[i];
-    shell.length = shell.history[line].length;
-    shell.cursor = shell.history[line].cursor;
 }
 
 // reset all shell state flags to default values
@@ -188,129 +109,7 @@ void process_shell_command(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-// Cursor movement
 
-void move_cursor(int8_t distance) {
-    // move right
-    if (distance > 0) {
-        if (shell.cursor < shell.length) {
-            shell.cursor++;
-            printf("\033[%dC", distance);
-        }
-    }
-
-    // move left
-    if (distance < 0) {
-        if (shell.cursor > 0) {
-            shell.cursor--;
-            printf("\033[%dD", -(distance));
-        }
-    }
-}
-
-void move_cursor_to(uint8_t position) {
-    // cursor is already where it needs to end up
-    if (shell.cursor == position) {
-        return;
-    }
-
-    // make sure we don't move past the end of the line
-    if (position > shell.length) {
-        position = shell.length;
-    }
-
-    // need to move right
-    while (shell.cursor < position) {
-        move_cursor(1);
-    }
-
-    // need to move right
-    while (shell.cursor > position) {
-        move_cursor(-1);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-void insert_char_at_cursor(char currentChar) {
-    if (shell.length >= SHELL_MAX_LENGTH) {
-        return;
-    }
-
-    // process is easier if cursor is already at end of line
-    if (shell.cursor == shell.length) {
-        // add the new char
-        putch(currentChar);
-        shell.buffer[shell.cursor] = currentChar;
-
-        shell.length++;
-        shell.cursor++;
-
-        // and we're done
-        return;
-    }
-
-    // make space for the new char
-    uint8_t i = shell.length;
-    while (i > shell.cursor) {
-        shell.buffer[i + 1] = shell.buffer[i];
-        i--;
-    }
-    shell.length++;
-
-    // add the new char
-    shell.buffer[shell.cursor] = currentChar;
-
-    // save cursor location
-    print("\0337");
-
-    // reprint the rest of the line
-    i = shell.cursor;
-    while (i < shell.length) {
-        putchar(shell.buffer[i]);
-        i++;
-    }
-
-    // restore cursor location
-    print("\0338");
-}
-
-void remove_char_at_cursor(void) {
-    if (shell.length == 0) {
-        return;
-    }
-
-    if (shell.cursor == shell.length) {
-        return;
-    }
-
-    uint8_t i = shell.cursor;
-
-    while (shell.buffer[i] != NULL) {
-        shell.buffer[i] = shell.buffer[i + 1];
-        i++;
-    }
-    shell.buffer[i - 1] = NULL;
-    shell.buffer[i] = NULL;
-    shell.buffer[i + 1] = NULL;
-    shell.length--;
-
-    // clear from cursor to end of line
-    print("\033[0K");
-
-    // save cursor location
-    print("\0337");
-
-    // reprint the rest of the line
-    i = shell.cursor;
-    while (shell.buffer[i] != NULL) {
-        putchar(shell.buffer[i]);
-        i++;
-    }
-
-    // restore cursor location
-    print("\0338");
-}
 
 /* -------------------------------------------------------------------------- */
 
