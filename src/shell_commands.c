@@ -51,12 +51,9 @@ int shell_test(int argc, char **argv) {
     println("");
     printf("Received %d arguments for test command\r\n", argc);
 
-    // Print each argument with string lengths
+    // Prints: <argNum> - "<string>" [len:<length>]
     for (uint8_t i = 0; i < argc; i++) {
-        // Print formatted text to terminal
-        // shell_printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i])
-        // );
-        println(argv[i]);
+        printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i]));
     }
 
     return SHELL_RET_SUCCESS;

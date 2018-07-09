@@ -68,6 +68,29 @@ void process_shell_command(void) {
 
     argv_list[argc] = &shell.buffer[0];
 
+    /* //TODO: this wrongly parses multiple spaces in a command
+        input "test 1 2 3"
+        Received 4 arguments for test command
+        0 - "test" [len:4]
+        1 - "1" [len:1]
+        2 - "2" [len:1]
+        3 - "3" [len:1]
+
+        input "test 1  2"
+        Received 4 arguments for test command
+        0 - "test" [len:4]
+        1 - "1" [len:1]
+        2 - "" [len:0] //* <- not correct
+        3 - "2" [len:1]
+
+        input: "test   "
+        Received 4 arguments for test command
+        0 - "test" [len:4]
+        1 - "" [len:0] //* <- not correct
+        2 - "" [len:0] //* <- not correct
+        3 - "" [len:0] //* <- not correct
+    */
+
     for (uint8_t i = 0; i < length && argc < CONFIG_SHELL_MAX_COMMAND_ARGS;
          i++) {
         switch (shell.buffer[i]) {
