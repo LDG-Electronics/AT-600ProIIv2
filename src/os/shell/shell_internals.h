@@ -4,10 +4,10 @@
 /* ************************************************************************** */
 
 #include "shell_command_processing.h"
-#include "shell_escapes.h"
+#include "shell_cursor.h"
 #include "shell_history.h"
 #include "shell_keycodes.h"
-#include "shell_cursor.h"
+#include "shell_sequences.h"
 
 /* ************************************************************************** */
 

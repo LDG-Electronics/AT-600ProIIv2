@@ -1,5 +1,5 @@
-#ifndef _SHELL_ESCAPES_H_
-#define _SHELL_ESCAPES_H_
+#ifndef _SHELL_SEQUENCES_H_
+#define _SHELL_SEQUENCES_H_
 
 /* ************************************************************************** */
 
