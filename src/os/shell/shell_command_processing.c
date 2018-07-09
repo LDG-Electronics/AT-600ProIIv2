@@ -25,10 +25,11 @@ void process_shell_command(void) {
     argv_list[argc] = &shell.buffer[0];
 
     char currentChar = 0;
-    char prevChar = 0;
+    char nextChar = 0;
 
     for (uint8_t i = 0; i < length; i++) {
         currentChar = shell.buffer[i];
+        nextChar = shell.buffer[i + 1];
 
         if (currentChar == '\0') {
             i = length;
@@ -36,11 +37,14 @@ void process_shell_command(void) {
         }
         if (currentChar == ' ') {
             shell.buffer[i] = '\0';
-            argc++;
-            argv_list[argc] = &shell.buffer[i + 1];
+            if (nextChar != ' ') {
+                argc++;
+                argv_list[argc] = &shell.buffer[i + 1];
+            }
         }
-
-        prevChar = shell.buffer[i];
+        if (argc == CONFIG_SHELL_MAX_COMMAND_ARGS) {
+            break;
+        }
     }
 
     int8_t command = find_matching_command(argv_list[0]);
