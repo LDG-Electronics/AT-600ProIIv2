@@ -12,8 +12,15 @@
 typedef struct {
     char buffer[SHELL_MAX_LENGTH];
     uint8_t length;
-    uint8_t cursorLocation;
+    uint8_t cursor;
 } line_t;
+
+// alternate line_t definition with an anonymous array
+typedef struct {
+    char[SHELL_MAX_LENGTH];
+    uint8_t length;
+    uint8_t cursor;
+} alt_line_t;
 
 /* -------------------------------------------------------------------------- */
 
@@ -49,42 +56,42 @@ typedef struct {
 } shell_t;
 
 shell_t shell;
+// line_t history[SHELL_HISTORY_LENGTH];
 
 /* ************************************************************************** */
-
-// reset a line in the shell history
-void reset_history_line(uint8_t line) {
-    for (uint8_t i = 0; i < SHELL_MAX_LENGTH; i++) {
-        shell.history[line].buffer[i] = 0;
-    }
-    shell.history[line].length = 0;
-    shell.history[line].cursorLocation = 0;
-}
-
-// 
-void copy_current_line_to_history(uint8_t line) {
-    memcpy(&shell.history[line].buffer[0], &shell.buffer[0], sizeof(line_t));
-
-    // shell.history[line].buffer[i] = shell.buffer[i];
-    shell.history[line].length = shell.length;
-    shell.history[line].cursorLocation = shell.cursorLocation;
-}
-
-// 
-void copy_current_line_from_history(uint8_t line) {
-    memcpy(&shell.buffer[0], &shell.history[line].buffer[0], sizeof(line_t));
-
-    // shell.buffer[i] = shell.history[line].buffer[i];
-    shell.length = shell.history[line].length;
-    shell.cursorLocation = shell.history[line].cursorLocation;
-}
 
 // reset shell.buffer to 0
 void reset_current_line(void) {
     memset(&shell.buffer[0], NULL, SHELL_MAX_LENGTH);
 
     shell.length = 0;
-    shell.cursorLocation = 0;
+    shell.cursor = 0;
+}
+
+// reset a line in the shell history
+void reset_history_line(uint8_t line) {
+    memset(&shell.history[line].buffer[0], NULL, SHELL_MAX_LENGTH);
+
+    shell.history[line].length = 0;
+    shell.history[line].cursor = 0;
+}
+
+// Store the current line in the history buffer
+void copy_current_line_to_history(uint8_t line) {
+    memcpy(&shell.history[line].buffer[0], &shell.buffer[0], sizeof(line_t));
+
+    // shell.history[line].buffer[i] = shell.buffer[i];
+    shell.history[line].length = shell.length;
+    shell.history[line].cursor = shell.cursor;
+}
+
+// Copy a line from the history buffer to the current line
+void copy_current_line_from_history(uint8_t line) {
+    memcpy(&shell.buffer[0], &shell.history[line].buffer[0], sizeof(line_t));
+
+    // shell.buffer[i] = shell.history[line].buffer[i];
+    shell.length = shell.history[line].length;
+    shell.cursor = shell.history[line].cursor;
 }
 
 // reset all shell state flags to default values
@@ -186,16 +193,16 @@ void process_shell_command(void) {
 void move_cursor(int8_t distance) {
     // move right
     if (distance > 0) {
-        if (shell.cursorLocation < shell.length) {
-            shell.cursorLocation++;
+        if (shell.cursor < shell.length) {
+            shell.cursor++;
             printf("\033[%dC", distance);
         }
     }
 
     // move left
     if (distance < 0) {
-        if (shell.cursorLocation > 0) {
-            shell.cursorLocation--;
+        if (shell.cursor > 0) {
+            shell.cursor--;
             printf("\033[%dD", -(distance));
         }
     }
@@ -203,7 +210,7 @@ void move_cursor(int8_t distance) {
 
 void move_cursor_to(uint8_t position) {
     // cursor is already where it needs to end up
-    if (shell.cursorLocation == position) {
+    if (shell.cursor == position) {
         return;
     }
 
@@ -213,12 +220,12 @@ void move_cursor_to(uint8_t position) {
     }
 
     // need to move right
-    while (shell.cursorLocation < position) {
+    while (shell.cursor < position) {
         move_cursor(1);
     }
 
     // need to move right
-    while (shell.cursorLocation > position) {
+    while (shell.cursor > position) {
         move_cursor(-1);
     }
 }
@@ -231,13 +238,13 @@ void insert_char_at_cursor(char currentChar) {
     }
 
     // process is easier if cursor is already at end of line
-    if (shell.cursorLocation == shell.length) {
+    if (shell.cursor == shell.length) {
         // add the new char
         putch(currentChar);
-        shell.buffer[shell.cursorLocation] = currentChar;
+        shell.buffer[shell.cursor] = currentChar;
 
         shell.length++;
-        shell.cursorLocation++;
+        shell.cursor++;
 
         // and we're done
         return;
@@ -245,20 +252,20 @@ void insert_char_at_cursor(char currentChar) {
 
     // make space for the new char
     uint8_t i = shell.length;
-    while (i > shell.cursorLocation) {
+    while (i > shell.cursor) {
         shell.buffer[i + 1] = shell.buffer[i];
         i--;
     }
     shell.length++;
 
     // add the new char
-    shell.buffer[shell.cursorLocation] = currentChar;
+    shell.buffer[shell.cursor] = currentChar;
 
     // save cursor location
     print("\0337");
 
     // reprint the rest of the line
-    i = shell.cursorLocation;
+    i = shell.cursor;
     while (i < shell.length) {
         putchar(shell.buffer[i]);
         i++;
@@ -273,11 +280,11 @@ void remove_char_at_cursor(void) {
         return;
     }
 
-    if (shell.cursorLocation == shell.length) {
+    if (shell.cursor == shell.length) {
         return;
     }
 
-    uint8_t i = shell.cursorLocation;
+    uint8_t i = shell.cursor;
 
     while (shell.buffer[i] != NULL) {
         shell.buffer[i] = shell.buffer[i + 1];
@@ -295,7 +302,7 @@ void remove_char_at_cursor(void) {
     print("\0337");
 
     // reprint the rest of the line
-    i = shell.cursorLocation;
+    i = shell.cursor;
     while (shell.buffer[i] != NULL) {
         putchar(shell.buffer[i]);
         i++;
@@ -409,7 +416,7 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             case KEY_DEL:
                 // println("del");
-                if (shell.cursorLocation != shell.length) {
+                if (shell.cursor != shell.length) {
                     remove_char_at_cursor();
                 }
                 goto FINISHED;
@@ -542,7 +549,7 @@ void shell_update(void) {
             return;
 
         case KEY_BS:
-            if (shell.cursorLocation != 0) {
+            if (shell.cursor != 0) {
                 move_cursor(-1);
                 remove_char_at_cursor();
             }
