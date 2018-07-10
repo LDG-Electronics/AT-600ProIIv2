@@ -149,12 +149,12 @@ void process_escape_sequence(char currentChar) {
             }
             goto FINISHED;
         default:
-            if (isalnum(currentChar)) {
-                char name[] = "alt + x";
-                name[6] = currentChar;
-                set_key_name(&name);
-                goto FINISHED;
-            }
+            // if (isalnum(currentChar)) {
+            //     char name[] = "alt + x";
+            //     name[6] = currentChar;
+            //     set_key_name(&name);
+            //     goto FINISHED;
+            // }
             return;
         }
     case 3:
@@ -372,7 +372,6 @@ FINISHED:
     if (shell.sequenceInspectionMode) {
         print_key_name();
         printf(" length: %d\r\n", sequence.length);
-        println("");
     }
 
     // If we reach this spot, then we've fully processed the current
