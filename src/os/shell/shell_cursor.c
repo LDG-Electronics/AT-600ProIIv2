@@ -4,7 +4,7 @@
 /* ************************************************************************** */
 
 // Cursor movement
-
+// TODO: refix this bug
 void move_cursor(int8_t distance) {
     // move right
     if (distance > 0) {
@@ -65,13 +65,14 @@ void insert_char_at_cursor(char currentChar) {
         return;
     }
 
+    shell.length++;
+
     // make space for the new char
     uint8_t i = shell.length;
-    while (i > shell.cursor) {
+    while (i >= shell.cursor) {
         shell.buffer[i + 1] = shell.buffer[i];
         i--;
     }
-    shell.length++;
 
     // add the new char
     shell.buffer[shell.cursor] = currentChar;
@@ -88,6 +89,8 @@ void insert_char_at_cursor(char currentChar) {
 
     // restore cursor location
     print("\0338");
+
+    move_cursor(1);
 }
 
 void remove_char_at_cursor(void) {
