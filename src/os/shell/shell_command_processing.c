@@ -3,7 +3,7 @@
 
 /* ************************************************************************** */
 
-int8_t find_matching_command(char *string) {
+static int8_t find_matching_command(char *string) {
     for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
         if (commands.list[i].callback == 0)
             continue;
@@ -20,12 +20,19 @@ void process_shell_command(void) {
     int argc = 0;
     int length = strlen(shell.buffer) + 1;
 
+    // Contains the tokens that are the shell command and its parameters as
+    // individual NULL terminated strings.
     char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
 
     argv_list[argc] = &shell.buffer[0];
 
     char currentChar = 0;
     char nextChar = 0;
+
+    // TODO trailing spaces are still tokenized
+
+    // test\01\02\03\04\0
+    // ^     ^  ^  ^  ^   
 
     for (uint8_t i = 0; i < length; i++) {
         currentChar = shell.buffer[i];
