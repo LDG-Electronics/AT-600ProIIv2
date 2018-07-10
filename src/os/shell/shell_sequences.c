@@ -11,9 +11,7 @@ typedef struct {
 sequence_t sequence;
 
 void reset_sequence_buffer(void) {
-    for (uint8_t i = 0; i < SEQUENCE_BUFFER_LENGTH; i++) {
-        sequence.buffer[i] = 0;
-    }
+    memset(&sequence.buffer[0], NULL, SEQUENCE_BUFFER_LENGTH);
     sequence.length = 0;
 }
 
@@ -108,7 +106,6 @@ void process_escape_sequence(char currentChar) {
                 remove_char_at_cursor();
             }
             goto FINISHED;
-
         case KEY_HT:
             set_key_name("tab");
             goto FINISHED;
@@ -132,7 +129,6 @@ void process_escape_sequence(char currentChar) {
                 print(SHELL_PROMPT_STRING);
             }
             goto FINISHED;
-
         case KEY_CTRL_CR:
             set_key_name("ctrl + enter");
             goto FINISHED;
@@ -149,12 +145,6 @@ void process_escape_sequence(char currentChar) {
             }
             goto FINISHED;
         default:
-            // if (isalnum(currentChar)) {
-            //     char name[] = "alt + x";
-            //     name[6] = currentChar;
-            //     set_key_name(&name);
-            //     goto FINISHED;
-            // }
             return;
         }
     case 3:
