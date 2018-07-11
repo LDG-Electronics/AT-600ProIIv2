@@ -3,12 +3,15 @@
 
 /* ************************************************************************** */
 
-// extern line_t history[SHELL_HISTORY_LENGTH];
+extern void shell_history_init(void);
 
-/* ************************************************************************** */
+extern void shell_history_wipe(void);
 
-extern void reset_history_line(uint8_t line);
-extern void copy_current_line_to_history(uint8_t line);
-extern void copy_current_line_from_history(uint8_t line);
+/* -------------------------------------------------------------------------- */
+
+// push the current line onto the history stack
+extern void shell_history_push(void);
+extern void shell_history_show_older(void);
+extern void shell_history_show_newer(void);
 
 #endif

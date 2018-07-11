@@ -9,7 +9,7 @@ shell_t shell;
 
 // reset shell.buffer to 0
 void reset_current_line(void) {
-    memset(&shell.buffer[0], NULL, SHELL_MAX_LENGTH);
+    memset(&shell.buffer, NULL, sizeof(line_t));
 
     shell.length = 0;
     shell.cursor = 0;
@@ -28,11 +28,11 @@ void shell_init(void) {
     // --------------------------------------------------
     // initialize shell
     reset_current_line();
-    for (uint8_t i = 0; i < SHELL_HISTORY_LENGTH; i++) {
-        reset_history_line(i);
-    }
-
     reset_shell_flags();
+
+    // --------------------------------------------------
+    // shell history
+    shell_history_init();
 
     // --------------------------------------------------
     // println(SHELL_VERSION_STRING);

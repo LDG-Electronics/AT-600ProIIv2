@@ -59,7 +59,6 @@ typedef union {
 */
 typedef struct {
     line_t; // <- NOT PORTABLE - anonymous member struct via typedef
-    line_t history[SHELL_HISTORY_LENGTH];
     shell_flags_t; // <- NOT PORTABLE - anonymous member struct via typedef
 } shell_t;
 

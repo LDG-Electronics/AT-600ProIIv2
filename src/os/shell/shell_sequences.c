@@ -122,6 +122,8 @@ void process_escape_sequence(char currentChar) {
                 shell.buffer[shell.length] = '\0';
                 println("");
                 if (shell.length > 0) {
+                    // Push the current line to history before it gets mangled
+                    shell_history_push();
                     process_shell_command();
 
                     reset_current_line();
@@ -151,9 +153,11 @@ void process_escape_sequence(char currentChar) {
         switch (currentChar) {
         case KEY_UP:
             set_key_name("up");
+            shell_history_show_older();
             goto FINISHED;
         case KEY_DOWN:
             set_key_name("down");
+            shell_history_show_newer();
             goto FINISHED;
         case KEY_RIGHT:
             set_key_name("right");
@@ -214,15 +218,18 @@ void process_escape_sequence(char currentChar) {
             switch (prevChar) {
             case KEY_F5:
                 set_key_name("F5");
+                redraw_current_line();
                 goto FINISHED;
             case KEY_F6:
                 set_key_name("F6");
+                print("\033[2K");
                 goto FINISHED;
             case KEY_F7:
                 set_key_name("F7");
                 goto FINISHED;
             case KEY_F8:
                 set_key_name("F8");
+                shell_history_wipe();
                 goto FINISHED;
             case KEY_F9:
                 toggle_sequence_inspection_mode();
