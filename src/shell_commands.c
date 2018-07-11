@@ -4,7 +4,12 @@
 
 command_list_t commands;
 
+/* ************************************************************************** */
+
 void shell_commands_init(void) {
+    // built-in shell commands
+    shell_register(shell_help, "help");
+    shell_register(shell_test, "test");
 
     // from RF_sensor.c
     shell_register(shell_get_RF, "getRF");
@@ -15,10 +20,6 @@ void shell_commands_init(void) {
     // from relays.c
     shell_register(shell_set_relays, "setrelays");
     shell_register(shell_check_relays, "getrelays");
-
-    // from shell.c
-    shell_register(shell_help, "help");
-    shell_register(shell_test, "test");
 }
 
 // Add a command to the command list
@@ -36,7 +37,7 @@ bool shell_register(shell_program_t program, const char *string) {
 }
 
 /* -------------------------------------------------------------------------- */
-// from shell.c
+// built-in shell commands
 
 int shell_help(int argc, char **argv) {
     shell_print_commands();
