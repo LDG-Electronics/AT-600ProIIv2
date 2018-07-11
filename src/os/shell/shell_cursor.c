@@ -47,6 +47,32 @@ void move_cursor_to(uint8_t position) {
 
 /* -------------------------------------------------------------------------- */
 
+#define save_cursor_location() print("\0337")
+#define restore_cursor_location() print("\0338")
+
+void redraw_current_line(void) {
+    // stash current cursor location
+    uint8_t cursor = shell.cursor;
+    save_cursor_location();
+
+    // put cursor at the beginning of the line
+    move_cursor_to(0);
+
+    // clear line left of cursor
+    print("\033[0K");
+
+    // backspace two more spaces and reprint the prompt
+    printf("\033[%dD", 2);
+    print(SHELL_PROMPT_STRING);
+
+    // reprint existing line
+    print(shell.buffer);
+
+    // restore the cursor's original position
+    restore_cursor_location();
+    shell.cursor = cursor;
+}
+
 void insert_char_at_cursor(char currentChar) {
     if (shell.length >= SHELL_MAX_LENGTH) {
         return;
@@ -77,8 +103,7 @@ void insert_char_at_cursor(char currentChar) {
     // add the new char
     shell.buffer[shell.cursor] = currentChar;
 
-    // save cursor location
-    print("\0337");
+    save_cursor_location();
 
     // reprint the rest of the line
     i = shell.cursor;
@@ -87,8 +112,7 @@ void insert_char_at_cursor(char currentChar) {
         i++;
     }
 
-    // restore cursor location
-    print("\0338");
+    restore_cursor_location();
 
     move_cursor(1);
 }
@@ -116,8 +140,7 @@ void remove_char_at_cursor(void) {
     // clear from cursor to end of line
     print("\033[0K");
 
-    // save cursor location
-    print("\0337");
+    save_cursor_location();
 
     // reprint the rest of the line
     i = shell.cursor;
@@ -126,6 +149,5 @@ void remove_char_at_cursor(void) {
         i++;
     }
 
-    // restore cursor location
-    print("\0338");
+    restore_cursor_location();
 }
