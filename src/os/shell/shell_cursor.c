@@ -24,24 +24,20 @@ void move_cursor(int8_t distance) {
 }
 
 void move_cursor_to(uint8_t position) {
-    // cursor is already where it needs to end up
-    if (shell.cursor == position) {
-        return;
-    }
-
     // make sure we don't move past the end of the line
     if (position > shell.length) {
         position = shell.length;
     }
 
-    // need to move right
-    while (shell.cursor < position) {
-        move_cursor(1);
-    }
+    shell.cursor = position;
+    // put cursor at the beginning of the line
+    print("\033[64D");
+    print("\033[2C");
 
-    // need to move right
-    while (shell.cursor > position) {
-        move_cursor(-1);
+    if (position != 0) {
+
+        // move the cursor right to the correct spot
+        printf("\033[%dC", position);
     }
 }
 
@@ -51,26 +47,20 @@ void move_cursor_to(uint8_t position) {
 #define restore_cursor_location() print("\0338")
 
 void redraw_current_line(void) {
-    // stash current cursor location
-    uint8_t cursor = shell.cursor;
-    save_cursor_location();
-
     // put cursor at the beginning of the line
-    move_cursor_to(0);
+    print("\033[64D");
 
     // clear line left of cursor
     print("\033[0K");
 
-    // backspace two more spaces and reprint the prompt
-    printf("\033[%dD", 2);
+    // reprint the prompt
     print(SHELL_PROMPT_STRING);
 
     // reprint existing line
     print(shell.buffer);
 
     // restore the cursor's original position
-    restore_cursor_location();
-    shell.cursor = cursor;
+    move_cursor_to(shell.cursor);
 }
 
 void insert_char_at_cursor(char currentChar) {
