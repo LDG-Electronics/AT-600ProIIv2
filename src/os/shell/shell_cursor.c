@@ -4,23 +4,20 @@
 /* ************************************************************************** */
 
 // Cursor movement
-// TODO: refix this bug
 void move_cursor(int8_t distance) {
-    // move right
-    if (distance > 0) {
-        if (shell.cursor < shell.length) {
-            shell.cursor++;
-            printf("\033[%dC", distance);
-        }
+    int8_t newCursor = shell.cursor + distance;
+
+    // don't move left past beginning of line
+    if (newCursor < 0) {
+        newCursor = 0;
     }
 
-    // move left
-    if (distance < 0) {
-        if (shell.cursor > 0) {
-            shell.cursor--;
-            printf("\033[%dD", -(distance));
-        }
+    // don't move right past end of line
+    if (newCursor > shell.length) {
+        newCursor = shell.length;
     }
+
+    move_cursor_to(newCursor);
 }
 
 void move_cursor_to(uint8_t position) {
@@ -29,16 +26,17 @@ void move_cursor_to(uint8_t position) {
         position = shell.length;
     }
 
-    shell.cursor = position;
     // put cursor at the beginning of the line
     print("\033[64D");
+
+    // move two spaces right to account for the prompt
     print("\033[2C");
 
+    // move the cursor right to the correct spot
     if (position != 0) {
-
-        // move the cursor right to the correct spot
         printf("\033[%dC", position);
     }
+    shell.cursor = position;
 }
 
 /* -------------------------------------------------------------------------- */
