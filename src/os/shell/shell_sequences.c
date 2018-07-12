@@ -217,6 +217,7 @@ void process_escape_sequence(char currentChar) {
         if (currentChar == '~') {
             switch (prevChar) {
             case KEY_F5:
+            case KEY_F5_ALT:
                 set_key_name("F5");
                 redraw_current_line();
                 goto FINISHED;
