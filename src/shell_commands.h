@@ -67,14 +67,14 @@ extern void shell_commands_init(void);
 extern int shell_help(int argc, char **argv);
 extern int shell_arg_test(int argc, char **argv);
 
+// general purpose parameter touching
+extern int shell_get_param(int argc, char **argv);
+extern int shell_set_param(int argc, char **argv);
+
 // from RF_sensor.c
 extern int shell_get_RF(int argc, char **argv);
 
 // from display.c
 extern int shell_show_bargraphs(int argc, char **argv);
-
-// from relays.c
-extern int shell_set_relays(int argc, char **argv);
-extern int shell_check_relays(int argc, char **argv);
 
 #endif

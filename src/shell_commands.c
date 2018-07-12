@@ -24,15 +24,15 @@ void shell_commands_init(void) {
     shell_register(shell_help, "help", NULL);
     shell_register(shell_arg_test, "test", NULL);
 
+    // general purpose parameter touching
+    shell_register(shell_get_param, "get", NULL);
+    shell_register(shell_set_param, "set", NULL);
+
     // from RF_sensor.c
     shell_register(shell_get_RF, "getRF", NULL);
 
     // from display.c
     shell_register(shell_show_bargraphs, "bar", NULL);
-
-    // from relays.c
-    shell_register(shell_set_relays, "setrelays", NULL);
-    shell_register(shell_check_relays, "getrelays", NULL);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,22 +46,26 @@ int shell_help(int argc, char **argv) {
     return SHELL_RET_SUCCESS;
 }
 
+const char argTestUsage[] = "\
+This command has no special arguments.\r\n\
+It is designed to test the TuneOS shell's arg parsing.\r\n\
+\r\n\
+Use it like this:\r\n\
+\"$ test command arg1 arg2 arg3\"\r\n\
+\r\n\
+To get this response:\r\n\
+Received 4 arguments for test command\r\n\
+1 - \"command\" [len:7]\r\n\
+2 - \"arg1\" [len:4]\r\n\
+3 - \"arg2\" [len:4]\r\n\
+4 - \"arg3\" [len:4]\r\n\
+";
+
 int shell_arg_test(int argc, char **argv) {
     println("-----------------------------------------------");
     println("SHELL ARG PARSING TEST UTILITY");
     if (argc == 1) {
-        println("This command has no special arguments.");
-        println("It is designed to test the TuneOS shell's arg parsing.");
-        println("");
-        println("Use it like this:");
-        println("\"$ test command arg1 arg2 arg3\"");
-        println("");
-        println("To get this response:");
-        println("Received 4 arguments for test command");
-        println("1 - \"command\" [len:7]");
-        println("2 - \"arg1\" [len:4]");
-        println("3 - \"arg2\" [len:4]");
-        println("4 - \"arg3\" [len:4]");
+        print(argTestUsage);
     } else {
         printf("Received %d arguments for test command\r\n", argc - 1);
 
@@ -73,6 +77,37 @@ int shell_arg_test(int argc, char **argv) {
     println("-----------------------------------------------");
 
     return SHELL_RET_SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+// parameter commands
+
+const char getParamUsage[] = "\
+This command is used to read the current value of settings from the tuner.\r\n\
+Available parameters are:\r\n\
+*** INSERT PARAMETER LIST HERE ***\r\n\
+";
+
+int shell_get_param(int argc, char **argv) {
+    if (argc == 1) {
+        print(getParamUsage);
+        return;
+    }
+    if (!strcmp(argv[1], "")) {
+    }
+}
+
+const char setParamUsage[] = "\
+This command is used to modify the current value of settings from the tuner.\r\n\
+Available parameters are:\r\n\
+*** INSERT PARAMETER LIST HERE ***\r\n\
+";
+
+int shell_set_param(int argc, char **argv) {
+    if (argc == 1) {
+        print(setParamUsage);
+        return;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -116,15 +151,4 @@ int shell_show_bargraphs(int argc, char **argv) {
         show_power_and_SWR(forwardWatts, swrValue);
     }
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-// from relays.c
-
-int shell_set_relays(int argc, char **argv) { return SHELL_RET_SUCCESS; }
-
-int shell_check_relays(int argc, char **argv) {
-    print_relays(&currentRelays[system_flags.antenna]);
-
-    return SHELL_RET_SUCCESS;
 }
