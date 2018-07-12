@@ -91,17 +91,7 @@ void insert_char_at_cursor(char currentChar) {
     // add the new char
     shell.buffer[shell.cursor] = currentChar;
 
-    save_cursor_location();
-
-    // reprint the rest of the line
-    i = shell.cursor;
-    while (i < shell.length) {
-        putchar(shell.buffer[i]);
-        i++;
-    }
-
-    restore_cursor_location();
-
+    redraw_current_line();
     move_cursor(1);
 }
 
@@ -125,17 +115,5 @@ void remove_char_at_cursor(void) {
     shell.buffer[i + 1] = NULL;
     shell.length--;
 
-    // clear from cursor to end of line
-    print("\033[0K");
-
-    save_cursor_location();
-
-    // reprint the rest of the line
-    i = shell.cursor;
-    while (shell.buffer[i] != NULL) {
-        putchar(shell.buffer[i]);
-        i++;
-    }
-
-    restore_cursor_location();
+    redraw_current_line();
 }
