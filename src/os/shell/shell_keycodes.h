@@ -13,6 +13,7 @@
 #define KEY_CTRL_Y 25
 #define KEY_CTRL_Z 26
 #define KEY_CTRL_CR 10
+#define KEY_CTRL_BS 31
 
 #define KEY_BS 8  // backspace
 #define KEY_HT 9  // tab

@@ -85,9 +85,7 @@ void process_escape_sequence(char currentChar) {
             goto FINISHED;
         case KEY_CTRL_D: // delete one character to the right of the cursor
             set_key_name("ctrl + d");
-            if (shell.cursor != shell.length) {
-                remove_char_at_cursor();
-            }
+            remove_char_at_cursor();
             goto FINISHED;
         case KEY_CTRL_E: // move cursor to the end of the line
             set_key_name("ctrl + e");
@@ -115,6 +113,9 @@ void process_escape_sequence(char currentChar) {
                 move_cursor(-1);
                 remove_char_at_cursor();
             }
+            goto FINISHED;
+        case KEY_CTRL_BS:
+            set_key_name("ctrl + backspace");
             goto FINISHED;
         case KEY_CR:
             set_key_name("enter");
@@ -231,7 +232,7 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             case KEY_F7:
                 set_key_name("F7");
-                toggle_history_inspection_mode(); 
+                toggle_history_inspection_mode();
                 goto FINISHED;
             case KEY_F8:
                 set_key_name("F8");
