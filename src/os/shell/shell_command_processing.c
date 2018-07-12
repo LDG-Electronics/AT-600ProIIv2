@@ -18,40 +18,14 @@ static int8_t find_matching_command(char *string) {
 
 void process_shell_command(void) {
     int argc = 0;
-    int length = strlen(shell.buffer) + 1;
-
-    // Contains the tokens that are the shell command and its parameters as
-    // individual NULL terminated strings.
     char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
 
-    argv_list[argc] = &shell.buffer[0];
-
-    char currentChar = 0;
-    char nextChar = 0;
-
-    // TODO trailing spaces are still tokenized
-
-    // test\01\02\03\04\0
-    // ^     ^  ^  ^  ^   
-
-    for (uint8_t i = 0; i < length; i++) {
-        currentChar = shell.buffer[i];
-        nextChar = shell.buffer[i + 1];
-
-        if (currentChar == '\0') {
-            i = length;
-            argc++;
-        }
-        if (currentChar == ' ') {
-            shell.buffer[i] = '\0';
-            if (nextChar != ' ') {
-                argc++;
-                argv_list[argc] = &shell.buffer[i + 1];
-            }
-        }
-        if (argc == CONFIG_SHELL_MAX_COMMAND_ARGS) {
-            break;
-        }
+    // tokenize the shell buffer
+    // argv_list will end up containing a pointer to each token
+    char *token = strtok(&shell.buffer, " ");
+    while (token != NULL && argc <= CONFIG_SHELL_MAX_COMMAND_ARGS) {
+        argv_list[argc++] = token;
+        token = strtok(NULL, " ");
     }
 
     int8_t command = find_matching_command(argv_list[0]);
