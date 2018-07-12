@@ -116,6 +116,10 @@ void shell_history_push(void) {
         return;
     }
 
+    if (history.historyInspectionMode == 1) {
+        inspect_shell_history();
+    }
+
     // Decrement head
     history.head = (history.head - 1) % SHELL_HISTORY_LENGTH;
     if (history.length < SHELL_HISTORY_LENGTH) {
