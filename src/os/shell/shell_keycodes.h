@@ -56,8 +56,10 @@
 // Navigation keys
 
 // home (27 91 72)
+// home (27 91 49 126)
 // ^home (27 91 49 59 53 72)
 #define KEY_HOME 72
+#define KEY_HOME2 49
 
 // end (27 91 70)
 // ^end (27 91 49 59 53 70)

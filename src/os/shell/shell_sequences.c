@@ -194,6 +194,10 @@ void process_escape_sequence(char currentChar) {
         switch (currentChar) {
         case '~':
             switch (prevChar) {
+            case KEY_HOME2:
+                set_key_name("home");
+                move_cursor_to(0);
+                goto FINISHED;
             case KEY_PGUP:
                 set_key_name("pgup");
                 goto FINISHED;
@@ -227,6 +231,7 @@ void process_escape_sequence(char currentChar) {
                 goto FINISHED;
             case KEY_F7:
                 set_key_name("F7");
+                toggle_history_inspection_mode(); 
                 goto FINISHED;
             case KEY_F8:
                 set_key_name("F8");
