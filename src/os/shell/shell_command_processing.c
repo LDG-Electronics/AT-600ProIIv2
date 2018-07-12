@@ -28,15 +28,14 @@ void process_shell_command(void) {
         token = strtok(NULL, " ");
     }
 
+    // figure out which command matches the received string
     int8_t command = find_matching_command(argv_list[0]);
 
+    // if we found a valid command, execute it
     if (command != -1) {
-        uint8_t retval = commands.list[command].callback(argc, argv_list);
-
-        // process retval?
-
+        commands.list[command].callback(argc, argv_list);
         return;
     }
-
+    // if there's no valid command, say something
     printf("%s: command not found\r\n", shell.buffer);
 }
