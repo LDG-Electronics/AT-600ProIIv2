@@ -112,7 +112,7 @@ void inspect_shell_history(void) {
 // push the current line onto the history buffer
 // used when we hit the enter key
 void shell_history_push(void) {
-    if (strcmp(history.line[history.head], &shell.buffer) == 0) {
+    if (strcmp((const char*)history.line[history.head], &shell.buffer) == 0) {
         return;
     }
 
