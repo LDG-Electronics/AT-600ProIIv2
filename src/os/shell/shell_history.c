@@ -34,6 +34,8 @@ typedef struct {
     uint8_t head;
     uint8_t pointer;
     uint8_t length;
+    unsigned historyMode : 1;
+    unsigned historyInspectionMode : 1;
 } shell_history_t;
 
 shell_history_t history;
@@ -53,6 +55,8 @@ void shell_history_wipe(void) {
     history.head = 0;
     history.pointer = 0;
     history.length = 0;
+    history.historyMode = 0;
+    history.historyInspectionMode = 0;
 }
 
 /* ************************************************************************** */
@@ -66,6 +70,37 @@ void shell_history_init(void) {
     shell_history_wipe();
 }
 
+void toggle_history_inspection_mode(void) {
+    history.historyInspectionMode = !history.historyInspectionMode;
+    if (history.historyInspectionMode == 1) {
+        println("\r\nHistory inspection mode enabled.");
+    } else {
+        println("\r\nHistory inspection mode disabled.");
+    }
+    print(SHELL_PROMPT_STRING);
+}
+
+void inspect_shell_history(void) {
+    println("");
+    println("-----------------------------------------------");
+    println("Printing shell history:");
+    printf("History currently has %d entries.\r\n", history.length);
+    printf("temp slot: %s\r\n", &history.tempLine);
+    uint8_t line = 0;
+    for (int8_t i = history.length; i >= 0; i--) {
+        line = (history.head + i - 1) % SHELL_HISTORY_LENGTH;
+
+        printf("slot #%d: %s", i, history.line[line]);
+        if (i == history.pointer) {
+            print(" <--");
+        }
+        println("");
+    }
+    println("-----------------------------------------------");
+    println("");
+    redraw_current_line();
+}
+
 /* -------------------------------------------------------------------------- */
 /*
 
@@ -77,6 +112,10 @@ void shell_history_init(void) {
 // push the current line onto the history buffer
 // used when we hit the enter key
 void shell_history_push(void) {
+    if (strcmp(history.line[history.head], &shell.buffer) == 0) {
+        return;
+    }
+
     // Decrement head
     history.head = (history.head - 1) % SHELL_HISTORY_LENGTH;
     if (history.length < SHELL_HISTORY_LENGTH) {
@@ -84,6 +123,7 @@ void shell_history_push(void) {
     }
 
     history.pointer = 0;
+    history.historyMode = 0;
 
     memcpy(history.line[history.head], &shell.buffer, sizeof(line_t));
 }
@@ -95,9 +135,13 @@ void shell_history_show_older(void) {
         return;
     }
 
-    // if the pointer is at 0, the stash the original line
-    if(history.pointer == 0) {
-        memcpy(&shell.buffer, &history.tempLine, sizeof(line_t));
+    if (history.historyInspectionMode == 1) {
+        inspect_shell_history();
+    }
+
+    if (history.historyMode == 0) {
+        memcpy(&history.tempLine, &shell.buffer, sizeof(line_t));
+        history.historyMode = 1;
     }
 
     if (history.pointer < SHELL_HISTORY_LENGTH - 1 &&
@@ -109,6 +153,7 @@ void shell_history_show_older(void) {
 
     memcpy(&shell.buffer, history.line[line], sizeof(line_t));
     redraw_current_line();
+    move_cursor_to(shell.length);
 }
 
 // used when we hit the down arrow
@@ -118,19 +163,26 @@ void shell_history_show_newer(void) {
         return;
     }
 
-    // if the pointer is already at 0, then redraw the original line
-    if (history.pointer == 0) {
-        memcpy(&shell.buffer, &history.tempLine, sizeof(line_t));
-        redraw_current_line();
+    if (history.historyMode == 0) {
         return;
     }
 
-    if (history.pointer != 0) {
-        history.pointer--;
+    if (history.historyInspectionMode == 1) {
+        inspect_shell_history();
+    }
+
+    history.pointer--;
+
+    if (history.pointer == 0) {
+        history.historyMode = 0;
+        memcpy(&shell.buffer, &history.tempLine, sizeof(line_t));
+        redraw_current_line();
+        return;
     }
 
     uint8_t line = (history.head + history.pointer - 1) % SHELL_HISTORY_LENGTH;
 
     memcpy(&shell.buffer, history.line[line], sizeof(line_t));
     redraw_current_line();
+    move_cursor_to(shell.length);
 }

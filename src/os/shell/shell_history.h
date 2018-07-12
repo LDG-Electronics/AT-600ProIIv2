@@ -3,9 +3,10 @@
 
 /* ************************************************************************** */
 
-extern void shell_history_init(void);
-
 extern void shell_history_wipe(void);
+
+extern void shell_history_init(void);
+extern void toggle_history_inspection_mode(void);
 
 /* -------------------------------------------------------------------------- */
 
