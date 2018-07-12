@@ -6,56 +6,71 @@ command_list_t commands;
 
 /* ************************************************************************** */
 
-void shell_commands_init(void) {
-    // built-in shell commands
-    shell_register(shell_help, "help");
-    shell_register(shell_test, "test");
+// Add a command to the command list
+static void shell_register(shell_program_t program, const char *command,
+                           const char *usage) {
+    commands.list[commands.number].callback = program;
+    commands.list[commands.number].command = command;
+    commands.list[commands.number].usage = usage;
 
-    // from RF_sensor.c
-    shell_register(shell_get_RF, "getRF");
-
-    // from display.c
-    shell_register(shell_show_bargraphs, "bar");
-
-    // from relays.c
-    shell_register(shell_set_relays, "setrelays");
-    shell_register(shell_check_relays, "getrelays");
+    commands.number++;
 }
 
-// Add a command to the command list
-bool shell_register(shell_program_t program, const char *string) {
-    unsigned char i;
+void shell_commands_init(void) {
+    // no commands registered at startup
+    commands.number = 0;
 
-    for (i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
-        if (commands.list[i].callback != 0 || commands.list[i].command != 0)
-            continue;
-        commands.list[i].callback = program;
-        commands.list[i].command = string;
-        return true;
-    }
-    return false;
+    // built-in shell commands
+    shell_register(shell_help, "help", NULL);
+    shell_register(shell_arg_test, "test", NULL);
+
+    // from RF_sensor.c
+    shell_register(shell_get_RF, "getRF", NULL);
+
+    // from display.c
+    shell_register(shell_show_bargraphs, "bar", NULL);
+
+    // from relays.c
+    shell_register(shell_set_relays, "setrelays", NULL);
+    shell_register(shell_check_relays, "getrelays", NULL);
 }
 
 /* -------------------------------------------------------------------------- */
 // built-in shell commands
 
 int shell_help(int argc, char **argv) {
+    println("-----------------------------------------------");
     shell_print_commands();
+    println("-----------------------------------------------");
 
     return SHELL_RET_SUCCESS;
 }
 
-int shell_test(int argc, char **argv) {
+int shell_arg_test(int argc, char **argv) {
     println("-----------------------------------------------");
-    println("SHELL DEBUG / TEST UTILITY");
-    println("-----------------------------------------------");
-    println("");
-    printf("Received %d arguments for test command\r\n", argc);
+    println("SHELL ARG PARSING TEST UTILITY");
+    if (argc == 1) {
+        println("This command has no special arguments.");
+        println("It is designed to test the TuneOS shell's arg parsing.");
+        println("");
+        println("Use it like this:");
+        println("\"$ test command arg1 arg2 arg3\"");
+        println("");
+        println("To get this response:");
+        println("Received 4 arguments for test command");
+        println("1 - \"command\" [len:7]");
+        println("2 - \"arg1\" [len:4]");
+        println("3 - \"arg2\" [len:4]");
+        println("4 - \"arg3\" [len:4]");
+    } else {
+        printf("Received %d arguments for test command\r\n", argc - 1);
 
-    // Prints: <argNum> - "<string>" [len:<length>]
-    for (uint8_t i = 0; i < argc; i++) {
-        printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i]));
+        // Prints: <argNum> - "<string>" [len:<length>]
+        for (uint8_t i = 1; i < argc; i++) {
+            printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i]));
+        }
     }
+    println("-----------------------------------------------");
 
     return SHELL_RET_SUCCESS;
 }
