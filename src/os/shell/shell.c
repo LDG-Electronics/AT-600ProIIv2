@@ -31,6 +31,10 @@ void shell_init(void) {
     reset_shell_flags();
 
     // --------------------------------------------------
+    // shell commands
+    shell_commands_init();
+
+    // --------------------------------------------------
     // shell history
     shell_history_init();
 
@@ -75,12 +79,3 @@ void shell_update(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void shell_print_commands(void) {
-    unsigned char i;
-
-    for (i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
-        if (commands.list[i].callback != 0 || commands.list[i].command != 0) {
-            println(commands.list[i].command);
-        }
-    }
-}

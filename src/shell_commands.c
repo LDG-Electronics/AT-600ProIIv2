@@ -1,38 +1,22 @@
 #include "includes.h"
+#include "os/shell/shell_command_processing.h"
 
 /* ************************************************************************** */
 
-command_list_t commands;
-
-/* ************************************************************************** */
-
-// Add a command to the command list
-static void shell_register(shell_program_t program, const char *command,
-                           const char *usage) {
-    commands.list[commands.number].callback = program;
-    commands.list[commands.number].command = command;
-    commands.list[commands.number].usage = usage;
-
-    commands.number++;
-}
-
-void shell_commands_init(void) {
-    // no commands registered at startup
-    commands.number = 0;
-
+void register_all_shell_commands(void) {
     // built-in shell commands
-    shell_register(shell_help, "help", NULL);
-    shell_register(shell_arg_test, "test", NULL);
+    shell_register_command(shell_help, "help", NULL);
+    shell_register_command(shell_arg_test, "test", NULL);
 
     // general purpose parameter touching
-    shell_register(shell_get_param, "get", NULL);
-    shell_register(shell_set_param, "set", NULL);
+    shell_register_command(shell_get_param, "get", NULL);
+    shell_register_command(shell_set_param, "set", NULL);
 
     // from RF_sensor.c
-    shell_register(shell_get_RF, "getRF", NULL);
+    shell_register_command(shell_get_RF, "getRF", NULL);
 
     // from display.c
-    shell_register(shell_show_bargraphs, "bar", NULL);
+    shell_register_command(shell_show_bargraphs, "bar", NULL);
 }
 
 /* -------------------------------------------------------------------------- */

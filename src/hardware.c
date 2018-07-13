@@ -28,7 +28,7 @@ void startup(void)
     stopwatch_init();
 
     // System setup, round 2
-    shell_commands_init();
+    register_all_shell_commands();
     
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 

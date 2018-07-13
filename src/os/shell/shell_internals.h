@@ -8,6 +8,7 @@
 #include "shell_history.h"
 #include "shell_keycodes.h"
 #include "shell_sequences.h"
+#include "shell_config.h"
 
 /* ************************************************************************** */
 
