@@ -1,6 +1,17 @@
 #include "includes.h"
 
 /* ************************************************************************** */
+/*  Notes on the system idle block
+    This function contains various 'background' activities that should be
+    periodically serviced when the system isn't doing anything else important.
+*/
+void system_idle_block(void)
+{
+    shell_update();
+    event_scheduler_update();
+}
+
+/* ************************************************************************** */
 
 // Button timing constants, in 1ms increments.
 #define BTN_PRESS_DEBOUNCE 20
@@ -275,4 +286,23 @@ void power_hold(void) {
     }
     save_flags();
     delay_ms(25);
+}
+
+/* ************************************************************************** */
+
+void main_menu(void) {
+    while(1) {
+        // Relay buttons
+        if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
+            relay_button_hold();
+        }
+
+        // Other buttons
+        if (btn_is_down(FUNC)) func_hold();
+        if (btn_is_down(TUNE)) tune_hold();
+        if (btn_is_down(ANT)) ant_hold();
+        if (btn_is_down(POWER)) power_hold();
+
+        system_idle_block();
+    }
 }

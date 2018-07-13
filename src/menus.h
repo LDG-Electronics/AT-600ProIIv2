@@ -13,4 +13,6 @@ extern void func_hold(void);
 extern void ant_hold(void);
 extern void power_hold(void);
 
+extern void main_menu(void);
+
 #endif
