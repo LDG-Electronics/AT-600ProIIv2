@@ -44,7 +44,6 @@
 // modules
 #include "animations.h"
 #include "calibration.h"
-#include "delay.h"
 #include "display.h"
 #include "events.h"
 #include "fast_ring_buffer.h"
