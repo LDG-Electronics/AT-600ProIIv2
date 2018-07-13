@@ -78,9 +78,8 @@ void event_scheduler_init(void) {
 // try casting to uint24_t?
 
 static void print_event(event_t *event) {
-    printf("event:(name:%s)(ptr:%p)(reg:%d)(exec:%d)\r\n",
-           event->name, event->eventCallback, event->registrationTime,
-           event->executionTime);
+    printf("event:(name:%s)(ptr:%p)(reg:%d)(exec:%d)\r\n", event->name,
+           event->eventCallback, event->registrationTime, event->executionTime);
 }
 
 static void print_event_queue(void) {
@@ -162,6 +161,7 @@ static void insert_event(event_t *newEvent) {
         return;
     }
 
+    // TODO: this does not handle a fragmented queue properly
     events.queue[events.numberOfEvents] = *newEvent;
     events.numberOfEvents++;
 
@@ -198,14 +198,16 @@ system_time_t previousTime = 0;
 
 void event_scheduler_update(void) {
     // return early if there's nothing to do
-    if (queue_is_empty())
+    if (queue_is_empty()) {
         return;
+    }
 
     // return early if the first event isn't ready yet
-    if (!event_is_ready(events.nextEvent))
+    if (!event_is_ready(events.nextEvent)) {
         return;
+    }
 
-    // grab the time, in case we need to reregister the event
+    // grab the time, in case we need to re-register the event
     system_time_t currentTime = systick_read();
 
 #if LOG_LEVEL_EVENTS >= LOG_EVENTS
@@ -230,7 +232,7 @@ void event_scheduler_update(void) {
     int16_t repeat = events.queue[events.nextEvent].eventCallback();
 
     // if the event should be repeated, re-register it
-    if (repeat != 0) {
+    if (repeat > 0) {
 #if LOG_LEVEL_EVENTS >= LOG_EVENTS
         print("Reregistering: ");
         print_event(&events.queue[events.nextEvent]);
@@ -239,8 +241,11 @@ void event_scheduler_update(void) {
         events.queue[events.nextEvent].executionTime = repeat;
 
         recalculate_next_event();
-    } else {
+    } else if (repeat == 0) {
         remove_event(events.nextEvent);
+    } else if (repeat < 0) {
+        remove_event(events.nextEvent);
+        // TODO: I need an adult
     }
 }
 
@@ -249,8 +254,9 @@ void event_scheduler_update(void) {
 // create a event object and add it to the event queue
 int8_t event_register(const char *name, event_callback_t callback,
                       system_time_t time) {
-    if (queue_is_full())
+    if (queue_is_full()) {
         return -1;
+    }
 
     // create and init a new event object
     event_t newEvent;
@@ -260,6 +266,7 @@ int8_t event_register(const char *name, event_callback_t callback,
     newEvent.name = name;
     newEvent.eventCallback = callback;
     newEvent.registrationTime = systick_read();
+    // TODO: is there a time calculation bug here?
     newEvent.executionTime = time;
     newEvent.exists = 1;
 
