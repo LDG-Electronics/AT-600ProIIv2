@@ -198,7 +198,7 @@ int16_t continue_animation_in_background(void) {
     if (bgA.animation[0].frame_delay == NULL) {
         useUpper = bgA.animation[0].upper;
         useLower = bgA.animation[0].lower;
-}
+    }
 
     // publish the current frame
     if (useUpper)
@@ -271,7 +271,6 @@ void blink_auto(uint8_t blinks) {
     }
 }
 
-
 // TODO: fix this animation
 void blink_HiLoZ(uint8_t blinks) {
     if (currentRelays[system_flags.antenna].z == 1) {
@@ -318,7 +317,7 @@ void show_relays(void) {
     display_frame_s frame;
 
     frame.upper = ((currentRelays[system_flags.antenna].inds & 0x7f) |
-                    ((currentRelays[system_flags.antenna].z & 0x01) << 7));
+                   ((currentRelays[system_flags.antenna].z & 0x01) << 7));
     frame.lower = currentRelays[system_flags.antenna].caps;
 
     FP_update(frame.frame);
@@ -357,15 +356,16 @@ void show_thresh(void) {
     600
 */
 
-uint16_t fwdIndexArray[] = {
+double fwdIndexArray[] = {
     0, 10, 25, 50, 100, 200, 300, 450, 600,
 };
 
-static uint8_t calculate_fwd_index(uint16_t forwardWatts) {
+static uint8_t calculate_fwd_index(double forwardWatts) {
     uint8_t i = 0;
 
-    while (fwdIndexArray[i] < forwardWatts)
+    while (fwdIndexArray[i] < forwardWatts) {
         i++;
+    }
 
     return i;
 }
@@ -392,8 +392,9 @@ double swrIndexArray[] = {
 static uint8_t calculate_swr_index(double swrValue) {
     uint8_t i = 0;
 
-    while (swrIndexArray[i] < swrValue)
+    while (swrIndexArray[i] < swrValue){
         i++;
+    }
 
     return i;
 }
