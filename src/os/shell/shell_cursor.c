@@ -41,9 +41,6 @@ void move_cursor_to(uint8_t position) {
 
 /* -------------------------------------------------------------------------- */
 
-#define save_cursor_location() print("\0337")
-#define restore_cursor_location() print("\0338")
-
 void redraw_current_line(void) {
     // put cursor at the beginning of the line
     print("\033[64D");
