@@ -282,7 +282,7 @@ void blink_HiLoZ(uint8_t blinks) {
 }
 
 void blink_scale(uint8_t blinks) {
-    if (system_flags.Scale100W == 0) {
+    if (system_flags.scaleMode == 0) {
         repeat_animation(&high_scale, blinks);
     } else {
         repeat_animation(&low_scale, blinks);
@@ -325,7 +325,7 @@ void show_relays(void) {
 }
 
 void show_scale(void) {
-    if (system_flags.Scale100W == 0) {
+    if (system_flags.scaleMode == 0) {
         FP_update(0x0008);
     } else {
         FP_update(0x0080);

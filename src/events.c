@@ -68,10 +68,10 @@ void toggle_peak(void) { system_flags.peakMode = !system_flags.peakMode; }
 
 /* -------------------------------------------------------------------------- */
 
-void read_scale(void) { printf("SC%d;\r\n", system_flags.Scale100W); }
-void set_scale_high(void) { system_flags.Scale100W = 1; }
-void set_scale_low(void) { system_flags.Scale100W = 0; }
-void toggle_scale(void) { system_flags.Scale100W = !system_flags.Scale100W; }
+void read_scale(void) { printf("SC%d;\r\n", system_flags.scaleMode); }
+void set_scale_high(void) { system_flags.scaleMode = 1; }
+void set_scale_low(void) { system_flags.scaleMode = 0; }
+void toggle_scale(void) { system_flags.scaleMode = !system_flags.scaleMode; }
 
 /* -------------------------------------------------------------------------- */
 

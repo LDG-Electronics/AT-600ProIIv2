@@ -19,7 +19,7 @@ void flags_init(void)
     system_flags.antenna = 0; // default value is Ant 2
     system_flags.autoMode = 0; // default value is semi mode
     system_flags.peakMode = 0; // default value is NOT peak mode
-    system_flags.Scale100W = 0; // default value is 
+    system_flags.scaleMode = 0; // default value is 
     system_flags.powerStatus = 1; // default value is 1
     swrThreshIndex = 0;
 
