@@ -1,5 +1,5 @@
-#ifndef _SYSTEM_TICK_H_
-#define _SYSTEM_TICK_H_
+#ifndef _SYSTEM_TIME_H_
+#define _SYSTEM_TIME_H_
 
 /* ************************************************************************** */
 /*  Notes on using the System Tick module
@@ -43,7 +43,6 @@
     16,777,216 / 1000 = 16,777.216 seconds
     16,777 / 60 = 279.6 minutes
     279 minutes / 60 = 4.6 hours until overflow
-    
 
 */
 /* ************************************************************************** */

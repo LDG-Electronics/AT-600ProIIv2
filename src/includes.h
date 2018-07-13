@@ -38,7 +38,7 @@
 #include "os/console_io.h"
 #include "os/shell/shell.h"
 #include "os/stopwatch.h"
-#include "os/system_tick.h"
+#include "os/system_time.h"
 #include "os/event_scheduler.h"
 
 // modules
