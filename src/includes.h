@@ -51,12 +51,12 @@
 #include "flags.h"
 #include "frequency_counter.h"
 #include "log_levels.h"
-#include "menus.h"
 #include "memory.h"
 #include "meter.h"
 #include "relays.h"
 #include "RF_sensor.h"
 #include "shell_commands.h"
 #include "tuning.h"
+#include "ui.h"
 
 #endif	/* _INCLUDES_H_ */
