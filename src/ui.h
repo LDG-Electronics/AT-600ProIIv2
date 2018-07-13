@@ -1,8 +1,8 @@
-#ifndef _MENUS_H_
-#define _MENUS_H_
+#ifndef _UI_H_
+#define _UI_H_
 
 /* ************************************************************************** */
 
-extern void main_menu(void);
+extern void ui_mainloop(void);
 
 #endif

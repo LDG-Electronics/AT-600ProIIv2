@@ -8,5 +8,5 @@ void main(void)
 {
     startup();
 
-    main_menu();
+    ui_mainloop();
 }

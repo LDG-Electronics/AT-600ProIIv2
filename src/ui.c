@@ -5,7 +5,7 @@
     This function contains various 'background' activities that should be
     periodically serviced when the system isn't doing anything else important.
 */
-void system_idle_block(void)
+void ui_idle_block(void)
 {
     shell_update();
     event_scheduler_update();
@@ -48,7 +48,7 @@ void threshold_submenu(void) {
         if (systick_elapsed_time(startTime) >= SUBMENU_DURATION)
             break;
 
-        system_idle_block();
+        ui_idle_block();
     }
 }
 
@@ -102,7 +102,7 @@ void function_submenu(void) {
         if (systick_elapsed_time(startTime) >= SUBMENU_DURATION)
             break;
 
-        system_idle_block();
+        ui_idle_block();
     }
     play_animation(&arrow_down);
 }
@@ -129,7 +129,7 @@ void shutdown_submenu(void) {
             break;
 
         delay_ms(1);
-        system_idle_block();
+        ui_idle_block();
     }
 
 #if LOG_LEVEL_MENUS > LOG_SILENT
@@ -175,7 +175,7 @@ void relay_button_hold(void) {
             if (incrementCount == 4) incrementDelay = 75;
             if (incrementCount == 32) incrementDelay = 50;
         }
-        system_idle_block();
+        ui_idle_block();
     }
     // lock_display();
     event_register("display_release", display_release, 1000);
@@ -202,7 +202,7 @@ void tune_hold(void) {
             display_clear();
         }
 
-        system_idle_block();
+        ui_idle_block();
     }
 
     display_clear();
@@ -253,7 +253,7 @@ void func_hold(void) {
             show_HiLoZ();
         }
 
-        system_idle_block();
+        ui_idle_block();
     }
     if (FuncHoldProcessed == 0)
         function_submenu();
@@ -267,7 +267,7 @@ void ant_hold(void) {
 
     while (btn_is_down(ANT)) // stay in loop while ANT is held
     {
-        system_idle_block();
+        ui_idle_block();
     }
     save_flags();
 }
@@ -282,7 +282,7 @@ void power_hold(void) {
         if (systick_elapsed_time(startTime) >= POWER_HOLD_DURATION)
             break;
 
-        system_idle_block();
+        ui_idle_block();
     }
     save_flags();
     delay_ms(25);
@@ -290,7 +290,7 @@ void power_hold(void) {
 
 /* ************************************************************************** */
 
-void main_menu(void) {
+void ui_mainloop(void) {
     while(1) {
         // Relay buttons
         if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
@@ -303,6 +303,6 @@ void main_menu(void) {
         if (btn_is_down(ANT)) ant_hold();
         if (btn_is_down(POWER)) power_hold();
 
-        system_idle_block();
+        ui_idle_block();
     }
 }
