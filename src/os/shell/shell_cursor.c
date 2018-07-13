@@ -41,6 +41,23 @@ void move_cursor_to(uint8_t position) {
 
 /* -------------------------------------------------------------------------- */
 
+void draw_line(line_t *line) {
+    // put cursor at the beginning of the line
+    print("\033[64D");
+
+    // clear line left of cursor
+    print("\033[0K");
+
+    // reprint the prompt
+    print(SHELL_PROMPT_STRING);
+
+    // reprint existing line
+    print(line->buffer);
+
+    // restore the cursor's original position
+    move_cursor_to(line->cursor);
+}
+
 void redraw_current_line(void) {
     // put cursor at the beginning of the line
     print("\033[64D");
@@ -88,7 +105,7 @@ void insert_char_at_cursor(char currentChar) {
     // add the new char
     shell.buffer[shell.cursor] = currentChar;
 
-    redraw_current_line();
+    draw_line(shell.buffer);
     move_cursor(1);
 }
 
@@ -112,5 +129,5 @@ void remove_char_at_cursor(void) {
     shell.buffer[i + 1] = NULL;
     shell.length--;
 
-    redraw_current_line();
+    draw_line(shell.buffer);
 }

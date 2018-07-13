@@ -3,14 +3,7 @@
 
 /* ************************************************************************** */
 
-#include "shell_command_processing.h"
-#include "shell_cursor.h"
-#include "shell_history.h"
-#include "shell_keycodes.h"
-#include "shell_sequences.h"
 #include "shell_config.h"
-
-/* ************************************************************************** */
 
 /*  line_t
 
@@ -18,6 +11,7 @@
     variables to keep track of the current length of the buffer and the current
     location of the cursor.
 */
+
 typedef struct {
     char buffer[SHELL_MAX_LENGTH];
     uint8_t length;
@@ -64,6 +58,14 @@ typedef struct {
 } shell_t;
 
 extern shell_t shell;
+
+/* ************************************************************************** */
+
+#include "shell_command_processing.h"
+#include "shell_cursor.h"
+#include "shell_history.h"
+#include "shell_keycodes.h"
+#include "shell_sequences.h"
 
 /* ************************************************************************** */
 
