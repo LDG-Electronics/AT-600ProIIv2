@@ -1,4 +1,5 @@
 #include "../includes.h"
+#define LOG_LEVEL L_SILENT
 
 /* ************************************************************************** */
 /*  Notes on the event system
@@ -155,9 +156,7 @@ static void recalculate_next_event(void) {
 // insert a event into the queue
 static void insert_event(event_t *newEvent) {
     if (queue_is_full()) {
-#if LOG_LEVEL_EVENTS >= LOG_EVENTS
-        println("event insertion failed, queue is full");
-#endif
+        log_info(println("event insertion failed, queue is full"););
         return;
     }
 
@@ -172,9 +171,7 @@ static void insert_event(event_t *newEvent) {
 static void remove_event(uint8_t eventIndex) {
     // make sure the array isn't empty
     if (queue_is_empty()) {
-#if LOG_LEVEL_EVENTS >= LOG_EVENTS
-        println("event removal failed, queue already empty");
-#endif
+        log_info(println("event removal failed, queue already empty"););
         return;
     }
 
@@ -210,20 +207,14 @@ void event_scheduler_update(void) {
     // grab the time, in case we need to re-register the event
     system_time_t currentTime = systick_read();
 
-#if LOG_LEVEL_EVENTS >= LOG_EVENTS
-    printf("event is ready @%lu, ", (uint32_t)currentTime);
-    printf("last event was %lu ago\r\n",
-           (uint32_t)systick_elapsed_time(previousTime));
-    previousTime = currentTime;
-    print("executing ");
-    print_event(&events.queue[events.nextEvent]);
-#endif
+    log_info(printf("event is ready, last event was %lu ago\r\n",
+                    (uint32_t)systick_elapsed_time(previousTime));
+             previousTime = currentTime; print("executing ");
+             print_event(&events.queue[events.nextEvent]););
 
     // Make sure we don't execute a null function pointer
     if (events.queue[events.nextEvent].eventCallback == NULL) {
-#if LOG_LEVEL_EVENTS >= LOG_ERROR
-        println(">>> NULL POINTER EXCEPTION <<< ");
-#endif
+        log_error(println(">>> NULL POINTER EXCEPTION <<< "););
         // while(1); // trap
         return;
     }
@@ -233,10 +224,8 @@ void event_scheduler_update(void) {
 
     // if the event should be repeated, re-register it
     if (repeat > 0) {
-#if LOG_LEVEL_EVENTS >= LOG_EVENTS
-        print("Reregistering: ");
-        print_event(&events.queue[events.nextEvent]);
-#endif
+        log_info(print("Reregistering: ");
+                 print_event(&events.queue[events.nextEvent]););
         events.queue[events.nextEvent].registrationTime = currentTime;
         events.queue[events.nextEvent].executionTime = repeat;
 
@@ -270,10 +259,7 @@ int8_t event_register(const char *name, event_callback_t callback,
     newEvent.executionTime = time;
     newEvent.exists = 1;
 
-#if LOG_LEVEL_EVENTS >= LOG_EVENTS
-    print("Registering: ");
-    print_event(&newEvent);
-#endif
+    log_info(print("Registering: "); print_event(&newEvent););
 
     // add it to the queue
     insert_event(&newEvent);
@@ -338,6 +324,7 @@ int16_t dummy_event(void) {
 // print out the size in bytes of the various objects used in the queue
 static void print_object_sizes(void) {
     println("");
+
     println("=====");
     println("Check size of event queue objects");
     printf("sizeof events: %d bytes\r\n", sizeof(events));

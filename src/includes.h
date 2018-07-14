@@ -50,7 +50,6 @@
 #include "fast_ring_buffer.h"
 #include "flags.h"
 #include "frequency_counter.h"
-#include "log_levels.h"
 #include "memory.h"
 #include "meter.h"
 #include "relays.h"

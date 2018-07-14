@@ -1,4 +1,5 @@
 #include "includes.h"
+#define LOG_LEVEL L_SILENT
 
 /* ************************************************************************** */
 
@@ -11,15 +12,14 @@ uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS];
 
 /* ************************************************************************** */
 
-void flags_init(void)
-{
+void flags_init(void) {
     // populate system_flags with default values
-    system_flags.ant1Bypass = 1; // default value is bypass
-    system_flags.ant2Bypass = 1; // default value is bypass
-    system_flags.antenna = 0; // default value is Ant 2
-    system_flags.autoMode = 0; // default value is semi mode
-    system_flags.peakMode = 0; // default value is NOT peak mode
-    system_flags.scaleMode = 0; // default value is 
+    system_flags.ant1Bypass = 1;  // default value is bypass
+    system_flags.ant2Bypass = 1;  // default value is bypass
+    system_flags.antenna = 0;     // default value is Ant 2
+    system_flags.autoMode = 0;    // default value is semi mode
+    system_flags.peakMode = 0;    // default value is NOT peak mode
+    system_flags.scaleMode = 0;   // default value is
     system_flags.powerStatus = 1; // default value is 1
     swrThreshIndex = 0;
 
@@ -33,19 +33,14 @@ void flags_init(void)
 
 /* -------------------------------------------------------------------------- */
 
-void load_flags(void)
-{
+void load_flags(void) {
     uint8_t address = 0;
     uint8_t valid = 0;
-    
-    #if LOG_LEVEL_FLAGS >= LOG_LABELS
-    println("load_flags");
-    #endif
-    
-    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS))
-    {
-        if ((internal_eeprom_read(address) & 0x80) == 0) 
-        {
+
+    log_trace(println("load_flags"););
+
+    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
+        if ((internal_eeprom_read(address) & 0x80) == 0) {
             valid = 1;
             break;
         }
@@ -53,10 +48,8 @@ void load_flags(void)
     }
 
     if (valid == 1) {
-        #if LOG_LEVEL_FLAGS >= LOG_INFO
-        printf("found valid records at: %d", address);
-        #endif
-        
+        log_info(printf("found valid records at: %d", address););
+
         // Read stored values out into their containers
         swrThreshIndex = (internal_eeprom_read(address) & 0x07);
         system_flags.flags = internal_eeprom_read(address + 1);
@@ -69,31 +62,26 @@ void load_flags(void)
         preBypassRelays[1].top = internal_eeprom_read(address + 8);
         preBypassRelays[1].bot = internal_eeprom_read(address + 9);
     } else {
-        #if LOG_LEVEL_FLAGS >= LOG_INFO
-        println("no valid record");
-        #endif        
+        log_info(println("no valid record"););
     }
     SWR_threshold_set();
 }
 
-void save_flags(void)
-{
+void save_flags(void) {
     uint8_t address = 0;
-    uint8_t tempThreshIndex = 0; 
-    
+    uint8_t tempThreshIndex = 0;
+
     relays_s tempRelays[NUM_OF_ANTENNA_PORTS * 2];
     system_flags_s temp_flags;
-    
-    #if LOG_LEVEL_FLAGS >= LOG_LABELS
-    println("save_flags");
-    #endif
 
-    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS))
-    {
-        if ((internal_eeprom_read(address) & 0x80) == 0) break;
+    log_trace(println("save_flags"););
+
+    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
+        if ((internal_eeprom_read(address) & 0x80) == 0)
+            break;
         address += FLAG_BLOCK_WIDTH;
     }
-    
+
     tempThreshIndex = (internal_eeprom_read(address) & 0x7f);
     temp_flags.flags = internal_eeprom_read(address + 1);
     tempRelays[0].top = internal_eeprom_read(address + 2);
@@ -104,9 +92,8 @@ void save_flags(void)
     tempRelays[2].bot = internal_eeprom_read(address + 7);
     tempRelays[3].top = internal_eeprom_read(address + 8);
     tempRelays[3].bot = internal_eeprom_read(address + 9);
-     
-    if (
-        (tempThreshIndex != swrThreshIndex) ||
+
+    if ((tempThreshIndex != swrThreshIndex) ||
         (temp_flags.flags != system_flags.flags) ||
         (tempRelays[0].top != currentRelays[0].top) ||
         (tempRelays[0].bot != currentRelays[0].bot) ||
@@ -115,17 +102,15 @@ void save_flags(void)
         (tempRelays[2].top != preBypassRelays[0].top) ||
         (tempRelays[2].bot != preBypassRelays[0].bot) ||
         (tempRelays[3].top != preBypassRelays[1].top) ||
-        (tempRelays[3].bot != preBypassRelays[1].bot))
-    {
+        (tempRelays[3].bot != preBypassRelays[1].bot)) {
         internal_eeprom_write(address, 0xff);
-        
-        address += FLAG_BLOCK_WIDTH;
-        if (address > (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) address = 0;
 
-        #if LOG_LEVEL_FLAGS >= LOG_INFO
-        printf("saving records at: %d", address);
-        #endif
-        
+        address += FLAG_BLOCK_WIDTH;
+        if (address > (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS))
+            address = 0;
+
+        log_info(printf("saving records at: %d", address););
+
         internal_eeprom_write(address, (swrThreshIndex & 0x7f));
         internal_eeprom_write(address + 1, system_flags.flags);
         internal_eeprom_write(address + 2, currentRelays[0].top);

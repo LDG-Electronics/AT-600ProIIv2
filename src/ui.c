@@ -1,12 +1,12 @@
 #include "includes.h"
+#define LOG_LEVEL L_SILENT
 
 /* ************************************************************************** */
 /*  Notes on the system idle block
     This function contains various 'background' activities that should be
     periodically serviced when the system isn't doing anything else important.
 */
-void ui_idle_block(void)
-{
+void ui_idle_block(void) {
     shell_update();
     event_scheduler_update();
 }
@@ -110,9 +110,7 @@ void function_submenu(void) {
 #define POWER_BUTTON_DURATION 1000
 
 void shutdown_submenu(void) {
-#if LOG_LEVEL_MENUS > LOG_SILENT
-    println("shutting down");
-#endif
+    log_info(println("shutting down"););
 
     // Turn off the whole front panel
     clear_status_LEDs();
@@ -132,15 +130,14 @@ void shutdown_submenu(void) {
         ui_idle_block();
     }
 
-#if LOG_LEVEL_MENUS > LOG_SILENT
-    println("Hello again!");
-#endif
+    log_info(println("shutting down"););
 
     // Put the Status LEDs back how we found them
     update_status_LEDs();
 
     // wait until power button is released
-    while (btn_is_down(POWER));
+    while (btn_is_down(POWER))
+        ;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -171,9 +168,12 @@ void relay_button_hold(void) {
                 // do nothing
             }
 
-            if (incrementCount < UINT8_MAX) incrementCount++;
-            if (incrementCount == 4) incrementDelay = 75;
-            if (incrementCount == 32) incrementDelay = 50;
+            if (incrementCount < UINT8_MAX)
+                incrementCount++;
+            if (incrementCount == 4)
+                incrementDelay = 75;
+            if (incrementCount == 32)
+                incrementDelay = 50;
         }
         ui_idle_block();
     }
@@ -291,17 +291,21 @@ void power_hold(void) {
 /* ************************************************************************** */
 
 void ui_mainloop(void) {
-    while(1) {
+    while (1) {
         // Relay buttons
         if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
             relay_button_hold();
         }
 
         // Other buttons
-        if (btn_is_down(FUNC)) func_hold();
-        if (btn_is_down(TUNE)) tune_hold();
-        if (btn_is_down(ANT)) ant_hold();
-        if (btn_is_down(POWER)) power_hold();
+        if (btn_is_down(FUNC))
+            func_hold();
+        if (btn_is_down(TUNE))
+            tune_hold();
+        if (btn_is_down(ANT))
+            ant_hold();
+        if (btn_is_down(POWER))
+            power_hold();
 
         ui_idle_block();
     }
