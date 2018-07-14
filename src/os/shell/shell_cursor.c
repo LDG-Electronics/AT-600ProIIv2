@@ -105,7 +105,8 @@ void insert_char_at_cursor(char currentChar) {
     // add the new char
     shell.buffer[shell.cursor] = currentChar;
 
-    draw_line(shell.buffer);
+    // TODO: typecast is dirty, find another way
+    draw_line((line_t *)shell.buffer);
     move_cursor(1);
 }
 
@@ -129,5 +130,6 @@ void remove_char_at_cursor(void) {
     shell.buffer[i + 1] = NULL;
     shell.length--;
 
-    draw_line(shell.buffer);
+    // TODO: typecast is dirty, find another way
+    draw_line((line_t *)shell.buffer);
 }
