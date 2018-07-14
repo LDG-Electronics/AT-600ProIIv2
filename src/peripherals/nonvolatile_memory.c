@@ -49,10 +49,10 @@ uint8_t internal_eeprom_read(uint16_t address) {
 
     // Load lower byte of address into register
     NVMADRL = address;
-// If EEADRH is present, load high byte of address into register
-#if EEADRH
-    NVMADRH = address >> 8;
-#endif
+    // If EEADRH is present, load high byte of address into register
+    #ifdef NVMADRH
+        NVMADRH = address >> 8;
+    #endif
 
     // Select EEPROM
     NVMCON1bits.REG = 0;
@@ -72,10 +72,10 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 
     // Load lower byte of address into register
     NVMADRL = address;
-// If EEADRH is present, load high byte of address into register
-#if EEADRH
-    NVMADRH = address >> 8;
-#endif
+    // If EEADRH is present, load high byte of address into register
+    #ifdef NVMADRH
+        NVMADRH = address >> 8;
+    #endif
 
     // Load value into register
     NVMDAT = value;
