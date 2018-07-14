@@ -3,6 +3,22 @@
 
 /* ************************************************************************** */
 
+extern const char *level_names[];
+
+extern const char *level_colors[];
+
+typedef enum {
+    L_SILENT,
+    L_FATAL,
+    L_ERROR,
+    L_WARN,
+    L_INFO,
+    L_DEBUG,
+    L_TRACE,
+} log_levels_t;
+
+/* ************************************************************************** */
+
 typedef struct {
     const char *name;
     uint8_t *level;
@@ -23,19 +39,9 @@ extern void log_init(void);
 
 extern void log_register(const char *name, uint8_t *level);
 
+extern void log_level_edit(uint8_t file, uint8_t level);
+
 extern void print_log_list(void);
-
-/* ************************************************************************** */
-
-typedef enum {
-    L_SILENT,
-    L_FATAL,
-    L_ERROR,
-    L_WARN,
-    L_INFO,
-    L_DEBUG,
-    L_TRACE,
-} log_levels_t;
 
 /* ************************************************************************** */
 

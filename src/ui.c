@@ -293,8 +293,6 @@ void power_hold(void) {
 
 void ui_mainloop(void) {
     log_register(__FILE__, &logLevel);
-    
-    print_log_list();
 
     while (1) {
         // Relay buttons

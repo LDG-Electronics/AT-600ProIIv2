@@ -1,16 +1,13 @@
 #include "../includes.h"
 
 /* ************************************************************************** */
-
-static const char *level_names[] = {
+const char *level_names[] = {
     "SILENT", "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE",
 };
-
-static const char *level_colors[] = {
+const char *level_colors[] = {
     "\033[1;94m", "\033[1;35m", "\033[1;31m", "\033[1;33m",
-    "\033[1;32m", "\033[1;36m", "\033[1;94m",
+    "\033[1;32m", "\033[1;36m", "\033[1;34m",
 };
-
 log_database_t logDatabase;
 
 /* -------------------------------------------------------------------------- */
@@ -30,15 +27,29 @@ void log_register(const char *name, uint8_t *level) {
     logDatabase.numberOfFiles++;
 }
 
+void log_level_edit(uint8_t fileID, uint8_t level) {
+    *logDatabase.file[fileID].level = level;
+}
+
 void print_log_list(void) {
     println("-----------------------------------------------");
+    for (uint8_t i = 0; i < 7; i++) {
+        printf("%s%s ", level_colors[i], level_names[i]);
+    }
+    println("");
+    println("");
+
+    print("\033[0;37;40m");
+
     printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
     for (uint8_t i = 0; i < logDatabase.numberOfFiles; i++) {
+        printf("#%d : ", (int)i);
         uint8_t level = *logDatabase.file[i].level;
         printf("%s%-6s", level_colors[level], level_names[level]);
         print("\033[0;37m : ");
         println(logDatabase.file[i].name);
     }
+
     println("-----------------------------------------------");
 }
 
@@ -64,6 +75,7 @@ int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
     return 0;
 }
 
+#if 0
 void log_message_test(void) {
     uint8_t test = 1;
 
@@ -74,3 +86,4 @@ void log_message_test(void) {
     log_error(printf("error log entry #%d\r\n", test++););
     log_fatal(printf("fatal log entry #%d\r\n", test++););
 }
+#endif

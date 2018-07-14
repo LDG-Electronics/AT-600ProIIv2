@@ -206,6 +206,36 @@ int calibration_packet(int argc, char **argv) {
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+
+int edit_log_levels(int argc, char **argv) {
+    switch (argc) {
+    case 1:
+        println("log set <file> <value>");
+        println("log read");
+        return 0;
+    case 2:
+        if (strcmp(argv[1], "read") == 0) {
+            print_log_list();
+        }
+        return 0;
+    case 4:
+        if (strcmp(argv[1], "set") == 0) {
+            uint8_t file = atoi(argv[2]);
+            uint8_t i = 0;
+            for (i = 0; i < logDatabase.numberOfFiles; i++) {
+                if (!stricmp(argv[3], level_names[i])) {
+                    log_level_edit(file, i);
+                    return 0;
+                }
+            }
+        }
+    default:
+        println("invalid arguments");
+        return 0;
+    }
+}
+
 /* ************************************************************************** */
 
 void register_all_shell_commands(void) {
@@ -222,4 +252,7 @@ void register_all_shell_commands(void) {
 
     //
     shell_register_command(calibration_packet, "cal", NULL);
+
+    // log level controls
+    shell_register_command(edit_log_levels, "log", NULL);
 }
