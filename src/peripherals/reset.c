@@ -1,35 +1,28 @@
 #include "../includes.h"
+#define LOG_LEVEL L_FATAL
 
 /* ************************************************************************** */
 
 void reset_vector_handler(void)
 {
     if(PCON0bits.STKOVF == 1) {
-        println("");
-        println("");
-        println(">>> Stack Overflow <<<");
+        log_fatal(println("\r\n\r\n>>> Stack Overflow <<<"););
         while(1); // trap
     }
     
     if(PCON0bits.STKUNF == 1) {
-        println("");
-        println("");
-        println(">>> Stack Underflow <<<");
+        log_fatal(println("\r\n\r\n>>> Stack Underflow <<<"););
         while(1); // trap
     }
     
     // if(PCON0bits.RMCLR == 0) {
-    //     println("");
-    //     println("");
-    //     println(">>> MCLR RESET <<<");
-    //     while(1); // trap
+        // log_fatal(println("\r\n\r\n>>> MCLR RESET <<<"););
+        // while(1); // trap
     // }
     
     // if(PCON0bits.RI == 0) {
-    //     println("");
-    //     println("");
-    //     println(">>> RESET <<<");
-    //     while(1); // trap
+        // log_fatal(println("\r\n\r\n>>> RESET <<<"););
+        // while(1); // trap
     // }
     
 }
