@@ -20,14 +20,14 @@ typedef union {
         unsigned noMemory : 1;
     };
     uint8_t errors;
-}tuning_flags_s;
+} tuning_flags_s;
 
 extern tuning_flags_s tuning_flags;
 
 /* ************************************************************************** */
 
-extern void full_tune (void);
-extern void memory_tune (void);
+extern void full_tune(void);
+extern void memory_tune(void);
 
 extern void tuning_followup_animation(void);
 
