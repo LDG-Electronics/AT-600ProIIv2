@@ -1,5 +1,5 @@
 #ifndef RF_SENSOR_H
-#define	RF_SENSOR_H
+#define RF_SENSOR_H
 
 /* ************************************************************************** */
 
@@ -33,9 +33,6 @@ extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */
 
-// Frequency measurement
-extern uint32_t get_period(void);
-
 // SWR measurement functions
 extern void SWR_measure(void);
 extern void SWR_average(void);
@@ -44,9 +41,6 @@ extern int8_t SWR_stable_average(void);
 // Prints the current Forward, Reverse, and SWR
 extern void print_current_SWR(void);
 extern void print_current_SWR_ln(void);
-
-// Shell command handler
-extern int shell_get_RF(int argc, char** argv);
 
 /* ************************************************************************** */
 
