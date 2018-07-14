@@ -235,7 +235,7 @@ void UART2_tx_string(const char *string, const char terminator)
         {
             // If the buffer is ever full, wait for it to empty completely
             UART2_TX_IE_enable();
-            while(!buffer_is_empty(UART2_tx_buffer));
+            delay_ms(10);
         }
 
         begin_critical_section();

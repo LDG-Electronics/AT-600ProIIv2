@@ -1,5 +1,6 @@
 #include "includes.h"
-#define LOG_LEVEL L_SILENT
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_SILENT;
 
 /* ************************************************************************** */
 
@@ -29,6 +30,8 @@ void flags_init(void) {
     // copy stored bypass values to the usable array
     bypassStatus[0] = system_flags.ant1Bypass;
     bypassStatus[1] = system_flags.ant2Bypass;
+
+    log_register(__FILE__, &logLevel);
 }
 
 /* -------------------------------------------------------------------------- */

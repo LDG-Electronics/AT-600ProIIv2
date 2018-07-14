@@ -3,14 +3,39 @@
 
 /* ************************************************************************** */
 
-// Logging levels
-#define L_SILENT 0
-#define L_FATAL 1
-#define L_ERROR 2
-#define L_WARN 3
-#define L_INFO 4
-#define L_DEBUG 5
-#define L_TRACE 6
+typedef struct {
+    const char *name;
+    uint8_t *level;
+} log_level_t;
+
+#define MAX_NUMBER_OF_FILES 20
+
+typedef struct {
+    log_level_t file[MAX_NUMBER_OF_FILES];
+    uint8_t numberOfFiles;
+} log_database_t;
+
+extern log_database_t logDatabase;
+
+/* ************************************************************************** */
+
+extern void log_init(void);
+
+extern void log_register(const char *name, uint8_t *level);
+
+extern void print_log_list(void);
+
+/* ************************************************************************** */
+
+typedef enum {
+    L_SILENT,
+    L_FATAL,
+    L_ERROR,
+    L_WARN,
+    L_INFO,
+    L_DEBUG,
+    L_TRACE,
+} log_levels_t;
 
 /* ************************************************************************** */
 

@@ -12,6 +12,7 @@ void startup(void) {
     pins_init();
     interrupt_init();
     console_init();
+    log_init();
     shell_init();
     systick_init();
     event_scheduler_init();
@@ -22,9 +23,11 @@ void startup(void) {
     events_init();
     flags_init();
     frequency_counter_init();
+    nonvolatile_memory_init();
     relays_init();
     RF_sensor_init();
     stopwatch_init();
+    tuning_init();
 
     // System setup, round 2
     register_all_shell_commands();

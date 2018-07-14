@@ -1,4 +1,6 @@
 #include "includes.h"
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_INFO;
 
 /* ************************************************************************** */
 
@@ -22,6 +24,8 @@ void RF_sensor_init(void) {
     currentRF.reverseWatts = 0;
     currentRF.swr = 0;
     currentRF.frequency = 0;
+
+    log_register(__FILE__, &logLevel);
 }
 
 void SWR_threshold_set(void) { swrThresh = swrThreshTable[swrThreshIndex]; }

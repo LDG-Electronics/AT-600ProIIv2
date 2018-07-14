@@ -1,5 +1,6 @@
 #include "includes.h"
-#define LOG_LEVEL L_SILENT
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_FATAL;
 
 /* ************************************************************************** */
 /*  Notes on the system idle block
@@ -291,6 +292,10 @@ void power_hold(void) {
 /* ************************************************************************** */
 
 void ui_mainloop(void) {
+    log_register(__FILE__, &logLevel);
+    
+    print_log_list();
+
     while (1) {
         // Relay buttons
         if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {

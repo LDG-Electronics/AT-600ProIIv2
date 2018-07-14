@@ -1,5 +1,12 @@
 #include "includes.h"
-#define LOG_LEVEL L_SILENT
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_SILENT;
+
+/* ************************************************************************** */
+
+void memory_init(void) {
+    log_register(__FILE__, &logLevel);
+}
 
 /* ************************************************************************** */
 

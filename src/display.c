@@ -1,4 +1,6 @@
 #include "includes.h"
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_SILENT;
 
 /* ************************************************************************** */
 
@@ -25,6 +27,8 @@ void display_init(void) {
     displayBuffer.current.frame = 0;
     displayBuffer.upperMutex = 0;
     displayBuffer.lowerMutex = 0;
+
+    log_register(__FILE__, &logLevel);
 }
 
 /* -------------------------------------------------------------------------- */

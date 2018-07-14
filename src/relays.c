@@ -1,4 +1,6 @@
 #include "includes.h"
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_SILENT;
 
 /* ************************************************************************** */
 
@@ -26,7 +28,7 @@ void relays_init(void) {
     RELAY_CLOCK_PIN = 1;
     RELAY_DATA_PIN = 1;
 
-    // Setup shell commands
+    log_register(__FILE__, &logLevel);
 }
 
 /* -------------------------------------------------------------------------- */

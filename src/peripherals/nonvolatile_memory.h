@@ -3,6 +3,10 @@
 
 /* ************************************************************************** */
 
+extern void nonvolatile_memory_init(void);
+
+/* ************************************************************************** */
+
 /*  Notes on using EEPROM Memory operations:
     
     EEPROM can be read AND written as individual bytes, no block operations are

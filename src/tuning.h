@@ -26,6 +26,8 @@ extern tuning_flags_s tuning_flags;
 
 /* ************************************************************************** */
 
+extern void tuning_init(void);
+
 extern void full_tune(void);
 extern void memory_tune(void);
 
