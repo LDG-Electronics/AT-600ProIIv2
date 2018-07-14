@@ -1,6 +1,6 @@
 #include "includes.h"
 #define LOG_LEVEL logLevel
-static uint8_t logLevel = L_FATAL;
+static uint8_t logLevel = L_SILENT;
 
 /* ************************************************************************** */
 /*  Notes on the system idle block
