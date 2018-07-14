@@ -45,6 +45,9 @@ extern void print_log_list(void);
 
 /* ************************************************************************** */
 
+int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
+                  int line);
+
 #define log_trace(ARG)                                                         \
     if (log_header(L_TRACE, LOG_LEVEL, __FILE__, __LINE__) == 0) {             \
         ARG                                                                    \
@@ -69,10 +72,5 @@ extern void print_log_list(void);
     if (log_header(L_FATAL, LOG_LEVEL, __FILE__, __LINE__) == 0) {             \
         ARG                                                                    \
     }
-
-/* ************************************************************************** */
-
-int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
-                  int line);
 
 #endif
