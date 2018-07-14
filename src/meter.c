@@ -43,7 +43,7 @@ void check_for_meter_sync(void) {
 void send_meter_update(void) {
     uint16_t tempFWD = adc_measure(0) >> 2;
     uint16_t tempREV = adc_measure(1) >> 2;
-    uint16_t tempPeriod = get_period();
+    uint16_t tempPeriod = 0xffff;
 
     meter_update_buffer[0] = (uint8_t)(tempFWD >> 8);
     meter_update_buffer[1] = (uint8_t)(tempFWD & 0xff);
