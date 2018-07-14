@@ -29,6 +29,7 @@
 /* ************************************************************************** */
 
 /*  relays_s is used to simplify the storage and management of relay settings.
+
 */
 typedef union {
     struct {

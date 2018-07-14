@@ -2,10 +2,7 @@
 
 /* ************************************************************************** */
 
-void frequency_counter_init(void)
-{
-    timer3_clock_source(TMR_CLK_FOSC);
-}
+void frequency_counter_init(void) { timer3_clock_source(TMR_CLK_FOSC); }
 
 /* -------------------------------------------------------------------------- */
 /*  validate_frequency_signal()
@@ -17,20 +14,20 @@ void frequency_counter_init(void)
 */
 #define PERIOD_THRESHOLD 2
 #define PERIOD_VALIDATION_WINDOW 40
-static int8_t validate_frequency_signal(void)
-{
+static int8_t validate_frequency_signal(void) {
     system_time_t currentTime = systick_read();
     uint16_t freqPinCount = 0;
     uint8_t prevFreqPin = FREQ_PIN;
 
-    while(systick_elapsed_time(currentTime) < PERIOD_VALIDATION_WINDOW){
-        if(prevFreqPin != FREQ_PIN){
+    while (systick_elapsed_time(currentTime) < PERIOD_VALIDATION_WINDOW) {
+        if (prevFreqPin != FREQ_PIN) {
             prevFreqPin = FREQ_PIN;
             freqPinCount++;
         }
     }
 
-    if(freqPinCount > PERIOD_THRESHOLD) return 0;
+    if (freqPinCount > PERIOD_THRESHOLD)
+        return 0;
 
     return -1;
 }
@@ -80,8 +77,8 @@ static int8_t validate_frequency_signal(void)
     1,170,276 / 15.625 = 74,897
 
     Therefore, the expected period measurement is in the ballpark of 75,000,
-    while the observed period measurement is 75,442. 
-    
+    while the observed period measurement is 75,442.
+
     That's a margin of error of 0.7%.
 
     Damn.
@@ -98,19 +95,17 @@ static int8_t validate_frequency_signal(void)
     F: 24.890 MHz   Pe: 40ns    Po: 042431
     F: 28.000 MHz   Pe: 35ns    Po: 037715
     F: 50.000 MHz   Pe: 20ns    Po: 021131
-*/ 
+*/
 
 volatile static uint32_t timer3Count;
 
-void __interrupt(irq(TMR3), high_priority) timer3_overflow_ISR(void)
-{
+void __interrupt(irq(TMR3), high_priority) timer3_overflow_ISR(void) {
     timer3_IF_clear();
 
     timer3Count += UINT16_MAX;
 }
 
-uint32_t get_period(void)
-{
+uint32_t get_period(void) {
     // Prepare the timer
     timer3_clear();
     timer3_IF_clear();
@@ -118,12 +113,15 @@ uint32_t get_period(void)
     timer3_interrupt_enable();
 
     // align ourselves with the rising edge of FREQ_PIN
-    while(FREQ_PIN != 0); // while high
-    while(FREQ_PIN == 0); // while low
+    while (FREQ_PIN != 0)
+        ; // while high
+    while (FREQ_PIN == 0)
+        ; // while low
 
     // engage
     timer3_start();
-    while(FREQ_PIN != 0); // while high
+    while (FREQ_PIN != 0)
+        ; // while high
     timer3_stop();
     timer3_interrupt_disable();
 
@@ -137,7 +135,7 @@ uint32_t get_period(void)
     Frequency is computed by averaging 4 period measurements and performing a
     big honking integer division. The MAGIC_FREQUENCY_NUMBER is derived from the
     following calculation:
-    
+
     (32,768 / 2) / 15.625 = 1048.576
 
     1.055 is the magic number to convert observed period to frequency.
@@ -154,18 +152,18 @@ uint32_t get_period(void)
 
 #define MAGIC_FREQUENCY_NUMBER 1057000000
 #define NUM_OF_PERIOD_SAMPLES 4
-uint16_t get_frequency(void)
-{
+uint16_t get_frequency(void) {
     // Make sure there's a frequency signal
-    if(validate_frequency_signal() == -1) return 0xffff;
+    if (validate_frequency_signal() == -1)
+        return 0xffff;
 
     uint32_t tempPeriod = 0;
 
     // Take measurements
-    for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++){
+    for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++) {
         tempPeriod += get_period();
     }
- 
+
     tempPeriod /= NUM_OF_PERIOD_SAMPLES;
 
     return (MAGIC_FREQUENCY_NUMBER / tempPeriod);

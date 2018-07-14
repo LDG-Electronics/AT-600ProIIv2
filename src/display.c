@@ -392,7 +392,7 @@ double swrIndexArray[] = {
 static uint8_t calculate_swr_index(double swrValue) {
     uint8_t i = 0;
 
-    while (swrIndexArray[i] < swrValue){
+    while (swrIndexArray[i] < swrValue) {
         i++;
     }
 

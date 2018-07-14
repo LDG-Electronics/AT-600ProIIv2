@@ -22,7 +22,7 @@ typedef union {
 
 // struct that represents the current state of the display object
 typedef struct {
-    display_frame_s next; // the frame we're about to push out
+    display_frame_s next;    // the frame we're about to push out
     display_frame_s current; // the frame that's currently being displayed
     unsigned upperMutex : 1;
     unsigned lowerMutex : 1;
@@ -60,7 +60,8 @@ extern void display_clear(void);
 extern int16_t display_release(void);
 
 // Display a single from an animation
-extern void display_single_frame(const animation_s *animation, uint8_t frame_number);
+extern void display_single_frame(const animation_s *animation,
+                                 uint8_t frame_number);
 
 // Play an animation from animations.h
 extern void play_animation(const animation_s *animation);
@@ -107,6 +108,6 @@ extern void show_thresh(void);
 
 extern void show_power_and_SWR(uint16_t forwardWatts, double swrValue);
 extern void show_current_power_and_SWR(void);
-extern int shell_show_bargraphs(int argc, char** argv);
+extern int shell_show_bargraphs(int argc, char **argv);
 
 #endif

@@ -11,8 +11,7 @@
 uint8_t meter_update_status = 0;
 char meter_update_buffer[9];
 
-void meter_init(void)
-{
+void meter_init(void) {
     // PPS Setup
     U1RXPPS = (PPS_PORT_C & PPS_PIN_7);
     RC6PPS = PPS_UART1_TX;
@@ -27,8 +26,7 @@ void meter_init(void)
 
 /* -------------------------------------------------------------------------- */
 
-void check_for_meter_sync(void)
-{
+void check_for_meter_sync(void) {
     char data = UART1_rx_char();
 
     if (data == '\0') {
@@ -42,8 +40,7 @@ void check_for_meter_sync(void)
     }
 }
 
-void send_meter_update(void)
-{
+void send_meter_update(void) {
     uint16_t tempFWD = adc_measure(0) >> 2;
     uint16_t tempREV = adc_measure(1) >> 2;
     uint16_t tempPeriod = get_period();
@@ -59,20 +56,17 @@ void send_meter_update(void)
 }
 
 #define METER_UPDATE_INTERVAL 100
-void attempt_meter_update(void)
-{
+void attempt_meter_update(void) {
     static system_time_t nextUpdateTime = 0;
-    
+
     check_for_meter_sync();
 
-    if (meter_update_status == 1) 
-    {
+    if (meter_update_status == 1) {
         system_time_t currentTime = systick_read();
 
-        if(currentTime >= nextUpdateTime)
-        {
+        if (currentTime >= nextUpdateTime) {
             send_meter_update();
-            
+
             nextUpdateTime = currentTime + METER_UPDATE_INTERVAL;
         }
     }

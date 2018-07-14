@@ -1,5 +1,5 @@
 #ifndef _HARDWARE_H_
-#define	_HARDWARE_H_
+#define _HARDWARE_H_
 
 /* ************************************************************************** */
 // Oscillator stuff
@@ -14,14 +14,14 @@
 #define NUMBER_OF_BUTTONS 8
 
 // This is an X Macro that is used to populate the button driver
-#define BUTTON_LIST \
-    X(TUNE)\
-    X(FUNC)\
-    X(CUP)\
-    X(CDN)\
-    X(LUP)\
-    X(LDN)\
-    X(ANT)\
+#define BUTTON_LIST                                                            \
+    X(TUNE)                                                                    \
+    X(FUNC)                                                                    \
+    X(CUP)                                                                     \
+    X(CDN)                                                                     \
+    X(LUP)                                                                     \
+    X(LDN)                                                                     \
+    X(ANT)                                                                     \
     X(POWER)
 
 // What is the format of the button pin names?
@@ -36,4 +36,4 @@
 extern void startup(void);
 extern void shutdown(void);
 
-#endif	/* _HARDWARE_H_ */
+#endif /* _HARDWARE_H_ */

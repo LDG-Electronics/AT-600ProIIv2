@@ -1,11 +1,10 @@
 #include "includes.h"
-#include <xc.h>
 #include "peripherals/config.h"
+#include <xc.h>
 
 /* ************************************************************************** */
 
-void main(void)
-{
+void main(void) {
     startup();
 
     ui_mainloop();
