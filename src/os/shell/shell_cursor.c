@@ -45,11 +45,11 @@ void draw_line(line_t *line) {
     // put cursor at the beginning of the line
     print("\033[100D");
 
-    // clear line left of cursor
-    print("\033[0K");
+    // move two spaces right to account for the prompt
+    print("\033[2C");
 
-    // reprint the prompt
-    print(SHELL_PROMPT_STRING);
+    // clear line right of cursor
+    print("\033[0K");
 
     // reprint existing line
     print(line->buffer);
@@ -59,7 +59,7 @@ void draw_line(line_t *line) {
 }
 
 void draw_line_from_cursor(line_t *line) {
-    // clear line left of cursor
+    // clear line right of cursor
     print("\033[0K");
 
     // reprint existing line
