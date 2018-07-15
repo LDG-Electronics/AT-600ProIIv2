@@ -18,57 +18,17 @@ typedef struct {
     uint8_t cursor;
 } line_t;
 
-// alternate line_t definition with an anonymous array
-typedef struct {
-    char[SHELL_MAX_LENGTH];
-    uint8_t length;
-    uint8_t cursor;
-} alt_line_t;
-
 /* -------------------------------------------------------------------------- */
 
-/*  shell_flags_t stores flags to keep track of various shell modes
-
-    escapeMope
-    This mode is used to process escape sequences. escapeMode is entered the
-    shell receives an escape character(KEY_ESC). Sequences commonly contains
-    printable ascii characters, so we make sure not to process printable
-    characters while in escapeMode. escapeMode is exited after an escape
-    sequence is successfully processed.
-
-    sequenceInspectionMode
-    This is a debug mode used to diagnose escape sequences
-*/
-typedef union {
-    struct {
-        unsigned escapeMode : 1;
-        unsigned sequenceInspectionMode : 1;
-    };
-    uint8_t allFlags;
-} shell_flags_t;
-
-/* -------------------------------------------------------------------------- */
-
-/*  shell_t current state of the shell
-
-*/
-typedef struct {
-    line_t; // <- NOT PORTABLE - anonymous member struct via typedef
-    shell_flags_t; // <- NOT PORTABLE - anonymous member struct via typedef
-} shell_t;
-
-extern shell_t shell;
+extern line_t shell;
 
 /* ************************************************************************** */
 
 #include "shell_command_processing.h"
 #include "shell_cursor.h"
 #include "shell_history.h"
-#include "shell_keycodes.h"
 #include "shell_sequences.h"
 
 /* ************************************************************************** */
-
-extern void reset_current_line(void);
 
 #endif

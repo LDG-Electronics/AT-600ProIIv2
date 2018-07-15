@@ -1,7 +1,14 @@
 #include "../../includes.h"
 #include "shell_internals.h"
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_SILENT;
 
 /* ************************************************************************** */
+
+#define X(NAME) #NAME,
+const char *keyNameString[] = {KEY_NAME_LIST};
+const char *keyModifierString[] = {KEY_MODIFIER_LIST};
+#undef X
 
 typedef struct {
     char buffer[SEQUENCE_BUFFER_LENGTH];
@@ -10,376 +17,253 @@ typedef struct {
 
 sequence_t sequence;
 
-void reset_sequence_buffer(void) {
-    memset(&sequence.buffer[0], NULL, SEQUENCE_BUFFER_LENGTH);
-    sequence.length = 0;
+void shell_sequences_init(void) {
+    memset(&sequence, NULL, sizeof(sequence));
+    log_register(__FILE__, &logLevel);
 }
 
 /* -------------------------------------------------------------------------- */
 
-// key name debugging
-char keyName[32];
-
-void set_key_name(const char *string) {
-    if (shell.sequenceInspectionMode == 1) {
-        uint8_t i = 0;
-        while (string[i]) {
-            keyName[i] = string[i];
-            i++;
-        }
-        keyName[i] = NULL;
+void print_key(key_t *key) {
+    if (key->mod != NONE) {
+        print(keyModifierString[key->mod]);
+        print(" + ");
     }
-}
-
-void print_key_name(void) {
-    print("\'");
-    print((const char *)keyName);
-    print("\'");
+    println(keyNameString[key->key]);
 }
 
 /* -------------------------------------------------------------------------- */
 
-/*  sequence inspection mode is a shell mode that, instead of printing
-    characters normally, only echos back the decimal values of received UART
-    bytes, and attempts to sort them into groups that represent escape
-    sequences.
+enum {
+    KEY_UP = 65,
+    KEY_DOWN = 66,
+    KEY_RIGHT = 67,
+    KEY_LEFT = 68,
+    KEY_HOME = 72,
+    KEY_HOME2 = 49,
+    KEY_END = 70,
+    KEY_DEL = 51,
+    KEY_INS = 50,
+    KEY_PGUP = 53,
+    KEY_PGDN = 54,
+    KEY_F1 = 80,
+    KEY_F2 = 81,
+    KEY_F3 = 82,
+    KEY_F4 = 83,
+    KEY_F5 = 54,
+    KEY_F5_ALT = 53,
+    KEY_F6 = 55,
+    KEY_F7 = 56,
+    KEY_F8 = 57,
+    KEY_F9 = 48,
+    KEY_F10 = 49,
+    KEY_F11 = 51,
+    KEY_F12 = 52,
+} sequenceIdentifiers;
 
-    This mode is used to build escape sequence charts and to assist in
-    diagnosing issues and failures when processing non-printable keypresses.
+key_t decode_escape_sequence(void) {
+    log_trace(println("decode_escape_sequence"););
+    log_debug(printf("sequence.length: %d\r\n", sequence.length););
 
-*/
-void toggle_sequence_inspection_mode(void) {
-    shell.sequenceInspectionMode = !shell.sequenceInspectionMode;
-    if (shell.sequenceInspectionMode == 1) {
-        println("\r\nSequence inspection mode enabled.");
-    } else {
-        println("\r\nSequence inspection mode disabled.");
-        print(SHELL_PROMPT_STRING);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-/*  Notes on escape sequences:
-
-    If a block returns, that means that the escape sequence isn't over yet.
-
-    If a block ends with "goto FINISHED;", that means that we know it was a
-    valid escape sequence.
-*/
-void process_escape_sequence(char currentChar) {
-    if (shell.escapeMode == 0) {
-        shell.escapeMode = 1;
-        reset_sequence_buffer();
-    }
-
-    char prevChar = sequence.buffer[sequence.length];
-    sequence.length++;
-    sequence.buffer[sequence.length] = currentChar;
+    key_t newKey = {UNKNOWN, NONE};
 
     switch (sequence.length) {
-    case 1:
-        switch (currentChar) {
-        case KEY_CTRL_C:
-            set_key_name("ctrl + c");
-            goto FINISHED;
-        case KEY_CTRL_D: // delete one character to the right of the cursor
-            set_key_name("ctrl + d");
-            remove_char_at_cursor();
-            goto FINISHED;
-        case KEY_CTRL_E: // move cursor to the end of the line
-            set_key_name("ctrl + e");
-            move_cursor_to(shell.length);
-            goto FINISHED;
-        case KEY_CTRL_K: // delete all characters to the right of the cursor
-            set_key_name("ctrl + k");
-            while (shell.cursor < shell.length) {
-                remove_char_at_cursor();
-            }
-            goto FINISHED;
-        case KEY_CTRL_U: // delete all characters to the left of the cursor
-            set_key_name("ctrl + u");
-            while (shell.cursor > 0) {
-                move_cursor(-1);
-                remove_char_at_cursor();
-            }
-            goto FINISHED;
-        case KEY_HT:
-            set_key_name("tab");
-            goto FINISHED;
-        case KEY_BS: // delete one character to the left of the cursor
-            set_key_name("backspace");
-            if (shell.cursor != 0) {
-                move_cursor(-1);
-                remove_char_at_cursor();
-            }
-            goto FINISHED;
-        case KEY_CTRL_BS:
-            set_key_name("ctrl + backspace");
-            goto FINISHED;
-        case KEY_CR:
-            set_key_name("enter");
-            if (!shell.sequenceInspectionMode) {
-                shell.buffer[shell.length] = '\0';
-                println("");
-                if (shell.length > 0) {
-                    // Push the current line to history before it gets mangled
-                    shell_history_push();
-                    process_shell_command();
-
-                    reset_current_line();
-                }
-                print(SHELL_PROMPT_STRING);
-            }
-            goto FINISHED;
-        case KEY_CTRL_CR:
-            set_key_name("ctrl + enter");
-            goto FINISHED;
-        default:
-            return;
-        }
     case 2:
-        switch (currentChar) {
-        case KEY_ALT_BS: // delete all characters to the left of the cursor
-            set_key_name("ctrl + backspace");
-            while (shell.cursor > 0) {
-                move_cursor(-1);
-                remove_char_at_cursor();
-            }
-            goto FINISHED;
-        default:
-            return;
-        }
-    case 3:
-        switch (currentChar) {
+        switch (sequence.buffer[1]) {
         case KEY_UP:
-            set_key_name("up");
-            shell_history_show_older();
+            newKey.key = UP;
             goto FINISHED;
         case KEY_DOWN:
-            set_key_name("down");
-            shell_history_show_newer();
+            newKey.key = DOWN;
             goto FINISHED;
         case KEY_RIGHT:
-            set_key_name("right");
-            move_cursor(1);
+            newKey.key = RIGHT;
             goto FINISHED;
         case KEY_LEFT:
-            set_key_name("left");
-            move_cursor(-1);
+            newKey.key = LEFT;
             goto FINISHED;
         case KEY_HOME:
-            set_key_name("home");
-            move_cursor_to(0);
+            newKey.key = HOME;
             goto FINISHED;
         case KEY_END:
-            set_key_name("end");
-            move_cursor_to(shell.length);
+            newKey.key = END;
             goto FINISHED;
         case KEY_F1:
-            set_key_name("F1");
+            newKey.key = F1;
             goto FINISHED;
         case KEY_F2:
-            set_key_name("F2");
+            newKey.key = F2;
             goto FINISHED;
         case KEY_F3:
-            set_key_name("F3");
+            newKey.key = F3;
             goto FINISHED;
         case KEY_F4:
-            set_key_name("F4");
+            newKey.key = F4;
             goto FINISHED;
         default:
-            return;
+            goto FINISHED;
         }
-    case 4:
-        switch (currentChar) {
-        case '~':
-            switch (prevChar) {
+    case 3:
+        if (sequence.buffer[2] == '~') {
+            switch (sequence.buffer[1]) {
             case KEY_HOME2:
-                set_key_name("home");
-                move_cursor_to(0);
+                newKey.key = HOME;
                 goto FINISHED;
             case KEY_PGUP:
-                set_key_name("pgup");
+                newKey.key = PAGEUP;
                 goto FINISHED;
             case KEY_PGDN:
-                set_key_name("pgdn");
+                newKey.key = PAGEDOWN;
                 goto FINISHED;
             case KEY_DEL:
-                set_key_name("delete");
-                if (shell.cursor != shell.length) {
-                    remove_char_at_cursor();
-                }
+                newKey.key = DELETE;
                 goto FINISHED;
             case KEY_INS:
-                set_key_name("insert");
+                newKey.key = INSERT;
                 goto FINISHED;
             }
-        default:
-            return;
         }
-    case 5:
-        if (currentChar == '~') {
-            switch (prevChar) {
+        goto FINISHED;
+    case 4:
+        if (sequence.buffer[3] == '~') {
+            switch (sequence.buffer[2]) {
             case KEY_F5:
             case KEY_F5_ALT:
-                set_key_name("F5");
-                redraw_current_line();
+                newKey.key = F5;
                 goto FINISHED;
             case KEY_F6:
-                set_key_name("F6");
-                print("\033[2K");
+                newKey.key = F6;
                 goto FINISHED;
             case KEY_F7:
-                set_key_name("F7");
-                toggle_history_inspection_mode();
+                newKey.key = F7;
                 goto FINISHED;
             case KEY_F8:
-                set_key_name("F8");
-                shell_history_wipe();
+                newKey.key = F8;
                 goto FINISHED;
             case KEY_F9:
-                toggle_sequence_inspection_mode();
-                set_key_name("F9");
+                newKey.key = F9;
                 goto FINISHED;
             case KEY_F10:
-                set_key_name("F10");
+                newKey.key = F10;
                 goto FINISHED;
             case KEY_F11:
-                set_key_name("F11");
+                newKey.key = F11;
                 goto FINISHED;
             case KEY_F12:
-                set_key_name("F12");
+                newKey.key = F12;
+                goto FINISHED;
+            default:
                 goto FINISHED;
             }
-        default:
-            return;
         }
-    case 6:
-        switch (currentChar) {
+        goto FINISHED;
+    case 5:
+        switch (sequence.buffer[4]) {
+        case KEY_F1:
+            newKey.key = F1;
+            break;
+        case KEY_F2:
+            newKey.key = F2;
+            break;
+        case KEY_F3:
+            newKey.key = F3;
+            break;
+        case KEY_F4:
+            newKey.key = F4;
+            break;
         case KEY_UP:
-            switch (sequence.buffer[5]) {
-            case MOD_SHIFT:
-                set_key_name("shift + up");
-                goto FINISHED;
-            case MOD_ALT:
-                set_key_name("alt + up");
-                goto FINISHED;
-            case MOD_CTRL:
-                set_key_name("ctrl + up");
-                goto FINISHED;
-            }
+            newKey.key = UP;
+            break;
         case KEY_DOWN:
-            switch (sequence.buffer[5]) {
-            case MOD_SHIFT:
-                set_key_name("shift + down");
-                goto FINISHED;
-            case MOD_ALT:
-                set_key_name("alt + down");
-                goto FINISHED;
-            case MOD_CTRL:
-                set_key_name("ctrl + down");
-                goto FINISHED;
-            }
+            newKey.key = DOWN;
+            break;
         case KEY_RIGHT:
-            switch (sequence.buffer[5]) {
-            case MOD_SHIFT:
-                set_key_name("shift + right");
-                goto FINISHED;
-            case MOD_ALT:
-                set_key_name("alt + right");
-                goto FINISHED;
-            case MOD_CTRL:
-                set_key_name("ctrl + right");
-                do {
-                    move_cursor(1);
-                } while (shell.buffer[shell.cursor] != ' ' &&
-                         shell.cursor < shell.length);
-                goto FINISHED;
-            }
+            newKey.key = RIGHT;
+            break;
         case KEY_LEFT:
-            switch (sequence.buffer[5]) {
-            case MOD_SHIFT:
-                set_key_name("shift + left");
-                goto FINISHED;
-            case MOD_ALT:
-                set_key_name("alt + left");
-                goto FINISHED;
-            case MOD_CTRL:
-                set_key_name("ctrl + left");
-                do {
-                    move_cursor(-1);
-                } while (shell.buffer[shell.cursor] != ' ' && shell.cursor > 0);
-                goto FINISHED;
-            }
+            newKey.key = LEFT;
+            break;
         case KEY_HOME:
-            switch (sequence.buffer[5]) {
-            case MOD_SHIFT:
-                set_key_name("shift + home");
-                goto FINISHED;
-            case MOD_ALT:
-                set_key_name("alt + home");
-                goto FINISHED;
-            case MOD_CTRL:
-                set_key_name("ctrl + home");
-                goto FINISHED;
-            }
+            newKey.key = HOME;
+            break;
         case KEY_END:
-            switch (sequence.buffer[5]) {
-            case MOD_SHIFT:
-                set_key_name("shift + end");
-                goto FINISHED;
-            case MOD_ALT:
-                set_key_name("alt + end");
-                goto FINISHED;
-            case MOD_CTRL:
-                set_key_name("ctrl + end");
-                goto FINISHED;
-            }
+            newKey.key = END;
+            break;
         case '~':
-            switch (sequence.buffer[3]) {
-            case KEY_DEL:
-                switch (sequence.buffer[5]) {
-                case MOD_SHIFT:
-                    set_key_name("shift + delete");
-                    goto FINISHED;
-                case MOD_ALT:
-                    set_key_name("alt + delete");
-                    goto FINISHED;
-                case MOD_CTRL:
-                    set_key_name("ctrl + delete");
-                    goto FINISHED;
-                }
-            case KEY_INS:
-                switch (sequence.buffer[5]) {
-                case MOD_SHIFT:
-                    set_key_name("shift + insert");
-                    goto FINISHED;
-                case MOD_ALT:
-                    set_key_name("alt + insert");
-                    goto FINISHED;
-                case MOD_CTRL:
-                    set_key_name("ctrl + insert");
-                    goto FINISHED;
-                }
+            if (sequence.buffer[1] == KEY_DEL) {
+                newKey.key = DELETE;
+                break;
+            }
+            if (sequence.buffer[1] == KEY_INS) {
+                newKey.key = INSERT;
+                break;
             }
         default:
-            return;
+            goto FINISHED;
         }
-    case 7:
+        newKey.mod = sequence.buffer[3] - '0';
+        goto FINISHED;
+    case 6:
+        if (sequence.buffer[5] == '~') {
+            switch (sequence.buffer[2]) {
+            case KEY_F5:
+            case KEY_F5_ALT:
+                newKey.key = F5;
+                break;
+            case KEY_F6:
+                newKey.key = F6;
+                break;
+            case KEY_F7:
+                newKey.key = F7;
+                break;
+            case KEY_F8:
+                newKey.key = F8;
+                break;
+            case KEY_F9:
+                newKey.key = F9;
+                break;
+            case KEY_F10:
+                newKey.key = F10;
+                break;
+            case KEY_F11:
+                newKey.key = F11;
+                break;
+            case KEY_F12:
+                newKey.key = F12;
+                break;
+            default:
+                goto FINISHED;
+            }
+            newKey.mod = sequence.buffer[4] - '0';
+            goto FINISHED;
+        }
+        goto FINISHED;
+    default:
         goto FINISHED;
     }
 
 FINISHED:
-    // if we're in raw echo mode, then add a newline to seperate groups of
-    // escape sequence codes
-    if (shell.sequenceInspectionMode) {
-        print_key_name();
-        printf(" length: %d\r\n", sequence.length);
+    log_debug(print_key(&newKey););
+    return newKey;
+}
+
+key_t intercept_escape_sequence(void) {
+    log_trace(println("intercept_escape_sequence"););
+
+    system_time_t startTime = systick_read();
+
+    memset(&sequence, NULL, sizeof(sequence));
+
+    while (systick_elapsed_time(startTime) < 2) {
+        // check for a new character
+        sequence.buffer[sequence.length] = getch();
+        // if valid character, move to next spot in buffer
+        if (sequence.buffer[sequence.length] != 0) {
+            sequence.length++;
+        }
     }
 
-    // If we reach this spot, then we've fully processed the current
-    // escape sequence, and we can exit escape mode.
-    reset_sequence_buffer();
-    shell.escapeMode = 0;
+    log_debug(printf("'%s'\r\n", sequence.buffer););
+
+    return decode_escape_sequence();
 }
