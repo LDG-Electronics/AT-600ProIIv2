@@ -29,6 +29,4 @@ extern line_t shell;
 #include "shell_history.h"
 #include "shell_sequences.h"
 
-/* ************************************************************************** */
-
 #endif

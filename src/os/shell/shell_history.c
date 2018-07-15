@@ -163,7 +163,7 @@ void shell_history_show_older(void) {
     if (history.historyInspectionMode == 1) {
         inspect_shell_history();
     }
-    redraw_current_line();
+    draw_line(&shell);
     move_cursor_to(shell.length);
 }
 
@@ -187,7 +187,7 @@ void shell_history_show_newer(void) {
         if (history.historyInspectionMode == 1) {
             inspect_shell_history();
         }
-        redraw_current_line();
+        draw_line(&shell);
         return;
     }
 
@@ -197,6 +197,6 @@ void shell_history_show_newer(void) {
     if (history.historyInspectionMode == 1) {
         inspect_shell_history();
     }
-    redraw_current_line();
+    draw_line(&shell);
     move_cursor_to(shell.length);
 }

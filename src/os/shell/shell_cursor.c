@@ -27,7 +27,7 @@ void move_cursor_to(uint8_t position) {
     }
 
     // put cursor at the beginning of the line
-    print("\033[64D");
+    print("\033[100D");
 
     // move two spaces right to account for the prompt
     print("\033[2C");
@@ -43,7 +43,7 @@ void move_cursor_to(uint8_t position) {
 
 void draw_line(line_t *line) {
     // put cursor at the beginning of the line
-    print("\033[64D");
+    print("\033[100D");
 
     // clear line left of cursor
     print("\033[0K");
@@ -58,25 +58,19 @@ void draw_line(line_t *line) {
     move_cursor_to(line->cursor);
 }
 
-void redraw_current_line(void) {
-    // put cursor at the beginning of the line
-    print("\033[64D");
-
+void draw_line_from_cursor(line_t *line) {
     // clear line left of cursor
     print("\033[0K");
 
-    // reprint the prompt
-    print(SHELL_PROMPT_STRING);
-
     // reprint existing line
-    print(shell.buffer);
+    print(&line->buffer[line->cursor]);
 
     // restore the cursor's original position
-    move_cursor_to(shell.cursor);
+    move_cursor_to(line->cursor);
 }
 
 void insert_char_at_cursor(char currentChar) {
-    if (shell.length >= SHELL_MAX_LENGTH) {
+    if (shell.length >= SHELL_MAX_LENGTH - 2) {
         return;
     }
 
@@ -105,8 +99,7 @@ void insert_char_at_cursor(char currentChar) {
     // add the new char
     shell.buffer[shell.cursor] = currentChar;
 
-    // TODO: typecast is dirty, find another way
-    draw_line((line_t *)shell.buffer);
+    draw_line_from_cursor(&shell);
     move_cursor(1);
 }
 
@@ -130,6 +123,5 @@ void remove_char_at_cursor(void) {
     shell.buffer[i + 1] = NULL;
     shell.length--;
 
-    // TODO: typecast is dirty, find another way
-    draw_line((line_t *)shell.buffer);
+    draw_line_from_cursor(&shell);
 }
