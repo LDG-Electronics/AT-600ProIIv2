@@ -1,4 +1,5 @@
 #include "../includes.h"
+#include "shell/shell_sequences.h"
 
 /* ************************************************************************** */
 const char *level_names[] = {
@@ -51,6 +52,33 @@ void print_log_list(void) {
     }
 
     println("-----------------------------------------------");
+}
+
+int program_log_edit(int argc, char **argv) {
+    char currentchar;
+
+    println("");
+    println("press ctrl+c to exit logedit");
+    println("");
+    println("");
+
+    print_log_list();
+
+    while (1) {
+        currentchar = getch();
+        if (!currentchar) {
+            continue;
+        }
+
+        // ctrl + c, exit program
+        if (currentchar == 3) {
+            return;
+        }
+
+        if (currentchar == 27) {
+            key_t intercept_escape_sequence();
+        }
+    }
 }
 
 /* ************************************************************************** */

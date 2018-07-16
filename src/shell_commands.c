@@ -255,4 +255,5 @@ void register_all_shell_commands(void) {
 
     // log level controls
     shell_register_command(edit_log_levels, "log", NULL);
+    shell_register_command(program_log_edit, "logedit", NULL);
 }

@@ -43,6 +43,8 @@ extern void log_level_edit(uint8_t file, uint8_t level);
 
 extern void print_log_list(void);
 
+extern int program_log_edit(int argc, char **argv);
+
 /* ************************************************************************** */
 
 int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
