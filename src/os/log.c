@@ -1,5 +1,7 @@
 #include "../includes.h"
 #include "shell/shell_sequences.h"
+#define LOG_LEVEL logLevel
+static uint8_t logLevel = L_SILENT;
 
 /* ************************************************************************** */
 const char *level_names[] = {
@@ -19,6 +21,8 @@ void log_init(void) {
         logDatabase.file[i].level = NULL;
     }
     logDatabase.numberOfFiles = 0;
+
+    log_register();
 }
 
 void log_register__(const char *name, uint8_t *level) {
@@ -75,10 +79,9 @@ int program_log_edit(int argc, char **argv) {
 
         if (currentchar == 27) {
             key_t key = intercept_escape_sequence();
+
+            log_debug(print_key(&key););
         }
-
-
-        
     }
 }
 
