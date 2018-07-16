@@ -114,6 +114,10 @@ void inspect_shell_history(void) {
 // push the current line onto the history buffer
 // used when we hit the enter key
 void shell_history_push(void) {
+    // a push means we aren't viewing the middle of the history anymore
+    history.pointer = 0;
+    history.historyMode = 0;
+    
     // don't save if the current line matches the most recent history entry
     if (strcmp((const char *)history.line[history.head], &shell.buffer) == 0) {
         return;
@@ -122,10 +126,6 @@ void shell_history_push(void) {
     if (history.historyInspectionMode == 1) {
         inspect_shell_history();
     }
-
-    // a push means we aren't viewing the middle of the history anymore
-    history.pointer = 0;
-    history.historyMode = 0;
 
     // Decrement head
     history.head = (history.head - 1) % SHELL_HISTORY_LENGTH;
