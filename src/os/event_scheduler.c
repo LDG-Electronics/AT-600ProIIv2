@@ -72,7 +72,7 @@ void event_scheduler_init(void) {
         event_clear(&events.queue[i]);
     }
 
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 /* ************************************************************************** */

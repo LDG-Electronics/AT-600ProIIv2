@@ -69,7 +69,7 @@ void spi_init(void) {
     SPI1CON0bits.MST = 1; // Set as bus master
     SPI1CON0bits.EN = 1;  // Enable SPI module
     
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 /* -------------------------------------------------------------------------- */

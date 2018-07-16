@@ -28,7 +28,7 @@ void relays_init(void) {
     RELAY_CLOCK_PIN = 1;
     RELAY_DATA_PIN = 1;
 
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 /* -------------------------------------------------------------------------- */

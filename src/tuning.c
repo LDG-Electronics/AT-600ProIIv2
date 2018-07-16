@@ -71,7 +71,7 @@ uint16_t prevSolutionCount;
 
 /* ************************************************************************** */
 
-void tuning_init(void) { log_register(__FILE__, &logLevel); }
+void tuning_init(void) { log_register(); }
 
 /* ************************************************************************** */
 

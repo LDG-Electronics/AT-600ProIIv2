@@ -19,7 +19,7 @@ sequence_t sequence;
 
 void shell_sequences_init(void) {
     memset(&sequence, NULL, sizeof(sequence));
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 /* -------------------------------------------------------------------------- */

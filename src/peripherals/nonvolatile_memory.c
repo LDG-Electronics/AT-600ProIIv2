@@ -5,7 +5,7 @@ static uint8_t logLevel = L_SILENT;
 /* ************************************************************************** */
 
 void nonvolatile_memory_init(void) {
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 /* ************************************************************************** */

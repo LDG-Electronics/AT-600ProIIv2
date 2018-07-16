@@ -25,7 +25,7 @@ void RF_sensor_init(void) {
     currentRF.swr = 0;
     currentRF.frequency = 0;
 
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 void SWR_threshold_set(void) { swrThresh = swrThreshTable[swrThreshIndex]; }

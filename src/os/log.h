@@ -35,9 +35,11 @@ extern log_database_t logDatabase;
 
 /* ************************************************************************** */
 
+// setup
 extern void log_init(void);
 
-extern void log_register(const char *name, uint8_t *level);
+extern void log_register__(const char *name, uint8_t *level);
+#define log_register() log_register__(__FILE__, &logLevel)
 
 extern void log_level_edit(uint8_t file, uint8_t level);
 

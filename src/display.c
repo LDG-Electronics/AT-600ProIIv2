@@ -28,7 +28,7 @@ void display_init(void) {
     displayBuffer.upperMutex = 0;
     displayBuffer.lowerMutex = 0;
 
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 /* -------------------------------------------------------------------------- */

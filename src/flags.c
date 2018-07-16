@@ -31,7 +31,7 @@ void flags_init(void) {
     bypassStatus[0] = system_flags.ant1Bypass;
     bypassStatus[1] = system_flags.ant2Bypass;
 
-    log_register(__FILE__, &logLevel);
+    log_register();
 }
 
 /* -------------------------------------------------------------------------- */

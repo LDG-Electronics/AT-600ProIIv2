@@ -21,7 +21,7 @@ void log_init(void) {
     logDatabase.numberOfFiles = 0;
 }
 
-void log_register(const char *name, uint8_t *level) {
+void log_register__(const char *name, uint8_t *level) {
     logDatabase.file[logDatabase.numberOfFiles].name = name;
     logDatabase.file[logDatabase.numberOfFiles].level = level;
 
