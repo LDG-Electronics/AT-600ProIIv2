@@ -57,9 +57,7 @@ void print_log_list(void) {
 int program_log_edit(int argc, char **argv) {
     char currentchar;
 
-    println("");
     println("press ctrl+c to exit logedit");
-    println("");
     println("");
 
     print_log_list();
@@ -76,8 +74,11 @@ int program_log_edit(int argc, char **argv) {
         }
 
         if (currentchar == 27) {
-            key_t intercept_escape_sequence();
+            key_t key = intercept_escape_sequence();
         }
+
+
+        
     }
 }
 
