@@ -86,7 +86,6 @@ void inspect_shell_history(void) {
     println("Printing shell history:");
     printf("History currently has %d entries.\r\n", history.length);
     printf("temp slot: %s\r\n", &history.tempLine);
-    delay_ms(10);
     uint8_t line = 0;
     for (int8_t i = history.length; i >= 0; i--) {
         line = (history.head + i - 1) % SHELL_HISTORY_LENGTH;
@@ -96,7 +95,6 @@ void inspect_shell_history(void) {
             print(" <--");
         }
         println("");
-        delay_ms(5);
     }
     printf("current line: %s\r\n", &shell.buffer);
     println("-----------------------------------------------");
