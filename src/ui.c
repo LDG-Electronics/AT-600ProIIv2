@@ -29,6 +29,7 @@ void threshold_blink_and_hold(uint8_t blinks) {
 }
 
 void threshold_submenu(void) {
+    log_trace(println("decode_escape_sequence"););
     threshold_blink_and_hold(3);
 
     system_time_t startTime = systick_read(); // stash the current time
@@ -54,7 +55,8 @@ void threshold_submenu(void) {
 }
 
 void function_submenu(void) {
-    while (btn_is_down(FUNC))
+    log_trace(println("function_submenu"););
+    while (btn_is_down(FUNC)){}
         ; // make sure FUNC is released before we continue
 
     delay_ms(50);
@@ -111,6 +113,7 @@ void function_submenu(void) {
 #define POWER_BUTTON_DURATION 1000
 
 void shutdown_submenu(void) {
+    log_trace(println("shutdown_submenu"););
     log_info(println("shutting down"););
 
     // Turn off the whole front panel
@@ -144,6 +147,7 @@ void shutdown_submenu(void) {
 /* -------------------------------------------------------------------------- */
 
 void relay_button_hold(void) {
+    log_trace(println("relay_button_hold"););
     system_time_t currentTime = systick_read();
     uint8_t incrementCount = 0;
     uint8_t incrementDelay = 200;
@@ -184,6 +188,7 @@ void relay_button_hold(void) {
 }
 
 void tune_hold(void) {
+    log_trace(println("tune_hold"););
     system_time_t elapsedTime;
     system_time_t startTime = systick_read();
 
@@ -225,6 +230,7 @@ void tune_hold(void) {
 }
 
 void func_hold(void) {
+    log_trace(println("func_hold"););
     uint8_t FuncHoldProcessed = 0;
 
     while (btn_is_down(FUNC)) // stay in loop while FUNC is held
@@ -262,6 +268,7 @@ void func_hold(void) {
 }
 
 void ant_hold(void) {
+    log_trace(println("ant_hold"););
     toggle_antenna();
     blink_antenna();
     update_antenna_LED();
@@ -276,6 +283,7 @@ void ant_hold(void) {
 #define POWER_HOLD_DURATION 1500
 
 void power_hold(void) {
+    log_trace(println("power_hold"););
     system_time_t startTime = systick_read();
 
     while (btn_is_down(POWER)) // stay in loop while POWER is held
@@ -292,7 +300,7 @@ void power_hold(void) {
 /* ************************************************************************** */
 
 void ui_mainloop(void) {
-    log_register(__FILE__, &logLevel);
+    log_register();
 
     while (1) {
         // Relay buttons
