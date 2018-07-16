@@ -27,6 +27,6 @@ extern line_t shell;
 #include "shell_command_processing.h"
 #include "shell_cursor.h"
 #include "shell_history.h"
-#include "shell_sequences.h"
+#include "shell_keys.h"
 
 #endif
