@@ -68,6 +68,9 @@ key_t decode_escape_sequence(void) {
     key_t newKey = {UNKNOWN, NONE};
 
     switch (sequence.length) {
+    case 0:
+        newKey.key = ESCAPE;
+        goto FINISHED;
     case 2:
         switch (sequence.buffer[1]) {
         case KEY_UP:
@@ -247,13 +250,50 @@ FINISHED:
     return newKey;
 }
 
-key_t intercept_escape_sequence(void) {
-    log_trace(println("intercept_escape_sequence"););
+enum {
+    KEY_ETX = 3,
+    KEY_CTRL_D = 4,
+    KEY_CTRL_E = 5,
+    KEY_BS = 8,
+    KEY_TAB = 9,
+    KEY_LF = 10,
+    KEY_CR = 13,
+    KEY_CTRL_U = 21,
+    KEY_CTRL_Y = 25,
+    KEY_ESC = 27,
+    KEY_CTRL_Z = 26,
+    KEY_CTRL_BS = 31,
+} controlCharacters;
 
-    system_time_t startTime = systick_read();
+key_t decode_control_character(char currentChar) {
+    log_trace(println("decode_control_character"););
+    log_debug(printf("currentChar: %d\r\n", currentChar););
 
+    key_t newKey = {UNKNOWN, NONE};
+
+    switch (currentChar) {
+    case KEY_BS:
+        newKey.key = BACKSPACE;
+        break;
+    case KEY_LF:
+    case KEY_CR:
+        newKey.key = ENTER;
+        break;
+    case KEY_TAB:
+        newKey.key = TAB;
+        break;
+    default:
+        break;
+    }
+
+    log_debug(print_key(&newKey););
+    return newKey;
+}
+
+void intercept_escape_sequence(void) {
     memset(&sequence, NULL, sizeof(sequence));
 
+    system_time_t startTime = systick_read();
     while (systick_elapsed_time(startTime) < 2) {
         // check for a new character
         sequence.buffer[sequence.length] = getch();
@@ -262,8 +302,20 @@ key_t intercept_escape_sequence(void) {
             sequence.length++;
         }
     }
+}
 
-    log_debug(printf("'%s'\r\n", sequence.buffer););
+key_t identify_key(char currentChar) {
+    log_trace(println("intercept_escape_sequence"););
 
-    return decode_escape_sequence();
+    key_t key = {UNKNOWN, NONE};
+
+    if (currentChar == KEY_ESC) {
+        intercept_escape_sequence();
+        log_debug(printf("'%s'\r\n", sequence.buffer););
+        key = decode_escape_sequence();
+    } else {
+        key = decode_control_character(currentChar);
+    }
+
+    return key;
 }

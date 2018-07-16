@@ -55,11 +55,11 @@ void print_log_list(void) {
         println(logDatabase.file[i].name);
     }
 
-    println("-----------------------------------------------");
+    print("-----------------------------------------------");
 }
 
 int program_log_edit(int argc, char **argv) {
-    char currentchar;
+    char currentChar;
 
     println("press ctrl+c to exit logedit");
     println("");
@@ -67,18 +67,18 @@ int program_log_edit(int argc, char **argv) {
     print_log_list();
 
     while (1) {
-        currentchar = getch();
-        if (!currentchar) {
+        currentChar = getch();
+        if (!currentChar) {
             continue;
         }
 
         // ctrl + c, exit program
-        if (currentchar == 3) {
+        if (currentChar == 3) {
             return;
         }
 
-        if (currentchar == 27) {
-            key_t key = intercept_escape_sequence();
+        if (currentChar == 27) {
+            key_t key = identify_key(currentChar);
 
             log_debug(print_key(&key););
         }

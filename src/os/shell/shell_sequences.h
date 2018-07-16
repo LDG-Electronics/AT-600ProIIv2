@@ -5,6 +5,10 @@
 
 #define KEY_NAME_LIST                                                          \
     X(UNKNOWN)                                                                 \
+    X(ESCAPE)                                                                  \
+    X(ENTER)                                                                   \
+    X(BACKSPACE)                                                               \
+    X(TAB)                                                                     \
     X(HOME)                                                                    \
     X(END)                                                                     \
     X(INSERT)                                                                  \
@@ -57,8 +61,8 @@ typedef struct {
 // setup
 extern void shell_sequences_init(void);
 
-// returns a key object that matches 
-extern key_t intercept_escape_sequence(void);
+// returns a key object that identifies the pressed key
+extern key_t identify_key(char currentChar);
 
 // print the name and modifier of the provided key_t object
 extern void print_key(key_t *key);
