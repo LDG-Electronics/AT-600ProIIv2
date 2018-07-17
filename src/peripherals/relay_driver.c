@@ -24,12 +24,12 @@ void relay_driver_init(void) {
 /* -------------------------------------------------------------------------- */
 
 void publish_relays(uint16_t word) {
-    uint8_t i;
+    lastPublishedRelays.all = word;
 
     RELAY_STROBE_PIN = 1;
     RELAY_CLOCK_PIN = 0;
 
-    for (i = 0; i < 16; i++) {
+    for (uint8_ti = 0; i < 16; i++) {
         if (word & (1 << (15 - i))) {
             RELAY_DATA_PIN = 1;
         } else {
