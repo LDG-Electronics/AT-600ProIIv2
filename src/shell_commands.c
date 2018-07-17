@@ -1,5 +1,5 @@
 #include "includes.h"
-#include "os/shell/shell_command_processing.h"
+#include "os/shell/shell_internals.h"
 
 /* ************************************************************************** */
 
