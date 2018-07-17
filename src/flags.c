@@ -1,6 +1,5 @@
 #include "includes.h"
-#define LOG_LEVEL logLevel
-static uint8_t logLevel = L_SILENT;
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 

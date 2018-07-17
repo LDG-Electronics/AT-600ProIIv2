@@ -1,8 +1,7 @@
 #include "../includes.h"
 #include "shell/shell_command_processing.h"
 #include "shell/shell_keys.h"
-#define LOG_LEVEL logLevel
-static uint8_t logLevel = L_DEBUG;
+static uint8_t LOG_LEVEL = L_DEBUG;
 
 /* ************************************************************************** */
 const char *level_names[] = {
