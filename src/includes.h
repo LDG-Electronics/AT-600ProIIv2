@@ -7,10 +7,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <ctype.h>
 
 // device header
 #include "pic18f46k42.h"

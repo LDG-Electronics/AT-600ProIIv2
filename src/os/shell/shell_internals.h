@@ -24,6 +24,11 @@ extern line_t shell;
 
 /* ************************************************************************** */
 
+// C standard libraries
+#include <ctype.h>
+#include <string.h>
+
+// shell files
 #include "shell_command_processing.h"
 #include "shell_cursor.h"
 #include "shell_history.h"

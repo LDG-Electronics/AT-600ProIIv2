@@ -1,4 +1,5 @@
 #include "../includes.h"
+#include <string.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
