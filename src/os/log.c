@@ -36,6 +36,10 @@ void log_register__(const char *name, uint8_t *level) {
     logDatabase.numberOfFiles++;
 }
 
+void log_level_edit(uint8_t fileID, uint8_t level) {
+    *logDatabase.file[fileID].level = level;
+}
+
 void print_log_list(void) {
     println("-----------------------------------------------");
     for (uint8_t i = 0; i < 7; i++) {
@@ -66,7 +70,7 @@ int program_logedit_begin(int argc, char **argv) {
 }
 
 int program_logedit_continue(int argc, char **argv) {
-    char currentChar;
+    char currentChar = 0;
 
     // ctrl + c, exit program
     if (currentChar == 3) {
