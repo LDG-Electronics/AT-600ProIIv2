@@ -19,4 +19,4 @@ extern void UART2_tx_char(char data);
 // Return a single char from the RX buffer, or return 0 if the buffer is empty
 extern char UART2_rx_char(void);
 
-#endif /* _UART_H_ */
+#endif /* _UART2_H_ */

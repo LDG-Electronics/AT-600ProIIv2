@@ -43,7 +43,6 @@
 #include "calibration.h"
 #include "display.h"
 #include "events.h"
-#include "fast_ring_buffer.h"
 #include "flags.h"
 #include "frequency_counter.h"
 #include "memory.h"
