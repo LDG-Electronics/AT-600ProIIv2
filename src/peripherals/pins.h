@@ -1,5 +1,5 @@
 #ifndef _PINS_H_
-#define	_PINS_H_
+#define _PINS_H_
 
 /* ************************************************************************** */
 // Button stuff
@@ -20,7 +20,7 @@
 #define FP_CLOCK_PIN LATAbits.LATA6
 #define FP_DATA_PIN LATCbits.LATC5
 #define FP_STROBE_PIN LATCbits.LATC4
- 
+
 // Status LED pins
 #define POWER_LED_PIN LATAbits.LATA2
 #define BYPASS_LED_PIN LATCbits.LATC3
@@ -30,11 +30,11 @@
 // RF Sensor
 // #define FREQ_PIN PORTEbits.RE3 // frequency counter
 #define FREQ_PIN PORTEbits.RE0 // frequency counter
-#define FWD_PIN PORTAbits.RA0 // forward power
-#define REV_PIN PORTAbits.RA1 // reverse power
+#define FWD_PIN PORTAbits.RA0  // forward power
+#define REV_PIN PORTAbits.RA1  // reverse power
 
 // External Interrupts
-#define RF_INT_PIN PORTBbits.RB3 // rf interrupt - unused
+#define RF_INT_PIN PORTBbits.RB3    // rf interrupt - unused
 #define INTERRUPT_PIN PORTBbits.RB0 // front panel button interrupt - unused
 
 // Radio key line - used with IC-PAC or YT-PAC-1200 cable to key radio
@@ -57,4 +57,4 @@
 
 void pins_init(void);
 
-#endif	/* _PINS_H_ */
+#endif /* _PINS_H_ */

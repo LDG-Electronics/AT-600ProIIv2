@@ -2,8 +2,7 @@
 
 /* ************************************************************************** */
 
-void port_init(void)
-{
+void port_init(void) {
     // Tri-state control; 0 = output enabled, 1 = output disabled
     // Explicitly disable all outputs
     TRISA = 0xFF;
@@ -13,12 +12,12 @@ void port_init(void)
     TRISE = 0xFF;
 
     // Output latch - explicitly drive all outputs low
-    LATA = 0;    
-    LATB = 0;    
-    LATC = 0;   
-    LATD = 0;   
-    LATE = 0;   
-    
+    LATA = 0;
+    LATB = 0;
+    LATC = 0;
+    LATD = 0;
+    LATE = 0;
+
     // Analog Select; 0 = analog mode is disabled, 1 = analog mode is enabled
     ANSELA = 0;
     ANSELB = 0;
@@ -33,7 +32,7 @@ void port_init(void)
     WPUD = 0;
     WPUE = 0;
 
-    // Open-Drain Control; 0 = Output drives both high and low, 1 = 
+    // Open-Drain Control; 0 = Output drives both high and low, 1 =
     ODCONA = 0;
     ODCONB = 0;
     ODCONC = 0;
@@ -55,8 +54,7 @@ void port_init(void)
     INLVLE = 0xff;
 }
 
-void pins_init(void)
-{
+void pins_init(void) {
     // initialize all the port registers
     port_init();
 
