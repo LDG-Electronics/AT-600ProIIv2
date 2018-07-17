@@ -11,7 +11,7 @@ void memory_init(void) { log_register(); }
 /* ************************************************************************** */
 
 /*  Frequency Group definitions
-    
+
     !0 to 5.5
     5.5 to 10.5
     10.5 to 20
@@ -98,8 +98,10 @@ void memory_store(uint24_t address) {
     if (readRelays.all == currentRelays[system_flags.antenna].all)
         return;
 
-    LOG_INFO(printf("mem write: %d", address);
-             print_relays_ln(&currentRelays[system_flags.antenna]););
+    LOG_INFO({
+        printf("mem write: %d", address);
+        print_relays_ln(&currentRelays[system_flags.antenna]);
+    });
 
     // Read existing block into buffer
     flash_block_read(address, buffer);
@@ -123,7 +125,10 @@ uint32_t memory_recall(uint24_t address) {
     readRelays.top = flash_read(address);
     readRelays.bot = flash_read(address + 1);
 
-    LOG_INFO(printf("mem read: %d", address); print_relays_ln(&readRelays););
+    LOG_INFO({
+        printf("mem read: %d", address);
+        print_relays_ln(&readRelays);
+    });
 
     return readRelays.all;
 }
