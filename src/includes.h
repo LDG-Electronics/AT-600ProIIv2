@@ -33,7 +33,6 @@
 #include "display.h"
 #include "events.h"
 #include "flags.h"
-#include "frequency_counter.h"
 #include "memory.h"
 #include "meter.h"
 #include "relays.h"

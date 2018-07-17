@@ -1,6 +1,7 @@
 #include "includes.h"
 
 #include "calibration.h"
+#include "frequency_counter.h"
 #include "peripherals/adc.h"
 #include <float.h>
 #include <math.h>
@@ -21,6 +22,7 @@ const double swrThreshTable[] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
 void RF_sensor_init(void) {
     adc_init();
+    frequency_counter_init();
 
     // Initialize the Global RF Readings
     currentRF.forward = 0;

@@ -1,9 +1,10 @@
 #include "includes.h"
-
+// drivers for peripheral devices
 #include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"
+// other code
 #include "tuning.h"
 
 /* ************************************************************************** */
@@ -28,7 +29,6 @@ void startup(void) {
     display_init();
     events_init();
     flags_init();
-    frequency_counter_init();
     nonvolatile_memory_init();
     relays_init();
     RF_sensor_init();
