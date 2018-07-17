@@ -52,7 +52,7 @@ void nvm_write(void) {
 */
 
 uint8_t internal_eeprom_read(uint16_t address) {
-    log_trace(println("eeprom_read"););
+    LOG_TRACE(println("eeprom_read"););
 
     // Load lower byte of address into register
     NVMADRL = address;
@@ -71,7 +71,7 @@ uint8_t internal_eeprom_read(uint16_t address) {
 }
 
 void internal_eeprom_write(uint16_t address, uint8_t value) {
-    log_trace(println("eeprom_write"););
+    LOG_TRACE(println("eeprom_write"););
     // Wait for possible previous write to complete
     while (NVMCON1bits.WR) {
         // empty
@@ -131,7 +131,7 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 */
 
 uint8_t flash_read(uint24_t address) {
-    log_trace(println("flash_read"););
+    LOG_TRACE(println("flash_read"););
 
     // Load the address into the tablepointer registers
     TBLPTR = address;
@@ -143,7 +143,7 @@ uint8_t flash_read(uint24_t address) {
 }
 
 void flash_block_read(uint24_t address, uint8_t *buffer) {
-    log_trace(println("flash_block_read"););
+    LOG_TRACE(println("flash_block_read"););
     uint8_t i = 64;
     uint24_t blockAddress;
 
@@ -160,7 +160,7 @@ void flash_block_read(uint24_t address, uint8_t *buffer) {
 }
 
 void flash_block_erase(uint24_t address) {
-    log_trace(println("flash_block_erase"););
+    LOG_TRACE(println("flash_block_erase"););
 
     // Load the address into the tablepointer registers
     TBLPTR = address;
@@ -172,14 +172,14 @@ void flash_block_erase(uint24_t address) {
 }
 
 void flash_block_write(uint24_t address, uint8_t *buffer) {
-    log_trace(println("flash_block_write"););
+    LOG_TRACE(println("flash_block_write"););
     uint8_t i = 0;
     uint24_t blockAddress;
 
     // Mask off the block address
     blockAddress = address & 0xffffc0;
 
-    log_debug(printf("address: %d, blockAddress: %d", address, blockAddress););
+    LOG_DEBUG(printf("address: %d, blockAddress: %d", address, blockAddress););
 
     // Load the address into the tablepointer registers
     TBLPTR = blockAddress;

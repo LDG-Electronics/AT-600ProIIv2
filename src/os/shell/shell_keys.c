@@ -62,7 +62,7 @@ enum {
 } sequenceIdentifiers;
 
 key_t decode_escape_sequence(void) {
-    log_trace(println("decode_escape_sequence"););
+    LOG_TRACE(println("decode_escape_sequence"););
 
     key_t newKey = {UNKNOWN, NONE};
 
@@ -246,7 +246,7 @@ key_t decode_escape_sequence(void) {
 
 FINISHED:
     // TODO: move this print to the calling function
-    log_debug(print_key(&newKey););
+    LOG_DEBUG(print_key(&newKey););
     // TODO: replace all goto FINISHEDs with return newKey;
     return newKey;
 }
@@ -267,8 +267,8 @@ enum {
 } controlCharacters;
 
 key_t decode_control_character(char currentChar) {
-    log_trace(println("decode_control_character"););
-    log_debug(printf("currentChar: %d\r\n", currentChar););
+    LOG_TRACE(println("decode_control_character"););
+    LOG_DEBUG(printf("currentChar: %d\r\n", currentChar););
 
     key_t newKey = {UNKNOWN, NONE};
 
@@ -287,12 +287,12 @@ key_t decode_control_character(char currentChar) {
         break;
     }
 
-    log_debug(print_key(&newKey););
+    LOG_DEBUG(print_key(&newKey););
     return newKey;
 }
 
 void intercept_escape_sequence(void) {
-    log_trace(println("intercept_escape_sequence"););
+    LOG_TRACE(println("intercept_escape_sequence"););
     memset(&sequence, NULL, sizeof(sequence));
 
     system_time_t startTime = systick_read();
@@ -305,12 +305,12 @@ void intercept_escape_sequence(void) {
         }
     }
 
-    log_debug(printf("sequence.buffer: '%s'\r\n", sequence.buffer););
-    log_debug(printf("sequence.length: %d\r\n", sequence.length););
+    LOG_DEBUG(printf("sequence.buffer: '%s'\r\n", sequence.buffer););
+    LOG_DEBUG(printf("sequence.length: %d\r\n", sequence.length););
 }
 
 key_t identify_key(char currentChar) {
-    log_trace(println("identify_key"););
+    LOG_TRACE(println("identify_key"););
 
     key_t key = {UNKNOWN, NONE};
 

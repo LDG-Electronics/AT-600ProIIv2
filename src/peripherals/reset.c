@@ -6,22 +6,22 @@
 void reset_vector_handler(void)
 {
     if(PCON0bits.STKOVF == 1) {
-        log_fatal(println("\r\n\r\n>>> Stack Overflow <<<"););
+        LOG_FATAL(println("\r\n\r\n>>> Stack Overflow <<<"););
         while(1); // trap
     }
     
     if(PCON0bits.STKUNF == 1) {
-        log_fatal(println("\r\n\r\n>>> Stack Underflow <<<"););
+        LOG_FATAL(println("\r\n\r\n>>> Stack Underflow <<<"););
         while(1); // trap
     }
     
     // if(PCON0bits.RMCLR == 0) {
-        // log_fatal(println("\r\n\r\n>>> MCLR RESET <<<"););
+        // LOG_FATAL(println("\r\n\r\n>>> MCLR RESET <<<"););
         // while(1); // trap
     // }
     
     // if(PCON0bits.RI == 0) {
-        // log_fatal(println("\r\n\r\n>>> RESET <<<"););
+        // LOG_FATAL(println("\r\n\r\n>>> RESET <<<"););
         // while(1); // trap
     // }
     

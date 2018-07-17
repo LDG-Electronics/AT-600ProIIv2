@@ -98,7 +98,7 @@ void memory_store(uint24_t address) {
     if (readRelays.all == currentRelays[system_flags.antenna].all)
         return;
 
-    log_info(printf("mem write: %d", address);
+    LOG_INFO(printf("mem write: %d", address);
              print_relays_ln(&currentRelays[system_flags.antenna]););
 
     // Read existing block into buffer
@@ -123,7 +123,7 @@ uint32_t memory_recall(uint24_t address) {
     readRelays.top = flash_read(address);
     readRelays.bot = flash_read(address + 1);
 
-    log_info(printf("mem read: %d", address); print_relays_ln(&readRelays););
+    LOG_INFO(printf("mem read: %d", address); print_relays_ln(&readRelays););
 
     return readRelays.all;
 }

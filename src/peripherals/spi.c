@@ -75,7 +75,7 @@ void spi_init(void) {
 /* -------------------------------------------------------------------------- */
 
 void spi_tx_word(uint16_t data) {
-    log_trace(println("spi_tx_word"));
+    LOG_TRACE(println("spi_tx_word"));
 
     // Two byte transfer count
     SPI1TCNTL = 2;
@@ -91,7 +91,7 @@ void spi_tx_word(uint16_t data) {
 }
 
 void spi_tx_char(const char data) {
-    log_trace(println("spi_tx_char"));
+    LOG_TRACE(println("spi_tx_char"));
 
     while (SPI1STATUSbits.TXBE == 0)
         ; // Wait until SPI1TXB is empty
@@ -101,7 +101,7 @@ void spi_tx_char(const char data) {
 }
 
 void spi_tx_string(const char *string, uint16_t length) {
-    log_trace(println("spi_tx_string"));
+    LOG_TRACE(println("spi_tx_string"));
 
     uint16_t i = 0;
 

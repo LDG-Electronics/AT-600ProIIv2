@@ -1,7 +1,8 @@
 #include "../includes.h"
+#include "shell/shell_command_processing.h"
 #include "shell/shell_keys.h"
 #define LOG_LEVEL logLevel
-static uint8_t logLevel = L_SILENT;
+static uint8_t logLevel = L_DEBUG;
 
 /* ************************************************************************** */
 const char *level_names[] = {
@@ -23,6 +24,8 @@ void log_init(void) {
     logDatabase.numberOfFiles = 0;
 
     log_register();
+
+    shell_register_command(program_logedit_begin, "logedit", NULL);
 }
 
 void log_register__(const char *name, uint8_t *level) {
@@ -58,40 +61,34 @@ void print_log_list(void) {
     print("-----------------------------------------------");
 }
 
-int program_log_edit(int argc, char **argv) {
-    char currentChar;
-
+int program_logedit_begin(int argc, char **argv) {
     println("press ctrl+c to exit logedit");
     println("");
 
     print_log_list();
+}
 
-    while (1) {
-        currentChar = getch();
-        if (!currentChar) {
-            continue;
-        }
+int program_logedit_continue(int argc, char **argv) {
+    char currentChar;
 
-        // ctrl + c, exit program
-        if (currentChar == 3) {
-            return;
-        }
+    // ctrl + c, exit program
+    if (currentChar == 3) {
+        return;
+    }
 
-        if (currentChar == 27) {
-            key_t key = identify_key(currentChar);
+    if (currentChar == 27) {
+        key_t key = identify_key(currentChar);
 
-            log_debug(print_key(&key););
-        }
+        LOG_DEBUG(print_key(&key););
     }
 }
 
 /* ************************************************************************** */
 
-int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
-                  int line) {
-
+bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
+                int line) {
     if (msgLevel > localLevel) {
-        return -1;
+        return false;
     }
 
     print("\033[0;37m");
@@ -104,18 +101,18 @@ int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
 
     print("\033[0;37;40m");
 
-    return 0;
+    return true;
 }
 
 #if 0
 void log_message_test(void) {
     uint8_t test = 1;
 
-    log_trace(printf("trace log entry #%d\r\n", test++););
-    log_debug(printf("debug log entry #%d\r\n", test++););
-    log_info(printf("info log entry #%d\r\n", test++););
-    log_warn(printf("warn log entry #%d\r\n", test++););
-    log_error(printf("error log entry #%d\r\n", test++););
-    log_fatal(printf("fatal log entry #%d\r\n", test++););
+    LOG_TRACE(printf("trace log entry #%d\r\n", test++););
+    LOG_DEBUG(printf("debug log entry #%d\r\n", test++););
+    LOG_INFO(printf("info log entry #%d\r\n", test++););
+    LOG_WARN(printf("warn log entry #%d\r\n", test++););
+    LOG_ERROR(printf("error log entry #%d\r\n", test++););
+    LOG_FATAL(printf("fatal log entry #%d\r\n", test++););
 }
 #endif

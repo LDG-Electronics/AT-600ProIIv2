@@ -136,7 +136,7 @@ static int8_t event_is_ready(eventIndex) {
 
 // find out which event will be ready next
 static void recalculate_next_event(void) {
-    log_trace(println("recalculate_next_event"););
+    LOG_TRACE(println("recalculate_next_event"););
     uint8_t validEventsChecked = 0;
     uint8_t bestEventIndex = events.nextEvent;
     system_time_t bestEventTime = time_until_ready(bestEventIndex);
@@ -153,16 +153,16 @@ static void recalculate_next_event(void) {
             break;
     }
     
-    log_debug(printf("nextEvent: %d\r\n", events.nextEvent););
+    LOG_DEBUG(printf("nextEvent: %d\r\n", events.nextEvent););
     // update the next event
     events.nextEvent = bestEventIndex;
 }
 
 // insert a event into the queue
 static void insert_event(event_t *newEvent) {
-    log_trace(println("insert_event"););
+    LOG_TRACE(println("insert_event"););
     if (queue_is_full()) {
-        log_info(println("event insertion failed, queue is full"););
+        LOG_INFO(println("event insertion failed, queue is full"););
         return;
     }
 
@@ -170,16 +170,16 @@ static void insert_event(event_t *newEvent) {
     events.queue[events.numberOfEvents] = *newEvent;
     events.numberOfEvents++;
 
-    log_debug(printf("queue now contains: %d\r\n", events.numberOfEvents););
+    LOG_DEBUG(printf("queue now contains: %d\r\n", events.numberOfEvents););
     recalculate_next_event();
 }
 
 // remove a specified event from the queue
 static void remove_event(uint8_t eventIndex) {
-    log_trace(println("remove_event"););
+    LOG_TRACE(println("remove_event"););
     // make sure the array isn't empty
     if (queue_is_empty()) {
-        log_info(println("event removal failed, queue already empty"););
+        LOG_INFO(println("event removal failed, queue already empty"););
         return;
     }
 
@@ -187,7 +187,7 @@ static void remove_event(uint8_t eventIndex) {
     event_clear(&events.queue[eventIndex]);
     events.numberOfEvents--;
 
-    log_debug(printf("queue now contains: %d\r\n", events.numberOfEvents););
+    LOG_DEBUG(printf("queue now contains: %d\r\n", events.numberOfEvents););
     recalculate_next_event();
 }
 
@@ -216,16 +216,16 @@ void event_scheduler_update(void) {
     // grab the time, in case we need to re-register the event
     system_time_t currentTime = systick_read();
 
-    log_info(printf("event is ready, last event was %lu ago\r\n",
+    LOG_INFO(printf("event is ready, last event was %lu ago\r\n",
                     (uint32_t)systick_elapsed_time(previousTime));
              previousTime = currentTime;);
 
-    log_info(print("executing ");
+    LOG_INFO(print("executing ");
              print_event(&events.queue[events.nextEvent]););
 
     // Make sure we don't execute a null function pointer
     if (events.queue[events.nextEvent].eventCallback == NULL) {
-        log_fatal(println(">>> NULL POINTER EXCEPTION <<< "););
+        LOG_FATAL(println(">>> NULL POINTER EXCEPTION <<< "););
         // while(1); // trap
         return;
     }
@@ -235,7 +235,7 @@ void event_scheduler_update(void) {
 
     // if the event should be repeated, re-register it
     if (repeat > 0) {
-        log_info(print("Reregistering: ");
+        LOG_INFO(print("Reregistering: ");
                  print_event(&events.queue[events.nextEvent]););
         events.queue[events.nextEvent].registrationTime = currentTime;
         events.queue[events.nextEvent].executionTime = repeat;
@@ -254,9 +254,9 @@ void event_scheduler_update(void) {
 // create a event object and add it to the event queue
 int8_t event_register(const char *name, event_callback_t callback,
                       system_time_t time) {
-    log_trace(println("event_register"););
+    LOG_TRACE(println("event_register"););
     if (queue_is_full()) {
-        log_error(println("event queue is full!"););
+        LOG_ERROR(println("event queue is full!"););
         return -1;
     }
 
@@ -272,7 +272,7 @@ int8_t event_register(const char *name, event_callback_t callback,
     newEvent.executionTime = time;
     newEvent.exists = 1;
 
-    log_info(print("Registering: "); print_event(&newEvent););
+    LOG_INFO(print("Registering: "); print_event(&newEvent););
 
     // add it to the queue
     insert_event(&newEvent);
@@ -284,7 +284,7 @@ int8_t event_register(const char *name, event_callback_t callback,
 
 // remove a event from the queue using its name as a key
 int8_t event_deregister(const char *name) {
-    log_trace(println("event_deregister"););
+    LOG_TRACE(println("event_deregister"););
     int8_t index = event_queue_lookup(name);
 
     // the indicated event was not found
@@ -299,7 +299,7 @@ int8_t event_deregister(const char *name) {
 
 // check if a event with the given name exists in the queue
 int8_t event_queue_lookup(const char *name) {
-    log_trace(println("event_queue_lookup"););
+    LOG_TRACE(println("event_queue_lookup"););
     for (uint8_t i = 0; i < EVENT_QUEUE_LENGTH; i++) {
         if (!strcmp(name, events.queue[i].name)) {
             return 0; // found a match

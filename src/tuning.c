@@ -93,7 +93,7 @@ void print_search_area(search_area_t *print_area) {
     // This line keeps the compiler from whining
     uint32_t temp = print_area->all;
 
-    log_info(printf("\tarea: C(%d,%d), L(%d,%d)\r\n", print_area->maxCap,
+    LOG_INFO(printf("\tarea: C(%d,%d), L(%d,%d)\r\n", print_area->maxCap,
                     print_area->minCap, print_area->maxInd,
                     print_area->minInd););
 }
@@ -106,7 +106,7 @@ void print_search_area(search_area_t *print_area) {
 */
 void print_solution_count(void) {
     uint16_t difference = solutionCount - prevSolutionCount;
-    log_info(printf("\tsolutionCount: %d new: %d", solutionCount, difference););
+    LOG_INFO(printf("\tsolutionCount: %d new: %d", solutionCount, difference););
 
     prevSolutionCount = solutionCount;
 }
@@ -211,7 +211,7 @@ void reset_search_area(void) {
     // Find minimum L
     search_area.minInd = 0;
 
-    log_info(print_search_area(&search_area););
+    LOG_INFO(print_search_area(&search_area););
 }
 
 /* -------------------------------------------------------------------------- */
@@ -226,7 +226,7 @@ void save_new_best_solution(void) {
     bestSWR = currentRF.swr;
     bestFWD = currentRF.forward;
 
-    log_info(print("\t\t"); print_relays(&bestSolution); print_current_SWR();
+    LOG_INFO(print("\t\t"); print_relays(&bestSolution); print_current_SWR();
              println(""););
 }
 
@@ -291,7 +291,7 @@ void LC_zip(void) {
 }
 
 void test_bypass(void) {
-    log_trace(print("\t"); println("bypass:"););
+    LOG_TRACE(print("\t"); println("bypass:"););
 
     nextSolution.all = 0;
     test_next_solution(0);
@@ -299,14 +299,14 @@ void test_bypass(void) {
     bypassSWR = bestSWR;
     bypassFWD = bestFWD;
 
-    log_debug(print("\t\t"); print_relays(&bypassRelays);
+    LOG_DEBUG(print("\t\t"); print_relays(&bypassRelays);
               printf(" SWR: %f FWD: %d\r\n", bypassSWR, bypassFWD););
 
     clear_best_solution();
 }
 
 void test_loz(void) {
-    log_trace(print("\t"); println("loz:"););
+    LOG_TRACE(print("\t"); println("loz:"););
 
     nextSolution.z = 0;
     LC_zip();
@@ -317,14 +317,14 @@ void test_loz(void) {
     lozSWR = bestSWR;
     lozFWD = bestFWD;
 
-    log_debug(print("\t\t"); print_relays(&lozSolution);
+    LOG_DEBUG(print("\t\t"); print_relays(&lozSolution);
               printf(" SWR: %f FWD: %d\r\n", lozSWR, lozFWD););
 
     clear_best_solution();
 }
 
 void test_hiz(void) {
-    log_trace(print("\t"); println("hiz:"););
+    LOG_TRACE(print("\t"); println("hiz:"););
 
     nextSolution.z = 1;
     LC_zip();
@@ -335,7 +335,7 @@ void test_hiz(void) {
     hizSWR = bestSWR;
     hizFWD = bestFWD;
 
-    log_debug(print("\t"); print_relays(&hizSolution);
+    LOG_DEBUG(print("\t"); print_relays(&hizSolution);
               printf(" SWR: %f FWD: %d\r\n", hizSWR, hizFWD););
 
     clear_best_solution();
@@ -363,7 +363,7 @@ void restore_best_z(void) {
     }
     nextSolution.z = bestSolution.z;
 
-    log_info(print("\t"); print("best z: "); print("\t");
+    LOG_INFO(print("\t"); print("best z: "); print("\t");
              print_relays(&bestSolution);
              printf(" SWR: %f FWD: %d\r\n", bestSWR, bestFWD););
 }
@@ -374,7 +374,7 @@ void restore_best_z(void) {
 
 */
 void hiloz_tune(void) {
-    log_trace(print("\t"); println("hiloz_tune:"););
+    LOG_TRACE(print("\t"); println("hiloz_tune:"););
 
     test_bypass();
     test_loz();
@@ -382,7 +382,7 @@ void hiloz_tune(void) {
 
     restore_best_z();
 
-    log_info(print_solution_count(););
+    LOG_INFO(print_solution_count(););
 }
 
 /*  coarse_tune() searches across the entire set of possible solutions
@@ -406,7 +406,7 @@ void hiloz_tune(void) {
     and shou
 */
 void coarse_tune(void) {
-    log_trace(print("\t"); println("coarse_tune:"););
+    LOG_TRACE(print("\t"); println("coarse_tune:"););
     search_index_t current_index;
     double earlyExitSWR = (bypassSWR / 2);
 
@@ -422,12 +422,12 @@ void coarse_tune(void) {
             if (test_next_solution(0) == -1)
                 return;
             if (bestSWR <= earlyExitSWR) {
-                log_info(print_solution_count(););
+                LOG_INFO(print_solution_count(););
                 return;
             }
         }
     }
-    log_info(print_solution_count(););
+    LOG_INFO(print_solution_count(););
 }
 
 /*  bracket_tune() searches a narrow subset of the possible solutions
@@ -444,7 +444,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
 
     double earlyExitSWR = (bestSWR / 2);
 
-    log_trace(printf("bracket_tune: (%d,%d) bestSolution: ", bracket, step);
+    LOG_TRACE(printf("bracket_tune: (%d,%d) bestSolution: ", bracket, step);
               print_relays(&bestSolution););
 
     // Define bracket_area
@@ -462,7 +462,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
         bracket_area.minInd = bestSolution.inds - bracket;
     }
 
-    log_info(print_search_area(&bracket_area););
+    LOG_INFO(print_search_area(&bracket_area););
 
     // Do it
     tryInd = bracket_area.minInd;
@@ -475,14 +475,14 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
             if (test_next_solution(0) == -1)
                 return;
             if (bestSWR < earlyExitSWR) {
-                log_info(print_solution_count(););
+                LOG_INFO(print_solution_count(););
                 return;
             }
             tryCap += step;
         }
         tryInd += step;
     }
-    log_info(print_solution_count(););
+    LOG_INFO(print_solution_count(););
 }
 
 /* -------------------------------------------------------------------------- */
@@ -525,7 +525,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
 void full_tune(void) {
     uint16_t address = 0;
 
-    log_trace(println("full_tune"););
+    LOG_TRACE(println("full_tune"););
 
     clear_tuning_flags();
 
@@ -584,7 +584,7 @@ void full_tune(void) {
 
     // Save the result, if it's good enough
     if (bestSWR < SWR1_7) {
-        log_info(print("  Saving: ");
+        LOG_INFO(print("  Saving: ");
                  print_relays(&currentRelays[system_flags.antenna]);
                  printf(" with SWR: %d", bestSWR););
 
@@ -606,7 +606,7 @@ relays_s bestMemory;
 relays_s memoryBuffer[NUM_OF_MEMORIES];
 
 void prepare_memories(void) {
-    log_trace(println("prepare_memories"););
+    LOG_TRACE(println("prepare_memories"););
 
     uint16_t address = 0;
 
@@ -625,12 +625,12 @@ void prepare_memories(void) {
 }
 
 void test_memory(relays_s *memory) {
-    log_trace(println("test_memory"););
+    LOG_TRACE(println("test_memory"););
 
     put_relays(memory);
     SWR_stable_average();
 
-    log_info(printf("SWR: %f\r\n", currentRF.swr); print_relays_ln(memory););
+    LOG_INFO(printf("SWR: %f\r\n", currentRF.swr); print_relays_ln(memory););
 
     if (currentRF.swr < bestMemorySWR) {
         bestMemorySWR = currentRF.swr;
@@ -639,7 +639,7 @@ void test_memory(relays_s *memory) {
 }
 
 void restore_best_memory(void) {
-    log_trace(println("restore_best_memory"););
+    LOG_TRACE(println("restore_best_memory"););
 
     currentRelays[system_flags.antenna] = bestMemory;
     put_relays(&currentRelays[system_flags.antenna]);
@@ -651,7 +651,7 @@ void restore_best_memory(void) {
 
 */
 void memory_tune(void) {
-    log_trace(println("memory_tune"););
+    LOG_TRACE(println("memory_tune"););
     uint8_t i = 0;
 
     clear_tuning_flags();
@@ -675,7 +675,7 @@ void memory_tune(void) {
 
     // Did we find a valid memory?
     if (bestMemorySWR < SWR1_7) {
-        log_info(printf("found memory: %f", currentRF.swr);
+        LOG_INFO(printf("found memory: %f", currentRF.swr);
                  print_relays_ln(&currentRelays[system_flags.antenna]););
 
         return;
@@ -707,35 +707,35 @@ void tuning_followup_animation(void) {
     // delay_ms(1000);
 
     if (tuning_flags.errors != 0) {
-        log_error(print("Error: "););
+        LOG_ERROR(print("Error: "););
         if (tuning_flags.lostRF == 1) {
-            log_error(println("lostRF"););
+            LOG_ERROR(println("lostRF"););
 
             repeat_animation(&blink_both_bars, 2);
 
         } else if (tuning_flags.noRF == 1) {
-            log_error(println("noRF"););
+            LOG_ERROR(println("noRF"););
 
             repeat_animation(&blink_both_bars, 1);
 
         } else if (tuning_flags.relayError == 1) {
-            log_error(println("relayError"););
+            LOG_ERROR(println("relayError"););
 
             // relay_error_blink();
         }
     } else {
         if (bestSWR < SWR1_7) {
-            log_info(println("good match"););
+            LOG_INFO(println("good match"););
 
             play_animation(&center_crawl);
 
         } else if (bestSWR < SWR3_5) {
-            log_info(println("decent match"););
+            LOG_INFO(println("decent match"););
 
             // led_blink(2, MEDIUM);
 
         } else if (bestSWR >= SWR3_5) {
-            log_info(println("badMatch"););
+            LOG_INFO(println("badMatch"););
 
             // led_blink(3, MEDIUM);
         }

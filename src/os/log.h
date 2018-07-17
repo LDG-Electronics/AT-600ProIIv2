@@ -45,39 +45,39 @@ extern void log_level_edit(uint8_t file, uint8_t level);
 
 extern void print_log_list(void);
 
-extern int program_log_edit(int argc, char **argv);
+int program_logedit_begin(int argc, char **argv);
+
+int program_logedit_continue(int argc, char **argv);
 
 /* ************************************************************************** */
 
 // TODO: implement ian's suggestions RE: LOG_LEVEL and logLevel
-// TODO: make log_xxx macros all caps
 // TODO: add braces to log statements
-// TODO: make this return a bool
-int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
-                  int line);
+bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
+                int line);
 
-#define log_trace(ARG)                                                         \
-    if (log_header(L_TRACE, LOG_LEVEL, __FILE__, __LINE__) == 0) {             \
+#define LOG_TRACE(ARG)                                                         \
+    if (log_header(L_TRACE, LOG_LEVEL, __FILE__, __LINE__)) {                  \
         ARG                                                                    \
     }
-#define log_debug(ARG)                                                         \
-    if (log_header(L_DEBUG, LOG_LEVEL, __FILE__, __LINE__) == 0) {             \
+#define LOG_DEBUG(ARG)                                                         \
+    if (log_header(L_DEBUG, LOG_LEVEL, __FILE__, __LINE__)) {                  \
         ARG                                                                    \
     }
-#define log_info(ARG)                                                          \
-    if (log_header(L_INFO, LOG_LEVEL, __FILE__, __LINE__) == 0) {              \
+#define LOG_INFO(ARG)                                                          \
+    if (log_header(L_INFO, LOG_LEVEL, __FILE__, __LINE__)) {                   \
         ARG                                                                    \
     }
-#define log_warn(ARG)                                                          \
-    if (log_header(L_WARN, LOG_LEVEL, __FILE__, __LINE__) == 0) {              \
+#define LOG_WARN(ARG)                                                          \
+    if (log_header(L_WARN, LOG_LEVEL, __FILE__, __LINE__)) {                   \
         ARG                                                                    \
     }
-#define log_error(ARG)                                                         \
-    if (log_header(L_ERROR, LOG_LEVEL, __FILE__, __LINE__) == 0) {             \
+#define LOG_ERROR(ARG)                                                         \
+    if (log_header(L_ERROR, LOG_LEVEL, __FILE__, __LINE__)) {                  \
         ARG                                                                    \
     }
-#define log_fatal(ARG)                                                         \
-    if (log_header(L_FATAL, LOG_LEVEL, __FILE__, __LINE__) == 0) {             \
+#define LOG_FATAL(ARG)                                                         \
+    if (log_header(L_FATAL, LOG_LEVEL, __FILE__, __LINE__)) {                  \
         ARG                                                                    \
     }
 
