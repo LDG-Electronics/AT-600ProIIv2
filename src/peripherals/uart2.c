@@ -1,20 +1,18 @@
 #include "../includes.h"
-#include "uart2.h"
+
 #include "../libraries/fast_ring_buffer.h"
+#include "uart2.h"
 
 /* ************************************************************************** */
-// UART 2
 
 volatile uart_buffer_s UART2_tx_buffer;
 volatile uart_buffer_s UART2_rx_buffer;
 
-void UART2_baud_select(UART_baud_rates baudRate)
-{
+void UART2_baud_select(UART_baud_rates baudRate) {
     U2BRG = baudTable[baudRate];
 }
 
-void UART2_init(UART_baud_rates baudRate)
-{
+void UART2_init(UART_baud_rates baudRate) {
     UART2_baud_select(baudRate);
 
     U2CON0bits.BRGS = 1; // Baud Rate is set to high speed
@@ -47,9 +45,8 @@ void UART2_init(UART_baud_rates baudRate)
 #define UART2_TX_IE_enable() PIE6bits.U2TXIE = 1
 #define UART2_TX_IE_disable() PIE6bits.U2TXIE = 0
 
-void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR()
-{
-    if(buffer_is_empty(UART2_tx_buffer)) {
+void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR() {
+    if (buffer_is_empty(UART2_tx_buffer)) {
         UART2_TX_IE_disable();
     } else {
         U2TXB = buffer_read(UART2_tx_buffer);
@@ -73,18 +70,15 @@ void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR()
     buffer. This will have an undesirable ping-pong effect until the string is
     over, but that's better than breaking our API or clobbering existing data.
 */
-void UART2_tx_string(const char *string, const char terminator)
-{
+void UART2_tx_string(const char *string, const char terminator) {
     uint16_t totalBytes = 0;
     uint16_t currentByte = 0;
     uint16_t remainingBytes = 0;
-    
+
     // loop until hitting null
-    while(string[currentByte] != terminator)
-    {
+    while (string[currentByte] != terminator) {
         // buffer overflow handler
-        if (buffer_is_full(UART2_tx_buffer))
-        {
+        if (buffer_is_full(UART2_tx_buffer)) {
             // If the buffer is ever full, wait for it to empty completely
             UART2_TX_IE_enable();
             delay_ms(10);
@@ -98,14 +92,13 @@ void UART2_tx_string(const char *string, const char terminator)
     UART2_TX_IE_enable();
 }
 
-void UART2_tx_char(char data)
-{
+void UART2_tx_char(char data) {
     // buffer overflow handler
-    if (buffer_is_full(UART2_tx_buffer))
-    {
+    if (buffer_is_full(UART2_tx_buffer)) {
         UART2_TX_IE_enable();
 
-        while(buffer_is_full(UART2_tx_buffer));
+        while (buffer_is_full(UART2_tx_buffer))
+            ;
     }
 
     begin_critical_section();
@@ -122,17 +115,16 @@ void UART2_tx_char(char data)
 
     This function is an Interrupt Vector Table compatible ISR to respond to the
     IRQ_U2RX interrupt signal. This signal is generated whenever there is an
-    unread byte in U2RXB. 
+    unread byte in U2RXB.
 */
 
-void __interrupt(irq(IRQ_U2RX), high_priority) UART2_rx_ISR()
-{
+void __interrupt(irq(IRQ_U2RX), high_priority) UART2_rx_ISR() {
     buffer_write(UART2_rx_buffer, U2RXB);
 }
 
-char UART2_rx_char(void)
-{
-    if(buffer_is_empty(UART2_rx_buffer)) return 0;
+char UART2_rx_char(void) {
+    if (buffer_is_empty(UART2_rx_buffer))
+        return 0;
 
     begin_critical_section();
     char data = buffer_read(UART2_rx_buffer);
@@ -144,7 +136,6 @@ char UART2_rx_char(void)
 /* ************************************************************************** */
 // UART1 tests
 
-void UART1_tx_buffer_overflow_test(void)
-{
+void UART1_tx_buffer_overflow_test(void) {
     // TODO: write me
 }
