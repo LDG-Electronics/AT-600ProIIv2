@@ -21,7 +21,7 @@ PROJECT = AT-600ProII
 PROJECT_HEX = $(BUILD_DIR)/$(PROJECT).hex
 
 # The PIC microcontroller used for this project
-TARGET_DEVICE = 18f47k42
+TARGET_DEVICE = 18f46k42
 
 # ---------------------------------------------------------------------------- #
 # Commands and command variables
@@ -66,19 +66,23 @@ LINT1FLAGS += --inline-suppr
 LINT1FLAGS += --language=c
 LINT1FLAGS += --platform=avr8
 
-# Programmer
+# Microchip Pickit3 USB programmer
 # chip -P<Part name>
 # -M Erase and program the entire device
 PK3 = pk3cmd
 PK3FLAGS = -M -P$(TARGET_DEVICE) -L -V5
 PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
 
+# CCS ICD-U80 USB programmer
 CCSLOAD = ccsload
 CCSLOADFLAGS = -AREAS=ALL 
 CCSLOADFLAGS += -VERBOSE 
-CCSLOADFLAGS += -DEVICE=PIC18F47K42 
+CCSLOADFLAGS += -DEVICE=PIC18F46K42 
 CCSLOADFLAGS += -POWER=TARGET
 CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
+
+# MeLabs U2 USB programmer
+# TODO: add melabs command line driver here
 
 # ---------------------------------------------------------------------------- #
 # Puttin' stuff together

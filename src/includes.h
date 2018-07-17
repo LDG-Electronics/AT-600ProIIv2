@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 // device header
-#include "pic18f47k42.h"
+#include "pic18f46k42.h"
 
 // Project specific hardware stuff
 // Must be before peripheral and OS headers
