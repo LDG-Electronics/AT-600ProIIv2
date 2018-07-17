@@ -33,7 +33,6 @@
 #include "display.h"
 #include "events.h"
 #include "flags.h"
-#include "memory.h"
 #include "relays.h"
 #include "RF_sensor.h"
 #include "ui.h"

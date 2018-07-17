@@ -1,13 +1,12 @@
 #include "includes.h"
 
+#include "memory.h"
 #include "peripherals/nonvolatile_memory.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-void memory_init(void) {
-    log_register();
-}
+void memory_init(void) { log_register(); }
 
 /* ************************************************************************** */
 

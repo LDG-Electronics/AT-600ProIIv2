@@ -1,7 +1,8 @@
 #include "includes.h"
 
-#include "tuning.h"
 #include "calibration.h"
+#include "memory.h"
+#include "tuning.h"
 #include <float.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
