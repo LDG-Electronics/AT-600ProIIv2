@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
-#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <ctype.h>

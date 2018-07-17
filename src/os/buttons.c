@@ -1,4 +1,5 @@
 #include "../includes.h"
+#include <stdarg.h>
 
 /* ************************************************************************** */
 
@@ -12,7 +13,7 @@ volatile uint8_t buttonHistory[NUMBER_OF_BUTTONS];
 
 /*  These button checker functions have been derived from Eliot Williams
     'Ultimate Debouncer', found at Hackaday.
-    
+
     The general idea is to use an interrupt routine that polls the physical
     buttons at a particular rate.  A history of button state is stored in a
     variable by bit shifting left one and setting the least-significant bit
