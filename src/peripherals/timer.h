@@ -21,7 +21,11 @@
 // General manipulation
 #define timer0_start() TIMER0_ON = 1
 #define timer0_stop() TIMER0_ON = 0
-#define timer0_clear() TMR0H = 0x00; TMR0L = 0x00;
+#define timer0_clear()                                                         \
+    do {                                                                       \
+        TMR0H = 0x00;                                                          \
+        TMR0L = 0x00;                                                          \
+    } while (0)
 #define timer0_read() (((uint16_t)TMR0H << 8) | (uint16_t)TMR0L)
 
 // Interrupt control
@@ -42,7 +46,11 @@
 // General manipulation
 #define timer1_start() TIMER1_ON = 1
 #define timer1_stop() TIMER1_ON = 0
-#define timer1_clear() TMR1H = 0x00; TMR1L = 0x00;
+#define timer1_clear()                                                         \
+    do {                                                                       \
+        TMR1H = 0x00;                                                          \
+        TMR1L = 0x00;                                                          \
+    } while (0)
 #define timer1_read() (((uint16_t)TMR1H << 8) | (uint16_t)TMR1L)
 
 // Interrupt control
@@ -75,7 +83,7 @@
 #define timer2_IF_read() TIMER2_IF
 
 // Other features
-#define timer2_period_set(value) PR2 = value 
+#define timer2_period_set(value) PR2 = value
 
 /* -------------------------------------------------------------------------- */
 
@@ -86,7 +94,11 @@
 // General manipulation
 #define timer3_start() TIMER3_ON = 1
 #define timer3_stop() TIMER3_ON = 0
-#define timer3_clear() TMR3H = 0x00; TMR3L = 0x00;
+#define timer3_clear()                                                         \
+    do {                                                                       \
+        TMR3H = 0x00;                                                          \
+        TMR3L = 0x00;                                                          \
+    } while (0)
 #define timer3_read() (((uint16_t)TMR3H << 8) | (uint16_t)TMR3L)
 
 // Interrupt control
@@ -119,7 +131,7 @@
 #define timer4_IF_read() TIMER4_IF
 
 // Other features
-#define timer4_period_set(value) PR4 = value 
+#define timer4_period_set(value) PR4 = value
 
 /* -------------------------------------------------------------------------- */
 
@@ -130,7 +142,11 @@
 // General manipulation
 #define timer5_start() TIMER5_ON = 1
 #define timer5_stop() TIMER5_ON = 0
-#define timer5_clear() TMR5H = 0x00; TMR5L = 0x00;
+#define timer5_clear()                                                         \
+    do {                                                                       \
+        TMR5H = 0x00;                                                          \
+        TMR5L = 0x00;                                                          \
+    } while (0)
 #define timer5_read() (((uint16_t)TMR5H << 8) | (uint16_t)TMR5L)
 
 // Interrupt control
@@ -163,10 +179,11 @@
 #define timer6_IF_read() TIMER6_IF
 
 // Other features
-#define timer6_period_set(value) PR6 = value 
+#define timer6_period_set(value) PR6 = value
 
 /* ************************************************************************** */
 
+// Timer X Interrupt Flag bit
 #define TIMER0_IF PIR3bits.TMR0IF
 #define TIMER1_IF PIR4bits.TMR1IF
 #define TIMER2_IF PIR4bits.TMR2IF
@@ -175,6 +192,7 @@
 #define TIMER5_IF PIR8bits.TMR5IF
 #define TIMER6_IF PIR9bits.TMR6IF
 
+// Timer X Interrupt Enable bit
 #define TIMER0_IE PIE3bits.TMR0IE
 #define TIMER1_IE PIE4bits.TMR1IE
 #define TIMER2_IE PIE4bits.TMR2IE
@@ -183,6 +201,7 @@
 #define TIMER5_IE PIE8bits.TMR5IE
 #define TIMER6_IE PIE9bits.TMR6IE
 
+// Timer X start bit
 #define TIMER0_ON T0CON0bits.EN
 #define TIMER1_ON T1CONbits.ON
 #define TIMER2_ON T2CONbits.ON
@@ -191,6 +210,7 @@
 #define TIMER5_ON T5CONbits.ON
 #define TIMER6_ON T6CONbits.ON
 
+// Timer 1/3/5 Gate Enable bit
 #define TIMER1_GATE_EN T1GCONbits.GE
 #define TIMER3_GATE_EN T3GCONbits.GE
 #define TIMER5_GATE_EN T5GCONbits.GE
