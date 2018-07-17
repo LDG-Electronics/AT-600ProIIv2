@@ -1,4 +1,5 @@
 #include "includes.h"
+#include <float.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -74,17 +75,13 @@ void tuning_init(void) { log_register(); }
 
 /* ************************************************************************** */
 
-#define clear_tuning_flags()                                                   \
-    ;                                                                          \
-    tuning_flags.errors = 0;
+#define clear_tuning_flags() tuning_flags.errors = 0
 
 /* ************************************************************************** */
 
 // Tuning module debug functions
 
 /*  print_search_area() prints the current search_area
-    
-
 
     Output is: "area: (maxCap , minCap) (maxInd , minInd)"
 */
@@ -98,8 +95,6 @@ void print_search_area(search_area_t *print_area) {
 }
 
 /*  print_solution_count() shows the number of tested tuning solutions
-    
-
 
     Output is: "solutionCount: iii new: jjj"
 */
@@ -113,13 +108,9 @@ void print_solution_count(void) {
 /* -------------------------------------------------------------------------- */
 
 /*  Frequency Limits:
-    
-
 
     This prevents damage to the tuner by disabling the largest 2 values of Caps
     or Inds if the current frequency is over a certain threshold.
-    
-
 
     L Limit is enabled at 20MHz.
     C Limit is enabled at 30MHz.
@@ -215,11 +206,6 @@ void reset_search_area(void) {
 
 /* -------------------------------------------------------------------------- */
 
-/*  test_next_solution()
-    
-
-
-*/
 void save_new_best_solution(void) {
     bestSolution = nextSolution;
     bestSWR = currentRF.swr;
@@ -363,11 +349,6 @@ void restore_best_z(void) {
              printf(" SWR: %f FWD: %d\r\n", bestSWR, bestFWD););
 }
 
-/*  hiloz_tune()
-    
-
-
-*/
 void hiloz_tune(void) {
     LOG_TRACE(print("\t"); println("hiloz_tune:"););
 
@@ -381,24 +362,15 @@ void hiloz_tune(void) {
 }
 
 /*  coarse_tune() searches across the entire set of possible solutions
-    
-
 
     It uses two nested loops to cycle through capacitors, move to the next
     inductor, then cycle through capacitors, repeating this pattern across the
     entire solution set.
-    
-
 
     It is important to have the inner loop pick capacitors and the outer loop
     pick inductors. The LDG switched L design places the capacitor bank between
     the RF path and ground, while the inductors are in series between the RF
     input and output.
-    
-
-
-    Consquently, the capacitor bank is under less load than the inductor bank,
-    and shou
 */
 void coarse_tune(void) {
     LOG_TRACE(print("\t"); println("coarse_tune:"););
@@ -425,12 +397,6 @@ void coarse_tune(void) {
     LOG_INFO(print_solution_count(););
 }
 
-/*  bracket_tune() searches a narrow subset of the possible solutions
-    
-
-
-    It uses two nested loops to
-*/
 void bracket_tune(uint8_t bracket, uint8_t step) {
     uint16_t tryCap;
     uint16_t tryInd;
@@ -490,8 +456,6 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
     Stage 3: Coarse Tuning
     Stage 4: Fine Tuning, via several bracket_tune() calls
     Stage 5: Cleanup
-    
-
 
     Stage 1: Setup
     The tuning process uses several file-scope variables to track the progress
@@ -640,11 +604,6 @@ void restore_best_memory(void) {
     put_relays(&currentRelays[system_flags.antenna]);
 }
 
-/*  memory_tune() tests saved memories for the current frequency, plus neighbors
-    
-
-
-*/
 void memory_tune(void) {
     LOG_TRACE(println("memory_tune"););
     uint8_t i = 0;
@@ -686,13 +645,9 @@ void memory_tune(void) {
 /*  Notes on tuning_followup_animation():
 
     This processes the error flags set during the tuning cycle.
-    
-
 
     In theory, tuning should only allow one error to happen before exiting.
     With that in mind, this function will only display one error message.
-    
-
 
     This decision was made in part to avoid the awful possibility of everything
     going wrong and then the tuner displaying 8 seconds of random blinks.

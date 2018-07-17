@@ -6,7 +6,6 @@
 // std c headers
 #include <stdlib.h>
 #include <stdint.h>
-#include <float.h>
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>

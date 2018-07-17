@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "peripherals/adc.h"
+#include <float.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
