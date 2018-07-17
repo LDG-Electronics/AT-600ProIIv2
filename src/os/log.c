@@ -7,10 +7,12 @@ static uint8_t LOG_LEVEL = L_DEBUG;
 const char *level_names[] = {
     "SILENT", "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE",
 };
+
 const char *level_colors[] = {
     "\033[1;94m", "\033[1;35m", "\033[1;31m", "\033[1;33m",
     "\033[1;32m", "\033[1;36m", "\033[1;34m",
 };
+
 log_database_t logDatabase;
 
 /* -------------------------------------------------------------------------- */
@@ -32,10 +34,6 @@ void log_register__(const char *name, uint8_t *level) {
     logDatabase.file[logDatabase.numberOfFiles].level = level;
 
     logDatabase.numberOfFiles++;
-}
-
-void log_level_edit(uint8_t fileID, uint8_t level) {
-    *logDatabase.file[fileID].level = level;
 }
 
 void print_log_list(void) {
@@ -78,7 +76,7 @@ int program_logedit_continue(int argc, char **argv) {
     if (currentChar == 27) {
         key_t key = identify_key(currentChar);
 
-        LOG_DEBUG(print_key(&key););
+        LOG_DEBUG({ print_key(&key); });
     }
 }
 
@@ -107,11 +105,11 @@ bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
 void log_message_test(void) {
     uint8_t test = 1;
 
-    LOG_TRACE(printf("trace log entry #%d\r\n", test++););
-    LOG_DEBUG(printf("debug log entry #%d\r\n", test++););
-    LOG_INFO(printf("info log entry #%d\r\n", test++););
-    LOG_WARN(printf("warn log entry #%d\r\n", test++););
-    LOG_ERROR(printf("error log entry #%d\r\n", test++););
-    LOG_FATAL(printf("fatal log entry #%d\r\n", test++););
+    LOG_TRACE({ printf("trace log entry #%d\r\n", test++); });
+    LOG_DEBUG({ printf("debug log entry #%d\r\n", test++); });
+    LOG_INFO({ printf("info log entry #%d\r\n", test++); });
+    LOG_WARN({ printf("warn log entry #%d\r\n", test++); });
+    LOG_ERROR({ printf("error log entry #%d\r\n", test++); });
+    LOG_FATAL({ printf("fatal log entry #%d\r\n", test++); });
 }
 #endif
