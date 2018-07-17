@@ -1,6 +1,8 @@
 #include "../includes.h"
-#include "../peripherals/uart2.h"
+#include "pic18f46k42.h"
+
 #include "../peripherals/pps.h"
+#include "../peripherals/uart2.h"
 
 /* ************************************************************************** */
 
