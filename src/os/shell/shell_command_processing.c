@@ -1,5 +1,6 @@
 #include "../../includes.h"
 #include "shell_internals.h"
+#include "../../shell_commands.h"
 
 /* ************************************************************************** */
 
