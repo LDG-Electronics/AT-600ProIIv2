@@ -1,7 +1,7 @@
 #include "includes.h"
 
-#include "os/buttons.h"
 #include "events.h"
+#include "os/buttons.h"
 // #include "meter.h"
 #include "ui.h"
 static uint8_t LOG_LEVEL = L_SILENT;
@@ -29,14 +29,10 @@ void ui_idle_block(void) {
 /* ************************************************************************** */
 #define SUBMENU_DURATION 2200
 
-void threshold_blink_and_hold(uint8_t blinks) {
-    blink_thresh(blinks); // blink for emphasis
-    show_thresh();        // leave it on the screen
-}
-
 void threshold_submenu(void) {
-    LOG_TRACE(println("decode_escape_sequence"););
-    threshold_blink_and_hold(3);
+    LOG_TRACE({ println("decode_escape_sequence"); });
+    blink_thresh(3); // blink for emphasis
+    show_thresh();   // leave it on the screen
 
     system_time_t startTime = systick_read(); // stash the current time
 
@@ -45,25 +41,29 @@ void threshold_submenu(void) {
             startTime = systick_read(); // reset the start time
             SWR_threshold_increment();
 
-            threshold_blink_and_hold(2);
+            blink_thresh(2); // blink for emphasis
+            show_thresh();   // leave it on the screen
         }
 
         // Pressing FUNC again cancels and exits
-        if (btn_is_down(FUNC))
+        if (btn_is_down(FUNC)) {
             break;
+        }
 
         // Cancel and exit if it's been longer than SUBMENU_DURATION
-        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION)
+        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION) {
             break;
+        }
 
         ui_idle_block();
     }
 }
 
 void function_submenu(void) {
-    LOG_TRACE(println("function_submenu"););
+    LOG_TRACE({ println("function_submenu"); });
     while (btn_is_down(FUNC)) {
-    }; // make sure FUNC is released before we continue
+        // make sure FUNC is released before we continue
+    }
 
     delay_ms(50);
     play_interruptable_animation(&arrow_up);
@@ -102,14 +102,17 @@ void function_submenu(void) {
         }
 
         // Pressing POWER or FUNC cancels and exits
-        if (btn_is_down(POWER))
+        if (btn_is_down(POWER)) {
             break;
-        if (btn_is_down(FUNC))
+        }
+        if (btn_is_down(FUNC)) {
             break;
+        }
 
         // Cancel and exit if it's been longer than SUBMENU_DURATION
-        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION)
+        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION) {
             break;
+        }
 
         ui_idle_block();
     }
@@ -119,41 +122,42 @@ void function_submenu(void) {
 #define POWER_BUTTON_DURATION 1000
 
 void shutdown_submenu(void) {
-    LOG_TRACE(println("shutdown_submenu"););
-    LOG_INFO(println("shutting down"););
+    LOG_TRACE({ println("shutdown_submenu"); });
+    LOG_INFO({ println("shutting down"); });
 
     // Turn off the whole front panel
     clear_status_LEDs();
     display_clear();
 
-    while (btn_is_down(POWER))
-        ; // wait until power button is released
+    while (btn_is_down(POWER)) {
+        // wait until power button is released
+    }
     delay_ms(100);
 
     system_time_t startTime = systick_read(); // stash the current time
 
     while (1) {
-        if (systick_elapsed_time(startTime) >= POWER_BUTTON_DURATION)
+        if (systick_elapsed_time(startTime) >= POWER_BUTTON_DURATION) {
             break;
+        }
 
-        delay_ms(1);
         ui_idle_block();
     }
 
-    LOG_INFO(println("shutting down"););
+    LOG_INFO({ println("shutting down"); });
 
     // Put the Status LEDs back how we found them
     update_status_LEDs();
 
     // wait until power button is released
-    while (btn_is_down(POWER))
-        ;
+    while (btn_is_down(POWER)) {
+    }
 }
 
 /* -------------------------------------------------------------------------- */
 
 void relay_button_hold(void) {
-    LOG_TRACE(println("relay_button_hold"););
+    LOG_TRACE({ println("relay_button_hold"); });
     system_time_t currentTime = systick_read();
     uint8_t incrementCount = 0;
     uint8_t incrementDelay = 200;
@@ -171,20 +175,23 @@ void relay_button_hold(void) {
             } else if (btn_is_down(CDN)) {
                 capacitor_decrement();
             }
-            if (btn_is_down(LUP)) {
-                inductor_increment();
+            if (btn_is_down(LUP) && btn_is_down(LDN)) {
+                // do nothing
             } else if (btn_is_down(LDN)) {
                 inductor_decrement();
-            } else if (btn_is_down(LUP) && btn_is_down(LDN)) {
-                // do nothing
+            } else if (btn_is_down(LUP)) {
+                inductor_increment();
             }
 
-            if (incrementCount < UINT8_MAX)
+            if (incrementCount < UINT8_MAX) {
                 incrementCount++;
-            if (incrementCount == 4)
+            }
+            if (incrementCount == 4) {
                 incrementDelay = 75;
-            if (incrementCount == 32)
+            }
+            if (incrementCount == 32) {
                 incrementDelay = 50;
+            }
         }
         ui_idle_block();
     }
@@ -194,7 +201,7 @@ void relay_button_hold(void) {
 }
 
 void tune_hold(void) {
-    LOG_TRACE(println("tune_hold"););
+    LOG_TRACE({ println("tune_hold"); });
     system_time_t elapsedTime;
     system_time_t startTime = systick_read();
 
@@ -236,7 +243,7 @@ void tune_hold(void) {
 }
 
 void func_hold(void) {
-    LOG_TRACE(println("func_hold"););
+    LOG_TRACE({ println("func_hold"); });
     uint8_t FuncHoldProcessed = 0;
 
     while (btn_is_down(FUNC)) // stay in loop while FUNC is held
@@ -268,19 +275,19 @@ void func_hold(void) {
 
         ui_idle_block();
     }
-    if (FuncHoldProcessed == 0)
+    if (FuncHoldProcessed == 0) {
         function_submenu();
+    }
     save_flags();
 }
 
 void ant_hold(void) {
-    LOG_TRACE(println("ant_hold"););
+    LOG_TRACE({ println("ant_hold"); });
     toggle_antenna();
     blink_antenna();
     update_antenna_LED();
 
-    while (btn_is_down(ANT)) // stay in loop while ANT is held
-    {
+    while (btn_is_down(ANT)) {
         ui_idle_block();
     }
     save_flags();
@@ -289,13 +296,13 @@ void ant_hold(void) {
 #define POWER_HOLD_DURATION 1500
 
 void power_hold(void) {
-    LOG_TRACE(println("power_hold"););
+    LOG_TRACE({ println("power_hold"); });
     system_time_t startTime = systick_read();
 
-    while (btn_is_down(POWER)) // stay in loop while POWER is held
-    {
-        if (systick_elapsed_time(startTime) >= POWER_HOLD_DURATION)
+    while (btn_is_down(POWER)) {
+        if (systick_elapsed_time(startTime) >= POWER_HOLD_DURATION) {
             break;
+        }
 
         ui_idle_block();
     }
@@ -303,7 +310,8 @@ void power_hold(void) {
     delay_ms(25);
 }
 
-/* ************************************************************************** */
+/* **************************************************************************
+ */
 
 void ui_mainloop(void) {
     log_register();
@@ -315,14 +323,18 @@ void ui_mainloop(void) {
         }
 
         // Other buttons
-        if (btn_is_down(FUNC))
+        if (btn_is_down(FUNC)) {
             func_hold();
-        if (btn_is_down(TUNE))
+        }
+        if (btn_is_down(TUNE)) {
             tune_hold();
-        if (btn_is_down(ANT))
+        }
+        if (btn_is_down(ANT)) {
             ant_hold();
-        if (btn_is_down(POWER))
+        }
+        if (btn_is_down(POWER)) {
             power_hold();
+        }
 
         ui_idle_block();
     }
