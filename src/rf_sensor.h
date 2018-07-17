@@ -4,19 +4,18 @@
 /* ************************************************************************** */
 
 // Global RF data format
-typedef union {
-    struct {
-        uint16_t forward;
-        double forwardWatts;
-        uint16_t reverse;
-        double reverseWatts;
-        double swr;
-        uint16_t frequency;
-    };
-} RF_power_s;
+typedef struct {
+    uint16_t forward;
+    double forwardWatts;
+    uint16_t reverse;
+    double reverseWatts;
+    double swr;
+    uint16_t frequency;
+
+} RF_power_t;
 
 // Global RF Readings
-extern RF_power_s currentRF;
+extern RF_power_t currentRF;
 
 // Global SWR Threshold Settings
 extern double swrThresh;

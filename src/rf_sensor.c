@@ -11,7 +11,7 @@ static uint8_t LOG_LEVEL = L_SILENT;
 /* ************************************************************************** */
 
 // Global RF Readings
-RF_power_s currentRF;
+RF_power_t currentRF;
 
 // Global SWR Threshold Settings
 double swrThresh = SWR1_7;
