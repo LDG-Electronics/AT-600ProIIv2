@@ -1,6 +1,7 @@
 #include "includes.h"
 
 #include "memory.h"
+#include "peripherals/pins.h"
 #include "tuning.h"
 
 /* ************************************************************************** */

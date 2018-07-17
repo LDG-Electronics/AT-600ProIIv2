@@ -2,6 +2,7 @@
 // drivers for peripheral devices
 #include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
+#include "peripherals/pins.h"
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"
 // other code

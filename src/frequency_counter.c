@@ -1,5 +1,6 @@
 #include "includes.h"
 
+#include "peripherals/pins.h"
 #include "peripherals/timer.h"
 
 /* ************************************************************************** */

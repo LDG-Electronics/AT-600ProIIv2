@@ -1,4 +1,6 @@
 #include "../includes.h"
+
+#include "pins.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */

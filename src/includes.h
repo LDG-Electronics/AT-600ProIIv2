@@ -15,9 +15,6 @@
 // Must be before peripheral and OS headers
 #include "hardware.h"
 
-// device peripherals
-#include "peripherals/pins.h"
-
 // TuneOS
 // Must be after peripheral drivers
 #include "os/console_io.h"
