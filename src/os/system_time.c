@@ -1,5 +1,7 @@
 #include "../includes.h"
 
+#include "../peripherals/timer.h"
+
 /* ************************************************************************** */
 
 void systick_init(void)

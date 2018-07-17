@@ -18,7 +18,6 @@
 // device peripherals
 #include "peripherals/pins.h"
 #include "peripherals/pps.h"
-#include "peripherals/timer.h"
 
 // TuneOS
 // Must be after peripheral drivers

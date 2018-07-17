@@ -1,5 +1,7 @@
 #include "../includes.h"
+
 #include <stdarg.h>
+#include "../peripherals/timer.h"
 
 /* ************************************************************************** */
 

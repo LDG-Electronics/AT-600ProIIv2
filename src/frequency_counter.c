@@ -1,5 +1,7 @@
 #include "includes.h"
 
+#include "peripherals/timer.h"
+
 /* ************************************************************************** */
 
 void frequency_counter_init(void) { timer3_clock_source(TMR_CLK_FOSC); }

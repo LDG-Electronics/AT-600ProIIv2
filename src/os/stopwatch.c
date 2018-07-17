@@ -1,5 +1,7 @@
 #include "../includes.h"
 
+#include "../peripherals/timer.h"
+
 /* ************************************************************************** */
 
 void stopwatch_init(void)
