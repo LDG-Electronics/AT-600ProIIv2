@@ -8,7 +8,7 @@ relays_s lastPublishedRelays;
 /* ************************************************************************** */
 
 void relay_driver_init(void) {
-    memset(&lastPublishedRelays, NULL, sizeof(relays_s));
+    lastPublishedRelays.all = 0;
 
     // set bitbang spi relay pins to default values
     RELAY_STROBE_PIN = 1;
