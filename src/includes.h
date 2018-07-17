@@ -42,7 +42,6 @@
 #include "relays.h"
 #include "RF_sensor.h"
 #include "shell_commands.h"
-#include "tuning.h"
 #include "ui.h"
 
 #endif	/* _INCLUDES_H_ */
