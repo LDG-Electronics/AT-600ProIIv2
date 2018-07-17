@@ -1,6 +1,7 @@
 #include "includes.h"
 
 #include "peripherals/config.h"
+#include "ui.h"
 #include <xc.h>
 
 /* ************************************************************************** */

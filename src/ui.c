@@ -1,6 +1,7 @@
 #include "includes.h"
 
 // #include "meter.h"
+#include "ui.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -59,8 +60,8 @@ void threshold_submenu(void) {
 
 void function_submenu(void) {
     LOG_TRACE(println("function_submenu"););
-    while (btn_is_down(FUNC)){}
-        ; // make sure FUNC is released before we continue
+    while (btn_is_down(FUNC)) {
+    }; // make sure FUNC is released before we continue
 
     delay_ms(50);
     play_interruptable_animation(&arrow_up);

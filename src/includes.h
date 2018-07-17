@@ -35,6 +35,5 @@
 #include "flags.h"
 #include "relays.h"
 #include "RF_sensor.h"
-#include "ui.h"
 
 #endif	/* _INCLUDES_H_ */
