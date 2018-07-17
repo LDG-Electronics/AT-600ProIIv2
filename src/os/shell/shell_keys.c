@@ -68,96 +68,96 @@ key_t decode_escape_sequence(void) {
     switch (sequence.length) {
     case 0:
         newKey.key = ESCAPE;
-        goto FINISHED;
+        return newKey;
     case 2:
         switch (sequence.buffer[1]) {
         case KEY_UP:
             newKey.key = UP;
-            goto FINISHED;
+            return newKey;
         case KEY_DOWN:
             newKey.key = DOWN;
-            goto FINISHED;
+            return newKey;
         case KEY_RIGHT:
             newKey.key = RIGHT;
-            goto FINISHED;
+            return newKey;
         case KEY_LEFT:
             newKey.key = LEFT;
-            goto FINISHED;
+            return newKey;
         case KEY_HOME:
             newKey.key = HOME;
-            goto FINISHED;
+            return newKey;
         case KEY_END:
             newKey.key = END;
-            goto FINISHED;
+            return newKey;
         case KEY_F1:
             newKey.key = F1;
-            goto FINISHED;
+            return newKey;
         case KEY_F2:
             newKey.key = F2;
-            goto FINISHED;
+            return newKey;
         case KEY_F3:
             newKey.key = F3;
-            goto FINISHED;
+            return newKey;
         case KEY_F4:
             newKey.key = F4;
-            goto FINISHED;
+            return newKey;
         default:
-            goto FINISHED;
+            return newKey;
         }
     case 3:
         if (sequence.buffer[2] == '~') {
             switch (sequence.buffer[1]) {
             case KEY_HOME2:
                 newKey.key = HOME;
-                goto FINISHED;
+                return newKey;
             case KEY_PGUP:
                 newKey.key = PAGEUP;
-                goto FINISHED;
+                return newKey;
             case KEY_PGDN:
                 newKey.key = PAGEDOWN;
-                goto FINISHED;
+                return newKey;
             case KEY_DEL:
                 newKey.key = DELETE;
-                goto FINISHED;
+                return newKey;
             case KEY_INS:
                 newKey.key = INSERT;
-                goto FINISHED;
+                return newKey;
             }
         }
-        goto FINISHED;
+        return newKey;
     case 4:
         if (sequence.buffer[3] == '~') {
             switch (sequence.buffer[2]) {
             case KEY_F5:
             case KEY_F5_ALT:
                 newKey.key = F5;
-                goto FINISHED;
+                return newKey;
             case KEY_F6:
                 newKey.key = F6;
-                goto FINISHED;
+                return newKey;
             case KEY_F7:
                 newKey.key = F7;
-                goto FINISHED;
+                return newKey;
             case KEY_F8:
                 newKey.key = F8;
-                goto FINISHED;
+                return newKey;
             case KEY_F9:
                 newKey.key = F9;
-                goto FINISHED;
+                return newKey;
             case KEY_F10:
                 newKey.key = F10;
-                goto FINISHED;
+                return newKey;
             case KEY_F11:
                 newKey.key = F11;
-                goto FINISHED;
+                return newKey;
             case KEY_F12:
                 newKey.key = F12;
-                goto FINISHED;
+                return newKey;
             default:
-                goto FINISHED;
+                return newKey;
             }
         }
-        goto FINISHED;
+        return newKey;
     case 5:
         switch (sequence.buffer[4]) {
         case KEY_F1:
@@ -200,10 +200,10 @@ key_t decode_escape_sequence(void) {
                 break;
             }
         default:
-            goto FINISHED;
+            return newKey;
         }
         newKey.mod = sequence.buffer[3] - '0';
-        goto FINISHED;
+        return newKey;
     case 6:
         if (sequence.buffer[5] == '~') {
             switch (sequence.buffer[2]) {
@@ -233,21 +233,15 @@ key_t decode_escape_sequence(void) {
                 newKey.key = F12;
                 break;
             default:
-                goto FINISHED;
+                return newKey;
             }
             newKey.mod = sequence.buffer[4] - '0';
-            goto FINISHED;
+            return newKey;
         }
-        goto FINISHED;
+        return newKey;
     default:
-        goto FINISHED;
+        return newKey;
     }
-
-FINISHED:
-    // TODO: move this print to the calling function
-    LOG_DEBUG(print_key(&newKey););
-    // TODO: replace all goto FINISHEDs with return newKey;
-    return newKey;
 }
 
 enum {
@@ -274,19 +268,18 @@ key_t decode_control_character(char currentChar) {
     switch (currentChar) {
     case KEY_BS:
         newKey.key = BACKSPACE;
-        break;
+        return newKey;
     case KEY_LF:
     case KEY_CR:
         newKey.key = ENTER;
-        break;
+        return newKey;
     case KEY_TAB:
         newKey.key = TAB;
-        break;
+        return newKey;
     default:
-        break;
+        return newKey;
     }
 
-    LOG_DEBUG({ print_key(&newKey); });
     return newKey;
 }
 
@@ -319,6 +312,7 @@ key_t identify_key(char currentChar) {
     } else {
         key = decode_control_character(currentChar);
     }
-
+    
+    LOG_DEBUG(print_key(&key););
     return key;
 }
