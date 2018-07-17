@@ -1,4 +1,6 @@
 #include "includes.h"
+
+// #include "meter.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -7,6 +9,8 @@ static uint8_t LOG_LEVEL = L_SILENT;
     periodically serviced when the system isn't doing anything else important.
 */
 void ui_idle_block(void) {
+    // TODO: would meter update happen here?
+    // TODO: figure out a schedule for idle RF polling
     shell_update();
     event_scheduler_update();
 }
