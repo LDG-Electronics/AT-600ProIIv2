@@ -20,7 +20,6 @@
 
 // TuneOS
 // Must be after peripheral drivers
-#include "os/buttons.h"
 #include "os/console_io.h"
 #include "os/log.h"
 #include "os/shell/shell.h"
