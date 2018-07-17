@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "os/shell/shell_internals.h"
+#include <stdlib.h>
 
 /* ************************************************************************** */
 
@@ -101,7 +102,7 @@ int shell_arg_test(int argc, char **argv) {
         sw version
         board revision
         compilation date
-        service history: 
+        service history:
 
     metrics
         lifetime tune count

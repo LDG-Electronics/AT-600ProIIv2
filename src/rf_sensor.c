@@ -2,6 +2,7 @@
 #include "peripherals/adc.h"
 #include <float.h>
 #include <math.h>
+#include <stdlib.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
