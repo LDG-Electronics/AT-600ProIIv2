@@ -32,7 +32,6 @@
 
 // modules
 #include "animations.h"
-#include "calibration.h"
 #include "display.h"
 #include "events.h"
 #include "flags.h"
