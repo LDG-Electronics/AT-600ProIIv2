@@ -61,8 +61,9 @@ int shell_arg_test(int argc, char **argv) {
     get is pretty self explanatory: it returns the current setting of the
     requested parameter.
 
+    TODO: revise this paragraph to emphasize the last line and sets role in it
     set is slightly trickier: Many variables require some action to be performed
-    when they're modified. This command has duty to update system variables
+    when they're modified. This command has a duty to update system variables
     responsibly, whatever that takes. It's unacceptable for the system to
     rendered inoperable or otherwise damaged by modifying a parameter via set.
 
@@ -70,9 +71,7 @@ int shell_arg_test(int argc, char **argv) {
     currentRelays <- from relays.c
         capacitors
         inductors
-        z
-        l limit
-        c limit
+        z relay
     currentRF <- from RF_sensor.c
         forward
         forwardWatts
@@ -98,9 +97,11 @@ int shell_arg_test(int argc, char **argv) {
 
     system information
         product name
+        serial number
         sw version
+        board revision
         compilation date
-        service history
+        service history: 
 
     metrics
         lifetime tune count
@@ -188,6 +189,7 @@ int calibration_packet(int argc, char **argv) {
         return 0;
     }
 
+    // TODO: make the prints happen in the same order every time
     // consume each argument, printing the answers in the order requested
     for (uint8_t i = 1; i <= argc; i++) {
         if (argv[i][0] == 'f') {
