@@ -1,4 +1,5 @@
 #include "includes.h"
+
 #include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
 #include "peripherals/reset.h"
