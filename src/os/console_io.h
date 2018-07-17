@@ -33,6 +33,8 @@
     serial transmissions and system delays.
 */
 
+#include "../peripherals/uart2.h"
+
 // Setup
 extern void console_init(void);
 

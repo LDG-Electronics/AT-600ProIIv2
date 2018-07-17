@@ -27,7 +27,6 @@
 #include "peripherals/pps.h"
 #include "peripherals/relay_driver.h"
 #include "peripherals/timer.h"
-#include "peripherals/uart.h"
 
 // TuneOS
 // Must be after peripheral drivers
