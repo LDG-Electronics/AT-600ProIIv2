@@ -49,6 +49,10 @@ extern int program_log_edit(int argc, char **argv);
 
 /* ************************************************************************** */
 
+// TODO: implement ian's suggestions RE: LOG_LEVEL and logLevel
+// TODO: make log_xxx macros all caps
+// TODO: add braces to log statements
+// TODO: make this return a bool
 int8_t log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
                   int line);
 
