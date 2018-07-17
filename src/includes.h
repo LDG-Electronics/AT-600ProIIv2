@@ -19,7 +19,6 @@
 // device peripherals
 #include "peripherals/pins.h"
 #include "peripherals/pps.h"
-#include "peripherals/relay_driver.h"
 #include "peripherals/timer.h"
 
 // TuneOS

@@ -7,6 +7,7 @@ relays_s lastPublishedRelays;
 
 /* ************************************************************************** */
 
+// TODO: do I need to write a generic bitbang SPI driver to fit under this file?
 void relay_driver_init(void) {
     lastPublishedRelays.all = 0;
 
