@@ -45,6 +45,7 @@ void spi_init(void) {
     // PPS setup
     RA6PPS = PPS_CLC1OUT; // SCK via CLC1OUT
     RC5PPS = PPS_CLC2OUT; // SDO via CLC2OUT
+    // TODO: investigate use of hardware slave select
     // RC4PPS = PPS_SPI1_SS; // SS
 
     SPI1CON0bits.BMODE = 1;
@@ -67,22 +68,23 @@ void spi_init(void) {
 
     SPI1CON0bits.MST = 1; // Set as bus master
     SPI1CON0bits.EN = 1;  // Enable SPI module
-    
+
     log_register();
 }
 
 /* -------------------------------------------------------------------------- */
 
 void spi_tx_word(uint16_t data) {
-    LOG_TRACE(println("spi_tx_word"));
+    LOG_TRACE({ println("spi_tx_word"); });
 
     // Two byte transfer count
     SPI1TCNTL = 2;
     SPI1TXB = (uint8_t)(data >> 8);   // high byte
     SPI1TXB = (uint8_t)(data & 0xff); // low byte
 
-    while (SPI1STATUSbits.TXBE == 0)
-        ; // Wait until SPI1TXB is empty
+    while (SPI1STATUSbits.TXBE == 0) {
+        // Wait until SPI1TXB is empty
+    }
 
     FP_STROBE_PIN = 0;
     delay_us(10);
@@ -90,21 +92,23 @@ void spi_tx_word(uint16_t data) {
 }
 
 void spi_tx_char(const char data) {
-    LOG_TRACE(println("spi_tx_char"));
+    LOG_TRACE({ println("spi_tx_char"); });
+    LOG_DEBUG({ printf("byte: %d", data); });
 
-    while (SPI1STATUSbits.TXBE == 0)
-        ; // Wait until SPI1TXB is empty
+    // TODO: change this to use the hardware SPI FIFO buffer
+    // TODO: consider using a fast_ring_buffer for SPI output, like the UARTs
+    while (SPI1STATUSbits.TXBE == 0) {
+        // Wait until SPI1TXB is empty
+    }
 
     SPI1TCNTL = 1;
     SPI1TXB = data;
 }
 
 void spi_tx_string(const char *string, uint16_t length) {
-    LOG_TRACE(println("spi_tx_string"));
+    LOG_TRACE({ println("spi_tx_string"); });
 
-    uint16_t i = 0;
-
-    while (i < length) {
-        spi_tx_char(string[i++]);
+    for (uint16_t i = 0; i < length; i++) {
+        spi_tx_char(string[i]);
     }
 }
