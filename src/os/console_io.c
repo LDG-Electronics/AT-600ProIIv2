@@ -1,5 +1,6 @@
 #include "../includes.h"
 #include "../peripherals/uart2.h"
+#include "../peripherals/pps.h"
 
 /* ************************************************************************** */
 
