@@ -17,7 +17,6 @@
 #include "hardware.h"
 
 // device peripherals
-#include "peripherals/nonvolatile_memory.h"
 #include "peripherals/pins.h"
 #include "peripherals/pps.h"
 #include "peripherals/relay_driver.h"

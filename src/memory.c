@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "peripherals/nonvolatile_memory.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
