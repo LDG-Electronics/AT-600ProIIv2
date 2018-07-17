@@ -232,10 +232,14 @@ void save_new_best_solution(void) {
 int8_t test_next_solution(uint8_t testMode) {
     solutionCount++;
 
-    if (put_relays(&nextSolution) == -1)
-        goto RELAY_ERROR;
-    if (SWR_stable_average() != 0)
-        goto LOST_RF;
+    if (put_relays(&nextSolution) == -1) {
+        tuning_flags.relayError = 1;
+        return (-1);
+    }
+    if (SWR_stable_average() != 0) {
+        tuning_flags.lostRF = 1;
+        return (-1);
+    }
 
     if (testMode == 0) {
         if (currentRF.swr < bestSWR) {
@@ -251,14 +255,6 @@ int8_t test_next_solution(uint8_t testMode) {
         }
     }
     return 0;
-
-RELAY_ERROR:
-    tuning_flags.relayError = 1;
-    return (-1);
-
-LOST_RF:
-    tuning_flags.lostRF = 1;
-    return (-1);
 }
 
 /* -------------------------------------------------------------------------- */
