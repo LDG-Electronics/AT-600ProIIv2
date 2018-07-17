@@ -1,4 +1,6 @@
 #include "includes.h"
+#include "peripherals/oscillator.h"
+#include "peripherals/reset.h"
 
 /* ************************************************************************** */
 // Forward Declarations

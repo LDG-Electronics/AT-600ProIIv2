@@ -22,14 +22,10 @@
 #include "hardware.h"
 
 // device peripherals
-#include "peripherals/adc.h"
 #include "peripherals/nonvolatile_memory.h"
-#include "peripherals/oscillator.h"
 #include "peripherals/pins.h"
 #include "peripherals/pps.h"
 #include "peripherals/relay_driver.h"
-#include "peripherals/reset.h"
-#include "peripherals/spi.h"
 #include "peripherals/timer.h"
 #include "peripherals/uart.h"
 

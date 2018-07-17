@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "peripherals/adc.h"
 
 /* ************************************************************************** */
 // The meter update can contain zeros, so the terminator has to be something
