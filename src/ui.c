@@ -1,5 +1,6 @@
 #include "includes.h"
 
+#include "events.h"
 // #include "meter.h"
 #include "ui.h"
 static uint8_t LOG_LEVEL = L_SILENT;

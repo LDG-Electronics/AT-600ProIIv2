@@ -31,7 +31,6 @@
 // modules
 #include "animations.h"
 #include "display.h"
-#include "events.h"
 #include "flags.h"
 #include "relays.h"
 #include "RF_sensor.h"

@@ -5,6 +5,7 @@
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"
 // other code
+#include "events.h"
 #include "shell_commands.h"
 #include "tuning.h"
 
