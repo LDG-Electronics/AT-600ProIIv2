@@ -33,7 +33,7 @@
     serial transmissions and system delays.
 */
 
-#include "../peripherals/uart2.h"
+/* ************************************************************************** */
 
 // Setup
 extern void console_init(void);
@@ -42,20 +42,17 @@ extern void console_init(void);
 
 // Print a single character to the console
 // Also needed for compiler provided printf
-// #define putch(data) UART2_tx_char(data)
 extern void putch(char data);
 
 // Read a single character from the console
-#define getch() UART2_rx_char()
+extern char getch(void);
 
 // Print a string
-#define print(string) UART2_tx_string(string, '\0')
+extern void print(const char *string);
 
 // Print a string and append a newline
-#define println(string)                                                        \
-    do {                                                                       \
-        print(string);                                                         \
-        print("\r\n");                                                         \
-    } while (0);
+extern void println(const char* string);
+
+/* ************************************************************************** */
 
 #endif
