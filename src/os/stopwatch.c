@@ -65,7 +65,7 @@ void us_stopwatch_end(void)
     printf("stopwatch: %luus\r\n", stopwatchCount);
 }
 
-static system_time_t ms_startTime = 0;
+volatile static system_time_t ms_startTime = 0;
 
 void ms_stopwatch_begin(void)
 {

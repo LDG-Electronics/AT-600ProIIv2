@@ -71,9 +71,7 @@ void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR() {
     over, but that's better than breaking our API or clobbering existing data.
 */
 void UART2_tx_string(const char *string, const char terminator) {
-    uint16_t totalBytes = 0;
     uint16_t currentByte = 0;
-    uint16_t remainingBytes = 0;
 
     // loop until hitting null
     while (string[currentByte] != terminator) {

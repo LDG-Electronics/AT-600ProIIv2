@@ -33,7 +33,7 @@ void print_key(key_t *key) {
 
 /* -------------------------------------------------------------------------- */
 
-enum {
+typedef enum {
     KEY_UP = 65,
     KEY_DOWN = 66,
     KEY_RIGHT = 67,
@@ -246,7 +246,7 @@ key_t decode_escape_sequence(void) {
     }
 }
 
-enum {
+typedef enum {
     KEY_ETX = 3,
     KEY_CTRL_D = 4,
     KEY_CTRL_E = 5,
