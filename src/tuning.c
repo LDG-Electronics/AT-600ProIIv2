@@ -12,40 +12,18 @@ const uint8_t tuneStep[] = {0,   1,   2,   4,   6,   9,   12,  16,  21,  27,
                             34,  42,  51,  61,  72,  84,  97,  111, 126, 142,
                             159, 177, 194, 210, 225, 239, 252, 255};
 
-union {
-    struct {
-        unsigned C : 1;
-        unsigned L : 1;
-    };
-    uint8_t all;
-} freq_limits;
+/* ************************************************************************** */
 
-typedef union {
-    struct {
-        uint8_t maxCap;
-        uint8_t maxInd;
-        uint8_t minCap;
-        uint8_t minInd;
-    };
-    uint32_t all;
-} search_area_t;
+tuning_flags_s tuning_flags;
 
-typedef union {
-    struct {
-        uint8_t caps;
-        uint8_t inds;
-    };
-    uint16_t all;
-} search_index_t;
+#define clear_tuning_flags() tuning_flags.errors = 0
 
 /* -------------------------------------------------------------------------- */
 
-tuning_flags_s tuning_flags;
-int status;
-
-// Indexes used by coarse_tune()
-search_area_t search_area;
-search_index_t max_index;
+typedef struct {
+    relays_s;
+    RF_power_t;
+} tuning_solution;
 
 // Possible tune solutions, to be sent to put_relays()
 relays_s nextSolution;
@@ -69,34 +47,49 @@ relays_s lozSolution;
 double lozSWR;
 uint16_t lozFWD;
 
-//
-uint16_t solutionCount;
-uint16_t prevSolutionCount;
-
 /* ************************************************************************** */
 
 void tuning_init(void) { log_register(); }
 
-/* ************************************************************************** */
-
-#define clear_tuning_flags() tuning_flags.errors = 0
 
 /* ************************************************************************** */
 
-// Tuning module debug functions
+typedef union {
+    struct {
+        uint8_t maxCap;
+        uint8_t maxInd;
+        uint8_t minCap;
+        uint8_t minInd;
+    };
+    uint32_t all;
+} search_area_t;
+
+typedef union {
+    struct {
+        uint8_t caps;
+        uint8_t inds;
+    };
+    uint16_t all;
+} search_index_t;
+
+// Indexes used by coarse_tune()
+search_area_t search_area;
+search_index_t max_index;
 
 /*  print_search_area() prints the current search_area
 
     Output is: "area: (maxCap , minCap) (maxInd , minInd)"
 */
 void print_search_area(search_area_t *print_area) {
-    // This line keeps the compiler from whining
-    uint32_t temp = print_area->all;
-
-    LOG_INFO(printf("\tarea: C(%d,%d), L(%d,%d)\r\n", print_area->maxCap,
-                    print_area->minCap, print_area->maxInd,
-                    print_area->minInd););
+    printf("area: C(%d,%d), L(%d,%d)\r\n", print_area->maxCap,
+           print_area->minCap, print_area->maxInd, print_area->minInd);
 }
+
+/* ************************************************************************** */
+
+// File scope variables storing the number of solutions tried
+uint16_t solutionCount;
+uint16_t prevSolutionCount;
 
 /*  print_solution_count() shows the number of tested tuning solutions
 
@@ -104,7 +97,8 @@ void print_search_area(search_area_t *print_area) {
 */
 void print_solution_count(void) {
     uint16_t difference = solutionCount - prevSolutionCount;
-    LOG_INFO(printf("\tsolutionCount: %d new: %d", solutionCount, difference););
+
+    printf("solutionCount: %d new: %d", solutionCount, difference);
 
     prevSolutionCount = solutionCount;
 }
@@ -119,6 +113,14 @@ void print_solution_count(void) {
     L Limit is enabled at 20MHz.
     C Limit is enabled at 30MHz.
 */
+
+union {
+    struct {
+        unsigned C : 1;
+        unsigned L : 1;
+    };
+    uint8_t all;
+} freq_limits;
 
 #define L_LIMIT_FREQUENCY 20000 // 20mhz
 #define C_LIMIT_FREQUENCY 30000 // 30mhz
@@ -191,13 +193,13 @@ void reset_search_area(void) {
 
     // Find maximum C
     search_area.maxCap = get_c_limit_max();
-    while (tuneStep[++max_index.caps + 1] < search_area.maxCap)
-        ;
+    while (tuneStep[++max_index.caps + 1] < search_area.maxCap) {
+    }
 
     // Find maximum L
     search_area.maxInd = get_l_limit_max();
-    while (tuneStep[++max_index.inds + 1] < search_area.maxInd)
-        ;
+    while (tuneStep[++max_index.inds + 1] < search_area.maxInd) {
+    }
 
     // Find minimum C
     search_area.minCap = 0;
@@ -564,16 +566,14 @@ void full_tune(void) {
 #define MEMORY_GAP 2
 #define NUM_OF_MEMORIES 6
 
-double bestMemorySWR;
-relays_s bestMemory;
+volatile double bestMemorySWR;
+volatile relays_s bestMemory;
 relays_s memoryBuffer[NUM_OF_MEMORIES];
 
 void prepare_memories(void) {
     LOG_TRACE(println("prepare_memories"););
 
-    uint16_t address = 0;
-
-    address = convert_memory_address(currentRF.frequency);
+    uint16_t address = convert_memory_address(currentRF.frequency);
 
     bestMemorySWR = DBL_MAX;
     bestMemory.all = 0;
