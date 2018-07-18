@@ -3,9 +3,7 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-void nonvolatile_memory_init(void) {
-    log_register();
-}
+void nonvolatile_memory_init(void) { log_register(); }
 
 /* ************************************************************************** */
 
@@ -51,14 +49,14 @@ void nvm_write(void) {
 */
 
 uint8_t internal_eeprom_read(uint16_t address) {
-    LOG_TRACE(println("eeprom_read"););
+    LOG_TRACE({ println("eeprom_read"); });
 
     // Load lower byte of address into register
     NVMADRL = address;
-    // If EEADRH is present, load high byte of address into register
-    #ifdef NVMADRH
-        NVMADRH = address >> 8;
-    #endif
+// If EEADRH is present, load high byte of address into register
+#ifdef NVMADRH
+    NVMADRH = address >> 8;
+#endif
 
     // Select EEPROM
     NVMCON1bits.REG = 0;
@@ -70,7 +68,7 @@ uint8_t internal_eeprom_read(uint16_t address) {
 }
 
 void internal_eeprom_write(uint16_t address, uint8_t value) {
-    LOG_TRACE(println("eeprom_write"););
+    LOG_TRACE({ println("eeprom_write"); });
     // Wait for possible previous write to complete
     while (NVMCON1bits.WR) {
         // empty
@@ -78,10 +76,10 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 
     // Load lower byte of address into register
     NVMADRL = address;
-    // If EEADRH is present, load high byte of address into register
-    #ifdef NVMADRH
-        NVMADRH = address >> 8;
-    #endif
+// If EEADRH is present, load high byte of address into register
+#ifdef NVMADRH
+    NVMADRH = address >> 8;
+#endif
 
     // Load value into register
     NVMDAT = value;
@@ -130,7 +128,7 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 */
 
 uint8_t flash_read(uint24_t address) {
-    LOG_TRACE(println("flash_read"););
+    LOG_TRACE({ println("flash_read"); });
 
     // Load the address into the tablepointer registers
     TBLPTR = address;
@@ -142,7 +140,7 @@ uint8_t flash_read(uint24_t address) {
 }
 
 void flash_block_read(uint24_t address, uint8_t *buffer) {
-    LOG_TRACE(println("flash_block_read"););
+    LOG_TRACE({ println("flash_block_read"); });
     uint8_t i = 64;
     uint24_t blockAddress;
 
@@ -159,7 +157,7 @@ void flash_block_read(uint24_t address, uint8_t *buffer) {
 }
 
 void flash_block_erase(uint24_t address) {
-    LOG_TRACE(println("flash_block_erase"););
+    LOG_TRACE({ println("flash_block_erase"); });
 
     // Load the address into the tablepointer registers
     TBLPTR = address;
@@ -171,14 +169,14 @@ void flash_block_erase(uint24_t address) {
 }
 
 void flash_block_write(uint24_t address, uint8_t *buffer) {
-    LOG_TRACE(println("flash_block_write"););
+    LOG_TRACE({ println("flash_block_write"); });
     uint8_t i = 0;
     uint24_t blockAddress;
 
     // Mask off the block address
     blockAddress = address & 0xffffc0;
 
-    LOG_DEBUG(printf("address: %d, blockAddress: %d", address, blockAddress););
+    LOG_DEBUG({ printf("address: %d, block: %d", address, blockAddress); });
 
     // Load the address into the tablepointer registers
     TBLPTR = blockAddress;
