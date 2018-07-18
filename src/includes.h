@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 // device header
-#include "pic18f46k42.h"
+#include <pic18f46k42.h>
 
 // Project specific hardware stuff
 // Must be before peripheral and OS headers
@@ -29,6 +29,6 @@
 #include "display.h"
 #include "flags.h"
 #include "relays.h"
-#include "RF_sensor.h"
+#include "rf_sensor.h"
 
 #endif	/* _INCLUDES_H_ */
