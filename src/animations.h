@@ -2,17 +2,30 @@
 #define _ANIMATIONS_H_
 
 /* ************************************************************************** */
+/*  The compiler emits A LOT of warnings about unused variables.
+
+    ... (1090) variable "_counter_clockwise_idle" is not used (warning)
+    ... (1090) variable "_clockwise_idle" is not used (warning)
+
+    Disabling compiler warnings is an extremely risky decision, and is not to be
+    take lightly. The 'unused variable' warning is #1090. It is important to 
+    reenable the warning at the end of the file, to make sure that we aren't
+    inadvertently interfere with other files.
+*/
+// #pragma warning push
+// #pragma warning disable 1090
+
 typedef struct {
     // uint16_t image;
     uint8_t upper;
     uint8_t lower;
     uint16_t frame_delay;
 } animation_s;
+
 /* -------------------------------------------------------------------------- */
-// shapes
+// Animations
 
 //  upper, lower, delay
-
 const animation_s right_crawl[] = {
     {0x01, 0x01, 100},
     {0x02, 0x02, 100},
@@ -155,13 +168,13 @@ const animation_s loz_wave[] = {
 };
 
 const animation_s high_scale[] = {
-    {0x00, 0x08, 100},
+    {0x08, 0x00, 100},
     {0x00, 0x00, 100},
     {0x00, 0x00, NULL},
 };
 
 const animation_s low_scale[] = {
-    {0x00, 0x80, 100},
+    {0x80, 0x00, 100},
     {0x00, 0x00, 100},
     {0x00, 0x00, NULL},
 };
@@ -187,7 +200,7 @@ const animation_s peak_off[] = {
 
 const animation_s swrThreshold[][3] = {
     {
-        {0x00, 0x80, 100},
+        {0x00, 0x08, 100},
         {0x00, 0x00, 100},
         {0x00, 0x00, NULL},
     }, 
@@ -274,5 +287,8 @@ const animation_s dual_counter_clockwise_idle[] = {
     {0x00, 0x11, 100},  
     {0x00, 0x00, NULL},
 };
+
+// restore saved warning settings
+// #pragma warning pop
 
 #endif
