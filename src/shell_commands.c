@@ -191,21 +191,38 @@ int calibration_packet(int argc, char **argv) {
         return 0;
     }
 
-    // TODO: make the prints happen in the same order every time
-    // consume each argument, printing the answers in the order requested
-    for (uint8_t i = 1; i <= argc; i++) {
-        if (argv[i][0] == 'f') {
-            printf("%d ", currentRF.forward);
-            printf("%f ", currentRF.forwardWatts);
-        } else if (argv[i][0] == 'r') {
-            printf("%d ", currentRF.reverse);
-            printf("%f ", currentRF.reverseWatts);
-        } else if (argv[i][0] == 's') {
-            printf("%f ", currentRF.swr);
-        } else if (argv[i][0] == 'p') {
-            printf("%d ", currentRF.frequency);
+    uint8_t pF = 0;
+    uint8_t pR = 0;
+    uint8_t pS = 0;
+    uint8_t pP = 0;
+
+    for (uint8_t i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-f") == 0) {
+            pF = 1;
+        } else if (strcmp(argv[i], "-r") == 0) {
+            pR = 1;
+        } else if (strcmp(argv[i], "-s") == 0) {
+            pS = 1;
+        } else if (strcmp(argv[i], "-p") == 0) {
+            pP = 1;
         }
     }
+
+    if (pF == 1) {
+        printf("%d ", currentRF.forward);
+        printf("%f ", currentRF.forwardWatts);
+    }
+    if (pR == 1) {
+        printf("%d ", currentRF.reverse);
+        printf("%f ", currentRF.reverseWatts);
+    }
+    if (pS == 1) {
+        printf("%f ", currentRF.swr);
+    }
+    if (pP == 1) {
+        printf("%d ", currentRF.frequency);
+    }
+
     println("");
     return 0;
 }
