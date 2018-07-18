@@ -33,5 +33,6 @@ extern line_t shell;
 #include "shell_cursor.h"
 #include "shell_history.h"
 #include "shell_keys.h"
+#include "shell_utils.h"
 
 #endif
