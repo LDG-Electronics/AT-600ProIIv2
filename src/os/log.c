@@ -2,6 +2,7 @@
 
 #include "shell/shell_command_processing.h"
 #include "shell/shell_keys.h"
+#include "shell/shell_utils.h"
 #include <ctype.h>
 
 /* ************************************************************************** */
@@ -39,13 +40,19 @@ void log_level_edit(uint8_t fileID, uint8_t level) {
     *logDatabase.file[fileID].level = level;
 }
 
-void print_log_list(void) {
-    println("-----------------------------------------------");
-    println("");
-    printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
-    println("");
-    println(" #  | level  | path/to/file");
-    println("-----------------------------------------------");
+void print_log_level(uint8_t level) {
+    printf("%s%s ", level_colors[level], level_names[level]);
+    reset_text_attributes();
+}
+
+void print_names_of_log_levels(void) {
+    for (uint8_t i = 0; i < 7; i++) {
+        printf("%s%s ", level_colors[i], level_names[i]);
+    }
+    reset_text_attributes();
+}
+
+void print_managed_log_table(void) {
     for (uint8_t i = 0; i < logDatabase.numberOfFiles; i++) {
         printf(" #%-1d | ", (int)i);
         uint8_t level = *logDatabase.file[i].level;
@@ -53,39 +60,43 @@ void print_log_list(void) {
         print("\033[0;37m | ");
         println(logDatabase.file[i].name);
     }
+}
 
+void print_log_list(void) {
     println("-----------------------------------------------");
-    for (uint8_t i = 0; i < 7; i++) {
-        printf("%s%s ", level_colors[i], level_names[i]);
-    }
-    println("\033[0;37;40m");
+    println("");
+    printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
+    println("");
+    println(" #  | level  | path/to/file");
+    println("-----------------------------------------------");
+    print_managed_log_table();
+    println("-----------------------------------------------");
+    print_names_of_log_levels();
+    reset_text_attributes();
     println("log set <#> <level>");
     println("-----------------------------------------------");
 }
 
 /* -------------------------------------------------------------------------- */
-// "reverse" text decoration
-// print("\033[7m");
 
 uint8_t selectedLine = 0;
 uint8_t selectedLevel = 0;
 
 void reprint_line(void) {
     uint8_t level = *logDatabase.file[selectedLine].level;
-    print("\033[100D"); // move cursor to left edge
-    print("\033[0m");   // reset text attributes
-    print("\033[6C");   // move cursor right to correct position
-    printf("%s%-6s", level_colors[level], level_names[level]);
+    term_cursor_home();
+    reset_text_attributes();
+    term_cursor_right(6);
+    print_log_level(level);
 }
 
 void highlight_line(void) {
     uint8_t level = *logDatabase.file[selectedLine].level;
-    print("\033[100D"); // move cursor to left edge
-    print("\033[0m");   // reset text attributes
-    print("\033[6C");   // move cursor right to correct position
-    print("\033[7m");   // invert colors
-    printf("%s%-6s", level_colors[level], level_names[level]);
-    print("\033[0m"); // reset text attributes
+    term_cursor_home();
+    reset_text_attributes();
+    term_cursor_right(6);
+    print("\033[7m"); // invert colors
+    print_log_level(level);
 }
 
 void logedit_keys(key_t key) {
@@ -95,7 +106,7 @@ void logedit_keys(key_t key) {
             reprint_line();
             selectedLine--;
             selectedLevel = *logDatabase.file[selectedLine].level;
-            print("\033[1A");
+            term_cursor_up(1);
             highlight_line();
         }
         return;
@@ -104,7 +115,7 @@ void logedit_keys(key_t key) {
             reprint_line();
             selectedLine++;
             selectedLevel = *logDatabase.file[selectedLine].level;
-            print("\033[1B");
+            term_cursor_down(1);
             highlight_line();
         }
         return;
@@ -135,35 +146,23 @@ int program_logedit(int argc, char **argv) {
 }
 
 int program_logedit_begin(int argc, char **argv) {
-    // clear screen and reset cursor to (0,0)
-    print("\033[2J");
+    term_reset_screen();
+
     println("-----------------------------------------------");
     println("");
     printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
     println("");
     println(" #  | level  | path/to/file");
     println("-----------------------------------------------");
-
-    for (uint8_t i = 0; i < logDatabase.numberOfFiles; i++) {
-        printf(" #%-1d | ", (int)i);
-        uint8_t level = *logDatabase.file[i].level;
-        printf("%s%-6s", level_colors[level], level_names[level]);
-        print("\033[0;37m | ");
-        println(logDatabase.file[i].name);
-    }
-
+    print_managed_log_table();
     println("-----------------------------------------------");
-    for (uint8_t i = 0; i < 7; i++) {
-        printf("%s%s ", level_colors[i], level_names[i]);
-    }
-    print("\033[0m"); // reset text attributes
+    print_names_of_log_levels();
     println("");
     println("press ctrl+c to exit logedit");
     println("-----------------------------------------------");
 
-    // reset cursor to (0,0)
-    print("\033[0;0H");
-    print("\033[6B");
+    term_cursor_set(0, 0);
+    term_cursor_right(6);
     selectedLine = 0;
 
     highlight_line();
@@ -180,7 +179,7 @@ bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
         return false;
     }
 
-    print("\033[0;37m");
+    reset_text_attributes();
     printf("%lu ", (uint32_t)systick_read());
 
     printf("%s%-5s", level_colors[msgLevel], level_names[msgLevel]);
