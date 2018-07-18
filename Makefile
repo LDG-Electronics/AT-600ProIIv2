@@ -27,11 +27,13 @@ TARGET_DEVICE = 18f46k42
 # Commands and command variables
 
 # Compiler - This project uses Microchip XC8
+CC = C:/Microchip/xc8/v2.00/bin/xc8
+# CC = xc8 
 # --CHIP= is always required: I don't think XC8 has any modes that don't need
 # this flag
-CC = xc8 --CHIP=$(TARGET_DEVICE)
+CFLAGS = --CHIP=$(TARGET_DEVICE)
 # -q suppresses most of xc8's command echos
-CFLAGS = -q
+CFLAGS += -q
 # --OBJDIR tells xc8 where to put intermediate files(.pre, .p1, .d)
 CFLAGS += --OBJDIR=$(OBJ_DIR) 
 # -O tells xc8 where to put output files(.hex, .map, .cof, .as, etc)
