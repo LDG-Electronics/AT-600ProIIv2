@@ -1,4 +1,5 @@
 #include "../includes.h"
+
 #include <string.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
@@ -317,6 +318,7 @@ int8_t event_queue_lookup(const char *name) {
     return -1; // didn't find a match
 }
 
+#if 0
 /* ************************************************************************** */
 /*  Event Manager testing utilities
 
@@ -464,3 +466,4 @@ void event_manager_self_test(void) {
 
     event_sorting_stress_test();
 }
+#endif
