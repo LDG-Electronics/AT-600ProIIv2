@@ -4,6 +4,7 @@
 /* ************************************************************************** */
 
 line_t shell;
+shell_program_t shellCallback;
 
 /* ************************************************************************** */
 
@@ -11,6 +12,7 @@ line_t shell;
 void shell_init(void) {
     // initialize shell
     memset(&shell, NULL, sizeof(line_t));
+    shellCallback = NULL;
 
     // sequence processing
     shell_sequences_init();
@@ -22,6 +24,9 @@ void shell_init(void) {
     shell_history_init();
 }
 
+void shell_set_program_callback(shell_program_t callback) {
+    shellCallback = callback;
+}
 /* ************************************************************************** */
 
 void process_escape_sequence(key_t key) {
@@ -41,6 +46,7 @@ void process_escape_sequence(key_t key) {
             process_shell_command();
 
             memset(&shell, NULL, sizeof(line_t));
+            return;
         }
         print(SHELL_PROMPT_STRING);
         return;
@@ -93,6 +99,21 @@ void shell_update(void) {
 
     // return early if we haven't rx'd a character
     if (currentChar == NULL) {
+        return;
+    }
+
+    if (shellCallback != NULL) {
+        if (currentChar == 3) {
+            shell_set_program_callback(NULL);
+
+            print("\033[2J");
+            println("");
+            print(SHELL_PROMPT_STRING);
+            return;
+        }
+        char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
+        argv_list[0] = &currentChar;
+        shellCallback(1, argv_list);
         return;
     }
 

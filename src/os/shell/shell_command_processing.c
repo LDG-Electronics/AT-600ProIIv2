@@ -1,6 +1,6 @@
 #include "../../includes.h"
-#include "shell_internals.h"
 #include "../../shell_commands.h"
+#include "shell_internals.h"
 
 /* ************************************************************************** */
 
@@ -97,9 +97,12 @@ static int8_t find_matching_command(char *string) {
     return -1;
 }
 
+int argc;
+char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
+int8_t command;
+
 void process_shell_command(void) {
-    int argc = 0;
-    char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
+    argc = 0;
 
     // tokenize the shell buffer
     // argv_list will end up containing a pointer to each token
@@ -110,13 +113,21 @@ void process_shell_command(void) {
     }
 
     // figure out which command matches the received string
-    int8_t command = find_matching_command(argv_list[0]);
+    command = find_matching_command(argv_list[0]);
 
     // if we found a valid command, execute it
     if (command != -1) {
-        commands.list[command].callback(argc, argv_list);
+        shell_program_t program = commands.list[command].callback;
+        int result = program(argc, argv_list);
+
+        if (result == 0) {
+            print(SHELL_PROMPT_STRING);
+        }
         return;
     }
     // if there's no valid command, say something
     printf("%s: command not found\r\n", shell.buffer);
+    print(SHELL_PROMPT_STRING);
 }
+
+void execute_shell_command(void) {}

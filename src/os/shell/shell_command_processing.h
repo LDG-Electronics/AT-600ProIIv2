@@ -2,10 +2,6 @@
 #define _SHELL_COMMAND_PROCESSING_H_
 
 /* ************************************************************************** */
-// Shell command stuff
-
-// Type definition for all the programs invoked by the shell (function pointer)
-typedef int (*shell_program_t)(int, char **);
 
 extern void shell_register_command(shell_program_t program, const char *command,
                            const char *usage);

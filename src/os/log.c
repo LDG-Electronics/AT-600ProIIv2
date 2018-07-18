@@ -1,7 +1,8 @@
 #include "../includes.h"
+
 #include "shell/shell_command_processing.h"
 #include "shell/shell_keys.h"
-static uint8_t LOG_LEVEL = L_DEBUG;
+#include <ctype.h>
 
 /* ************************************************************************** */
 const char *level_names[] = {
@@ -24,8 +25,6 @@ void log_init(void) {
     }
     logDatabase.numberOfFiles = 0;
 
-    log_register();
-
     shell_register_command(program_logedit_begin, "logedit", NULL);
 }
 
@@ -42,46 +41,135 @@ void log_level_edit(uint8_t fileID, uint8_t level) {
 
 void print_log_list(void) {
     println("-----------------------------------------------");
-    for (uint8_t i = 0; i < 7; i++) {
-        printf("%s%s ", level_colors[i], level_names[i]);
-    }
     println("");
-    println("");
-
-    print("\033[0;37;40m");
-
     printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
+    println("");
+    println(" #  | level  | path/to/file");
+    println("-----------------------------------------------");
     for (uint8_t i = 0; i < logDatabase.numberOfFiles; i++) {
-        printf("#%d : ", (int)i);
+        printf(" #%-1d | ", (int)i);
         uint8_t level = *logDatabase.file[i].level;
         printf("%s%-6s", level_colors[level], level_names[level]);
-        print("\033[0;37m : ");
+        print("\033[0;37m | ");
         println(logDatabase.file[i].name);
     }
 
-    print("-----------------------------------------------");
+    println("-----------------------------------------------");
+    for (uint8_t i = 0; i < 7; i++) {
+        printf("%s%s ", level_colors[i], level_names[i]);
+    }
+    println("\033[0;37;40m");
+    println("log set <#> <level>");
+    println("-----------------------------------------------");
+}
+
+/* -------------------------------------------------------------------------- */
+// "reverse" text decoration
+// print("\033[7m");
+
+uint8_t selectedLine = 0;
+uint8_t selectedLevel = 0;
+
+void reprint_line(void) {
+    uint8_t level = *logDatabase.file[selectedLine].level;
+    print("\033[100D"); // move cursor to left edge
+    print("\033[0m");   // reset text attributes
+    print("\033[6C");   // move cursor right to correct position
+    printf("%s%-6s", level_colors[level], level_names[level]);
+}
+
+void highlight_line(void) {
+    uint8_t level = *logDatabase.file[selectedLine].level;
+    print("\033[100D"); // move cursor to left edge
+    print("\033[0m");   // reset text attributes
+    print("\033[6C");   // move cursor right to correct position
+    print("\033[7m");   // invert colors
+    printf("%s%-6s", level_colors[level], level_names[level]);
+    print("\033[0m"); // reset text attributes
+}
+
+void logedit_keys(key_t key) {
+    switch (key.key) {
+    case UP:
+        if (selectedLine > 0) {
+            reprint_line();
+            selectedLine--;
+            selectedLevel = *logDatabase.file[selectedLine].level;
+            print("\033[1A");
+            highlight_line();
+        }
+        return;
+    case DOWN:
+        if (selectedLine < logDatabase.numberOfFiles - 1) {
+            reprint_line();
+            selectedLine++;
+            selectedLevel = *logDatabase.file[selectedLine].level;
+            print("\033[1B");
+            highlight_line();
+        }
+        return;
+    case LEFT:
+        if (selectedLevel > 0) {
+            selectedLevel--;
+            log_level_edit(selectedLine, selectedLevel);
+            highlight_line();
+        }
+        return;
+    case RIGHT:
+        if (selectedLevel < 6) {
+            selectedLevel++;
+            log_level_edit(selectedLine, selectedLevel);
+            highlight_line();
+        }
+        return;
+    }
+}
+
+int program_logedit(int argc, char **argv) {
+    char currentChar = *argv[0];
+    if (iscntrl(currentChar)) {
+        key_t key = identify_key(currentChar);
+        logedit_keys(key);
+    }
+    return 0;
 }
 
 int program_logedit_begin(int argc, char **argv) {
-    println("press ctrl+c to exit logedit");
+    // clear screen and reset cursor to (0,0)
+    print("\033[2J");
+    println("-----------------------------------------------");
     println("");
+    printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
+    println("");
+    println(" #  | level  | path/to/file");
+    println("-----------------------------------------------");
 
-    print_log_list();
-}
-
-int program_logedit_continue(int argc, char **argv) {
-    char currentChar = 0;
-
-    // ctrl + c, exit program
-    if (currentChar == 3) {
-        return;
+    for (uint8_t i = 0; i < logDatabase.numberOfFiles; i++) {
+        printf(" #%-1d | ", (int)i);
+        uint8_t level = *logDatabase.file[i].level;
+        printf("%s%-6s", level_colors[level], level_names[level]);
+        print("\033[0;37m | ");
+        println(logDatabase.file[i].name);
     }
 
-    if (currentChar == 27) {
-        key_t key = identify_key(currentChar);
-
-        LOG_DEBUG({ print_key(&key); });
+    println("-----------------------------------------------");
+    for (uint8_t i = 0; i < 7; i++) {
+        printf("%s%s ", level_colors[i], level_names[i]);
     }
+    print("\033[0m"); // reset text attributes
+    println("");
+    println("press ctrl+c to exit logedit");
+    println("-----------------------------------------------");
+
+    // reset cursor to (0,0)
+    print("\033[0;0H");
+    print("\033[6B");
+    selectedLine = 0;
+
+    highlight_line();
+
+    shell_set_program_callback(program_logedit);
+    return 1;
 }
 
 /* ************************************************************************** */
