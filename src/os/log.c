@@ -54,7 +54,7 @@ void print_names_of_log_levels(void) {
 
 void print_managed_log_table(void) {
     for (uint8_t i = 0; i < logDatabase.numberOfFiles; i++) {
-        printf(" #%-1d | ", (int)i);
+        printf(" #%-2d | ", (int)i);
         uint8_t level = *logDatabase.file[i].level;
         printf("%s%-6s", level_colors[level], level_names[level]);
         print("\033[0;37m | ");
@@ -86,7 +86,7 @@ void reprint_line(void) {
     uint8_t level = *logDatabase.file[selectedLine].level;
     term_cursor_home();
     reset_text_attributes();
-    term_cursor_right(6);
+    term_cursor_right(7);
     print_log_level(level);
 }
 
@@ -94,7 +94,7 @@ void highlight_line(void) {
     uint8_t level = *logDatabase.file[selectedLine].level;
     term_cursor_home();
     reset_text_attributes();
-    term_cursor_right(6);
+    term_cursor_right(7);
     print("\033[7m"); // invert colors
     print_log_level(level);
 }
@@ -152,7 +152,7 @@ int program_logedit_begin(int argc, char **argv) {
     println("");
     printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
     println("");
-    println(" #  | level  | path/to/file");
+    println("  #  | level  | path/to/file");
     println("-----------------------------------------------");
     print_managed_log_table();
     println("-----------------------------------------------");
@@ -162,7 +162,7 @@ int program_logedit_begin(int argc, char **argv) {
     println("-----------------------------------------------");
 
     term_cursor_set(0, 0);
-    term_cursor_right(6);
+    term_cursor_down(6);
     selectedLine = 0;
 
     highlight_line();
