@@ -51,7 +51,6 @@ int program_logedit_continue(int argc, char **argv);
 
 /* ************************************************************************** */
 
-// TODO: add braces to log statements
 bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
                 int line);
 
