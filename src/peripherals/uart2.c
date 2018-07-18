@@ -73,11 +73,9 @@ void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR() {
 void UART2_tx_string(const char *string, const char terminator) {
     uint16_t currentByte = 0;
 
-    // loop until hitting null
+    // loop until hitting the provided termination character
     while (string[currentByte] != terminator) {
-        // buffer overflow handler
         if (buffer_is_full(UART2_tx_buffer)) {
-            // If the buffer is ever full, wait for it to empty completely
             UART2_TX_IE_enable();
             delay_ms(10);
         }
@@ -91,12 +89,9 @@ void UART2_tx_string(const char *string, const char terminator) {
 }
 
 void UART2_tx_char(char data) {
-    // buffer overflow handler
     if (buffer_is_full(UART2_tx_buffer)) {
         UART2_TX_IE_enable();
-
-        while (buffer_is_full(UART2_tx_buffer))
-            ;
+        delay_ms(10);
     }
 
     begin_critical_section();
