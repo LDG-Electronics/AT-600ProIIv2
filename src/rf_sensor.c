@@ -13,11 +13,6 @@ static uint8_t LOG_LEVEL = L_SILENT;
 // Global RF Readings
 RF_power_t currentRF;
 
-// Global SWR Threshold Settings
-double swrThresh = SWR1_7;
-uint8_t swrThreshIndex = 0;
-const double swrThreshTable[] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
-
 /* ************************************************************************** */
 
 void RF_sensor_init(void) {
@@ -35,13 +30,19 @@ void RF_sensor_init(void) {
     log_register();
 }
 
-void SWR_threshold_set(void) { swrThresh = swrThreshTable[swrThreshIndex]; }
+/* -------------------------------------------------------------------------- */
+
+// SWR Threshold Settings
+volatile uint8_t swrThreshIndex = 0;
+const double swrThreshTable[] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
+
+double get_SWR_threshold(void) { return swrThreshTable[swrThreshIndex]; }
 
 void SWR_threshold_increment(void) {
     swrThreshIndex++;
-    if (swrThreshIndex == 4)
+    if (swrThreshIndex == 4) {
         swrThreshIndex = 0;
-    SWR_threshold_set();
+    }
 }
 
 /* -------------------------------------------------------------------------- */

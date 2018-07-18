@@ -17,17 +17,14 @@ typedef struct {
 // Global RF Readings
 extern RF_power_t currentRF;
 
-// Global SWR Threshold Settings
-extern double swrThresh;
-extern uint8_t swrThreshIndex;
-
 /* ************************************************************************** */
 
 // Setup
 extern void RF_sensor_init(void);
 
 // SWR Threshold manipulation
-extern void SWR_threshold_set(void);
+extern volatile uint8_t swrThreshIndex;
+extern double get_SWR_threshold(void);
 extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */

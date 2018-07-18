@@ -68,7 +68,6 @@ void load_flags(void) {
     } else {
         LOG_INFO({ println("no valid record"); });
     }
-    SWR_threshold_set();
 }
 
 void save_flags(void) {
