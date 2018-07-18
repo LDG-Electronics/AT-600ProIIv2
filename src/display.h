@@ -84,30 +84,30 @@ extern void show_ind_relays(void);
 
 /* -------------------------------------------------------------------------- */
 
-// function-related, blinky display functions
-// THESE HAVE BLOCKING DELAYS
+extern void show_relays(void);
 extern void blink_bypass(void);
 extern void blink_antenna(void);
-extern void blink_auto(uint8_t blinks);
-extern void blink_HiLoZ(uint8_t blinks);
-extern void blink_scale(uint8_t blinks);
-extern void blink_thresh(uint8_t blinks);
 extern void show_peak(void);
 
-/* -------------------------------------------------------------------------- */
-
-// function-related, single frame display functions
-// THESE HAVE NO DELAYS
+// Shows current autoMode
+extern void blink_auto(uint8_t blinks);
 extern void show_auto(void);
+
+// Shows current HiLoZ setting
+extern void blink_HiLoZ(uint8_t blinks);
 extern void show_HiLoZ(void);
-extern void show_relays(void);
+
+// Shows current scale
+extern void blink_scale(uint8_t blinks);
 extern void show_scale(void);
+
+// Shows current SWR Threshold
+extern void blink_thresh(uint8_t blinks);
 extern void show_thresh(void);
 
 /* -------------------------------------------------------------------------- */
 
 extern void show_power_and_SWR(uint16_t forwardWatts, double swrValue);
 extern void show_current_power_and_SWR(void);
-extern int shell_show_bargraphs(int argc, char **argv);
 
 #endif

@@ -7,7 +7,6 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-const uint8_t swrThreshDisplay[] = {0x08, 0x10, 0x20, 0x40};
 const uint8_t ledBarTable[] = {
     0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
 };
@@ -114,7 +113,7 @@ void play_animation(const animation_s *animation) {
 
 // Play an animation from animations.h, and repeat it n times
 void repeat_animation(const animation_s *animation, uint8_t repeats) {
-    for (uint8_t i = 0; i < repeats; i++) {
+    while (repeats--) {
         play_animation(animation);
     }
 }
@@ -237,8 +236,6 @@ void show_ind_relays(void) {
 
 /* -------------------------------------------------------------------------- */
 
-// function-related display functions
-
 void show_peak(void) {
     if (system_flags.peakMode == 0) {
         play_animation(&peak_off);
@@ -247,8 +244,6 @@ void show_peak(void) {
     }
 }
 
-// function-related, blinky display functions
-// THESE HAVE BLOCKING DELAYS
 void blink_bypass(void) {
     if (bypassStatus[system_flags.antenna] == 1) {
         repeat_animation(&blink_both_bars, 3);
@@ -267,56 +262,6 @@ void blink_antenna(void) {
     }
 }
 
-void blink_auto(uint8_t blinks) {
-    if (system_flags.autoMode == 0) {
-        repeat_animation(&auto_off, blinks);
-    } else {
-        repeat_animation(&auto_on, blinks);
-    }
-}
-
-// TODO: fix this animation
-void blink_HiLoZ(uint8_t blinks) {
-    if (currentRelays[system_flags.antenna].z == 1) {
-        repeat_animation(&auto_off, blinks);
-    } else {
-        repeat_animation(&auto_on, blinks);
-    }
-}
-
-void blink_scale(uint8_t blinks) {
-    if (system_flags.scaleMode == 0) {
-        repeat_animation(&high_scale, blinks);
-    } else {
-        repeat_animation(&low_scale, blinks);
-    }
-}
-
-void blink_thresh(uint8_t blinks) {
-    uint8_t currentThreshold = swrThreshIndex;
-    repeat_animation(&swrThreshold[currentThreshold], blinks);
-}
-
-/* -------------------------------------------------------------------------- */
-// function-related, single frame display functions
-// THESE HAVE NO DELAYS
-
-void show_auto(void) {
-    if (system_flags.autoMode == 0) {
-        FP_update(0x8181);
-    } else {
-        FP_update(0x1818);
-    }
-}
-
-void show_HiLoZ(void) {
-    if (currentRelays[system_flags.antenna].z == 1) {
-        FP_update(0xc0c0);
-    } else {
-        FP_update(0x0303);
-    }
-}
-
 void show_relays(void) {
     display_frame_s frame;
 
@@ -327,17 +272,83 @@ void show_relays(void) {
     FP_update(frame.frame);
 }
 
-void show_scale(void) {
-    if (system_flags.scaleMode == 0) {
-        FP_update(0x0008);
+/* -------------------------------------------------------------------------- */
+
+void blink_auto(uint8_t blinks) {
+    if (system_flags.autoMode == 0) {
+        repeat_animation(&auto_off, blinks);
     } else {
-        FP_update(0x0080);
+        repeat_animation(&auto_on, blinks);
     }
+}
+
+void show_auto(void) {
+    if (system_flags.autoMode == 0) {
+        FP_update(0x8181);
+    } else {
+        FP_update(0x1818);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void blink_HiLoZ(uint8_t blinks) {
+    if (currentRelays[system_flags.antenna].z == 1) {
+        repeat_animation(&hiz_wave, blinks);
+    } else {
+        repeat_animation(&loz_wave, blinks);
+    }
+}
+
+void show_HiLoZ(void) {
+    display_frame_s frame;
+
+    if (currentRelays[system_flags.antenna].z == 1) {
+        frame.lower = 0xc0;
+        frame.upper = 0xc0;
+    } else {
+        frame.lower = 0x03;
+        frame.upper = 0x03;
+    }
+
+    FP_update(frame.frame);
+}
+
+/* -------------------------------------------------------------------------- */
+
+void blink_scale(uint8_t blinks) {
+    if (system_flags.scaleMode == 0) {
+        repeat_animation(&high_scale, blinks);
+    } else {
+        repeat_animation(&low_scale, blinks);
+    }
+}
+
+void show_scale(void) {
+    display_frame_s frame;
+    frame.lower = 0;
+
+    if (system_flags.scaleMode == 0) {
+        frame.upper = 0x08;
+    } else {
+        frame.upper = 0x80;
+    }
+
+    FP_update(frame.frame);
+}
+
+/* -------------------------------------------------------------------------- */
+
+const uint8_t swrThreshDisplay[] = {0x08, 0x10, 0x20, 0x40};
+
+void blink_thresh(uint8_t blinks) {
+    repeat_animation(&swrThreshold[swrThreshIndex], blinks);
 }
 
 void show_thresh(void) {
     display_frame_s frame;
     frame.upper = 0;
+
     frame.lower = swrThreshDisplay[swrThreshIndex];
 
     FP_update(frame.frame);
@@ -345,58 +356,26 @@ void show_thresh(void) {
 
 /* -------------------------------------------------------------------------- */
 
-/*  fwdIndex
+/*  AT-600ProII bargraph has the following markings:
 
-    AT-600ProII PWR bargraph has the following markings:
+    v- all bars off still needs a value
+    0, 10, 25, 50, 100, 200, 300, 450, 600
 
-    0       <- all bars off still needs a value
-    10
-    25
-    50
-    100
-    200
-    300
-    450
-    600
+    v- all bars off still needs a value
+    1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.0+
 */
-
 double fwdIndexArray[] = {
     0, 10, 25, 50, 100, 200, 300, 450, 600,
 };
-
-static uint8_t calculate_fwd_index(double forwardWatts) {
-    uint8_t i = 0;
-
-    while (fwdIndexArray[i] < forwardWatts) {
-        i++;
-    }
-
-    return i;
-}
-
-/*  swrIndex
-
-    AT-600ProII SWR bargraph has the following markings:
-
-    1.0     <- all bars off still needs a value
-    1.1
-    1.3
-    1.5
-    1.7
-    2.0
-    2.5
-    3.0
-    3.0+
-*/
 
 double swrIndexArray[] = {
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5,
 };
 
-static uint8_t calculate_swr_index(double swrValue) {
+static uint8_t array_lookup(double data, double *array) {
     uint8_t i = 0;
 
-    while (swrIndexArray[i] < swrValue) {
+    while (array[i] < data) {
         i++;
     }
 
@@ -406,17 +385,20 @@ static uint8_t calculate_swr_index(double swrValue) {
 void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
     display_frame_s frame;
 
-    frame.upper = ledBarTable[calculate_fwd_index(forwardWatts)];
-    frame.lower = ledBarTable[calculate_swr_index(swrValue)];
+    frame.upper = ledBarTable[array_lookup(forwardWatts, fwdIndexArray)];
+    frame.lower = ledBarTable[array_lookup(swrValue, swrIndexArray)];
 
     FP_update(frame.frame);
 }
 
 void show_current_power_and_SWR(void) {
+    uint8_t fwdIndex = array_lookup(currentRF.forwardWatts, fwdIndexArray);
+    uint8_t swrIndex = array_lookup(currentRF.swr, swrIndexArray);
+
     display_frame_s frame;
 
-    frame.upper = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
-    frame.lower = ledBarTable[calculate_swr_index(currentRF.swr)];
+    frame.upper = ledBarTable[fwdIndex];
+    frame.lower = ledBarTable[swrIndex];
 
     FP_update(frame.frame);
 }
