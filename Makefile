@@ -27,10 +27,8 @@ TARGET_DEVICE = 18f46k42
 # Commands and command variables
 
 # Compiler - This project uses Microchip XC8
-CC = C:/Microchip/xc8/v2.00/bin/xc8
-# CC = xc8 
-# --CHIP= is always required: I don't think XC8 has any modes that don't need
-# this flag
+CC = xc8 
+# --CHIP= is always required
 CFLAGS = --CHIP=$(TARGET_DEVICE)
 # -q suppresses most of xc8's command echos
 CFLAGS += -q
