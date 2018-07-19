@@ -3,6 +3,7 @@
 #include "peripherals/adc.h"
 #include "peripherals/pps.h"
 #include "peripherals/uart1.h"
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 // The meter update can contain zeros, so the terminator has to be something
@@ -31,6 +32,8 @@ void meter_init(void) {
     meter.packetBuffer[6] = ';';
     meter.packetBuffer[7] = ';';
     meter.packetBuffer[8] = METER_COMMS_TERMINATOR;
+
+    log_register();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -50,6 +53,7 @@ void check_for_meter_sync(void) {
 }
 
 void send_meter_update(void) {
+    LOG_TRACE({ println("send_meter_update"); });
     uint16_t tempFWD = adc_measure(0) >> 2;
     uint16_t tempREV = adc_measure(1) >> 2;
     uint16_t tempPeriod = 0xffff;
@@ -66,17 +70,13 @@ void send_meter_update(void) {
 
 #define METER_UPDATE_INTERVAL 100
 void attempt_meter_update(void) {
-    static system_time_t nextUpdateTime = 0;
-
     check_for_meter_sync();
 
     if (meter.active == 1) {
         system_time_t currentTime = systick_read();
 
-        if (currentTime >= nextUpdateTime) {
+        if (systick_elapsed_time(currentTime) >= METER_UPDATE_INTERVAL) {
             send_meter_update();
-
-            nextUpdateTime = currentTime + METER_UPDATE_INTERVAL;
         }
     }
 }
