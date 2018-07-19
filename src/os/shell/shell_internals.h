@@ -29,7 +29,7 @@ extern line_t shell;
 #include <string.h>
 
 // shell files
-#include "shell_command_processing.h"
+#include "shell_command_processor.h"
 #include "shell_cursor.h"
 #include "shell_history.h"
 #include "shell_keys.h"
