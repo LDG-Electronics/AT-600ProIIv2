@@ -41,7 +41,7 @@ void log_level_edit(uint8_t fileID, uint8_t level) {
 }
 
 void print_log_level(uint8_t level) {
-    printf("%s%s ", level_colors[level], level_names[level]);
+    printf("%s%-6s ", level_colors[level], level_names[level]);
     reset_text_attributes();
 }
 
@@ -72,7 +72,10 @@ void print_log_list(void) {
     print_managed_log_table();
     println("-----------------------------------------------");
     print_names_of_log_levels();
+    println("");
     reset_text_attributes();
+    println("");
+    println("These levels can be changed with this command:");
     println("log set <#> <level>");
     println("-----------------------------------------------");
 }
@@ -85,18 +88,20 @@ uint8_t selectedLevel = 0;
 void reprint_line(void) {
     uint8_t level = *logDatabase.file[selectedLine].level;
     term_cursor_home();
-    reset_text_attributes();
     term_cursor_right(7);
     print_log_level(level);
+    term_cursor_home();
+    term_cursor_right(7);
 }
 
 void highlight_line(void) {
     uint8_t level = *logDatabase.file[selectedLine].level;
     term_cursor_home();
-    reset_text_attributes();
     term_cursor_right(7);
     print("\033[7m"); // invert colors
     print_log_level(level);
+    term_cursor_home();
+    term_cursor_right(7);
 }
 
 void logedit_keys(key_t key) {
