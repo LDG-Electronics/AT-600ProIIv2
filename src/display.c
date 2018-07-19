@@ -83,6 +83,7 @@ void display_single_frame(const animation_s *animation, uint8_t frame_number) {
 
 // Play an animation from animations.h
 void play_animation(const animation_s *animation) {
+    LOG_TRACE({ println("play_animation"); });
     uint8_t i = 0;
     bool useUpper = true;
     bool useLower = true;
@@ -97,14 +98,17 @@ void play_animation(const animation_s *animation) {
     }
 
     while (1) {
-        if (useUpper)
+        if (useUpper) {
             displayBuffer.next.upper = animation[i].upper;
-        if (useLower)
+        }
+        if (useLower) {
             displayBuffer.next.lower = animation[i].lower;
+        }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == NULL)
+        if (animation[i].frame_delay == NULL) {
             break;
+        }
         delay_ms(animation[i].frame_delay);
 
         i++;
@@ -113,6 +117,7 @@ void play_animation(const animation_s *animation) {
 
 // Play an animation from animations.h, and repeat it n times
 void repeat_animation(const animation_s *animation, uint8_t repeats) {
+    LOG_TRACE({ println("repeat_animation"); });
     while (repeats--) {
         play_animation(animation);
     }
@@ -120,6 +125,7 @@ void repeat_animation(const animation_s *animation, uint8_t repeats) {
 
 // Play an animation from animations.h and return early if a button is pressed
 void play_interruptable_animation(const animation_s *animation) {
+    LOG_TRACE({ println("play_interruptable_animation"); });
     uint8_t i = 0;
     uint16_t j = 0;
     bool useUpper = true;
@@ -135,18 +141,22 @@ void play_interruptable_animation(const animation_s *animation) {
     }
 
     while (1) {
-        if (useUpper)
+        if (useUpper) {
             displayBuffer.next.upper = animation[i].upper;
-        if (useLower)
+        }
+        if (useLower) {
             displayBuffer.next.lower = animation[i].lower;
+        }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == NULL)
+        if (animation[i].frame_delay == NULL) {
             break;
+        }
 
         for (j = animation[i].frame_delay; j != 0; j--) {
-            if (get_buttons() != 0)
+            if (get_buttons() != 0) {
                 break;
+            }
             delay_ms(1);
         }
 
@@ -164,6 +174,7 @@ struct {
 } bgA; // bgA = backgroundAnimation
 
 void play_animation_in_background(const animation_s *animation) {
+    LOG_TRACE({ println("bgA begin"); });
     // is the display available?
     if (displayBuffer.upperMutex == 1) {
         // println("upperMutex already claimed");
@@ -194,6 +205,7 @@ void play_animation_in_background(const animation_s *animation) {
 }
 
 int16_t continue_animation_in_background(void) {
+    LOG_TRACE({ println("bgA cont"); });
     bool useUpper = true;
     bool useLower = true;
 
@@ -204,10 +216,12 @@ int16_t continue_animation_in_background(void) {
     }
 
     // publish the current frame
-    if (useUpper)
+    if (useUpper) {
         displayBuffer.next.upper = bgA.animation[bgA.frameIndex].upper;
-    if (useLower)
+    }
+    if (useLower) {
         displayBuffer.next.lower = bgA.animation[bgA.frameIndex].lower;
+    }
 
     push_frame_buffer();
 
