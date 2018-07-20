@@ -26,6 +26,7 @@
 
 // modules
 #include "animations.h"
+#include "calibration.h"
 #include "display.h"
 #include "flags.h"
 #include "relays.h"

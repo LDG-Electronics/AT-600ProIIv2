@@ -257,6 +257,81 @@ int edit_log_levels(int argc, char **argv) {
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
+int8_t decode_array_number(char *string) {
+    if (!stricmp(string, "forward") || !stricmp(string, "fwd") ||
+        !stricmp(string, "f")) {
+        return 0;
+    }
+
+    if (!stricmp(string, "reverse") || !stricmp(string, "rev") ||
+        !stricmp(string, "r")) {
+        return 1;
+    }
+
+    return atoi(string);
+}
+
+int poly(int argc, char **argv) {
+    switch (argc) {
+    case 1:
+        println("usage: \tpoly set <array> <slot> <A> <B> <C>");
+        println("\tpoly read <array> <slot>");
+        return 0;
+    case 4: // poly read
+        if (!strcmp(argv[1], "read")) {
+        } else {
+            break;
+        }
+
+        char array = decode_array_number(argv[2]);
+        if (array > NUMBER_OF_ARRAYS || array == -1) {
+            break;
+        }
+
+        uint8_t slot = atoi(argv[3]);
+        if (slot > NUMBER_OF_SLOTS) {
+            break;
+        }
+
+        printf("array = %d\r\n", array);
+        printf("slot = %d\r\n", slot);
+        print_poly(&calibrationTable[array][slot]);
+
+        return 0;
+    case 7: // poly set
+        if (!strcmp(argv[1], "set")) {
+        } else {
+            break;
+        }
+
+        char array = decode_array_number(argv[2]);
+        if (array > NUMBER_OF_ARRAYS) {
+            break;
+        }
+
+        uint8_t slot = atoi(argv[3]);
+        if (slot > NUMBER_OF_SLOTS) {
+            break;
+        }
+
+        calibrationTable[array][slot].A = atof(argv[4]);
+        calibrationTable[array][slot].B = atof(argv[5]);
+        calibrationTable[array][slot].C = atof(argv[6]);
+
+        printf("array = %d\r\n", array);
+        printf("slot = %d\r\n", slot);
+        print_poly(&calibrationTable[array][slot]);
+
+        return 0;
+    default:
+        break;
+    }
+    println("invalid arguments");
+    return 0;
+}
+
 /* ************************************************************************** */
 
 void register_all_shell_commands(void) {
@@ -276,4 +351,6 @@ void register_all_shell_commands(void) {
 
     // log level controls
     shell_register_command(edit_log_levels, "log", NULL);
+
+    shell_register_command(poly, "poly", NULL);
 }

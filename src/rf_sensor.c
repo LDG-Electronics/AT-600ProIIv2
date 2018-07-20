@@ -46,19 +46,6 @@ void SWR_threshold_increment(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*
-    Ax^2 + Bx + C
-*/
-typedef struct {
-    double A;
-    double B;
-    double C;
-} polynomial_s;
-
-polynomial_s fPoly = {2.6294242259022297e-005, 1.6324165531607232e-003,
-                      2.0595782264652627e+000};
-polynomial_s rPoly = {6.8404355873571254e-006, -2.1771708814267987e-005,
-                      5.4278972452307039e-001};
 
 static double RF_sensor_compensation(uint16_t input, polynomial_s *poly) {
     double x = (double)input;
