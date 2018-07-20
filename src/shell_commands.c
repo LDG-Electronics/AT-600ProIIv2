@@ -294,9 +294,7 @@ int poly(int argc, char **argv) {
         if (slot > NUMBER_OF_SLOTS) {
             break;
         }
-
-        printf("array = %d\r\n", array);
-        printf("slot = %d\r\n", slot);
+        
         print_poly(&calibrationTable[array][slot]);
 
         return 0;
@@ -319,10 +317,6 @@ int poly(int argc, char **argv) {
         calibrationTable[array][slot].A = atof(argv[4]);
         calibrationTable[array][slot].B = atof(argv[5]);
         calibrationTable[array][slot].C = atof(argv[6]);
-
-        printf("array = %d\r\n", array);
-        printf("slot = %d\r\n", slot);
-        print_poly(&calibrationTable[array][slot]);
 
         return 0;
     default:
