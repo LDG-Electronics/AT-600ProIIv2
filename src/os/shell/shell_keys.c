@@ -1,6 +1,5 @@
-#include "../../includes.h"
-#include "shell_internals.h"
-static uint8_t LOG_LEVEL = L_SILENT;
+#include "shell_keys.h"
+#include "../log_macros.h"
 
 /* ************************************************************************** */
 

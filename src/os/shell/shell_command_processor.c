@@ -1,6 +1,4 @@
-#include "../../includes.h"
-#include "../../shell_commands.h"
-#include "shell_internals.h"
+#include "shell_command_processor.h"
 
 /* ************************************************************************** */
 

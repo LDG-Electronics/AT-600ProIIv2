@@ -1,6 +1,9 @@
 #ifndef _SHELL_CURSOR_H_
 #define _SHELL_CURSOR_H_
 
+#include "../../includes.h"
+#include "shell_internals.h"
+
 /* ************************************************************************** */
 
 // move cursor n spaces, positive moves right, negative moves left
