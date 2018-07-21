@@ -70,7 +70,10 @@ LINT1FLAGS += --platform=avr8
 # chip -P<Part name>
 # -M Erase and program the entire device
 PK3 = pk3cmd
-PK3FLAGS = -M -P$(TARGET_DEVICE) -L -V5
+PK3FLAGS = -P$(TARGET_DEVICE) 
+PK3FLAGS += -M 
+PK3FLAGS += -L 
+# PK3FLAGS += -V5
 PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
 
 # CCS ICD-U80 USB programmer
@@ -83,6 +86,7 @@ CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
 
 # MeLabs U2 USB programmer
 # TODO: add melabs command line driver here
+MELABS = meprog
 
 # ---------------------------------------------------------------------------- #
 # Puttin' stuff together
@@ -120,12 +124,17 @@ upload-pk3: $(PROJECT_HEX)
 	# remove them automatically.
 	-rm $(PK3_GARBAGE)
 
-upload: create_directories $(PROJECT_HEX)
+upload-ccs: create_directories $(PROJECT_HEX)
 	$(CCSLOAD) $(CCSLOADFLAGS)
+
+upload-melabs:
+
+upload:	upload-ccs
 
 clean:
 	-rm -r -f $(BUILD_DIR)/*
 	-rm -r -f $(OBJ_DIR)/*
 	-rm -f $(PROGRAM_GARBAGE)
+	-rm -f $(PK3_GARBAGE)
 
 # DO NOT DELETE
