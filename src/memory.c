@@ -30,7 +30,7 @@ void memory_init(void) { log_register(); }
 #define FREQ_GROUP_5 30000
 #define FREQ_GROUP_6 55000
 
-uint24_t map_freq_to_addr(uint16_t frequency, uint16_t old_min,
+NVM_address_t map_freq_to_addr(uint16_t frequency, uint16_t old_min,
                           uint16_t old_max, uint16_t new_min,
                           uint16_t new_max) {
     uint32_t temp = 0;
@@ -42,14 +42,14 @@ uint24_t map_freq_to_addr(uint16_t frequency, uint16_t old_min,
 
     address = ((temp * newRange) / oldRange) + new_min;
 
-    return (uint24_t)address;
+    return (NVM_address_t)address;
 }
 
 // Memory configuration
 #define MEMORY_BASE_ADDRESS 40000
 
-uint24_t convert_memory_address(uint16_t frequency) {
-    uint24_t address = 0;
+NVM_address_t convert_memory_address(uint16_t frequency) {
+    NVM_address_t address = 0;
 
     if (frequency < FREQ_MIN) {
         // wrong
@@ -88,7 +88,7 @@ uint24_t convert_memory_address(uint16_t frequency) {
 
 /* -------------------------------------------------------------------------- */
 
-void memory_store(uint24_t address) {
+void memory_store(NVM_address_t address) {
     uint8_t i;
     uint8_t buffer[64];
     relays_s readRelays;
@@ -118,7 +118,7 @@ void memory_store(uint24_t address) {
     flash_block_write(address, buffer);
 }
 
-uint32_t memory_recall(uint24_t address) {
+uint32_t memory_recall(NVM_address_t address) {
     relays_s readRelays;
     readRelays.all = 0;
 

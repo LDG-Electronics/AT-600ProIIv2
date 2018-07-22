@@ -1,4 +1,7 @@
-#include "../includes.h"
+#include "pic18f46k42.h"
+
+#include "nonvolatile_memory.h"
+#include "../os/log_macros.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -127,7 +130,7 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 
 */
 
-uint8_t flash_read(uint24_t address) {
+uint8_t flash_read(NVM_address_t address) {
     LOG_TRACE({ println("flash_read"); });
 
     // Load the address into the tablepointer registers
@@ -139,10 +142,10 @@ uint8_t flash_read(uint24_t address) {
     return TABLAT;
 }
 
-void flash_block_read(uint24_t address, uint8_t *buffer) {
+void flash_block_read(NVM_address_t address, uint8_t *buffer) {
     LOG_TRACE({ println("flash_block_read"); });
     uint8_t i = 64;
-    uint24_t blockAddress;
+    NVM_address_t blockAddress;
 
     // Mask off the block address
     blockAddress = address & 0xffffc0;
@@ -156,7 +159,7 @@ void flash_block_read(uint24_t address, uint8_t *buffer) {
     }
 }
 
-void flash_block_erase(uint24_t address) {
+void flash_block_erase(NVM_address_t address) {
     LOG_TRACE({ println("flash_block_erase"); });
 
     // Load the address into the tablepointer registers
@@ -168,10 +171,10 @@ void flash_block_erase(uint24_t address) {
     nvm_write();
 }
 
-void flash_block_write(uint24_t address, uint8_t *buffer) {
+void flash_block_write(NVM_address_t address, uint8_t *buffer) {
     LOG_TRACE({ println("flash_block_write"); });
     uint8_t i = 0;
-    uint24_t blockAddress;
+    NVM_address_t blockAddress;
 
     // Mask off the block address
     blockAddress = address & 0xffffc0;

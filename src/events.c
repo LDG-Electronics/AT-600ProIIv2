@@ -1,6 +1,7 @@
 #include "includes.h"
 
 #include "memory.h"
+#include "peripherals/nonvolatile_memory.h"
 #include "peripherals/pins.h"
 #include "tuning.h"
 
@@ -127,7 +128,7 @@ void toggle_antenna(void) { set_antenna(!system_flags.antenna); }
 /* -------------------------------------------------------------------------- */
 
 void manual_store(void) {
-    uint24_t address = convert_memory_address(currentRF.frequency);
+    NVM_address_t address = convert_memory_address(currentRF.frequency);
 
     memory_store(address);
 
