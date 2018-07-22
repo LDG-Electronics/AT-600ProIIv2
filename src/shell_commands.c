@@ -3,11 +3,14 @@
 #include "display.h"
 #include "os/console_io.h"
 #include "os/log.h"
+#include "os/log_macros.h"
 #include "os/shell/shell.h"
 #include "os/shell/shell_command_processor.h"
+#include "peripherals/nonvolatile_memory.h"
 #include "rf_sensor.h"
 #include <stdlib.h>
 #include <string.h>
+static uint8_t LOG_LEVEL = L_TRACE;
 
 /* ************************************************************************** */
 
@@ -332,9 +335,119 @@ int poly(int argc, char **argv) {
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+
+void print_flash_buffer(uint8_t *buffer, uint8_t element) {
+    print("\t\t\t\t\t");
+    for (uint8_t i = 0; i < 64; i++) {
+        if (i == element) {
+            printf("\033[7m%02x\033[0;37;40m ", buffer[i]);
+        } else {
+            printf("%02x ", buffer[i]);
+        }
+        if (((i + 1) % 8) == 0) {
+            println("");
+            print("\t\t\t\t\t");
+        }
+    }
+    println("");
+}
+
+int flash(int argc, char **argv) {
+    switch (argc) {
+    case 1:
+        println("usage: \tflash write <address> <data>");
+        println("\tflash read <address>");
+        println("\tflash bread <address>");
+        return 0;
+    case 3:
+        if (!strcmp(argv[1], "read")) {
+            LOG_TRACE({ println("flash read <address>"); });
+            NVM_address_t address = atoi(argv[2]);
+            LOG_DEBUG({ printf("address: %ul\r\n", (uint32_t)address); });
+
+            printf("%d\r\n", flash_read(address));
+            return 0;
+        } else if (!strcmp(argv[1], "bread")) {
+            LOG_TRACE({ println("flash bread <address>"); });
+            NVM_address_t address = atoi(argv[2]);
+
+            uint8_t buffer[64];
+            uint8_t element = address & 0x003f;
+            LOG_DEBUG({
+                printf("address: %ul ", (uint32_t)address);
+                printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
+                printf("element: %d\r\n", element);
+            });
+
+            // Read existing block into buffer
+            flash_block_read(address, buffer);
+
+            LOG_DEBUG({
+                println("buffer after read:");
+                print_flash_buffer(&buffer, element);
+            });
+            return 0;
+        } else {
+            break;
+        }
+
+    case 4:
+        if (!strcmp(argv[1], "write")) {
+            LOG_TRACE({ println("flash write <address> <data>"); });
+        } else {
+            break;
+        }
+
+        NVM_address_t address = atoi(argv[2]);
+
+        uint8_t buffer[64];
+        uint8_t element = address & 0x003f;
+
+        LOG_DEBUG({
+            printf("address: %ul ", (uint32_t)address);
+            printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
+            printf("element: %d\r\n", element);
+        });
+        // Read existing block into buffer
+        flash_block_read(address, buffer);
+
+        LOG_DEBUG({
+            println("buffer after read:");
+            print_flash_buffer(&buffer, element);
+        });
+
+        buffer[element] = atoi(argv[3]);
+        LOG_DEBUG({
+            println("buffer after modification:");
+            print_flash_buffer(&buffer, element);
+        });
+
+        // Write the edited buffer into flash
+        flash_block_erase(address);
+        flash_block_write(address, buffer);
+
+        uint8_t verifyBuffer[64];
+        flash_block_read(address, verifyBuffer);
+
+        LOG_DEBUG({
+            println("write verification:");
+            print_flash_buffer(&verifyBuffer, element);
+        });
+
+        return 0;
+    default:
+        break;
+    }
+    println("invalid arguments");
+    return 0;
+}
+
 /* ************************************************************************** */
 
 void register_all_shell_commands(void) {
+    log_register();
+
     // built-in shell commands
     shell_register_command(shell_help, "help", NULL);
     shell_register_command(shell_arg_test, "test", NULL);
@@ -352,5 +465,9 @@ void register_all_shell_commands(void) {
     // log level controls
     shell_register_command(edit_log_levels, "log", NULL);
 
+    // calibration data
     shell_register_command(poly, "poly", NULL);
+
+    // flash test
+    shell_register_command(flash, "flash", NULL);
 }
