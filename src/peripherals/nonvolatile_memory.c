@@ -1,7 +1,6 @@
-#include "pic18f46k42.h"
+#include "../includes.h"
 
 #include "nonvolatile_memory.h"
-#include "../os/log_macros.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -54,12 +53,8 @@ void nvm_write(void) {
 uint8_t internal_eeprom_read(uint16_t address) {
     LOG_TRACE({ println("eeprom_read"); });
 
-    // Load lower byte of address into register
     NVMADRL = address;
-// If EEADRH is present, load high byte of address into register
-#ifdef NVMADRH
     NVMADRH = address >> 8;
-#endif
 
     // Select EEPROM
     NVMCON1bits.REG = 0;
@@ -73,16 +68,15 @@ uint8_t internal_eeprom_read(uint16_t address) {
 void internal_eeprom_write(uint16_t address, uint8_t value) {
     LOG_TRACE({ println("eeprom_write"); });
     // Wait for possible previous write to complete
+    if (NVMCON1bits.WR) {
+        LOG_DEBUG({ println("previous write not finished"); });
+    }
     while (NVMCON1bits.WR) {
         // empty
     }
 
-    // Load lower byte of address into register
     NVMADRL = address;
-// If EEADRH is present, load high byte of address into register
-#ifdef NVMADRH
     NVMADRH = address >> 8;
-#endif
 
     // Load value into register
     NVMDAT = value;
@@ -142,20 +136,19 @@ uint8_t flash_read(NVM_address_t address) {
     return TABLAT;
 }
 
-void flash_block_read(NVM_address_t address, uint8_t *buffer) {
-    LOG_TRACE({ println("flash_block_read"); });
-    uint8_t i = 64;
-    NVM_address_t blockAddress;
+#define FLASH_BLOCK_SIZE 64
+#define BLOCK_MASK(ADDRESS) address & 0xffffc0
 
-    // Mask off the block address
-    blockAddress = address & 0xffffc0;
+void flash_block_read(NVM_address_t address, uint8_t *readBuffer) {
+    LOG_TRACE({ println("flash_block_read"); });
 
     // Load the address into the tablepointer registers
-    TBLPTR = blockAddress;
+    TBLPTR = BLOCK_MASK(address);
 
-    while (i--) {
+    // Read out the block into the readBuffer
+    for (uint8_t i = 0; i < FLASH_BLOCK_SIZE; i++) {
         asm("TBLRD*+");
-        *buffer++ = TABLAT;
+        readBuffer[i] = TABLAT;
     }
 }
 
@@ -171,39 +164,15 @@ void flash_block_erase(NVM_address_t address) {
     nvm_write();
 }
 
-void flash_block_write(NVM_address_t address, uint8_t *buffer) {
+void flash_block_write(NVM_address_t address, uint8_t *writeBuffer) {
     LOG_TRACE({ println("flash_block_write"); });
-    uint8_t i = 0;
-    NVM_address_t blockAddress;
-
-    // Mask off the block address
-    blockAddress = address & 0xffffc0;
-
-    LOG_DEBUG({ printf("address: %d, block: %d", address, blockAddress); });
 
     // Load the address into the tablepointer registers
-    TBLPTR = blockAddress;
+    TBLPTR = BLOCK_MASK(address);
 
-    // Load the first half-block into the write buffer
-    while (i < 32) {
-        TABLAT = buffer[i++];
-        asm("TBLWT*+");
-    }
-
-    // Decrement the tablepointer before nvm_write()
-    asm("TBLRD*-");
-
-    // Helmsman, engage
-    NVMCON1bits.REG = 0b10;
-    NVMCON1bits.FREE = 0;
-    nvm_write();
-
-    // Incrememnt the tablepointer to put it back where it was
-    asm("TBLRD*+");
-
-    // Load the second half-block into the write buffer
-    while (i < 64) {
-        TABLAT = buffer[i++];
+    // Load the block into the writeBuffer
+    for (uint8_t i = 0; i < FLASH_BLOCK_SIZE; i++) {
+        TABLAT = writeBuffer[i++];
         asm("TBLWT*+");
     }
 

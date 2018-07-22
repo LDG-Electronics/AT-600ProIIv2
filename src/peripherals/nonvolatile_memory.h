@@ -2,6 +2,7 @@
 #define _NONVOLATILE_MEMORY_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* ************************************************************************** */
 
@@ -54,7 +55,7 @@ extern void internal_eeprom_write(uint16_t address, uint8_t c);
     
     Recommended procedure for writing to flash memory is as follows:
     
-    void example_write(NVM_address_t address, uint8_t value1, uint8_t value2)
+    void example_write(uint24_t address, uint8_t value1, uint8_t value2)
     {
         uint8_t buffer[64];
         uint8_t *pointer;
@@ -83,13 +84,12 @@ typedef __uint24 NVM_address_t;
 uint8_t flash_read(NVM_address_t address);
 
 // Read an entire block of 64 bytes from Flash memory into the provided buffer
-void flash_block_read(NVM_address_t address, uint8_t *buffer);
+void flash_block_read(NVM_address_t address, uint8_t *readBuffer);
 
 // Erase a block of Flash memory at (address)
 void flash_block_erase(NVM_address_t address);
 
 // Write the provided buffer into flash memory at (address)
-void flash_block_write(NVM_address_t address, uint8_t *buffer);
-
+void flash_block_write(NVM_address_t address, uint8_t *writeBuffer);
 
 #endif
