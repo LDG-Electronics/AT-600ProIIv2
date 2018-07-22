@@ -187,7 +187,7 @@ bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
     }
 
     reset_text_attributes();
-    printf("%lu ", (uint32_t)systick_read());
+    printf("%ul ", (uint32_t)systick_read());
 
     printf("%s%-5s", level_colors[msgLevel], level_names[msgLevel]);
 
