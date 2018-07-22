@@ -126,9 +126,13 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 
 uint8_t flash_read(NVM_address_t address) {
     LOG_TRACE({ println("flash_read"); });
+    LOG_DEBUG({ printf("address: %ul\r\n", address); });
 
     // Load the address into the tablepointer registers
     TBLPTR = address;
+
+    uint32_t temp = TBLPTR;
+    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", TBLPTR); });
 
     // Read one byte at the given address
     asm("TBLRD*+");
@@ -141,9 +145,13 @@ uint8_t flash_read(NVM_address_t address) {
 
 void flash_block_read(NVM_address_t address, uint8_t *readBuffer) {
     LOG_TRACE({ println("flash_block_read"); });
+    LOG_DEBUG({ printf("address: %ul\r\n", address); });
 
     // Load the address into the tablepointer registers
     TBLPTR = BLOCK_MASK(address);
+
+    uint32_t temp = TBLPTR;
+    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
 
     // Read out the block into the readBuffer
     for (uint8_t i = 0; i < FLASH_BLOCK_SIZE; i++) {
@@ -154,9 +162,13 @@ void flash_block_read(NVM_address_t address, uint8_t *readBuffer) {
 
 void flash_block_erase(NVM_address_t address) {
     LOG_TRACE({ println("flash_block_erase"); });
+    LOG_DEBUG({ printf("address: %ul\r\n", address); });
 
     // Load the address into the tablepointer registers
     TBLPTR = address;
+
+    uint32_t temp = TBLPTR;
+    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
 
     // Helmsman, engage
     NVMCON1bits.REG = 1;
@@ -166,9 +178,13 @@ void flash_block_erase(NVM_address_t address) {
 
 void flash_block_write(NVM_address_t address, uint8_t *writeBuffer) {
     LOG_TRACE({ println("flash_block_write"); });
+    LOG_DEBUG({ printf("address: %ul\r\n", address); });
 
     // Load the address into the tablepointer registers
     TBLPTR = BLOCK_MASK(address);
+
+    uint32_t temp = TBLPTR;
+    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
 
     // Load the block into the writeBuffer
     for (uint8_t i = 0; i < FLASH_BLOCK_SIZE; i++) {
