@@ -1,6 +1,8 @@
 #ifndef RF_SENSOR_H
 #define RF_SENSOR_H
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 #define SWR1_0 0

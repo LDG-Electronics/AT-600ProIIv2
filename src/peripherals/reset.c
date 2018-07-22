@@ -1,6 +1,6 @@
-#include "../includes.h"
-
+#include "reset.h"
 #include "../os/log_macros.h"
+#include "pic18f46k42.h"
 #define LOG_LEVEL L_FATAL
 
 /* ************************************************************************** */

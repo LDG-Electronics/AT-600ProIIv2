@@ -1,9 +1,6 @@
 #ifndef _SHELL_HISTORY_H_
 #define _SHELL_HISTORY_H_
 
-#include "../../includes.h"
-#include "shell_internals.h"
-
 /* ************************************************************************** */
 
 // setup

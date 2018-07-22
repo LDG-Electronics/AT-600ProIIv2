@@ -1,6 +1,8 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 extern const char *level_names[];

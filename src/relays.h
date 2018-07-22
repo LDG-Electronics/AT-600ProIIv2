@@ -1,6 +1,8 @@
 #ifndef _RELAYS_H_
 #define _RELAYS_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 /*  AT-600ProII Relay Configuration

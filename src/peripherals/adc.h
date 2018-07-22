@@ -1,6 +1,8 @@
 #ifndef _ADC_H_
 #define _ADC_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 /*  Not a lot to say about this driver....

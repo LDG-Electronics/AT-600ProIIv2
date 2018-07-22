@@ -1,6 +1,8 @@
 #ifndef _PARAMETERS_H_
 #define _PARAMETERS_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 /*  Globally visible struct definitions.

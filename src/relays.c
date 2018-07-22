@@ -1,7 +1,10 @@
-#include "includes.h"
-
+#include "relays.h"
+#include "display.h"
+#include "flags.h"
 #include "os/log_macros.h"
+#include "os/system_time.h"
 #include "peripherals/relay_driver.h"
+#include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */

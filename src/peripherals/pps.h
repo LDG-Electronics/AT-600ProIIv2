@@ -1,6 +1,8 @@
 #ifndef _PPS_H_
 #define _PPS_H_
 
+#include "pic18f46k42.h"
+
 /* ************************************************************************** */
 
 /*  Notes on using the PPS (Peripheral Pin Select)

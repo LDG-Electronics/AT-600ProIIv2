@@ -1,8 +1,8 @@
 #ifndef _SHELL_CURSOR_H_
 #define _SHELL_CURSOR_H_
 
-#include "../../includes.h"
-#include "shell_internals.h"
+#include "shell.h"
+#include <stdint.h>
 
 /* ************************************************************************** */
 

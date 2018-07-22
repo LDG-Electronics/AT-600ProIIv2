@@ -1,5 +1,3 @@
-#include "../includes.h"
-
 #include "event_scheduler.h"
 #include "log_macros.h"
 #include <string.h>

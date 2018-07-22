@@ -1,6 +1,8 @@
 #ifndef _TUNING_H_
 #define _TUNING_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 /*  tuning_flags is a collection of read-only global status flags

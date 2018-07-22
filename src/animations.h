@@ -1,19 +1,13 @@
 #ifndef _ANIMATIONS_H_
 #define _ANIMATIONS_H_
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /* ************************************************************************** */
-/*  The compiler emits A LOT of warnings about unused variables.
 
-    ... (1090) variable "_counter_clockwise_idle" is not used (warning)
-    ... (1090) variable "_clockwise_idle" is not used (warning)
-
-    Disabling compiler warnings is an extremely risky decision, and is not to be
-    take lightly. The 'unused variable' warning is #1090. It is important to 
-    reenable the warning at the end of the file, to make sure that we aren't
-    inadvertently interfere with other files.
-*/
-// #pragma warning push
-// #pragma warning disable 1090
+#define HEADER_FRAME 0
+#define END_FRAME 0
 
 typedef struct {
     // uint16_t image;
@@ -35,7 +29,7 @@ const animation_s right_crawl[] = {
     {0x20, 0x20, 50},
     {0x40, 0x40, 50},
     {0x80, 0x80, 50},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s left_crawl[] = {
@@ -47,7 +41,7 @@ const animation_s left_crawl[] = {
     {0x04, 0x04, 50},
     {0x02, 0x02, 50},
     {0x01, 0x01, 50},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s center_crawl[] = {
@@ -55,7 +49,7 @@ const animation_s center_crawl[] = {
     {0x42, 0x42, 100},
     {0x24, 0x24, 100},
     {0x18, 0x18, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s arrow_down[] = {
@@ -65,7 +59,7 @@ const animation_s arrow_down[] = {
     {0x24, 0x18, 100},
     {0x00, 0x00, 100},
     {0x24, 0x18, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s arrow_up[] = {
@@ -75,69 +69,69 @@ const animation_s arrow_up[] = {
     {0x18, 0x24, 100},
     {0x00, 0x00, 100},
     {0x18, 0x24, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s railroad_crossing[] = {
     {0x42, 0xa5, 200},
     {0xa5, 0x42, 200},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s blink_both_bars[] = {
     {0xff, 0xff, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s blink_top_bar[] = {
-    {true, false, NULL},
+    {true, false, HEADER_FRAME},
     {0xff, 0x00, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s blink_top_bar_3[] = {
-    {true, false, NULL},
+    {true, false, HEADER_FRAME},
     {0xff, 0x00, 100},
     {0x00, 0x00, 100},
     {0xff, 0x00, 100},
     {0x00, 0x00, 100},
     {0xff, 0x00, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s blink_bottom_bar[] = {
-    {false, true, NULL},
+    {false, true, HEADER_FRAME},
     {0x00, 0xff, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s blink_bottom_bar_3[] = {
-    {false, true, NULL},
+    {false, true, HEADER_FRAME},
     {0x00, 0xff, 100},
     {0x00, 0x00, 100},
     {0x00, 0xff, 100},
     {0x00, 0x00, 100},
     {0x00, 0xff, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s left_wave[] = {
     {0x30, 0x30, 100},
     {0xc0, 0xc0, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s right_wave[] = {
     {0x0c, 0x0c, 100},
     {0x03, 0x03, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 /* -------------------------------------------------------------------------- */
@@ -146,37 +140,37 @@ const animation_s right_wave[] = {
 const animation_s auto_on[] = {
     {0x18, 0x18, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s auto_off[] = {
     {0x81, 0x81, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s hiz_wave[] = {
     {0xc0, 0xc0, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s loz_wave[] = {
     {0x03, 0x03, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s high_scale[] = {
     {0x08, 0x00, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s low_scale[] = {
     {0x80, 0x00, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s peak_on[] = {
@@ -186,7 +180,7 @@ const animation_s peak_on[] = {
     {0x09, 0x09, 100},
     {0x08, 0x08, 300},
     {0x04, 0x04, 400},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s peak_off[] = {
@@ -195,29 +189,29 @@ const animation_s peak_off[] = {
     {0x07, 0x07, 100},
     {0x03, 0x03, 100},
     {0x01, 0x01, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s swrThreshold[][3] = {
     {
         {0x00, 0x08, 100},
         {0x00, 0x00, 100},
-        {0x00, 0x00, NULL},
+        {0x00, 0x00, END_FRAME},
     }, 
     {
         {0x00, 0x10, 100},
         {0x00, 0x00, 100},
-        {0x00, 0x00, NULL},
+        {0x00, 0x00, END_FRAME},
     }, 
     {
         {0x00, 0x20, 100},
         {0x00, 0x00, 100},
-        {0x00, 0x00, NULL},
+        {0x00, 0x00, END_FRAME},
     }, 
     {
         {0x00, 0x40, 100},
         {0x00, 0x00, 100},
-        {0x00, 0x00, NULL},
+        {0x00, 0x00, END_FRAME},
     }, 
 };
 
@@ -241,7 +235,7 @@ const animation_s clockwise_idle[] = {
     {0x04, 0x00, 100},
     {0x02, 0x00, 100},
     {0x01, 0x00, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s dual_clockwise_idle[] = {
@@ -253,7 +247,7 @@ const animation_s dual_clockwise_idle[] = {
     {0x44, 0x00, 100},
     {0x22, 0x00, 100},
     {0x11, 0x00, 100},    
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s counter_clockwise_idle[] = {
@@ -273,7 +267,7 @@ const animation_s counter_clockwise_idle[] = {
     {0x00, 0x04, 100},
     {0x00, 0x02, 100},
     {0x00, 0x01, 100},
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s dual_counter_clockwise_idle[] = {
@@ -285,10 +279,7 @@ const animation_s dual_counter_clockwise_idle[] = {
     {0x00, 0x44, 100},
     {0x00, 0x22, 100},
     {0x00, 0x11, 100},  
-    {0x00, 0x00, NULL},
+    {0x00, 0x00, END_FRAME},
 };
-
-// restore saved warning settings
-// #pragma warning pop
 
 #endif

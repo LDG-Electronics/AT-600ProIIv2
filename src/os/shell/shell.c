@@ -1,6 +1,11 @@
-#include "../../includes.h"
-
-#include "shell_internals.h"
+#include "shell.h"
+#include "../console_io.h"
+#include "shell_command_processor.h"
+#include "shell_cursor.h"
+#include "shell_history.h"
+#include "shell_keys.h"
+#include <ctype.h>
+#include <string.h>
 
 /* ************************************************************************** */
 
@@ -11,6 +16,8 @@ shell_program_t shellCallback;
 
 // set up the entire shell subsystem
 void shell_init(void) {
+    console_init();
+
     // initialize shell
     memset(&shell, NULL, sizeof(line_t));
     shellCallback = NULL;

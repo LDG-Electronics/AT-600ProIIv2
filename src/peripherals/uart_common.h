@@ -1,6 +1,8 @@
 #ifndef _UART_COMMON_H_
 #define	_UART_COMMON_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 // UART Baud rate tools

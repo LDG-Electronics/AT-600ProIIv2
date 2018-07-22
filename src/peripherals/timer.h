@@ -1,6 +1,9 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
+#include "pic18f46k42.h"
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 // Timer0 is used in the stopwatch module

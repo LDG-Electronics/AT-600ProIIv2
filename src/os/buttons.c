@@ -1,8 +1,6 @@
-#include "../includes.h"
-
+#include "buttons.h"
 #include "../peripherals/pins.h"
 #include "../peripherals/timer.h"
-#include "buttons.h"
 #include <stdarg.h>
 
 /* ************************************************************************** */

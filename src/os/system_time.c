@@ -1,11 +1,9 @@
-#include "../includes.h"
-
+#include "system_time.h"
 #include "../peripherals/timer.h"
 
 /* ************************************************************************** */
 
-void systick_init(void)
-{
+void systick_init(void) {
     timer2_clock_source(TMR_CLK_FOSC);
     timer2_prescale(TMR_PRE_1_128);
     timer2_postscale(TMR_POST_1_2);
@@ -44,37 +42,30 @@ void systick_init(void)
     SMT1CPR, and therefore is safe to read without worrying about corrupted
     data.
 */
-system_time_t systick_read(void)
-{
+system_time_t systick_read(void) {
     // Latch the current value of SMT1TMR into SMT1CPR
     SMT1STATbits.CPRUP = 1;
 
     return SMT1CPR;
 }
 
-system_time_t systick_elapsed_time(system_time_t startTime)
-{
+system_time_t systick_elapsed_time(system_time_t startTime) {
     return (systick_read() - startTime);
 }
 
-void systick_delay(uint16_t mseconds)
-{
+void systick_delay(uint16_t mseconds) {
     system_time_t startTime = systick_read();
 
-    while(systick_elapsed_time(startTime) < mseconds)
-    {
+    while (systick_elapsed_time(startTime) < mseconds) {
         // system_idle_block();
     }
 }
 
 /* -------------------------------------------------------------------------- */
 
-
-void delay_us(uint16_t useconds)
-{
+void delay_us(uint16_t useconds) {
     useconds >>= 1;
-    while (useconds > 0)
-    {
+    while (useconds > 0) {
         useconds--;
         asm("nop");
         asm("nop");
@@ -103,12 +94,10 @@ void delay_us(uint16_t useconds)
 }
 
 //! marked for deprecation
-void delay_ms(uint16_t mseconds)
-{
+void delay_ms(uint16_t mseconds) {
     system_time_t startTime = systick_read();
 
-    while(systick_elapsed_time(startTime) < mseconds)
-    {
+    while (systick_elapsed_time(startTime) < mseconds) {
         // empty loop
     }
 }

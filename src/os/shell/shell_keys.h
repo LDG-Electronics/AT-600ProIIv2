@@ -1,14 +1,8 @@
 #ifndef _SHELL_KEYS_H_
 #define _SHELL_KEYS_H_
 
-// std c headers
-#include <stdbool.h>
+#include "shell.h"
 #include <stdint.h>
-#include <stdio.h>
-
-#include "../console_io.h"
-
-#include "shell_internals.h"
 
 /* ************************************************************************** */
 

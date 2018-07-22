@@ -53,7 +53,7 @@ extern char getch(void);
 extern void print(const char *string);
 
 // Print a string and append a newline
-extern void println(const char* string);
+extern void println(const char *string);
 
 /* ************************************************************************** */
 

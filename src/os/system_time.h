@@ -1,6 +1,9 @@
 #ifndef _SYSTEM_TIME_H_
 #define _SYSTEM_TIME_H_
 
+#include "stopwatch.h"
+#include <stdint.h>
+
 /* ************************************************************************** */
 /*  Notes on using the System Tick module
 
@@ -8,7 +11,7 @@
     similarly to the millis() function from the Arduino platform.
 
     There are several differences between millis() and systick_read():
-    
+
     millis() stores its count in a uint32_t, meaning it takes roughly 49 days
     for millis() to overflow.
     systick_read() stores its count in a uint24_t, meaning it takes roughly

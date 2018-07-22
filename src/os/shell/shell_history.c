@@ -1,4 +1,8 @@
 #include "shell_history.h"
+#include "../console_io.h"
+#include "shell.h"
+#include "shell_cursor.h"
+#include <string.h>
 
 /* ************************************************************************** */
 
@@ -114,7 +118,7 @@ void shell_history_push(void) {
     // a push means we aren't viewing the middle of the history anymore
     history.pointer = 0;
     history.historyMode = 0;
-    
+
     // don't save if the current line matches the most recent history entry
     if (strcmp((const char *)history.line[history.head], &shell.buffer) == 0) {
         return;

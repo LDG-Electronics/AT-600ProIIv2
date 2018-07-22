@@ -1,6 +1,8 @@
 #ifndef _EVENTS_H_
 #define _EVENTS_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 extern void events_init(void);

@@ -1,6 +1,8 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
+#include "animations.h"
+
 /* ************************************************************************** */
 
 /*  Notes on the display driver.

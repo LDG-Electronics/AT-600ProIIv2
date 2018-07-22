@@ -1,6 +1,9 @@
 #ifndef _EVENT_SCHEDULER_H_
 #define _EVENT_SCHEDULER_H_
 
+#include <stdint.h>
+#include "system_time.h"
+
 /* ************************************************************************** */
 /*  Notes on the Event Scheduler subsystem
 

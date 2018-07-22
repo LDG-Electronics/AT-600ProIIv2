@@ -1,10 +1,13 @@
 #ifndef _BUTTONS_H_
 #define _BUTTONS_H_
 
+#include "../hardware.h"
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 /*  Notes on using the button processing subsystem.
-    
+
     This module is designed as a publisher/subscriber model, with two loosely
     coupled components.
 

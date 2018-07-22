@@ -1,8 +1,13 @@
-#include "includes.h"
-
+#include "shell_commands.h"
+#include "calibration.h"
+#include "display.h"
+#include "os/console_io.h"
 #include "os/log.h"
-#include "os/shell/shell_internals.h"
+#include "os/shell/shell.h"
+#include "os/shell/shell_command_processor.h"
+#include "rf_sensor.h"
 #include <stdlib.h>
+#include <string.h>
 
 /* ************************************************************************** */
 

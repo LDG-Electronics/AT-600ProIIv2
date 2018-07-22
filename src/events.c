@@ -1,8 +1,13 @@
-#include "includes.h"
-
+#include "display.h"
+#include "flags.h"
 #include "memory.h"
+#include "os/console_io.h"
+#include "os/system_time.h"
 #include "peripherals/nonvolatile_memory.h"
+#include "peripherals/pic18f46k42.h"
 #include "peripherals/pins.h"
+#include "relays.h"
+#include "rf_sensor.h"
 #include "tuning.h"
 
 /* ************************************************************************** */

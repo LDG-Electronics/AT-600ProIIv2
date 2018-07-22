@@ -1,14 +1,21 @@
-#include "includes.h"
-// drivers for peripheral devices
+#include "hardware.h"
+#include "display.h"
+#include "events.h"
+#include "flags.h"
+#include "os/buttons.h"
+#include "os/event_scheduler.h"
+#include "os/log.h"
+#include "os/shell/shell.h"
+#include "os/system_time.h"
+#include "peripherals/interrupt.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
+#include "peripherals/pic18f46k42.h"
 #include "peripherals/pins.h"
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"
-// other code
-#include "events.h"
-#include "os/buttons.h"
-#include "os/log.h"
+#include "relays.h"
+#include "rf_sensor.h"
 #include "shell_commands.h"
 #include "tuning.h"
 
@@ -25,7 +32,6 @@ void startup(void) {
     interrupt_init();
 
     // OS setup
-    console_init();
     shell_init();
     log_init();
     systick_init();
@@ -81,23 +87,4 @@ void __interrupt(irq(IOC), high_priority) IOC_ISR(void) {
         PIE0bits.IOCIE = 0;
         IOCANbits.IOCAN3 = 0;
     }
-}
-
-/* -------------------------------------------------------------------------- */
-
-void interrupt_init(void) {
-    INTCON0bits.IPEN = 0; // Disable priority levels on interrupts
-
-    // Clear all peripheral interrupts
-    PIE1 = 0x0;
-    PIE2 = 0x0;
-    PIE3 = 0x0;
-    PIE4 = 0x0;
-    PIE5 = 0x0;
-    PIE6 = 0x0;
-    PIE7 = 0x0;
-    PIE8 = 0x0;
-    PIE9 = 0x0;
-
-    INTCON0bits.GIE = 1;
 }

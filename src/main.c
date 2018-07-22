@@ -1,5 +1,4 @@
-#include "includes.h"
-
+#include "hardware.h"
 #include "peripherals/config.h"
 #include "ui.h"
 #include <xc.h>

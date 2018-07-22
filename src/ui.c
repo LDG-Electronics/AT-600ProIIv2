@@ -1,9 +1,13 @@
-#include "includes.h"
-
-#include "events.h"
-#include "os/buttons.h"
-#include "os/log_macros.h"
 #include "ui.h"
+#include "display.h"
+#include "events.h"
+#include "flags.h"
+#include "os/buttons.h"
+#include "os/event_scheduler.h"
+#include "os/log_macros.h"
+#include "os/shell/shell.h"
+#include "os/system_time.h"
+#include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -16,6 +20,7 @@ void ui_idle_block(void) {
     // TODO: figure out a schedule for idle RF polling
     shell_update();
     event_scheduler_update();
+    save_flags();
 }
 
 /* ************************************************************************** */
@@ -120,7 +125,7 @@ void function_submenu(void) {
 }
 
 #define POWER_BUTTON_DURATION 1000
-
+// TODO: this whole thing needs replaced
 void shutdown_submenu(void) {
     LOG_TRACE({ println("shutdown_submenu"); });
     LOG_INFO({ println("shutting down"); });
@@ -149,8 +154,8 @@ void shutdown_submenu(void) {
     // Put the Status LEDs back how we found them
     update_status_LEDs();
 
-    // wait until power button is released
     while (btn_is_down(POWER)) {
+        // wait until power button is released
     }
 }
 
@@ -197,7 +202,6 @@ void relay_button_hold(void) {
     }
     // lock_display();
     event_register("display_release", display_release, 1000);
-    save_flags();
 }
 
 void tune_hold(void) {
@@ -239,7 +243,6 @@ void tune_hold(void) {
     } else if (elapsedTime >= BTN_PRESS_LONG) {
         // button was held for too long, do nothing
     }
-    save_flags();
 }
 
 void func_hold(void) {
@@ -278,7 +281,6 @@ void func_hold(void) {
     if (FuncHoldProcessed == 0) {
         function_submenu();
     }
-    save_flags();
 }
 
 void ant_hold(void) {
@@ -290,7 +292,6 @@ void ant_hold(void) {
     while (btn_is_down(ANT)) {
         ui_idle_block();
     }
-    save_flags();
 }
 
 #define POWER_HOLD_DURATION 1500
@@ -306,7 +307,6 @@ void power_hold(void) {
 
         ui_idle_block();
     }
-    save_flags();
     delay_ms(25);
 }
 

@@ -1,4 +1,6 @@
 #include "shell_command_processor.h"
+#include "../console_io.h"
+#include <string.h>
 
 /* ************************************************************************** */
 

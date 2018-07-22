@@ -1,11 +1,7 @@
 #ifndef _SHELL_COMMAND_PROCESSOR_H_
 #define _SHELL_COMMAND_PROCESSOR_H_
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-
-#include "shell_internals.h"
+#include "shell.h"
 
 /* ************************************************************************** */
 

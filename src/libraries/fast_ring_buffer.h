@@ -1,6 +1,8 @@
 #ifndef _FAST_RING_BUFFER_H_
 #define _FAST_RING_BUFFER_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 // Circular buffer tools

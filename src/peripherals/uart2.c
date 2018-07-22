@@ -1,7 +1,8 @@
-#include "../includes.h"
-
-#include "../libraries/fast_ring_buffer.h"
 #include "uart2.h"
+#include "../libraries/fast_ring_buffer.h"
+#include "../os/system_time.h"
+#include "interrupt.h"
+#include "pic18f46k42.h"
 
 /* ************************************************************************** */
 
