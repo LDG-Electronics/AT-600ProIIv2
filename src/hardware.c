@@ -8,6 +8,7 @@
 // other code
 #include "events.h"
 #include "os/buttons.h"
+#include "os/log.h"
 #include "shell_commands.h"
 #include "tuning.h"
 
@@ -22,7 +23,7 @@ void startup(void) {
     oscillator_init();
     pins_init();
     interrupt_init();
-    
+
     // OS setup
     console_init();
     shell_init();

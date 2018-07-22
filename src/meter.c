@@ -1,5 +1,6 @@
 #include "includes.h"
 
+#include "os/log_macros.h"
 #include "peripherals/adc.h"
 #include "peripherals/pps.h"
 #include "peripherals/uart1.h"

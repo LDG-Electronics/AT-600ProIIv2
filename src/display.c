@@ -1,6 +1,7 @@
 #include "includes.h"
 
 #include "os/buttons.h"
+#include "os/log_macros.h"
 #include "peripherals/pins.h"
 #include "peripherals/spi.h"
 static uint8_t LOG_LEVEL = L_SILENT;

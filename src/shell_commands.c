@@ -1,5 +1,6 @@
 #include "includes.h"
 
+#include "os/log.h"
 #include "os/shell/shell_internals.h"
 #include <stdlib.h>
 
@@ -294,7 +295,7 @@ int poly(int argc, char **argv) {
         if (slot > NUMBER_OF_SLOTS) {
             break;
         }
-        
+
         print_poly(&calibrationTable[array][slot]);
 
         return 0;

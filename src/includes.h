@@ -18,7 +18,6 @@
 // TuneOS
 // Must be after peripheral drivers
 #include "os/console_io.h"
-#include "os/log.h"
 #include "os/shell/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_time.h"

@@ -9,6 +9,9 @@
 
 /* ************************************************************************** */
 
+extern void log_register__(const char *name, uint8_t *level);
+#define log_register() log_register__(__FILE__, &LOG_LEVEL)
+
 bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
                 int line);
 

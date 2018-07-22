@@ -2,6 +2,7 @@
 
 #include "calibration.h"
 #include "frequency_counter.h"
+#include "os/log_macros.h"
 #include "peripherals/adc.h"
 #include <float.h>
 #include <math.h>

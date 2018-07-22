@@ -1,4 +1,6 @@
 #include "../includes.h"
+
+#include "../os/log_macros.h"
 #define LOG_LEVEL L_FATAL
 
 /* ************************************************************************** */

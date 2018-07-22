@@ -1,6 +1,7 @@
 #include "includes.h"
 
 #include "memory.h"
+#include "os/log_macros.h"
 #include "peripherals/nonvolatile_memory.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
@@ -31,8 +32,8 @@ void memory_init(void) { log_register(); }
 #define FREQ_GROUP_6 55000
 
 NVM_address_t map_freq_to_addr(uint16_t frequency, uint16_t old_min,
-                          uint16_t old_max, uint16_t new_min,
-                          uint16_t new_max) {
+                               uint16_t old_max, uint16_t new_min,
+                               uint16_t new_max) {
     uint32_t temp = 0;
     uint32_t address = 0;
     uint16_t oldRange = (old_max - old_min);

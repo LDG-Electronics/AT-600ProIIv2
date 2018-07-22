@@ -38,9 +38,6 @@ extern log_database_t logDatabase;
 // setup
 extern void log_init(void);
 
-extern void log_register__(const char *name, uint8_t *level);
-#define log_register() log_register__(__FILE__, &LOG_LEVEL)
-
 extern void log_level_edit(uint8_t file, uint8_t level);
 
 extern void print_log_list(void);
@@ -50,33 +47,5 @@ int program_logedit_begin(int argc, char **argv);
 int program_logedit_continue(int argc, char **argv);
 
 /* ************************************************************************** */
-
-bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
-                int line);
-
-#define LOG_TRACE(ARG)                                                         \
-    if (log_header(L_TRACE, LOG_LEVEL, __FILE__, __LINE__)) {                  \
-        ARG                                                                    \
-    }
-#define LOG_DEBUG(ARG)                                                         \
-    if (log_header(L_DEBUG, LOG_LEVEL, __FILE__, __LINE__)) {                  \
-        ARG                                                                    \
-    }
-#define LOG_INFO(ARG)                                                          \
-    if (log_header(L_INFO, LOG_LEVEL, __FILE__, __LINE__)) {                   \
-        ARG                                                                    \
-    }
-#define LOG_WARN(ARG)                                                          \
-    if (log_header(L_WARN, LOG_LEVEL, __FILE__, __LINE__)) {                   \
-        ARG                                                                    \
-    }
-#define LOG_ERROR(ARG)                                                         \
-    if (log_header(L_ERROR, LOG_LEVEL, __FILE__, __LINE__)) {                  \
-        ARG                                                                    \
-    }
-#define LOG_FATAL(ARG)                                                         \
-    if (log_header(L_FATAL, LOG_LEVEL, __FILE__, __LINE__)) {                  \
-        ARG                                                                    \
-    }
 
 #endif

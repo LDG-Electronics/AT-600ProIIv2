@@ -2,7 +2,7 @@
 
 #include "events.h"
 #include "os/buttons.h"
-// #include "meter.h"
+#include "os/log_macros.h"
 #include "ui.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 

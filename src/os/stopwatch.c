@@ -1,6 +1,7 @@
 #include "../includes.h"
 
 #include "../peripherals/timer.h"
+#include "log_macros.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
