@@ -49,6 +49,7 @@
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/um",
                 "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/shared",
                 "C:/Microchip/xc8/v2.00/pic/include",
+                "C:/Microchip/xc8/v2.00/pic/include/C99",
                 "${workspaceRoot}"
             ],
             "defines": [
