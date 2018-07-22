@@ -73,7 +73,7 @@ void shutdown(void) {
 // ISRs
 
 // Wake-from-shutdown ISR
-void __interrupt(irq(IRQ_IOC), high_priority) IOC_ISR(void) {
+void __interrupt(irq(IOC), high_priority) IOC_ISR(void) {
     // interrupt on change for pin IOCAF3
     if (IOCAFbits.IOCAF3 == 1) {
         IOCAFbits.IOCAF3 = 0;

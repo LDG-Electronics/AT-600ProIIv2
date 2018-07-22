@@ -36,16 +36,15 @@ void UART2_init(UART_baud_rates baudRate) {
 /*  Notes on UART2_tx_ISR()
 
     This function is an Interrupt Vector Table compatible ISR to respond to the
-    IRQ_U2TX interrupt signal. This signal is generated whenever U2TXB is empty
-    and PIE3bits.U2TXIE is enabled. In effect, the interrupt flag is set every
-    time UART2 finishes transmitting a byte.
-
+    U2TX interrupt signal. This signal is generated whenever U2TXB is empty and
+    PIE3bits.U2TXIE is enabled. In effect, the interrupt flag is set every time
+    UART2 finishes transmitting a byte.
 */
 
 #define UART2_TX_IE_enable() PIE6bits.U2TXIE = 1
 #define UART2_TX_IE_disable() PIE6bits.U2TXIE = 0
 
-void __interrupt(irq(IRQ_U2TX), high_priority) UART2_tx_ISR() {
+void __interrupt(irq(U2TX), high_priority) UART2_tx_ISR() {
     if (buffer_is_empty(UART2_tx_buffer)) {
         UART2_TX_IE_disable();
     } else {
@@ -107,11 +106,11 @@ void UART2_tx_char(char data) {
 /*  Notes on UART2_rx_ISR()
 
     This function is an Interrupt Vector Table compatible ISR to respond to the
-    IRQ_U2RX interrupt signal. This signal is generated whenever there is an
-    unread byte in U2RXB.
+    U2RX interrupt signal. This signal is generated whenever there is an unread
+    byte in U2RXB.
 */
 
-void __interrupt(irq(IRQ_U2RX), high_priority) UART2_rx_ISR() {
+void __interrupt(irq(U2RX), high_priority) UART2_rx_ISR() {
     buffer_write(UART2_rx_buffer, U2RXB);
 }
 

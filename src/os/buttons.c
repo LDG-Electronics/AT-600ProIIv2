@@ -53,15 +53,14 @@ void buttons_init(void) {
 /*  Notes on button_subsystem_ISR()
 
     This function is an Interrupt Vector Table compatible ISR to respond to the
-    IRQ_TMR6 interrupt signal. This signal is generated whenever timer6
-    overflows from 0xff to 0x00. The timer6 interrupt flag must be cleared by
-    software.
+    TMR6 interrupt signal. This signal is generated whenever timer6 overflows
+    from 0xff to 0x00. The timer6 interrupt flag must be cleared by software.
 
     The ISR then checks the state of each button and updates the correct entry
-    in the button history array. The first operation is a bit shift to slide
-    the existing values over one, and drop the oldest value off the top end.
-    Then the current state is read with the macro XXXX_BUTTON_PIN, and bitwise
-    OR'd into the least significant bit.
+    in the button history array. The first operation is a bit shift to slide the
+    existing values over one, and drop the oldest value off the top end. Then
+    the current state is read with the macro XXXX_BUTTON_PIN, and bitwise OR'd
+    into the least significant bit.
 */
 
 // CHECK_BUTTON() is used to expand BUTTON_LIST and generate the button ISR

@@ -36,15 +36,14 @@ void UART1_init(UART_baud_rates baudRate) {
 /*  Notes on UART1_tx_ISR()
 
     This function is an Interrupt Vector Table compatible ISR to respond to the
-    IRQ_U1TX interrupt signal. This signal is generated whenever U1TXB is empty
-    and PIE3bits.U1TXIE is enabled.
-
+    U1TX interrupt signal. This signal is generated whenever U1TXB is empty and
+    PIE3bits.U1TXIE is enabled.
 */
 
 #define UART1_TX_IE_enable() PIE3bits.U1TXIE = 1
 #define UART1_TX_IE_disable() PIE3bits.U1TXIE = 0
 
-void __interrupt(irq(IRQ_U1TX), high_priority) UART1_tx_ISR() {
+void __interrupt(irq(U1TX), high_priority) UART1_tx_ISR() {
     if (buffer_is_empty(UART1_tx_buffer)) {
         UART1_TX_IE_disable();
     } else {
@@ -107,11 +106,11 @@ void UART1_tx_char(char data) {
 /*  Notes on UART1_rx_ISR()
 
     This function is an Interrupt Vector Table compatible ISR to respond to the
-    IRQ_U1RX interrupt signal. This signal is generated whenever there is an
-    unread byte in U1RXB.
+    U1RX interrupt signal. This signal is generated whenever there is an unread
+    byte in U1RXB.
 */
 
-void __interrupt(irq(IRQ_U1RX), high_priority) UART1_rx_ISR() {
+void __interrupt(irq(U1RX), high_priority) UART1_rx_ISR() {
     buffer_write(UART1_rx_buffer, U1RXB);
 }
 
