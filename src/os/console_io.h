@@ -1,6 +1,8 @@
 #ifndef _CONSOLE_IO_H_
 #define _CONSOLE_IO_H_
 
+#include <stdio.h>
+
 /* ************************************************************************** */
 
 /*  Notes on serial speeds:

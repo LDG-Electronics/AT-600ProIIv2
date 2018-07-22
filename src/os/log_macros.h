@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "console_io.h"
 #include "log.h"
 
 /* ************************************************************************** */
@@ -36,7 +38,5 @@ bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
     }
 
 /* ************************************************************************** */
-
-static uint8_t LOG_LEVEL = L_SILENT;
 
 #endif

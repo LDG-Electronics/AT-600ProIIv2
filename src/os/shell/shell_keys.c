@@ -1,5 +1,6 @@
 #include "shell_keys.h"
 #include "../log_macros.h"
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
