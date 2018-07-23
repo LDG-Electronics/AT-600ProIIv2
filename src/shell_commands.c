@@ -337,6 +337,48 @@ int poly(int argc, char **argv) {
 
 /* -------------------------------------------------------------------------- */
 
+int shell_eeprom(int argc, char **argv) {
+    switch (argc) {
+    case 1:
+        println("usage: \teeprom write <address> <data>");
+        println("\teeprom read <address>");
+        return 0;
+
+    case 3:
+        if (!strcmp(argv[1], "read")) {
+            LOG_TRACE({ println("eeprom read <address>"); });
+            uint16_t address = atoi(argv[2]);
+            LOG_DEBUG({ printf("address: %ul\r\n", (uint32_t)address); });
+
+            printf("%02x\r\n", internal_eeprom_read(address));
+            return 0;
+        }
+        break;
+
+    case 4:
+        if (!strcmp(argv[1], "write")) {
+            LOG_TRACE({ println("eeprom write <address> <data>"); });
+
+            uint16_t address = atoi(argv[2]);
+            uint8_t data = atoi(argv[3]);
+
+            LOG_DEBUG({ printf("address: %ul\r\n", (uint32_t)address); });
+
+            internal_eeprom_write(address, data);
+            printf("%02x\r\n", internal_eeprom_read(address));
+            return 0;
+        }
+        break;
+
+    default:
+        break;
+    }
+    println("invalid arguments");
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
 void print_flash_buffer(uint8_t *buffer, uint8_t element) {
     print("\t\t\t\t\t");
     for (uint8_t i = 0; i < 64; i++) {
@@ -353,20 +395,21 @@ void print_flash_buffer(uint8_t *buffer, uint8_t element) {
     println("");
 }
 
-int flash(int argc, char **argv) {
+int shell_flash(int argc, char **argv) {
     switch (argc) {
     case 1:
         println("usage: \tflash write <address> <data>");
         println("\tflash read <address>");
         println("\tflash bread <address>");
         return 0;
+
     case 3:
         if (!strcmp(argv[1], "read")) {
             LOG_TRACE({ println("flash read <address>"); });
             NVM_address_t address = atoi(argv[2]);
             LOG_DEBUG({ printf("address: %ul\r\n", (uint32_t)address); });
 
-            printf("%d\r\n", flash_read(address));
+            printf("%02x\r\n", flash_read(address));
             return 0;
         } else if (!strcmp(argv[1], "bread")) {
             LOG_TRACE({ println("flash bread <address>"); });
@@ -388,54 +431,53 @@ int flash(int argc, char **argv) {
                 print_flash_buffer(&buffer, element);
             });
             return 0;
-        } else {
-            break;
         }
+        break;
 
     case 4:
         if (!strcmp(argv[1], "write")) {
             LOG_TRACE({ println("flash write <address> <data>"); });
-        } else {
-            break;
+
+            NVM_address_t address = atoi(argv[2]);
+
+            uint8_t buffer[64];
+            uint8_t element = address & 0x003f;
+
+            LOG_DEBUG({
+                printf("address: %ul ", (uint32_t)address);
+                printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
+                printf("element: %d\r\n", element);
+            });
+            // Read existing block into buffer
+            flash_block_read(address, buffer);
+
+            LOG_DEBUG({
+                println("buffer after read:");
+                print_flash_buffer(&buffer, element);
+            });
+
+            buffer[element] = atoi(argv[3]);
+            LOG_DEBUG({
+                println("buffer after modification:");
+                print_flash_buffer(&buffer, element);
+            });
+
+            // Write the edited buffer into flash
+            flash_block_erase(address);
+            flash_block_write(address, buffer);
+
+            uint8_t verifyBuffer[64];
+            flash_block_read(address, verifyBuffer);
+
+            LOG_DEBUG({
+                println("write verification:");
+                print_flash_buffer(&verifyBuffer, element);
+            });
+
+            return 0;
         }
+        break;
 
-        NVM_address_t address = atoi(argv[2]);
-
-        uint8_t buffer[64];
-        uint8_t element = address & 0x003f;
-
-        LOG_DEBUG({
-            printf("address: %ul ", (uint32_t)address);
-            printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
-            printf("element: %d\r\n", element);
-        });
-        // Read existing block into buffer
-        flash_block_read(address, buffer);
-
-        LOG_DEBUG({
-            println("buffer after read:");
-            print_flash_buffer(&buffer, element);
-        });
-
-        buffer[element] = atoi(argv[3]);
-        LOG_DEBUG({
-            println("buffer after modification:");
-            print_flash_buffer(&buffer, element);
-        });
-
-        // Write the edited buffer into flash
-        flash_block_erase(address);
-        flash_block_write(address, buffer);
-
-        uint8_t verifyBuffer[64];
-        flash_block_read(address, verifyBuffer);
-
-        LOG_DEBUG({
-            println("write verification:");
-            print_flash_buffer(&verifyBuffer, element);
-        });
-
-        return 0;
     default:
         break;
     }
@@ -468,6 +510,8 @@ void register_all_shell_commands(void) {
     // calibration data
     shell_register_command(poly, "poly", NULL);
 
+    // eeprom test
+    shell_register_command(shell_eeprom, "eeprom", NULL);
     // flash test
-    shell_register_command(flash, "flash", NULL);
+    shell_register_command(shell_flash, "flash", NULL);
 }
