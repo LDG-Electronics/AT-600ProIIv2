@@ -223,7 +223,6 @@ void save_new_best_solution(void) {
     LOG_INFO({
         print("\t\t");
         print_relays(&bestSolution);
-        print_current_SWR();
         println("");
     });
 }
