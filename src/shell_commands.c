@@ -417,6 +417,7 @@ int shell_flash(int argc, char **argv) {
 
             uint8_t buffer[64];
             uint8_t element = address & 0x003f;
+            
             LOG_DEBUG({
                 printf("address: %ul ", (uint32_t)address);
                 printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
@@ -439,24 +440,27 @@ int shell_flash(int argc, char **argv) {
             LOG_TRACE({ println("flash write <address> <data>"); });
 
             NVM_address_t address = atoi(argv[2]);
+            uint8_t data = atoi(argv[3]);
 
             uint8_t buffer[64];
             uint8_t element = address & 0x003f;
+
+            // Read existing block into buffer
+            flash_block_read(address, buffer);
 
             LOG_DEBUG({
                 printf("address: %ul ", (uint32_t)address);
                 printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
                 printf("element: %d\r\n", element);
             });
-            // Read existing block into buffer
-            flash_block_read(address, buffer);
 
             LOG_DEBUG({
                 println("buffer after read:");
                 print_flash_buffer(&buffer, element);
             });
 
-            buffer[element] = atoi(argv[3]);
+            buffer[element] = data;
+
             LOG_DEBUG({
                 println("buffer after modification:");
                 print_flash_buffer(&buffer, element);
