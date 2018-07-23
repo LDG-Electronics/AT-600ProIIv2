@@ -1,11 +1,16 @@
 #include "nonvolatile_memory.h"
 #include "../os/log_macros.h"
+#include "interrupt.h"
 #include "pic18f46k42.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-void nonvolatile_memory_init(void) { log_register(); }
+void nonvolatile_memory_init(void) {
+    log_register();
+    LOG_TRACE({ printf("_FLASH_ERASE_SIZE: %d\r\n", _FLASH_ERASE_SIZE); });
+    LOG_TRACE({ printf("_FLASH_WRITE_SIZE: %d\r\n", _FLASH_WRITE_SIZE); });
+}
 
 /* ************************************************************************** */
 
@@ -15,6 +20,7 @@ void nonvolatile_memory_init(void) { log_register(); }
     This function is the smallest unit that needs to be marked critical.
 */
 void nvm_write(void) {
+    begin_critical_section();
     NVMCON1bits.WREN = 1; // Enable NVM writes
 
     // Magic Sequence - Do Not Change
@@ -23,6 +29,7 @@ void nvm_write(void) {
     NVMCON1bits.WR = 1;
 
     NVMCON1bits.WREN = 0; // Disable NVM writes
+    end_critical_section();
 }
 
 /*  Notes on PIC18's EEPROM Memory:
@@ -62,7 +69,7 @@ uint8_t internal_eeprom_read(uint16_t address) {
     NVMCON1bits.RD = 1;
 
     // Return the value
-    return (NVMDAT);
+    return NVMDAT;
 }
 
 void internal_eeprom_write(uint16_t address, uint8_t value) {
@@ -140,7 +147,6 @@ uint8_t flash_read(NVM_address_t address) {
     return TABLAT;
 }
 
-#define FLASH_BLOCK_SIZE 64
 #define BLOCK_MASK(ADDRESS) address & 0xffffc0
 
 void flash_block_read(NVM_address_t address, uint8_t *readBuffer) {
@@ -154,7 +160,7 @@ void flash_block_read(NVM_address_t address, uint8_t *readBuffer) {
     LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
 
     // Read out the block into the readBuffer
-    for (uint8_t i = 0; i < FLASH_BLOCK_SIZE; i++) {
+    for (uint8_t i = 0; i < _FLASH_WRITE_SIZE; i++) {
         asm("TBLRD*+");
         readBuffer[i] = TABLAT;
     }
@@ -187,7 +193,7 @@ void flash_block_write(NVM_address_t address, uint8_t *writeBuffer) {
     LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
 
     // Load the block into the writeBuffer
-    for (uint8_t i = 0; i < FLASH_BLOCK_SIZE; i++) {
+    for (uint8_t i = 0; i < _FLASH_WRITE_SIZE; i++) {
         TABLAT = writeBuffer[i++];
         asm("TBLWT*+");
     }
