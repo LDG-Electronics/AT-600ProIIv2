@@ -68,18 +68,6 @@ static double calculate_SWR_by_watts(double forward, double reverse) {
     return ((1.0 + x) / (1.0 - x));
 }
 
-/*  SWR_measure() calculates the SWR from a single sample
-
-    This should probably only be used during development and debugging.
-    It doesn't make any effort to clean or smooth the results, and therefore
-    shouldn't be used to make any real decisions.
-*/
-void SWR_measure(void) {
-    currentRF.forward = adc_measure(0);
-    currentRF.reverse = adc_measure(1);
-    currentRF.swr = calculate_SWR(currentRF.forward, currentRF.reverse);
-}
-
 /*  Notes on SWR_average()
 
     This function assumes that we've already checked that the current SWR is
@@ -123,10 +111,6 @@ void SWR_average(void) {
         calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 }
 
-/*  Notes on wait_for_stable_FWD()
-
-
-*/
 #define STABLE_RF_WINDOW 50
 int8_t wait_for_stable_FWD(void) {
     uint16_t currentFWD;
@@ -140,8 +124,9 @@ int8_t wait_for_stable_FWD(void) {
 
         deltaFWD = abs((int16_t)currentFWD - (int16_t)previousFWD);
         deltaCompare = currentFWD >> 4;
-        if (deltaFWD < deltaCompare)
+        if (deltaFWD < deltaCompare) {
             return 0;
+        }
         previousFWD = currentFWD;
     }
     return -1;
@@ -156,25 +141,32 @@ int8_t SWR_stable_average(void) {
     currentRF.frequency = get_frequency();
 
     // if the Frequency isn't valid then return early
-    if (currentRF.frequency == 0xffff)
+    if (currentRF.frequency == 0xffff) {
         return -1;
+    }
 
-    if (wait_for_stable_FWD() == -1)
+    if (wait_for_stable_FWD() == -1) {
         return -1;
+    }
 
     SWR_average();
 
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
+#define FREQUENCY_SAMPLE_PERIOD 1000
+#define RF_SAMPLE_PERIOD 100
 
-void print_current_SWR(void) {
-    printf("FWD: %d, \tREV: %d, \tSWR: %f, F: %d", currentRF.forward,
-           currentRF.reverse, currentRF.swr, currentRF.frequency);
-}
-
-void print_current_SWR_ln(void) {
-    print_current_SWR();
-    println("");
+void RF_sensor_update(void) {
+    if (systick_elapsed_time(currentRF.lastFrequencySample) >
+        FREQUENCY_SAMPLE_PERIOD) {
+        LOG_TRACE({ println("updating frequency"); });
+        currentRF.lastFrequencySample = systick_read();
+        currentRF.frequency = get_frequency();
+    }
+    if (systick_elapsed_time(currentRF.lastRFsample) > RF_SAMPLE_PERIOD) {
+        LOG_TRACE({ println("updating RF"); });
+        currentRF.lastRFsample = systick_read();
+        SWR_average();
+    }
 }

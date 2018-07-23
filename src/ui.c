@@ -18,9 +18,10 @@ static uint8_t LOG_LEVEL = L_SILENT;
 void ui_idle_block(void) {
     // TODO: would meter update happen here?
     // TODO: figure out a schedule for idle RF polling
+    RF_sensor_update();
     shell_update();
     event_scheduler_update();
-    save_flags();
+    // save_flags();
 }
 
 /* ************************************************************************** */

@@ -1,6 +1,7 @@
 #ifndef RF_SENSOR_H
 #define RF_SENSOR_H
 
+#include "os/system_time.h"
 #include <stdint.h>
 
 /* ************************************************************************** */
@@ -23,7 +24,8 @@ typedef struct {
     double reverseWatts;
     double swr;
     uint16_t frequency;
-
+    system_time_t lastFrequencySample;
+    system_time_t lastRFsample;
 } RF_power_t;
 
 // Global RF Readings
@@ -42,17 +44,8 @@ extern void SWR_threshold_increment(void);
 /* -------------------------------------------------------------------------- */
 
 // SWR measurement functions
-extern void SWR_measure(void);
 extern void SWR_average(void);
 extern int8_t SWR_stable_average(void);
-
-// Prints the current Forward, Reverse, and SWR
-extern void print_current_SWR(void);
-extern void print_current_SWR_ln(void);
-
-/* ************************************************************************** */
-
-// Tests
-void print_SWR_samples(uint8_t delta);
+extern void RF_sensor_update(void);
 
 #endif
