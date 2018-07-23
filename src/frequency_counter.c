@@ -1,11 +1,16 @@
 #include "frequency_counter.h"
+#include "os/log_macros.h"
 #include "os/system_time.h"
 #include "peripherals/pins.h"
 #include "peripherals/timer.h"
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-void frequency_counter_init(void) { timer3_clock_source(TMR_CLK_FOSC); }
+void frequency_counter_init(void) {
+    timer3_clock_source(TMR_CLK_FOSC);
+    log_register();
+}
 
 /* -------------------------------------------------------------------------- */
 /*  validate_frequency_signal()
@@ -29,8 +34,9 @@ static int8_t validate_frequency_signal(void) {
         }
     }
 
-    if (freqPinCount > PERIOD_THRESHOLD)
+    if (freqPinCount > PERIOD_THRESHOLD) {
         return 0;
+    }
 
     return -1;
 }
@@ -116,15 +122,18 @@ uint32_t get_period(void) {
     timer3_interrupt_enable();
 
     // align ourselves with the rising edge of FREQ_PIN
-    while (FREQ_PIN != 0)
-        ; // while high
-    while (FREQ_PIN == 0)
-        ; // while low
+    while (FREQ_PIN != 0) {
+        // while high
+    }
+    while (FREQ_PIN == 0) {
+        // while low
+    }
 
     // engage
     timer3_start();
-    while (FREQ_PIN != 0)
-        ; // while high
+    while (FREQ_PIN != 0) {
+        // while high
+    }
     timer3_stop();
     timer3_interrupt_disable();
 
@@ -157,8 +166,9 @@ uint32_t get_period(void) {
 #define NUM_OF_PERIOD_SAMPLES 4
 uint16_t get_frequency(void) {
     // Make sure there's a frequency signal
-    if (validate_frequency_signal() == -1)
+    if (validate_frequency_signal() == -1) {
         return 0xffff;
+    }
 
     uint32_t tempPeriod = 0;
 
