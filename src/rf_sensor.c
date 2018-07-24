@@ -90,6 +90,7 @@ static double calculate_SWR_by_watts(double forward, double reverse) {
     It's possible that too many samples will cause accuracy problems.
 */
 // TODO: do Science! with the number of samples
+// TODO: rename me
 #define NUM_OF_SWR_SAMPLES 16
 void SWR_average(void) {
     uint16_t tempFWD = 0;
