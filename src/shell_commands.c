@@ -417,7 +417,7 @@ int shell_flash(int argc, char **argv) {
 
             uint8_t buffer[64];
             uint8_t element = address & 0x003f;
-            
+
             LOG_DEBUG({
                 printf("address: %ul ", (uint32_t)address);
                 printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
@@ -438,7 +438,8 @@ int shell_flash(int argc, char **argv) {
     case 4:
         if (!strcmp(argv[1], "write")) {
             LOG_TRACE({ println("flash write <address> <data>"); });
-
+    
+            // parse the incoming arguments
             NVM_address_t address = atoi(argv[2]);
             uint8_t data = atoi(argv[3]);
 
@@ -468,8 +469,19 @@ int shell_flash(int argc, char **argv) {
 
             // Write the edited buffer into flash
             flash_block_erase(address);
+
+            // Read the block back from flash so we can verify the erase
+            uint8_t eraseBuffer[64];
+            flash_block_read(address, eraseBuffer);
+            LOG_DEBUG({
+                println("flash after erase:");
+                print_flash_buffer(&eraseBuffer, element);
+            });
+
+            // Write the modified buffer back into flash
             flash_block_write(address, buffer);
 
+            // Read the block back from flash so we can verify the write
             uint8_t verifyBuffer[64];
             flash_block_read(address, verifyBuffer);
 
