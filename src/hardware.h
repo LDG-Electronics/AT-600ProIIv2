@@ -2,12 +2,6 @@
 #define _HARDWARE_H_
 
 /* ************************************************************************** */
-// Oscillator stuff
-#define FOSC_32_MHZ 32000000
-#define FOSC_64_MHZ 64000000
-#define CLOCK_FREQ FOSC_64_MHZ
-
-/* -------------------------------------------------------------------------- */
 // Button stuff
 
 // AT-600ProII has 8 front panel buttons
