@@ -3,6 +3,8 @@
 
 /* ************************************************************************** */
 
+// TODO: change name to serial_io.c/h
+
 void console_init(void) {
     // PPS Setup
     U2RXPPS = (PPS_PORT_D & PPS_PIN_3);
