@@ -131,6 +131,22 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 
 */
 
+uint8_t FLASH_ReadByte(uint32_t flashAddr) {
+    NVMCON1bits.NVMREG = 2;
+    TBLPTRU = (uint8_t)((flashAddr & 0x00FF0000) >> 16);
+    TBLPTRH = (uint8_t)((flashAddr & 0x0000FF00) >> 8);
+    TBLPTRL = (uint8_t)(flashAddr & 0x000000FF);
+
+    asm("TBLRD");
+
+    return (TABLAT);
+}
+
+uint16_t FLASH_ReadWord(uint32_t flashAddr) {
+    return ((((uint16_t)FLASH_ReadByte(flashAddr + 1)) << 8) |
+            (FLASH_ReadByte(flashAddr)));
+}
+
 uint8_t flash_read(NVM_address_t address) {
     LOG_TRACE({ println("flash_read"); });
     LOG_DEBUG({ printf("address: %ul\r\n", address); });
@@ -139,7 +155,7 @@ uint8_t flash_read(NVM_address_t address) {
     TBLPTR = address;
 
     uint32_t temp = TBLPTR;
-    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", TBLPTR); });
+    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
 
     // Read one byte at the given address
     asm("TBLRD*+");
@@ -182,6 +198,27 @@ void flash_block_erase(NVM_address_t address) {
     nvm_write();
 }
 
+void FLASH_EraseBlock(uint32_t baseAddr) {
+    uint8_t GIEBitValue = INTCON0bits.GIE; // Save interrupt enable
+
+    TBLPTRU = (uint8_t)((baseAddr & 0x00FF0000) >> 16);
+    TBLPTRH = (uint8_t)((baseAddr & 0x0000FF00) >> 8);
+    TBLPTRL = (uint8_t)(baseAddr & 0x000000FF);
+
+    NVMCON1bits.NVMREG = 2;
+    NVMCON1bits.WREN = 1;
+    NVMCON1bits.FREE = 1;
+    asm("BCF INTCON0,7");
+    asm("BANKSEL NVMCON1");
+    asm("BSF NVMCON1,2");
+    asm("MOVLW 0x55");
+    asm("MOVWF NVMCON2");
+    asm("MOVLW 0xAA");
+    asm("MOVWF NVMCON2");
+    asm("BSF NVMCON1,1");
+    asm("BSF INTCON0,7");
+}
+
 void flash_block_write(NVM_address_t address, uint8_t *writeBuffer) {
     LOG_TRACE({ println("flash_block_write"); });
     LOG_DEBUG({ printf("address: %ul\r\n", address); });
@@ -205,4 +242,68 @@ void flash_block_write(NVM_address_t address, uint8_t *writeBuffer) {
     NVMCON1bits.REG = 0b10;
     NVMCON1bits.FREE = 0;
     nvm_write();
+}
+
+void FLASH_WriteByte(uint32_t flashAddr, uint8_t *flashRdBufPtr, uint8_t byte) {
+    uint32_t blockStartAddr =
+        (uint32_t)(flashAddr & ((END_FLASH - 1) ^ (ERASE_FLASH_BLOCKSIZE - 1)));
+    uint8_t offset = (uint8_t)(flashAddr & (ERASE_FLASH_BLOCKSIZE - 1));
+    uint8_t i;
+
+    // Entire row will be erased, read and save the existing data
+    for (i = 0; i < ERASE_FLASH_BLOCKSIZE; i++) {
+        flashRdBufPtr[i] = FLASH_ReadByte((blockStartAddr + i));
+    }
+
+    // Load byte at offset
+    flashRdBufPtr[offset] = byte;
+
+    // Writes buffer contents to current block
+    FLASH_WriteBlock(blockStartAddr, flashRdBufPtr);
+}
+
+int8_t FLASH_WriteBlock(uint32_t writeAddr, uint8_t *flashWrBufPtr) {
+    uint32_t blockStartAddr =
+        (uint32_t)(writeAddr & ((END_FLASH - 1) ^ (ERASE_FLASH_BLOCKSIZE - 1)));
+    uint8_t GIEBitValue = INTCON0bits.GIE; // Save interrupt enable
+    uint8_t i;
+
+    // Flash write must start at the beginning of a row
+    if (writeAddr != blockStartAddr) {
+        return -1;
+    }
+
+    // Block erase sequence
+    FLASH_EraseBlock(writeAddr);
+
+    // Block write sequence
+    TBLPTRU = (uint8_t)((writeAddr & 0x00FF0000) >> 16);
+    TBLPTRH = (uint8_t)((writeAddr & 0x0000FF00) >> 8);
+    TBLPTRL = (uint8_t)(writeAddr & 0x000000FF);
+
+    // Write block of data
+    for (i = 0; i < WRITE_FLASH_BLOCKSIZE; i++) {
+        TABLAT = flashWrBufPtr[i]; // Load data byte
+
+        if (i == (WRITE_FLASH_BLOCKSIZE - 1)) {
+            asm("TBLWT");
+        } else {
+            asm("TBLWTPOSTINC");
+        }
+    }
+
+    NVMCON1bits.NVMREG = 2;
+    NVMCON1bits.WREN = 1;
+    asm("BCF INTCON0,7");
+    asm("BANKSEL NVMCON1");
+    asm("BSF NVMCON1,2");
+    asm("MOVLW 0x55");
+    asm("MOVWF NVMCON2");
+    asm("MOVLW 0xAA");
+    asm("MOVWF NVMCON2");
+    asm("BSF NVMCON1,1");
+    asm("BSF INTCON0,7");
+    asm("BCF NVMCON1,2");
+
+    return 0;
 }
