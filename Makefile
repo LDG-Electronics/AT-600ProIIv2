@@ -29,7 +29,9 @@ TARGET_DEVICE = 18f46k42
 # Compiler - This project uses Microchip XC8
 CC = xc8 
 # --CHIP= is always required
-CFLAGS = --CHIP=$(TARGET_DEVICE)
+CFLAGS = --CHIP=$(TARGET_DEVICE) -D_$(TARGET_DEVICE)
+# -D defines the symbol after it as a preprocessor macro
+CFLAGS += -D_$(TARGET_DEVICE)
 # -q suppresses most of xc8's command echos
 CFLAGS += -q
 # --OBJDIR tells xc8 where to put intermediate files(.pre, .p1, .d)
