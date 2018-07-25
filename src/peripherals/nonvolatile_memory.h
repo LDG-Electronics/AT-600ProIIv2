@@ -24,67 +24,40 @@ extern void nonvolatile_memory_init(void);
     flag is checked at the beginning of the function.  If a previous write is
     still in process, it will wait until it completes before continuing with the
     new write operation.
-
-    In order to preserve the limited number of EEPROM write/erase cycles,
-    eeprom_write() first reads the provided address and compares the stored
-    value with the value that is to be stored.  It only writes if the two do not
-    match.
-
-    PIC18F2X/4XK22 devices have either 256 or 1024 bytes of EEPROM.  The address
-    is an unsigned 16 bit integer to accomodate the larger devices.  If a model
-    with 256 bytes of EEPROM is being used, feel free to change this code to
-    use a uint8_t.
 */
 
 // Read one byte from EEPROM memory at (address)
 extern uint8_t internal_eeprom_read(uint16_t address);
 
 // Write one byte to EEPROM memory at (address)
-extern void internal_eeprom_write(uint16_t address, uint8_t c);
+extern void internal_eeprom_write(uint16_t address, uint8_t data);
 
 /* ************************************************************************** */
 
-/*  Notes on using Flash Memory operations on the PIC18F4520
+#define FLASH_SIZE 65536
 
-    Flash memory can be read as individual bytes, must be erased in 64 byte
-    blocks, and can only be written in 32 byte blocks.
+#define FLASH_BUFFER_SIZE 128
+#define ERASE_FLASH_BLOCKSIZE 128
 
-    The flash_block_xxxx() functions are designed to facilitate this block
-    behavior.  They automatically align all operations to block boundaries, so
-    any address in a given block will produce the same results.
+#define FLASH_BLOCK_MASK ((FLASH_SIZE - 1) ^ (ERASE_FLASH_BLOCKSIZE - 1))
+#define FLASH_ELEMENT_MASK (ERASE_FLASH_BLOCKSIZE - 1)
 
-    Recommended procedure for writing to flash memory is as follows:
-
-    void example_write(uint24_t address, uint8_t value1, uint8_t value2)
-    {
-        uint8_t buffer[64];
-        uint8_t *pointer;
-        uint8_t i;
-
-        pointer = buffer;
-
-        // Read existing block into buffer
-        flash_block_read(address, pointer);
-
-        // Mask off everything but bottom 6 bits(64 addresses)
-        i = address & 0x003f;
-
-        // Write the two new values into the buffer at the correct addresses
-        buffer[i] = value1;
-        buffer[i + 1] = value2;
-
-        // Write the edited buffer into flash
-        flash_block_write(address, pointer);
-    }
-*/
+/* -------------------------------------------------------------------------- */
 
 typedef __uint24 NVM_address_t;
 
+extern void print_flash_buffer(NVM_address_t address, uint8_t *buffer);
+
+/* -------------------------------------------------------------------------- */
+
 // Read one byte from Flash memory at (address)
-uint8_t flash_read(NVM_address_t address);
+uint8_t flash_read_byte(NVM_address_t address);
+
+// Write one byte into flash memory at (address)
+void flash_write_byte(NVM_address_t address, uint8_t data);
 
 // Read an entire block of 64 bytes from Flash memory into the provided buffer
-void flash_block_read(NVM_address_t address, uint8_t *readBuffer);
+void flash_read_block(NVM_address_t address, uint8_t *readBuffer);
 
 // Erase a block of Flash memory at (address)
 void flash_block_erase(NVM_address_t address);
@@ -93,17 +66,5 @@ void flash_block_erase(NVM_address_t address);
 void flash_block_write(NVM_address_t address, uint8_t *writeBuffer);
 
 /* ************************************************************************** */
-
-#define WRITE_FLASH_BLOCKSIZE 128
-#define ERASE_FLASH_BLOCKSIZE 128
-#define END_FLASH 0x020000
-
-/* ************************************************************************** */
-
-uint8_t FLASH_ReadByte(uint32_t flashAddr);
-uint16_t FLASH_ReadWord(uint32_t flashAddr);
-void FLASH_WriteByte(uint32_t flashAddr, uint8_t *flashRdBufPtr, uint8_t byte);
-int8_t FLASH_WriteBlock(uint32_t writeAddr, uint8_t *flashWrBufPtr);
-void FLASH_EraseBlock(uint32_t baseAddr);
 
 #endif

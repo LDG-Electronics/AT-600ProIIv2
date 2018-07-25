@@ -6,11 +6,16 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-void nonvolatile_memory_init(void) {
-    log_register();
-    LOG_TRACE({ printf("_FLASH_ERASE_SIZE: %d\r\n", _FLASH_ERASE_SIZE); });
-    LOG_TRACE({ printf("_FLASH_WRITE_SIZE: %d\r\n", _FLASH_WRITE_SIZE); });
-}
+void nonvolatile_memory_init(void) { log_register(); }
+
+/* ************************************************************************** */
+// NVM internal utility macros
+
+#define SELECT_EEPROM() NVMCON1bits.REG = 0
+#define SELECT_FLASH() NVMCON1bits.REG = 2
+
+#define NVM_WRITE_MODE() NVMCON1bits.FREE = 0
+#define NVM_ERASE_MODE() NVMCON1bits.FREE = 1
 
 /* ************************************************************************** */
 
@@ -19,6 +24,7 @@ void nonvolatile_memory_init(void) {
 
     This function is the smallest unit that needs to be marked critical.
 */
+
 void nvm_write(void) {
     begin_critical_section();
     NVMCON1bits.WREN = 1; // Enable NVM writes
@@ -60,11 +66,11 @@ void nvm_write(void) {
 uint8_t internal_eeprom_read(uint16_t address) {
     LOG_TRACE({ println("eeprom_read"); });
 
-    NVMADRL = address;
     NVMADRH = address >> 8;
+    NVMADRL = address;
 
-    // Select EEPROM
-    NVMCON1bits.REG = 0;
+    SELECT_EEPROM();
+
     // Initiate read operation
     NVMCON1bits.RD = 1;
 
@@ -72,26 +78,24 @@ uint8_t internal_eeprom_read(uint16_t address) {
     return NVMDAT;
 }
 
-void internal_eeprom_write(uint16_t address, uint8_t value) {
+void internal_eeprom_write(uint16_t address, uint8_t data) {
     LOG_TRACE({ println("eeprom_write"); });
     // Wait for possible previous write to complete
     if (NVMCON1bits.WR) {
         LOG_DEBUG({ println("previous write not finished"); });
-    }
-    while (NVMCON1bits.WR) {
-        // empty
+        while (NVMCON1bits.WR) {
+        }
     }
 
-    NVMADRL = address;
     NVMADRH = address >> 8;
+    NVMADRL = address;
 
-    // Load value into register
-    NVMDAT = value;
-
-    // Select EEPROM
-    NVMCON1bits.REG = 0;
+    // Load data into register
+    NVMDAT = data;
 
     // Engage
+    SELECT_EEPROM();
+    NVM_WRITE_MODE();
     nvm_write();
 }
 
@@ -100,210 +104,187 @@ void internal_eeprom_write(uint16_t address, uint8_t value) {
 /*  Notes on PIC18's Flash memory:
 
     Flash memory can be read as individual bytes by loading a desired address
-    into TBLPTR and executing a TBLRD* asm instruction.  The result of the read
+    into TBLPTR and executing a TBLRD asm instruction.  The result of the read
     operation is placed into the TABLAT register.
 
-    Flash memory can only be written in 64 byte blocks.  In order to write only
+    Flash memory can only be erased in 128 byte blocks. The block erase
+    operation automatically handles
+
+    Flash memory can only be written in 128 byte blocks.  In order to write only
     one or two bytes to flash without corrupting surrounding values, the
     following steps are necessary:
-        1) Declare a buffer to hold 64 bytes.
-        2) Call flash_block_read() with the desired address and buffer.
+        1) Declare a buffer to hold 128 bytes.
+        2) Call flash_read_block() with the desired address and buffer.
         3) Modify the buffer's contents with the new values.
         4) Call flash_block_write() to write the new buffer into the block.
         5) Verify that the block was written to correctly.
 
     Registers involved in Flash memory operations:
 
-    TBLPTR:
-
-    TABLAT:
-
-    EECON1: control bits for Flash operations
-        EEPGD: Select Flash or EEPROM
-        CFGS: Select Flash/EEPROM or Config Bits
+    NVMCON1: control bits for Flash operations
+        REG:    Select between Flash/EEPROM/Configuration Bits
         n/a
-        FREE:
+        FREE:   Program Flash Memory Erase Enable bit (1)
+                1 = Performs an erase operation on the next WR command
+                0 = The next WR command performs a write operation
         WRERR:
-        WREN:
-        WR: Write Control, set to initiate write
-        RD: Read Control, set to initiate read
-    EECON2: recieves the 'magic sequence' to allow flash writes
+        WREN:   Program/Erase Enable bit
+        WR:     Write Control, set to initiate write
+        RD:     Read Control, set to initiate read
+    NVMCON2: receives the 'magic sequence' to allow flash writes
 
+    TBLPTR: Table Pointer register
+        A set of three registers, TBLPTRU, TBLPTRH, and TBLPTRL.
+        The Microchip provided header file gives access to the three TBLPTR
+        registers as a single 24 bit unsigned integer.
+        These registers are used together to effectively create a 22 bit
+        pointer to a byte in Program Flash Memory
+
+    TABLAT: Table Latch register
+        When reading, the memory location pointed to by the TBLPTR is copied
+        into TABLAT.
+        When writing, TABLAT functions as a 'shadow register' interface to
+        the array of write latch holding registers. The holding registers
+        are indexed by the least 7 bits of the TBLPTR.
+
+    TBLWT and TBLRD instructions, and the POSTINC/POSTDEC/PREINC suffixes
+        These instructions perform operations using the TBLPTR and TABLAT
+        registers, the holding registers, and the Program Flash Memory itself.
+        These operations are performed in hardware, initiated by a single
+        assembly instruction. The following listings are a C-styled
+        representation of the operations performed during each instruction.
+
+        TABLAT = holdingRegister[(TBLPTR & 0x00007F)]; // "TBLRD*"
+        TABLAT = holdingRegister[(TBLPTR++ & 0x00007F)]; // "TBLRD*+"
+        TABLAT = holdingRegister[(TBLPTR-- & 0x00007F)]; // "TBLRD*-"
+        TABLAT = holdingRegister[(TBLPTR & 0x00007F)]; // "TBLRD+*"
+
+        holdingRegister[(TBLPTR & 0x00007F)] = TABLAT; // "TBLWT*"
+        holdingRegister[(TBLPTR++ & 0x00007F)] = TABLAT; // "TBLWT*+"
+        holdingRegister[(TBLPTR-- & 0x00007F)] = TABLAT; // "TBLWT*-"
+        holdingRegister[(TBLPTR & 0x00007F)] = TABLAT; // "TBLWT+*"
 */
 
-uint8_t FLASH_ReadByte(uint32_t flashAddr) {
-    NVMCON1bits.NVMREG = 2;
-    TBLPTRU = (uint8_t)((flashAddr & 0x00FF0000) >> 16);
-    TBLPTRH = (uint8_t)((flashAddr & 0x0000FF00) >> 8);
-    TBLPTRL = (uint8_t)(flashAddr & 0x000000FF);
+/* -------------------------------------------------------------------------- */
 
-    asm("TBLRD");
+void print_flash_buffer(NVM_address_t address, uint8_t *buffer) {
+    uint8_t element = address & FLASH_ELEMENT_MASK;
 
-    return (TABLAT);
+    println("");
+    printf("address: %ul ", address);
+    printf("block: %ul ", (address & FLASH_BLOCK_MASK));
+    printf("element: %d\r\n", element);
+
+    for (uint8_t i = 0; i < FLASH_BUFFER_SIZE; i++) {
+        if (i == element) {
+            printf("\033[7m%02x\033[0;37;40m ", buffer[i]);
+        } else {
+            printf("%02x ", buffer[i]);
+        }
+        if (((i + 1) % 16) == 0) {
+            println("");
+        }
+    }
+    println("");
 }
 
-uint16_t FLASH_ReadWord(uint32_t flashAddr) {
-    return ((((uint16_t)FLASH_ReadByte(flashAddr + 1)) << 8) |
-            (FLASH_ReadByte(flashAddr)));
-}
-
-uint8_t flash_read(NVM_address_t address) {
-    LOG_TRACE({ println("flash_read"); });
+static void set_TBLPTR(NVM_address_t address) {
     LOG_DEBUG({ printf("address: %ul\r\n", address); });
-
-    // Load the address into the tablepointer registers
     TBLPTR = address;
+    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", TBLPTR); });
+}
 
-    uint32_t temp = TBLPTR;
-    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
+/* -------------------------------------------------------------------------- */
 
-    // Read one byte at the given address
-    asm("TBLRD*+");
+// Read one byte from Flash memory at (address)
+uint8_t flash_read_byte(NVM_address_t address) {
+    LOG_TRACE({ println("flash_read_byte"); });
 
+    set_TBLPTR(address);
+
+    // Read one byte from flash to TABLAT
+    SELECT_FLASH();
+    asm("TBLRD");
     return TABLAT;
 }
 
-#define BLOCK_MASK(ADDRESS) address & 0xffffc0
+// Write one byte into flash memory at (address)
+void flash_write_byte(NVM_address_t address, uint8_t data) {
+    LOG_TRACE({ println("flash_write_byte"); });
+    SELECT_FLASH();
+    uint8_t existingData = flash_read_byte(address);
+    // if existingData is already what we want, then we're done
+    if (existingData == data) {
+        return;
+    }
 
-void flash_block_read(NVM_address_t address, uint8_t *readBuffer) {
-    LOG_TRACE({ println("flash_block_read"); });
-    LOG_DEBUG({ printf("address: %ul\r\n", address); });
+    bool mustErase = false;
+    for (uint8_t i = 0; i < 8; i++) {
+        if (((existingData & (1 << i)) == 0) && ((data & (1 << i)) == 1)) {
+            mustErase = true;
+        }
+    }
 
-    // Load the address into the tablepointer registers
-    TBLPTR = BLOCK_MASK(address);
+    // Read existing block into buffer
+    uint8_t buffer[FLASH_BUFFER_SIZE];
+    flash_read_block(address, buffer);
 
-    uint32_t temp = TBLPTR;
-    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
+    // write the new data into the buffer
+    buffer[address & FLASH_ELEMENT_MASK] = data;
 
-    // Read out the block into the readBuffer
-    for (uint8_t i = 0; i < _FLASH_WRITE_SIZE; i++) {
-        asm("TBLRD*+");
+    // only erase if we require a 0 -> 1 transition
+    if (mustErase) {
+        flash_block_erase(address);
+    }
+
+    // Write the modified buffer back into flash
+    flash_block_write(address, buffer);
+}
+
+// Read an entire block of 64 bytes from Flash memory into the provided buffer
+void flash_read_block(NVM_address_t address, uint8_t *readBuffer) {
+    LOG_TRACE({ println("flash_read_block"); });
+
+    set_TBLPTR(address & FLASH_BLOCK_MASK);
+
+    // copy TABLAT into readBuffer
+    SELECT_FLASH();
+    for (uint8_t i = 0; i < FLASH_BUFFER_SIZE; i++) {
+        asm("TBLRDPOSTINC");
         readBuffer[i] = TABLAT;
     }
 }
 
+// Erase a block of Flash memory at (address)
 void flash_block_erase(NVM_address_t address) {
     LOG_TRACE({ println("flash_block_erase"); });
-    LOG_DEBUG({ printf("address: %ul\r\n", address); });
 
-    // Load the address into the tablepointer registers
-    TBLPTR = address;
+    set_TBLPTR(address);
 
-    uint32_t temp = TBLPTR;
-    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
-
-    // Helmsman, engage
-    NVMCON1bits.REG = 1;
-    NVMCON1bits.FREE = 1;
+    // Engage
+    SELECT_FLASH();
+    NVM_ERASE_MODE();
     nvm_write();
 }
 
-void FLASH_EraseBlock(uint32_t baseAddr) {
-    uint8_t GIEBitValue = INTCON0bits.GIE; // Save interrupt enable
-
-    TBLPTRU = (uint8_t)((baseAddr & 0x00FF0000) >> 16);
-    TBLPTRH = (uint8_t)((baseAddr & 0x0000FF00) >> 8);
-    TBLPTRL = (uint8_t)(baseAddr & 0x000000FF);
-
-    NVMCON1bits.NVMREG = 2;
-    NVMCON1bits.WREN = 1;
-    NVMCON1bits.FREE = 1;
-    asm("BCF INTCON0,7");
-    asm("BANKSEL NVMCON1");
-    asm("BSF NVMCON1,2");
-    asm("MOVLW 0x55");
-    asm("MOVWF NVMCON2");
-    asm("MOVLW 0xAA");
-    asm("MOVWF NVMCON2");
-    asm("BSF NVMCON1,1");
-    asm("BSF INTCON0,7");
-}
-
+// Write the provided buffer into flash memory at (address)
 void flash_block_write(NVM_address_t address, uint8_t *writeBuffer) {
     LOG_TRACE({ println("flash_block_write"); });
-    LOG_DEBUG({ printf("address: %ul\r\n", address); });
 
-    // Load the address into the tablepointer registers
-    TBLPTR = BLOCK_MASK(address);
+    set_TBLPTR(address & FLASH_BLOCK_MASK);
 
-    uint32_t temp = TBLPTR;
-    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", temp); });
-
-    // Load the block into the writeBuffer
-    for (uint8_t i = 0; i < _FLASH_WRITE_SIZE; i++) {
-        TABLAT = writeBuffer[i++];
-        asm("TBLWT*+");
-    }
-
-    // Decrement the tablepointer before nvm_write()
-    asm("TBLRD*-");
-
-    // Helmsman, engage
-    NVMCON1bits.REG = 0b10;
-    NVMCON1bits.FREE = 0;
-    nvm_write();
-}
-
-void FLASH_WriteByte(uint32_t flashAddr, uint8_t *flashRdBufPtr, uint8_t byte) {
-    uint32_t blockStartAddr =
-        (uint32_t)(flashAddr & ((END_FLASH - 1) ^ (ERASE_FLASH_BLOCKSIZE - 1)));
-    uint8_t offset = (uint8_t)(flashAddr & (ERASE_FLASH_BLOCKSIZE - 1));
-    uint8_t i;
-
-    // Entire row will be erased, read and save the existing data
-    for (i = 0; i < ERASE_FLASH_BLOCKSIZE; i++) {
-        flashRdBufPtr[i] = FLASH_ReadByte((blockStartAddr + i));
-    }
-
-    // Load byte at offset
-    flashRdBufPtr[offset] = byte;
-
-    // Writes buffer contents to current block
-    FLASH_WriteBlock(blockStartAddr, flashRdBufPtr);
-}
-
-int8_t FLASH_WriteBlock(uint32_t writeAddr, uint8_t *flashWrBufPtr) {
-    uint32_t blockStartAddr =
-        (uint32_t)(writeAddr & ((END_FLASH - 1) ^ (ERASE_FLASH_BLOCKSIZE - 1)));
-    uint8_t GIEBitValue = INTCON0bits.GIE; // Save interrupt enable
-    uint8_t i;
-
-    // Flash write must start at the beginning of a row
-    if (writeAddr != blockStartAddr) {
-        return -1;
-    }
-
-    // Block erase sequence
-    FLASH_EraseBlock(writeAddr);
-
-    // Block write sequence
-    TBLPTRU = (uint8_t)((writeAddr & 0x00FF0000) >> 16);
-    TBLPTRH = (uint8_t)((writeAddr & 0x0000FF00) >> 8);
-    TBLPTRL = (uint8_t)(writeAddr & 0x000000FF);
-
-    // Write block of data
-    for (i = 0; i < WRITE_FLASH_BLOCKSIZE; i++) {
-        TABLAT = flashWrBufPtr[i]; // Load data byte
-
-        if (i == (WRITE_FLASH_BLOCKSIZE - 1)) {
+    // copy writeBuffer into TABLAT
+    for (uint8_t i = 0; i < FLASH_BUFFER_SIZE; i++) {
+        TABLAT = writeBuffer[i]; // Load data byte
+        if (i == (FLASH_BUFFER_SIZE - 1)) {
             asm("TBLWT");
         } else {
             asm("TBLWTPOSTINC");
         }
     }
 
-    NVMCON1bits.NVMREG = 2;
-    NVMCON1bits.WREN = 1;
-    asm("BCF INTCON0,7");
-    asm("BANKSEL NVMCON1");
-    asm("BSF NVMCON1,2");
-    asm("MOVLW 0x55");
-    asm("MOVWF NVMCON2");
-    asm("MOVLW 0xAA");
-    asm("MOVWF NVMCON2");
-    asm("BSF NVMCON1,1");
-    asm("BSF INTCON0,7");
-    asm("BCF NVMCON1,2");
-
-    return 0;
+    // Engage
+    SELECT_FLASH();
+    NVM_WRITE_MODE();
+    nvm_write();
 }

@@ -8,6 +8,7 @@
 #include "os/shell/shell_command_processor.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "rf_sensor.h"
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 static uint8_t LOG_LEVEL = L_TRACE;
@@ -379,20 +380,49 @@ int shell_eeprom(int argc, char **argv) {
 
 /* -------------------------------------------------------------------------- */
 
-void print_flash_buffer(uint8_t *buffer, uint8_t element) {
-    print("\t\t\t\t\t");
-    for (uint8_t i = 0; i < 64; i++) {
-        if (i == element) {
-            printf("\033[7m%02x\033[0;37;40m ", buffer[i]);
-        } else {
-            printf("%02x ", buffer[i]);
-        }
-        if (((i + 1) % 8) == 0) {
-            println("");
-            print("\t\t\t\t\t");
+NVM_address_t decode_address(char *string) {
+    uint8_t length = strlen(string);
+
+    bool decimal = true;
+
+    for (uint8_t i = 0; i < length; i++) {
+        if (!isdigit(string[i])) {
+            decimal = false;
         }
     }
-    println("");
+    if (decimal) {
+        int32_t temp = atol(string);
+        if ((temp >= 0) && (temp < FLASH_SIZE)) {
+            return (NVM_address_t)temp;
+        }
+    }
+    return 0xffffff;
+}
+
+int16_t decode_data(char *string) {
+    uint8_t length = strlen(string);
+
+    bool decimal = true;
+    bool hex = true;
+
+    for (uint8_t i = 0; i < length; i++) {
+        if (!isdigit(string[i])) {
+            decimal = false;
+        }
+    }
+    if (decimal) {
+        return atoi(string);
+    }
+
+    for (uint8_t i = 0; i < length; i++) {
+        if (!isxdigit(string[i])) {
+            hex = false;
+        }
+    }
+    if (hex) {
+        return xtoi(string);
+    }
+    return -1;
 }
 
 int shell_flash(int argc, char **argv) {
@@ -401,36 +431,37 @@ int shell_flash(int argc, char **argv) {
         println("usage: \tflash write <address> <data>");
         println("\tflash read <address>");
         println("\tflash bread <address>");
+        println("\tValid addresses are between 0 and 65355:");
+        println("\tData must be a single byte in decimal or hex format");
         return 0;
 
     case 3:
         if (!strcmp(argv[1], "read")) {
             LOG_TRACE({ println("flash read <address>"); });
-            NVM_address_t address = atoi(argv[2]);
-            LOG_DEBUG({ printf("address: %ul\r\n", (uint32_t)address); });
 
-            printf("%02x\r\n", flash_read(address));
+            // parse address
+            NVM_address_t address = decode_address(argv[2]);
+            if (address == 0xffffff) {
+                println("invalid address");
+                return 0;
+            }
+
+            printf("%02x\r\n", flash_read_byte(address));
             return 0;
         } else if (!strcmp(argv[1], "bread")) {
             LOG_TRACE({ println("flash bread <address>"); });
-            NVM_address_t address = atoi(argv[2]);
 
-            uint8_t buffer[64];
-            uint8_t element = address & 0x003f;
-
-            LOG_DEBUG({
-                printf("address: %ul ", (uint32_t)address);
-                printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
-                printf("element: %d\r\n", element);
-            });
+            // parse address
+            NVM_address_t address = decode_address(argv[2]);
+            if (address == 0xffffff) {
+                println("invalid address");
+                return 0;
+            }
 
             // Read existing block into buffer
-            flash_block_read(address, buffer);
-
-            LOG_DEBUG({
-                println("buffer after read:");
-                print_flash_buffer(&buffer, element);
-            });
+            uint8_t buffer[FLASH_BUFFER_SIZE];
+            flash_read_block(address, buffer);
+            print_flash_buffer(address, buffer);
             return 0;
         }
         break;
@@ -438,56 +469,66 @@ int shell_flash(int argc, char **argv) {
     case 4:
         if (!strcmp(argv[1], "write")) {
             LOG_TRACE({ println("flash write <address> <data>"); });
-    
-            // parse the incoming arguments
-            NVM_address_t address = atoi(argv[2]);
-            uint8_t data = atoi(argv[3]);
 
-            uint8_t buffer[64];
-            uint8_t element = address & 0x003f;
+            // parse address
+            NVM_address_t address = decode_address(argv[2]);
+            if (address == 0xffffff) {
+                println("invalid address");
+                return 0;
+            }
+
+            // parse data
+            int16_t test = decode_data(argv[3]);
+            if (test < 0 || test > 255) {
+                println("invalid data");
+                return 0;
+            }
+            uint8_t newData = (uint8_t)test;
+
+            // return if the address already contains the data we want
+            uint8_t existingData = flash_read_byte(address);
+            if (existingData == newData) {
+                return 0;
+            }
+
+            LOG_DEBUG({
+                printf("existingData: '%u', newData: '%u'\r\n",
+                       (uint16_t)existingData, (uint16_t)newData);
+            });
+            // compare the two datas bit-by-bit, checking for 0->1 transitions
+            bool mustErase = false;
+            for (uint8_t i = 0; i < 8; i++) {
+                if (!(existingData & (1 << i)) && (newData & (1 << i))) {
+                    mustErase = true;
+                }
+            }
 
             // Read existing block into buffer
-            flash_block_read(address, buffer);
-
+            uint8_t buffer[FLASH_BUFFER_SIZE];
+            flash_read_block(address, buffer);
             LOG_DEBUG({
-                printf("address: %ul ", (uint32_t)address);
-                printf("blockAddress: %ul ", (uint32_t)(address & 0xffffc0));
-                printf("element: %d\r\n", element);
+                println("existing data:");
+                print_flash_buffer(address, buffer);
             });
 
-            LOG_DEBUG({
-                println("buffer after read:");
-                print_flash_buffer(&buffer, element);
-            });
+            // write newData into the buffer
+            buffer[address & FLASH_ELEMENT_MASK] = newData;
 
-            buffer[element] = data;
-
-            LOG_DEBUG({
-                println("buffer after modification:");
-                print_flash_buffer(&buffer, element);
-            });
-
-            // Write the edited buffer into flash
-            flash_block_erase(address);
-
-            // Read the block back from flash so we can verify the erase
-            uint8_t eraseBuffer[64];
-            flash_block_read(address, eraseBuffer);
-            LOG_DEBUG({
-                println("flash after erase:");
-                print_flash_buffer(&eraseBuffer, element);
-            });
+            // only erase if we need to
+            if (mustErase) {
+                LOG_DEBUG({ println("erasing"); });
+                flash_block_erase(address);
+            }
 
             // Write the modified buffer back into flash
+            LOG_DEBUG({ println("writing"); });
             flash_block_write(address, buffer);
 
-            // Read the block back from flash so we can verify the write
-            uint8_t verifyBuffer[64];
-            flash_block_read(address, verifyBuffer);
-
+            // Verify that the write worked
+            flash_read_block(address, buffer);
             LOG_DEBUG({
-                println("write verification:");
-                print_flash_buffer(&verifyBuffer, element);
+                println("verifying:");
+                print_flash_buffer(address, buffer);
             });
 
             return 0;

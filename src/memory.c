@@ -90,41 +90,41 @@ NVM_address_t convert_memory_address(uint16_t frequency) {
 /* -------------------------------------------------------------------------- */
 
 void memory_store(NVM_address_t address) {
-    uint8_t i;
-    uint8_t buffer[64];
-    relays_s readRelays;
+    // uint8_t i;
+    // uint8_t buffer[64];
+    // relays_s readRelays;
 
-    // Make sure we aren't wasting an erase/write cycle
-    readRelays.all = memory_recall(address);
-    if (readRelays.all == currentRelays[system_flags.antenna].all)
-        return;
+    // // Make sure we aren't wasting an erase/write cycle
+    // readRelays.all = memory_recall(address);
+    // if (readRelays.all == currentRelays[system_flags.antenna].all)
+    //     return;
 
-    LOG_INFO({
-        printf("mem write: %d", address);
-        print_relays_ln(&currentRelays[system_flags.antenna]);
-    });
+    // LOG_INFO({
+    //     printf("mem write: %d", address);
+    //     print_relays_ln(&currentRelays[system_flags.antenna]);
+    // });
 
-    // Read existing block into buffer
-    flash_block_read(address, buffer);
+    // // Read existing block into buffer
+    // flash_read_block(address, buffer);
 
-    // Mask off everything but bottom 6 bits(64 addresses)
-    i = address & 0x003f;
+    // // Mask off everything but bottom 6 bits(64 addresses)
+    // i = address & 0x003f;
 
-    // Pack the caps and hiloz into the low byte, load inds into the high byte
-    buffer[i] = currentRelays[system_flags.antenna].top;
-    buffer[i + 1] = currentRelays[system_flags.antenna].bot;
+    // // Pack the caps and hiloz into the low byte, load inds into the high byte
+    // buffer[i] = currentRelays[system_flags.antenna].top;
+    // buffer[i + 1] = currentRelays[system_flags.antenna].bot;
 
-    // Write the edited buffer into flash
-    flash_block_erase(address);
-    flash_block_write(address, buffer);
+    // // Write the edited buffer into flash
+    // flash_block_erase(address);
+    // flash_block_write(address, buffer);
 }
 
 uint32_t memory_recall(NVM_address_t address) {
     relays_s readRelays;
     readRelays.all = 0;
 
-    readRelays.top = flash_read(address);
-    readRelays.bot = flash_read(address + 1);
+    readRelays.top = flash_read_byte(address);
+    readRelays.bot = flash_read_byte(address + 1);
 
     LOG_INFO({
         printf("mem read: %d", address);
