@@ -9,6 +9,7 @@
 #include "peripherals/nonvolatile_memory.h"
 #include "rf_sensor.h"
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 static uint8_t LOG_LEVEL = L_SILENT;
@@ -201,36 +202,36 @@ int calibration_packet(int argc, char **argv) {
         return 0;
     }
 
-    uint8_t pF = 0;
-    uint8_t pR = 0;
-    uint8_t pS = 0;
-    uint8_t pP = 0;
+    bool pF = false;
+    bool pR = false;
+    bool pS = false;
+    bool pP = false;
 
     for (uint8_t i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-f") == 0) {
-            pF = 1;
+            pF = true;
         } else if (strcmp(argv[i], "-r") == 0) {
-            pR = 1;
+            pR = true;
         } else if (strcmp(argv[i], "-s") == 0) {
-            pS = 1;
+            pS = true;
         } else if (strcmp(argv[i], "-p") == 0) {
-            pP = 1;
+            pP = true;
         }
     }
 
-    if (pF == 1) {
-        printf("%d ", currentRF.forward);
+    if (pF) {
+        printf("%u ", currentRF.forward);
         printf("%f ", currentRF.forwardWatts);
     }
-    if (pR == 1) {
-        printf("%d ", currentRF.reverse);
+    if (pR) {
+        printf("%u ", currentRF.reverse);
         printf("%f ", currentRF.reverseWatts);
     }
-    if (pS == 1) {
+    if (pS) {
         printf("%f ", currentRF.swr);
     }
-    if (pP == 1) {
-        printf("%d ", currentRF.frequency);
+    if (pP) {
+        printf("%u ", currentRF.frequency);
     }
 
     println("");
@@ -288,6 +289,7 @@ int poly(int argc, char **argv) {
     case 1:
         println("usage: \tpoly set <array> <slot> <A> <B> <C>");
         println("\tpoly read <array> <slot>");
+        println("\t<A>, <B>, and <C> are IEEE 754 single precision floats.");
         return 0;
     case 4: // poly read
         if (!strcmp(argv[1], "read")) {
