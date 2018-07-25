@@ -47,7 +47,7 @@ CFLAGS += --FLOAT=24 --DOUBLE=32
 # Tells the compiler to report compilation times
 CFLAGS += --TIME
 # Fill unused space in the hex 
-CFLAGS += --FILL=0xDEADC0DE@unused
+# CFLAGS += --FILL=0xBEEF@unused
 # Use hybrid-style stack. Additional fields are the desired size of, in order:
 # stack size of (main code : low priority ISRs : high priority ISRs)
 CFLAGS += --STACK=hybrid:auto:auto:auto
