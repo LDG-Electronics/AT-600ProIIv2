@@ -108,6 +108,8 @@ void highlight_line(void) {
 
 void logedit_keys(key_t key) {
     switch (key.key) {
+    default:
+        return;
     case UP:
         if (selectedLine > 0) {
             reprint_line();

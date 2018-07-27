@@ -39,6 +39,8 @@ void shell_set_program_callback(shell_program_t callback) {
 
 void process_escape_sequence(key_t key) {
     switch (key.key) {
+    default:
+        return;
     case BACKSPACE: // delete one character to the left of the cursor
         if (shell.cursor != 0) {
             move_cursor(-1);
