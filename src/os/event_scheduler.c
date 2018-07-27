@@ -41,8 +41,8 @@ typedef struct {
 static void event_clear(event_t *event) {
     event->name = NULL;
     event->eventCallback = NULL;
-    event->registrationTime = UINT24_MAX;
-    event->executionTime = UINT24_MAX;
+    event->registrationTime = 0xffffff;
+    event->executionTime = 0xffffff;
     event->exists = 0;
 }
 
