@@ -24,11 +24,6 @@ tuning_flags_s tuning_flags;
 
 /* -------------------------------------------------------------------------- */
 
-typedef struct {
-    relays_s;
-    RF_power_t;
-} tuning_solution;
-
 // Possible tune solutions, to be sent to put_relays()
 relays_s nextSolution;
 
