@@ -19,7 +19,7 @@ void shell_init(void) {
     console_init();
 
     // initialize shell
-    memset(&shell, NULL, sizeof(line_t));
+    memset(&shell, 0, sizeof(line_t));
     shellCallback = NULL;
 
     // sequence processing
@@ -53,7 +53,7 @@ void process_escape_sequence(key_t key) {
             shell_history_push();
             process_shell_command();
 
-            memset(&shell, NULL, sizeof(line_t));
+            memset(&shell, 0, sizeof(line_t));
             return;
         }
         print(SHELL_PROMPT_STRING);
@@ -106,7 +106,7 @@ void shell_update(void) {
     char currentChar = getch();
 
     // return early if we haven't rx'd a character
-    if (currentChar == NULL) {
+    if (currentChar == 0) {
         return;
     }
 

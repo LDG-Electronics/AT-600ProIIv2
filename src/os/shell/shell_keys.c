@@ -19,7 +19,7 @@ typedef struct {
 sequence_t sequence;
 
 void shell_sequences_init(void) {
-    memset(&sequence, NULL, sizeof(sequence));
+    memset(&sequence, 0, sizeof(sequence));
     log_register();
 }
 
@@ -287,7 +287,7 @@ key_t decode_control_character(char currentChar) {
 
 void intercept_escape_sequence(void) {
     LOG_TRACE({ println("intercept_escape_sequence"); });
-    memset(&sequence, NULL, sizeof(sequence));
+    memset(&sequence, 0, sizeof(sequence));
 
     system_time_t startTime = systick_read();
     while (systick_elapsed_time(startTime) < 2) {

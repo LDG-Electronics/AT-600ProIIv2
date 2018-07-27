@@ -45,7 +45,7 @@ shell_history_t history;
 
 // clear a line in the shell history
 static void clear_history_line(uint8_t line) {
-    memset(history.line[line], NULL, sizeof(line_t));
+    memset(history.line[line], 0, sizeof(line_t));
 }
 
 void shell_history_wipe(void) {
@@ -53,7 +53,7 @@ void shell_history_wipe(void) {
         clear_history_line(i);
     }
 
-    memset(&history.tempLine, NULL, sizeof(line_t));
+    memset(&history.tempLine, 0, sizeof(line_t));
 
     history.head = 0;
     history.pointer = 0;

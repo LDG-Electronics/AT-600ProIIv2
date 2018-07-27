@@ -94,7 +94,7 @@ void play_animation(const animation_s *animation) {
     bool useLower = true;
 
     // Check if the provided animation has a header frame
-    if (animation[0].frame_delay == NULL) {
+    if (animation[0].frame_delay == 0) {
         useUpper = animation[0].upper;
         useLower = animation[0].lower;
 
@@ -111,7 +111,7 @@ void play_animation(const animation_s *animation) {
         }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == NULL) {
+        if (animation[i].frame_delay == 0) {
             break;
         }
         delay_ms(animation[i].frame_delay);
@@ -137,7 +137,7 @@ void play_interruptable_animation(const animation_s *animation) {
     bool useLower = true;
 
     // Check if the provided animation has a header frame
-    if (animation[i].frame_delay == NULL) {
+    if (animation[i].frame_delay == 0) {
         useUpper = animation[0].upper;
         useLower = animation[0].lower;
 
@@ -154,7 +154,7 @@ void play_interruptable_animation(const animation_s *animation) {
         }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == NULL) {
+        if (animation[i].frame_delay == 0) {
             break;
         }
 
@@ -201,7 +201,7 @@ void play_animation_in_background(const animation_s *animation) {
     bgA.frameIndex = 0;
 
     // Check if the provided animation has a header frame
-    if (animation[0].frame_delay == NULL) {
+    if (animation[0].frame_delay == 0) {
         bgA.frameIndex = 1;
     }
 
@@ -215,7 +215,7 @@ int16_t continue_animation_in_background(void) {
     bool useLower = true;
 
     // Check if the provided animation has a header frame
-    if (bgA.animation[0].frame_delay == NULL) {
+    if (bgA.animation[0].frame_delay == 0) {
         useUpper = bgA.animation[0].upper;
         useLower = bgA.animation[0].lower;
     }
@@ -230,8 +230,8 @@ int16_t continue_animation_in_background(void) {
 
     push_frame_buffer();
 
-    // a NULL delay is the signal that the animation is completed
-    if (bgA.animation[bgA.frameIndex].frame_delay == NULL) {
+    // a delay of 0 is the signal that the animation is completed
+    if (bgA.animation[bgA.frameIndex].frame_delay == 0) {
         // unlock_display();
     }
 

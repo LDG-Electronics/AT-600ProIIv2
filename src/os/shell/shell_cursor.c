@@ -114,13 +114,13 @@ void remove_char_at_cursor(void) {
 
     uint8_t i = shell.cursor;
 
-    while (shell.buffer[i] != NULL) {
+    while (shell.buffer[i] != 0) {
         shell.buffer[i] = shell.buffer[i + 1];
         i++;
     }
-    shell.buffer[i - 1] = NULL;
-    shell.buffer[i] = NULL;
-    shell.buffer[i + 1] = NULL;
+    shell.buffer[i - 1] = 0;
+    shell.buffer[i] = 0;
+    shell.buffer[i + 1] = 0;
     shell.length--;
 
     draw_line_from_cursor(&shell);
