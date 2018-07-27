@@ -72,7 +72,7 @@ void function_submenu(void) {
     }
 
     delay_ms(50);
-    play_interruptable_animation(&arrow_up);
+    play_interruptable_animation(&arrow_up[0]);
 
     system_time_t startTime = systick_read(); // stash the current time
 
@@ -122,7 +122,7 @@ void function_submenu(void) {
 
         ui_idle_block();
     }
-    play_animation(&arrow_down);
+    play_animation(&arrow_down[0]);
 }
 
 #define POWER_BUTTON_DURATION 1000
@@ -217,11 +217,11 @@ void tune_hold(void) {
         if (elapsedTime < BTN_PRESS_DEBOUNCE) {
             // button was not held long enough, do nothing
         } else if (elapsedTime < BTN_PRESS_SHORT) {
-            display_single_frame(&center_crawl, 0);
+            display_single_frame(&center_crawl[0], 0);
         } else if (elapsedTime < BTN_PRESS_MEDIUM) {
-            display_single_frame(&center_crawl, 2);
+            display_single_frame(&center_crawl[0], 2);
         } else if (elapsedTime < BTN_PRESS_LONG) {
-            display_single_frame(&center_crawl, 3);
+            display_single_frame(&center_crawl[0], 3);
         } else if (elapsedTime >= BTN_PRESS_LONG) {
             display_clear();
         }

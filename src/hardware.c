@@ -59,7 +59,7 @@ void startup(void) {
     put_relays(&currentRelays[system_flags.antenna]);
 
     // initialize the display
-    play_animation_in_background(&right_crawl);
+    play_animation_in_background(&right_crawl[0]);
     update_status_LEDs();
 }
 

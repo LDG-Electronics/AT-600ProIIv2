@@ -138,7 +138,7 @@ void manual_store(void) {
     memory_store(address);
 
     // success animation?
-    play_animation(&center_crawl);
+    play_animation(&center_crawl[0]);
 
     // failure animation?
     // repeat_animation(&blink_both_bars, 2);
@@ -180,7 +180,7 @@ void capacitor_increment(void) {
         }
         show_cap_relays();
     } else {
-        play_animation_in_background(&blink_bottom_bar_3);
+        play_animation_in_background(&blink_bottom_bar_3[0]);
     }
 }
 
@@ -192,7 +192,7 @@ void capacitor_decrement(void) {
         }
         show_cap_relays();
     } else {
-        play_animation_in_background(&blink_bottom_bar_3);
+        play_animation_in_background(&blink_bottom_bar_3[0]);
     }
 }
 
@@ -204,7 +204,7 @@ void inductor_increment(void) {
         }
         show_ind_relays();
     } else {
-        play_animation_in_background(&blink_top_bar_3);
+        play_animation_in_background(&blink_top_bar_3[0]);
     }
 }
 
@@ -216,7 +216,7 @@ void inductor_decrement(void) {
         }
         show_ind_relays();
     } else {
-        play_animation_in_background(&blink_top_bar_3);
+        play_animation_in_background(&blink_top_bar_3[0]);
     }
 }
 

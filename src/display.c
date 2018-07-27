@@ -257,15 +257,15 @@ void show_ind_relays(void) {
 
 void show_peak(void) {
     if (system_flags.peakMode == 0) {
-        play_animation(&peak_off);
+        play_animation(&peak_off[0]);
     } else {
-        play_animation(&peak_on);
+        play_animation(&peak_on[0]);
     }
 }
 
 void blink_bypass(void) {
     if (bypassStatus[system_flags.antenna] == 1) {
-        repeat_animation(&blink_both_bars, 3);
+        repeat_animation(&blink_both_bars[0], 3);
     } else {
         show_relays();
         delay_ms(150);
@@ -275,9 +275,9 @@ void blink_bypass(void) {
 
 void blink_antenna(void) {
     if (system_flags.antenna == 1) {
-        play_animation(&right_wave);
+        play_animation(&right_wave[0]);
     } else {
-        play_animation(&left_wave);
+        play_animation(&left_wave[0]);
     }
 }
 
@@ -295,9 +295,9 @@ void show_relays(void) {
 
 void blink_auto(uint8_t blinks) {
     if (system_flags.autoMode == 0) {
-        repeat_animation(&auto_off, blinks);
+        repeat_animation(&auto_off[0], blinks);
     } else {
-        repeat_animation(&auto_on, blinks);
+        repeat_animation(&auto_on[0], blinks);
     }
 }
 
@@ -313,9 +313,9 @@ void show_auto(void) {
 
 void blink_HiLoZ(uint8_t blinks) {
     if (currentRelays[system_flags.antenna].z == 1) {
-        repeat_animation(&hiz_wave, blinks);
+        repeat_animation(&hiz_wave[0], blinks);
     } else {
-        repeat_animation(&loz_wave, blinks);
+        repeat_animation(&loz_wave[0], blinks);
     }
 }
 
@@ -337,9 +337,9 @@ void show_HiLoZ(void) {
 
 void blink_scale(uint8_t blinks) {
     if (system_flags.scaleMode == 0) {
-        repeat_animation(&high_scale, blinks);
+        repeat_animation(&high_scale[0], blinks);
     } else {
-        repeat_animation(&low_scale, blinks);
+        repeat_animation(&low_scale[0], blinks);
     }
 }
 
@@ -361,7 +361,7 @@ void show_scale(void) {
 const uint8_t swrThreshDisplay[] = {0x08, 0x10, 0x20, 0x40};
 
 void blink_thresh(uint8_t blinks) {
-    repeat_animation(&swrThreshold[swrThreshIndex], blinks);
+    repeat_animation(&swrThreshold[swrThreshIndex][0], blinks);
 }
 
 void show_thresh(void) {

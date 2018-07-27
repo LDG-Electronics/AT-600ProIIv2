@@ -708,12 +708,12 @@ void tuning_followup_animation(void) {
         if (tuning_flags.lostRF == 1) {
             LOG_ERROR({ println("lostRF"); });
 
-            repeat_animation(&blink_both_bars, 2);
+            repeat_animation(&blink_both_bars[0], 2);
 
         } else if (tuning_flags.noRF == 1) {
             LOG_ERROR({ println("noRF"); });
 
-            repeat_animation(&blink_both_bars, 1);
+            repeat_animation(&blink_both_bars[0], 1);
 
         } else if (tuning_flags.relayError == 1) {
             LOG_ERROR({ println("relayError"); });
@@ -724,7 +724,7 @@ void tuning_followup_animation(void) {
         if (bestSWR < SWR1_7) {
             LOG_INFO({ println("good match"); });
 
-            play_animation(&center_crawl);
+            play_animation(&center_crawl[0]);
 
         } else if (bestSWR < SWR3_5) {
             LOG_INFO({ println("decent match"); });
