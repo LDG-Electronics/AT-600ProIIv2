@@ -116,8 +116,9 @@ void internal_eeprom_write(uint16_t address, uint8_t data) {
         1) Declare a buffer to hold 128 bytes.
         2) Call flash_read_block() with the desired address and buffer.
         3) Modify the buffer's contents with the new values.
-        4) Call flash_block_write() to write the new buffer into the block.
-        5) Verify that the block was written to correctly.
+        4) If necessary, erase the existing flash block
+        5) Call flash_block_write() to write the new buffer into the block.
+        6) Verify that the block was written to correctly.
 
     Registers involved in Flash memory operations:
 
@@ -157,12 +158,12 @@ void internal_eeprom_write(uint16_t address, uint8_t data) {
         TABLAT = holdingRegister[(TBLPTR & 0x00007F)]; // "TBLRD*"
         TABLAT = holdingRegister[(TBLPTR++ & 0x00007F)]; // "TBLRD*+"
         TABLAT = holdingRegister[(TBLPTR-- & 0x00007F)]; // "TBLRD*-"
-        TABLAT = holdingRegister[(TBLPTR & 0x00007F)]; // "TBLRD+*"
+        TABLAT = holdingRegister[(++TBLPTR & 0x00007F)]; // "TBLRD+*"
 
         holdingRegister[(TBLPTR & 0x00007F)] = TABLAT; // "TBLWT*"
         holdingRegister[(TBLPTR++ & 0x00007F)] = TABLAT; // "TBLWT*+"
         holdingRegister[(TBLPTR-- & 0x00007F)] = TABLAT; // "TBLWT*-"
-        holdingRegister[(TBLPTR & 0x00007F)] = TABLAT; // "TBLWT+*"
+        holdingRegister[(++TBLPTR & 0x00007F)] = TABLAT; // "TBLWT+*"
 */
 
 /* -------------------------------------------------------------------------- */
