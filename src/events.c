@@ -28,6 +28,8 @@ int16_t check_SWR_and_update_meters(void) {
     // if (!display.displayIsLocked) {
     //     show_current_power_and_SWR();
     // }
+
+    return 0;
 }
 
 /* ************************************************************************** */

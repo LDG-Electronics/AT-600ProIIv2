@@ -132,10 +132,11 @@ Available parameters are:\r\n\
 int shell_get_param(int argc, char **argv) {
     if (argc == 1) {
         print(getParamUsage);
-        return;
+        return 0;
     }
     if (!strcmp(argv[1], "")) {
     }
+    return 0;
 }
 
 const char setParamUsage[] = "\
@@ -147,8 +148,9 @@ Available parameters are:\r\n\
 int shell_set_param(int argc, char **argv) {
     if (argc == 1) {
         print(setParamUsage);
-        return;
+        return 0;
     }
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
