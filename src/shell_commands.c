@@ -287,6 +287,9 @@ int8_t decode_array_number(char *string) {
 }
 
 int poly(int argc, char **argv) {
+    int8_t array = 0;
+    int8_t slot = 0;
+
     switch (argc) {
     case 1:
         println("usage: \tpoly set <array> <slot> <A> <B> <C>");
@@ -299,12 +302,12 @@ int poly(int argc, char **argv) {
             break;
         }
 
-        char array = decode_array_number(argv[2]);
+        array = decode_array_number(argv[2]);
         if (array > NUMBER_OF_ARRAYS || array == -1) {
             break;
         }
 
-        uint8_t slot = atoi(argv[3]);
+        slot = atoi(argv[3]);
         if (slot > NUMBER_OF_SLOTS) {
             break;
         }
@@ -318,12 +321,12 @@ int poly(int argc, char **argv) {
             break;
         }
 
-        char array = decode_array_number(argv[2]);
+        array = decode_array_number(argv[2]);
         if (array > NUMBER_OF_ARRAYS) {
             break;
         }
 
-        uint8_t slot = atoi(argv[3]);
+        slot = atoi(argv[3]);
         if (slot > NUMBER_OF_SLOTS) {
             break;
         }
