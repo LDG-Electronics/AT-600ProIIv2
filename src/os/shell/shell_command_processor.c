@@ -90,7 +90,7 @@ static int8_t find_matching_command(char *string) {
             continue;
 
         // If string matches one on the list
-        if (!stricmp(string, commands.list[i].command)) {
+        if (!strcmp(string, commands.list[i].command)) {
             return i;
         }
     }

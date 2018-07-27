@@ -256,7 +256,7 @@ int edit_log_levels(int argc, char **argv) {
             uint8_t file = atoi(argv[2]);
             uint8_t i = 0;
             for (i = 0; i < logDatabase.numberOfFiles; i++) {
-                if (!stricmp(argv[3], level_names[i])) {
+                if (!strcmp(argv[3], level_names[i])) {
                     log_level_edit(file, i);
                     return 0;
                 }
@@ -271,13 +271,13 @@ int edit_log_levels(int argc, char **argv) {
 /* -------------------------------------------------------------------------- */
 
 int8_t decode_array_number(char *string) {
-    if (!stricmp(string, "forward") || !stricmp(string, "fwd") ||
-        !stricmp(string, "f")) {
+    if (!strcmp(string, "forward") || !strcmp(string, "fwd") ||
+        !strcmp(string, "f")) {
         return 0;
     }
 
-    if (!stricmp(string, "reverse") || !stricmp(string, "rev") ||
-        !stricmp(string, "r")) {
+    if (!strcmp(string, "reverse") || !strcmp(string, "rev") ||
+        !strcmp(string, "r")) {
         return 1;
     }
 
