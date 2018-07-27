@@ -27,36 +27,37 @@ TARGET_DEVICE = 18f46k42
 # Commands and command variables
 
 # Compiler - This project uses Microchip XC8
-CC = xc8 
+CC99 = xc8-cc
 # --CHIP= is always required
-CFLAGS = --CHIP=$(TARGET_DEVICE)
+C99FLAGS = -mcpu=$(TARGET_DEVICE)
+# Tell the compiler to put all the output in the /build directory
+C99FLAGS += -o $(BUILD_DIR)/$(PROJECT).hex
+# Set the compiler in C99 mode
+C99FLAGS += -std=C99
+# Use the hybrid stack
+C99FLAGS += -mstack=hybrid:auto:30:50
+
+# Compiler - This project uses Microchip XC8
+CC89 = xc8
+# --CHIP= is always required
+C89FLAGS = --CHIP=$(TARGET_DEVICE)
 # -q suppresses most of xc8's command echos
-CFLAGS += -q
+C89FLAGS += -q
 # --OBJDIR tells xc8 where to put intermediate files(.pre, .p1, .d)
-CFLAGS += --OBJDIR=$(OBJ_DIR) 
+C89FLAGS += --OBJDIR=$(OBJ_DIR) 
 # -O tells xc8 where to put output files(.hex, .map, .cof, .as, etc)
-CFLAGS += -O$(BUILD_DIR)/$(PROJECT)
+C89FLAGS += -O$(BUILD_DIR)/$(PROJECT)
 # -M tells the compiler to generate the map file
 # CFLAGS += -M$(BUILD_DIR)/$(PROJECT)
 # --ASMLIST tells the compiler to generate the assembly list file
 # CFLAGS += --ASMLIST
 # These set the size of floating point types to the larger 32bit settings
-CFLAGS += --FLOAT=24 --DOUBLE=32
+C89FLAGS += --FLOAT=24 --DOUBLE=32
 # Tells the compiler to report compilation times
-CFLAGS += --TIME
-# Fill unused space in the hex 
-# CFLAGS += --FILL=0xBEEF@unused
+C89FLAGS += --TIME
 # Use hybrid-style stack. Additional fields are the desired size of, in order:
 # stack size of (main code : low priority ISRs : high priority ISRs)
-CFLAGS += --STACK=hybrid:auto:auto:auto
-
-# TODO: Fix the Vector Table!
-# This flag suppresses about 80 warning messages complaining that the Vector Tables
-# for the interrupt handler are empty.
-# WARNING: Do not suppress compiler warnings during normal development!
-CFLAGS += --MSGDISABLE=2020:off
-# Program each unassigned vector with the address of a RESET instruction
-CFLAGS += --UNDEFINTS=RESET
+C89FLAGS += --STACK=hybrid:auto:auto:auto
 
 # Linter(s)
 # LINT1 is cppcheck, a free C/C++ static analysis tool.
@@ -101,7 +102,7 @@ SRC_FILES := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c) $(wildcard
 
 # .c -> .hex
 $(PROJECT_HEX): $(SRC_FILES)
-	$(CC) $(CFLAGS) $(SRC_FILES)
+	$(CC89) $(C89FLAGS) $(SRC_FILES)
 
 # ---------------------------------------------------------------------------- #
 # Targets
