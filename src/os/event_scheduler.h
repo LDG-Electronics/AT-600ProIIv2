@@ -1,19 +1,20 @@
 #ifndef _EVENT_SCHEDULER_H_
 #define _EVENT_SCHEDULER_H_
 
-#include <stdint.h>
 #include "system_time.h"
+#include <stdint.h>
 
 /* ************************************************************************** */
 /*  Notes on the Event Scheduler subsystem
 
     event_scheduler_update() needs to be called periodically from the 'user'
-code.
+    code.
 
     A event consists of 4 pieces of data:
     1: name - a string to identify the event
     2: callback - a function to called when the specified time has been reached
     3: time - when the event callback should be executed
+*/
 
 /* ************************************************************************** */
 
