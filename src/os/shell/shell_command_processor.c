@@ -106,7 +106,7 @@ void process_shell_command(void) {
 
     // tokenize the shell buffer
     // argv_list will end up containing a pointer to each token
-    char *token = strtok(&shell.buffer, " ");
+    char *token = strtok(&shell.buffer[0], " ");
     while (token != NULL && argc <= CONFIG_SHELL_MAX_COMMAND_ARGS) {
         argv_list[argc++] = token;
         token = strtok(NULL, " ");

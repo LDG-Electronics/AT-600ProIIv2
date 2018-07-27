@@ -120,7 +120,7 @@ void shell_history_push(void) {
     history.historyMode = 0;
 
     // don't save if the current line matches the most recent history entry
-    if (strcmp((const char *)history.line[history.head], &shell.buffer) == 0) {
+    if (strcmp((const char *)history.line[history.head], &shell.buffer[0]) == 0) {
         return;
     }
 
