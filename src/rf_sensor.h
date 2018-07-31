@@ -18,9 +18,9 @@
 
 // Global RF data format
 typedef struct {
-    uint16_t forward;
+    uint16_t forwardADC;
     double forwardWatts;
-    uint16_t reverse;
+    uint16_t reverseADC;
     double reverseWatts;
     double swr;
     uint16_t frequency;

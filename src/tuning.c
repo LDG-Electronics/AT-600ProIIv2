@@ -213,7 +213,7 @@ void reset_search_area(void) {
 void save_new_best_solution(void) {
     bestSolution = nextSolution;
     bestSWR = currentRF.swr;
-    bestFWD = currentRF.forward;
+    bestFWD = currentRF.forwardADC;
 
     LOG_INFO({
         print("\t\t");
@@ -238,12 +238,12 @@ int8_t test_next_solution(uint8_t testMode) {
         if (currentRF.swr < bestSWR) {
             save_new_best_solution();
         } else if (currentRF.swr == bestSWR) {
-            if (currentRF.forward > bestFWD) {
+            if (currentRF.forwardADC > bestFWD) {
                 save_new_best_solution();
             }
         }
     } else if (testMode == 1) {
-        if ((currentRF.swr < bestSWR) || (currentRF.forward > bestFWD)) {
+        if ((currentRF.swr < bestSWR) || (currentRF.forwardADC > bestFWD)) {
             save_new_best_solution();
         }
     }

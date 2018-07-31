@@ -20,12 +20,12 @@ typedef union {
         uint8_t lower;
     };
     uint16_t frame;
-} display_frame_s;
+} display_frame_t;
 
 // struct that represents the current state of the display object
 typedef struct {
-    display_frame_s next;    // the frame we're about to push out
-    display_frame_s current; // the frame that's currently being displayed
+    display_frame_t next;    // the frame we're about to push out
+    display_frame_t current; // the frame that's currently being displayed
     unsigned upperMutex : 1;
     unsigned lowerMutex : 1;
 } locking_double_buffer_s;

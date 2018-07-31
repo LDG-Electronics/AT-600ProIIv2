@@ -12,12 +12,6 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-const uint8_t ledBarTable[] = {
-    0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
-};
-
-/* ************************************************************************** */
-
 locking_double_buffer_s displayBuffer;
 
 /* ************************************************************************** */
@@ -282,7 +276,7 @@ void blink_antenna(void) {
 }
 
 void show_relays(void) {
-    display_frame_s frame;
+    display_frame_t frame;
 
     frame.upper = ((currentRelays[system_flags.antenna].inds & 0x7f) |
                    ((currentRelays[system_flags.antenna].z & 0x01) << 7));
@@ -320,7 +314,7 @@ void blink_HiLoZ(uint8_t blinks) {
 }
 
 void show_HiLoZ(void) {
-    display_frame_s frame;
+    display_frame_t frame;
 
     if (currentRelays[system_flags.antenna].z == 1) {
         frame.lower = 0xc0;
@@ -344,7 +338,7 @@ void blink_scale(uint8_t blinks) {
 }
 
 void show_scale(void) {
-    display_frame_s frame;
+    display_frame_t frame;
     frame.lower = 0;
 
     if (system_flags.scaleMode == 0) {
@@ -365,7 +359,7 @@ void blink_thresh(uint8_t blinks) {
 }
 
 void show_thresh(void) {
-    display_frame_s frame;
+    display_frame_t frame;
     frame.upper = 0;
 
     frame.lower = swrThreshDisplay[swrThreshIndex];
@@ -374,6 +368,10 @@ void show_thresh(void) {
 }
 
 /* -------------------------------------------------------------------------- */
+
+const uint8_t ledBarTable[] = {
+    0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
+};
 
 /*  AT-600ProII bargraph has the following markings:
 
@@ -402,7 +400,8 @@ static uint8_t array_lookup(double data, double *array) {
 }
 
 void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
-    display_frame_s frame;
+    display_frame_t frame;
+    frame.frame = 0;
 
     frame.upper = ledBarTable[array_lookup(forwardWatts, fwdIndexArray)];
     frame.lower = ledBarTable[array_lookup(swrValue, swrIndexArray)];
@@ -411,13 +410,18 @@ void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
 }
 
 void show_current_power_and_SWR(void) {
-    uint8_t fwdIndex = array_lookup(currentRF.forwardWatts, fwdIndexArray);
-    uint8_t swrIndex = array_lookup(currentRF.swr, swrIndexArray);
+    display_frame_t frame;
+    frame.frame = 0;
 
-    display_frame_s frame;
+    if (currentRF.forwardADC != 0) {
+        uint8_t fwdIndex = array_lookup(currentRF.forwardWatts, fwdIndexArray);
+        frame.upper = ledBarTable[fwdIndex];
+    }
 
-    frame.upper = ledBarTable[fwdIndex];
-    frame.lower = ledBarTable[swrIndex];
+    if (currentRF.swr != 0) {
+        uint8_t swrIndex = array_lookup(currentRF.swr, swrIndexArray);
+        frame.lower = ledBarTable[swrIndex];
+    }
 
     FP_update(frame.frame);
 }

@@ -188,9 +188,9 @@ int shell_show_bargraphs(int argc, char **argv) {
 
 void print_RF_data_packet(void) {
     print("(");
-    printf("%d ", currentRF.forward);
+    printf("%d ", currentRF.forwardADC);
     printf("%f ", currentRF.forwardWatts);
-    printf("%d ", currentRF.reverse);
+    printf("%d ", currentRF.reverseADC);
     printf("%f ", currentRF.reverseWatts);
     printf("%f ", currentRF.swr);
     printf("%d", currentRF.frequency);
@@ -222,11 +222,11 @@ int calibration_packet(int argc, char **argv) {
     }
 
     if (pF) {
-        printf("%u ", currentRF.forward);
+        printf("%u ", currentRF.forwardADC);
         printf("%f ", currentRF.forwardWatts);
     }
     if (pR) {
-        printf("%u ", currentRF.reverse);
+        printf("%u ", currentRF.reverseADC);
         printf("%f ", currentRF.reverseWatts);
     }
     if (pS) {

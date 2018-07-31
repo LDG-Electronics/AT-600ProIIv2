@@ -16,17 +16,23 @@ RF_power_t currentRF;
 
 /* ************************************************************************** */
 
+void clear_currentRF(void) {
+    currentRF.forwardADC = 0;
+    currentRF.forwardWatts = 0.0;
+    currentRF.reverseADC = 0;
+    currentRF.reverseWatts = 0.0;
+    currentRF.swr = 0.0;
+    currentRF.frequency = 0xffffff;
+}
+
 void RF_sensor_init(void) {
     adc_init();
     frequency_counter_init();
 
     // Initialize the Global RF Readings
-    currentRF.forward = 0;
-    currentRF.forwardWatts = 0;
-    currentRF.reverse = 0;
-    currentRF.reverseWatts = 0;
-    currentRF.swr = 0;
-    currentRF.frequency = 0;
+    clear_currentRF();
+    currentRF.lastFrequencyTime = 0;
+    currentRF.lastRFTime = 0;
 
     log_register();
 }
@@ -103,11 +109,13 @@ void SWR_average(void) {
     }
 
     // publish the samples and calculate the SWR
-    currentRF.forward = (tempFWD / NUM_OF_SWR_SAMPLES);
-    currentRF.forwardWatts = RF_sensor_compensation(currentRF.forward, &fPoly);
-    // currentRF.reverse = (tempREV / NUM_OF_SWR_SAMPLES);
-    currentRF.reverse = tempREV;
-    currentRF.reverseWatts = RF_sensor_compensation(currentRF.reverse, &rPoly);
+    currentRF.forwardADC = (tempFWD / NUM_OF_SWR_SAMPLES);
+    currentRF.forwardWatts =
+        RF_sensor_compensation(currentRF.forwardADC, &fPoly);
+    currentRF.reverseADC = (tempREV / NUM_OF_SWR_SAMPLES);
+    // currentRF.reverseADC = tempREV;
+    currentRF.reverseWatts =
+        RF_sensor_compensation(currentRF.reverseADC, &rPoly);
     currentRF.swr =
         calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 }
@@ -143,14 +151,20 @@ int8_t SWR_stable_average(void) {
 
     // if the Frequency isn't valid then return early
     if (currentRF.frequency == 0xffff) {
+        clear_currentRF();
         return -1;
     }
 
     if (wait_for_stable_FWD() == -1) {
+        clear_currentRF();
         return -1;
     }
 
     SWR_average();
+
+    if (currentRF.forwardADC < 8) {
+        clear_currentRF();
+    }
 
     return 0;
 }
@@ -169,5 +183,8 @@ void RF_sensor_update(void) {
         LOG_TRACE({ println("updating RF"); });
         currentRF.lastRFTime = systick_read();
         SWR_average();
+    }
+    if (currentRF.forwardADC < 8) {
+        clear_currentRF();
     }
 }

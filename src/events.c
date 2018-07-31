@@ -236,8 +236,8 @@ void inductor_decrement(void) {
 */
 
 void print_RF_calibration_data(void) {
-    printf("(%u, %f, %u, %f, %f, %u)\r\n", currentRF.forward,
-           currentRF.forwardWatts, currentRF.reverse, currentRF.reverseWatts,
+    printf("(%u, %f, %u, %f, %f, %u)\r\n", currentRF.forwardADC,
+           currentRF.forwardWatts, currentRF.reverseADC, currentRF.reverseWatts,
            currentRF.swr, currentRF.frequency);
 }
 
