@@ -159,15 +159,15 @@ int8_t SWR_stable_average(void) {
 #define RF_SAMPLE_PERIOD 100
 
 void RF_sensor_update(void) {
-    if (systick_elapsed_time(currentRF.lastFrequencySample) >
+    if (systick_elapsed_time(currentRF.lastFrequencyTime) >
         FREQUENCY_SAMPLE_PERIOD) {
         LOG_TRACE({ println("updating frequency"); });
-        currentRF.lastFrequencySample = systick_read();
+        currentRF.lastFrequencyTime = systick_read();
         currentRF.frequency = get_frequency();
     }
-    if (systick_elapsed_time(currentRF.lastRFsample) > RF_SAMPLE_PERIOD) {
+    if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_PERIOD) {
         LOG_TRACE({ println("updating RF"); });
-        currentRF.lastRFsample = systick_read();
+        currentRF.lastRFTime = systick_read();
         SWR_average();
     }
 }

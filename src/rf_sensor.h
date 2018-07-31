@@ -24,8 +24,8 @@ typedef struct {
     double reverseWatts;
     double swr;
     uint16_t frequency;
-    system_time_t lastFrequencySample;
-    system_time_t lastRFsample;
+    system_time_t lastFrequencyTime;
+    system_time_t lastRFTime;
 } RF_power_t;
 
 // Global RF Readings
