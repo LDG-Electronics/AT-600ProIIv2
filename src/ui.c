@@ -11,17 +11,29 @@
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
+
+#define FRONT_PANEL_UPDATE_INTERVAL 30
+void update_front_panel(void) {
+    static system_time_t lastUpdateTime = 0;
+
+    if (systick_elapsed_time(lastUpdateTime) > FRONT_PANEL_UPDATE_INTERVAL) {
+        show_current_power_and_SWR();
+    }
+
+    lastUpdateTime = systick_read();
+}
+
+/* ************************************************************************** */
 /*  Notes on the system idle block
     This function contains various 'background' activities that should be
     periodically serviced when the system isn't doing anything else important.
 */
 void ui_idle_block(void) {
-    // TODO: would meter update happen here?
-    // TODO: figure out a schedule for idle RF polling
     RF_sensor_update();
+    update_front_panel();
     shell_update();
     event_scheduler_update();
-    // save_flags();
+    save_flags();
 }
 
 /* ************************************************************************** */
