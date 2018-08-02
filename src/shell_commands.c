@@ -292,9 +292,17 @@ int poly(int argc, char **argv) {
 
     switch (argc) {
     case 1:
-        println("usage: \tpoly set <array> <slot> <A> <B> <C>");
+        println("usage: \tpoly load <array> <slot> <A> <B> <C>");
+        println("\tpoly write");
         println("\tpoly read <array> <slot>");
         println("\t<A>, <B>, and <C> are IEEE 754 single precision floats.");
+        return 0;
+    case 2: // poly write
+        if (!strcmp(argv[1], "read")) {
+        } else {
+            break;
+        }
+
         return 0;
     case 4: // poly read
         if (!strcmp(argv[1], "read")) {
@@ -308,15 +316,17 @@ int poly(int argc, char **argv) {
         }
 
         slot = atoi(argv[3]);
-        if (slot > NUMBER_OF_SLOTS) {
+        if (slot > NUM_OF_BANDS) {
             break;
         }
 
-        print_poly(&calibrationTable[array][slot]);
+        polynomial_t tempPoly = calibrationTable[array][slot];
+        
+        print_poly(&tempPoly);
 
         return 0;
-    case 7: // poly set
-        if (!strcmp(argv[1], "set")) {
+    case 7: // poly load
+        if (!strcmp(argv[1], "load")) {
         } else {
             break;
         }
@@ -327,13 +337,13 @@ int poly(int argc, char **argv) {
         }
 
         slot = atoi(argv[3]);
-        if (slot > NUMBER_OF_SLOTS) {
+        if (slot > NUM_OF_BANDS) {
             break;
         }
 
-        calibrationTable[array][slot].A = atof(argv[4]);
-        calibrationTable[array][slot].B = atof(argv[5]);
-        calibrationTable[array][slot].C = atof(argv[6]);
+        calibrationBuffer[array][slot].A = atof(argv[4]);
+        calibrationBuffer[array][slot].B = atof(argv[5]);
+        calibrationBuffer[array][slot].C = atof(argv[6]);
 
         return 0;
     default:

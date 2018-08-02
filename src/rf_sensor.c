@@ -54,7 +54,7 @@ void SWR_threshold_increment(void) {
 
 /* -------------------------------------------------------------------------- */
 
-static double RF_sensor_compensation(uint16_t input, polynomial_s *poly) {
+static double RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
     double x = (double)input;
 
     return (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
@@ -108,14 +108,15 @@ void SWR_average(void) {
         tempREV += adc_measure(1);
     }
 
+    uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
+
     // publish the samples and calculate the SWR
     currentRF.forwardADC = (tempFWD / NUM_OF_SWR_SAMPLES);
-    currentRF.forwardWatts =
-        RF_sensor_compensation(currentRF.forwardADC, &fPoly);
+    currentRF.forwardWatts = RF_sensor_compensation(
+        currentRF.forwardADC, &calibrationTable[0][bandIndex]);
     currentRF.reverseADC = (tempREV / NUM_OF_SWR_SAMPLES);
-    // currentRF.reverseADC = tempREV;
-    currentRF.reverseWatts =
-        RF_sensor_compensation(currentRF.reverseADC, &rPoly);
+    currentRF.reverseWatts = RF_sensor_compensation(
+        currentRF.reverseADC, &calibrationTable[1][bandIndex]);
     currentRF.swr =
         calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 }
