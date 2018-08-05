@@ -114,7 +114,7 @@ void SWR_average(void) {
     currentRF.forwardADC = (tempFWD / NUM_OF_SWR_SAMPLES);
     currentRF.forwardWatts = RF_sensor_compensation(
         currentRF.forwardADC, &calibrationTable[0][bandIndex]);
-    currentRF.reverseADC = (tempREV / NUM_OF_SWR_SAMPLES);
+    currentRF.reverseADC = tempREV;
     currentRF.reverseWatts = RF_sensor_compensation(
         currentRF.reverseADC, &calibrationTable[1][bandIndex]);
     currentRF.swr =
