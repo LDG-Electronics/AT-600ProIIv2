@@ -57,7 +57,13 @@ void SWR_threshold_increment(void) {
 static double RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
     double x = (double)input;
 
-    return (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
+    double result = (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
+
+    if (result < 0) {
+        result = 0;
+    }
+
+    return result;
 }
 
 /*  SWR calculation
