@@ -126,10 +126,12 @@ union {
 void check_relay_limits(void) {
     freq_limits.all = 0;
 
-    if (currentRF.frequency > L_LIMIT_FREQUENCY)
+    if (currentRF.frequency > L_LIMIT_FREQUENCY) {
         freq_limits.L = 1;
-    if (currentRF.frequency > C_LIMIT_FREQUENCY)
+    }
+    if (currentRF.frequency > C_LIMIT_FREQUENCY) {
         freq_limits.C = 1;
+    }
 }
 
 uint8_t get_l_limit_max(void) {
@@ -192,11 +194,13 @@ void reset_search_area(void) {
     // Find maximum C
     search_area.maxCap = get_c_limit_max();
     while (tuneStep[++max_index.caps + 1] < search_area.maxCap) {
+        // empty loop
     }
 
     // Find maximum L
     search_area.maxInd = get_l_limit_max();
     while (tuneStep[++max_index.inds + 1] < search_area.maxInd) {
+        // empty loop
     }
 
     // Find minimum C
@@ -229,10 +233,12 @@ int8_t test_next_solution(uint8_t testMode) {
         tuning_flags.relayError = 1;
         return (-1);
     }
-    if (SWR_stable_average() != 0) {
-        tuning_flags.lostRF = 1;
-        return (-1);
-    }
+
+    SWR_average();
+    // if (SWR_stable_average() != 0) {
+    //     tuning_flags.lostRF = 1;
+    //     return (-1);
+    // }
 
     if (testMode == 0) {
         if (currentRF.swr < bestSWR) {
@@ -258,8 +264,9 @@ void L_zip(uint8_t caps, uint8_t startingIndex) {
     nextSolution.caps = caps;
     while (tryIndex < max_index.inds) {
         nextSolution.inds = tuneStep[tryIndex];
-        if (test_next_solution(0) == -1)
+        if (test_next_solution(0) == -1) {
             break;
+        }
 
         tryIndex += 2;
     }
@@ -271,8 +278,9 @@ void LC_zip(void) {
     while (tryIndex < max_index.inds) {
         nextSolution.caps = tuneStep[tryIndex];
         nextSolution.inds = tuneStep[tryIndex];
-        if (test_next_solution(0) == -1)
+        if (test_next_solution(0) == -1) {
             break;
+        }
 
         tryIndex += 2;
     }
@@ -421,8 +429,9 @@ void coarse_tune(void) {
         while (current_index.caps <= max_index.caps) {
             nextSolution.caps = tuneStep[current_index.caps++];
 
-            if (test_next_solution(0) == -1)
+            if (test_next_solution(0) == -1) {
                 return;
+            }
             if (bestSWR <= earlyExitSWR) {
                 LOG_INFO({ print_solution_count(); });
                 return;
@@ -470,8 +479,9 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
         tryCap = bracket_area.minCap;
         while (tryCap < bracket_area.maxCap) {
             nextSolution.caps = tryCap;
-            if (test_next_solution(0) == -1)
+            if (test_next_solution(0) == -1) {
                 return;
+            }
             if (bestSWR < earlyExitSWR) {
                 LOG_INFO({ print_solution_count(); });
                 return;
@@ -538,13 +548,15 @@ void full_tune(void) {
     reset_search_area();
 
     hiloz_tune();
-    if (tuning_flags.errors != 0)
+    if (tuning_flags.errors != 0) {
         return;
+    }
 
     coarse_tune();
     bracket_tune(5, 2);
-    if (tuning_flags.errors != 0)
+    if (tuning_flags.errors != 0) {
         return;
+    }
 
     if (bestSolution.inds < 3) {
         nextSolution.z = ~nextSolution.z;
@@ -558,17 +570,20 @@ void full_tune(void) {
 
     bracket_tune(30, 4);
     bracket_tune(5, 2);
-    if (tuning_flags.errors != 0)
+    if (tuning_flags.errors != 0) {
         return;
+    }
 
     bracket_tune(15, 3);
-    if (tuning_flags.errors != 0)
+    if (tuning_flags.errors != 0) {
         return;
+    }
 
     bracket_tune(5, 2);
     bracket_tune(2, 1);
-    if (tuning_flags.errors != 0)
+    if (tuning_flags.errors != 0) {
         return;
+    }
 
     // If nothing failed, we can update currentRelays with the best solution
     currentRelays[system_flags.antenna] = bestSolution;
