@@ -8,7 +8,7 @@
 #include "os/shell/shell.h"
 #include "os/system_time.h"
 #include "rf_sensor.h"
-static uint8_t LOG_LEVEL = L_SILENT;
+static uint8_t LOG_LEVEL = L_TRACE;
 
 /* ************************************************************************** */
 
@@ -90,45 +90,54 @@ void function_submenu(void) {
 
     while (1) {
         if (btn_is_down(CUP)) {
+            LOG_TRACE({ println("CUP"); });
             toggle_peak();
             show_peak();
             return;
         }
         if (btn_is_down(LUP)) {
+            LOG_TRACE({ println("LUP"); });
             toggle_scale();
             blink_scale(4);
             return;
         }
         if (btn_is_down(CDN)) {
+            LOG_TRACE({ println("CDN"); });
             toggle_auto();
             blink_auto(4);
             return;
         }
         if (btn_is_down(LDN)) {
+            LOG_TRACE({ println("LDN"); });
             threshold_submenu();
             blink_thresh(4);
             return;
         }
         if (btn_is_down(ANT)) {
+            LOG_TRACE({ println("ANT"); });
             toggle_hiloz();
             blink_HiLoZ(4);
             return;
         }
         if (btn_is_down(TUNE)) {
+            LOG_TRACE({ println("TUNE"); });
             manual_store();
             return;
         }
 
         // Pressing POWER or FUNC cancels and exits
         if (btn_is_down(POWER)) {
+            LOG_TRACE({ println("POWER"); });
             break;
         }
         if (btn_is_down(FUNC)) {
+            LOG_TRACE({ println("FUNC"); });
             break;
         }
 
         // Cancel and exit if it's been longer than SUBMENU_DURATION
         if (systick_elapsed_time(startTime) >= SUBMENU_DURATION) {
+            LOG_TRACE({ println("function_submenu timeout"); });
             break;
         }
 
