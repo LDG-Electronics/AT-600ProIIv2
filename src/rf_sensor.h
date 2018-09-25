@@ -19,7 +19,9 @@
 // Global RF data format
 typedef struct {
     uint16_t forwardADC;
+    uint16_t forwardSamplesDiscarded;
     uint16_t reverseADC;
+    uint16_t reverseSamplesDiscarded;
     double swrADC;
     double forwardWatts;
     double reverseWatts;
@@ -44,12 +46,14 @@ extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern uint16_t get_forward_sample_test(void);
-extern uint16_t get_reverse_sample_test(void);
-
 // SWR measurement functions
 extern void SWR_average(void);
 extern int8_t SWR_stable_average(void);
 extern void RF_sensor_update(void);
+
+/* -------------------------------------------------------------------------- */
+
+extern uint16_t get_forward_sample_test(void);
+extern uint16_t get_reverse_sample_test(void);
 
 #endif
