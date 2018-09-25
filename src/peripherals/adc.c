@@ -4,6 +4,7 @@
 /* ************************************************************************** */
 
 void adc_init(void) {
+    // ADC reference stuff
     FVRCONbits.ADFVR = 0b11; // ADC voltage reference is 4.096 volts
     FVRCONbits.EN = 1;       // Enable Fixed Voltage Reference
 
@@ -11,7 +12,9 @@ void adc_init(void) {
     ADREFbits.PREF = 0b11; // Positive Voltage Reference, set to FVR
 
     ADCON0bits.FM = 1; // adc result is right-justified
-    ADCON0bits.CS = 1; // FRC Clock
+
+    ADCON0bits.CS = 0; // FOSC, divided by ADCLK
+    ADCLK = 0b011111;  // FOSC/64
 
     ADCON0bits.ON = 1; // Enable ADC peripheral
 }
@@ -22,7 +25,7 @@ uint16_t adc_measure(uint8_t channel) {
 
     // Engage
     ADCON0bits.GO = 1;
-    while (ADCON0bits.GO == 1) {
+    while (ADCON0bits.GO) {
         // Wait for the conversion to finish
     }
 

@@ -80,29 +80,117 @@ static double calculate_SWR_by_watts(double forward, double reverse) {
     return ((1.0 + x) / (1.0 - x));
 }
 
-/*  Notes on SWR_average()
+static double calc_vswr(double reflectionCoefficient) {
+    double x = fabs(reflectionCoefficient);
+    return ((1.0 + x) / (1.0 - x));
+}
 
-    This function assumes that we've already checked that the current SWR is
-    both above the low power threshold and stable.
+uint16_t get_forward_sample(void) {
+    // beep
+    return adc_measure(0);
+}
 
-    The key feature of this function is the loop that alternates between
-    forward and reverse measurements. Because the SWR in the circuit changes
-    over time, if you take n forward samples followed by n reverse samples, you
-    run the risk of conditions dramatically changing between the group of
-    forward measurements and the group of reverse measurements.
+#define NUM_OF_REV_SAMPLES 16
+uint16_t get_reverse_sample(void) {
+    uint16_t samplebuffer[NUM_OF_REV_SAMPLES];
+    uint16_t totalSamples = 0;
+    uint8_t samples = 0;
 
-    In summary:
-    Bad:    FFFF FFFF RRRR RRRR
-    Good:   FRFR FRFR FRFR FRFR
+    // grab a shitload of samples
+    // shitload = 16
+    // metric shitton = 128
+    while (samples < NUM_OF_REV_SAMPLES) {
+        uint16_t tempREV = adc_measure(1);
+        totalSamples++;
+        if (tempREV != 0) {
+            samplebuffer[samples++] = tempREV;
+        }
+    }
 
-    The optimal number of samples is influenced by several factors.
-    Total measurement time = adc conversion time * (NUM_OF_SAMPLES * 2)
-    12 bit adc maximum result is 4096. The maximum number of samples that fit
-    into a uint16_t without data loss is 4096 * 16 = 65536.
-    It's possible that too many samples will cause accuracy problems.
-*/
-// TODO: do Science! with the number of samples
-// TODO: rename me
+    uint32_t sum = 0;
+    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
+        sum += samplebuffer[i];
+    }
+
+    return sum / NUM_OF_REV_SAMPLES;
+}
+
+uint16_t get_forward_sample_test(void) {
+    uint16_t samplebuffer[NUM_OF_REV_SAMPLES];
+    // clear buffer
+    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
+        samplebuffer[i] = 0;
+    }
+
+    us_stopwatch_begin();
+
+    // grab a shitload of samples
+    uint16_t totalSamples = 0;
+    uint8_t samples = 0;
+    while (samples < NUM_OF_REV_SAMPLES) {
+        uint16_t tempREV = adc_measure(0);
+        totalSamples++;
+        if (tempREV != 0) {
+            samplebuffer[samples++] = tempREV;
+        }
+    }
+
+    us_stopwatch_end();
+
+    // print them out?
+    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
+        printf("(%d, %d)\r\n", i, samplebuffer[i]);
+    }
+
+    uint32_t sum = 0;
+    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
+        sum += samplebuffer[i];
+    }
+    uint16_t average = sum / NUM_OF_REV_SAMPLES;
+    printf("totalSamples: %d\r\n", totalSamples);
+    printf("average: %d\r\n", average);
+
+    return average;
+}
+
+uint16_t get_reverse_sample_test(void) {
+    uint16_t samplebuffer[NUM_OF_REV_SAMPLES];
+    // clear buffer
+    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
+        samplebuffer[i] = 0;
+    }
+
+    us_stopwatch_begin();
+
+    // grab a shitload of samples
+    uint16_t totalSamples = 0;
+    uint8_t samples = 0;
+    while (samples < NUM_OF_REV_SAMPLES) {
+        uint16_t tempREV = adc_measure(1);
+        totalSamples++;
+        if (tempREV != 0) {
+            samplebuffer[samples++] = tempREV;
+        }
+    }
+
+    us_stopwatch_end();
+
+    // print them out?
+    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
+        printf("(%d, %d)\r\n", i, samplebuffer[i]);
+    }
+
+    uint32_t sum = 0;
+    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
+        sum += samplebuffer[i];
+    }
+    uint16_t average = sum / NUM_OF_REV_SAMPLES;
+    printf("totalSamples: %d\r\n", totalSamples);
+    printf("average: %d\r\n", average);
+
+    return average;
+}
+
 #define NUM_OF_SWR_SAMPLES 16
 void SWR_average(void) {
     uint16_t tempFWD = 0;
@@ -110,22 +198,26 @@ void SWR_average(void) {
 
     // Take our measurements
     for (uint8_t i = 0; i < NUM_OF_SWR_SAMPLES; i++) {
-        tempFWD += adc_measure(0);
-        tempREV += adc_measure(1);
+        tempFWD += get_forward_sample();
+        tempREV += get_reverse_sample();
     }
 
     uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
 
     // publish the samples and calculate the SWR
     currentRF.forwardADC = (tempFWD / NUM_OF_SWR_SAMPLES);
+    currentRF.reverseADC = tempREV;
+    currentRF.swrADC =
+        (double)currentRF.reverseADC / (double)currentRF.forwardADC;
+
     currentRF.forwardWatts = RF_sensor_compensation(
         currentRF.forwardADC, &calibrationTable[0][bandIndex]);
-    currentRF.reverseADC = tempREV;
-    currentRF.reverseWatts = RF_sensor_compensation(
-        currentRF.reverseADC, &calibrationTable[1][bandIndex]);
+    currentRF.reverseWatts = currentRF.forwardWatts * currentRF.swrADC;
     currentRF.swr =
         calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 }
+
+// TODO: I don't think this is returning early if SWR is present
 
 #define STABLE_RF_WINDOW 50
 int8_t wait_for_stable_FWD(void) {

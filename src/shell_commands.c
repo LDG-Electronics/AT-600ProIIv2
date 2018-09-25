@@ -321,7 +321,7 @@ int poly(int argc, char **argv) {
         }
 
         polynomial_t tempPoly = calibrationTable[array][slot];
-        
+
         print_poly(&tempPoly);
 
         return 0;
@@ -355,6 +355,15 @@ int poly(int argc, char **argv) {
 
 /* ************************************************************************** */
 
+int fwd(int argc, char **argv) {
+    get_forward_sample_test();
+}
+int rev(int argc, char **argv) {
+    get_reverse_sample_test();
+}
+
+/* ************************************************************************** */
+
 void register_all_shell_commands(void) {
     log_register();
 
@@ -377,4 +386,7 @@ void register_all_shell_commands(void) {
 
     // calibration data
     shell_register_command(poly, "poly", NULL);
+
+    shell_register_command(fwd, "fwd", NULL);
+    shell_register_command(rev, "rev", NULL);
 }
