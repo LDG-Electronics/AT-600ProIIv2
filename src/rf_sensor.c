@@ -129,32 +129,35 @@ void get_reverse_sample(void) {
     for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
         sum += samplebuffer[i];
     }
-    
-    currentRF.reverseADC = sum / NUM_OF_REV_SAMPLES;
+
+    // currentRF.reverseADC = sum / NUM_OF_REV_SAMPLES;
+    currentRF.reverseADC = sum;
     currentRF.reverseSamplesDiscarded = totalSamples - NUM_OF_REV_SAMPLES;
 }
 
 void SWR_average(void) {
+    currentRF.lastRFTime = systick_read();
+
     get_forward_sample();
     if (currentRF.forwardSamplesDiscarded != 0) {
         clear_currentRF();
         return;
     }
-
     get_reverse_sample();
 
-    currentRF.swrADC = 
-        (double)currentRF.reverseADC / (double)currentRF.forwardADC;
+    currentRF.swr = (double)currentRF.reverseADC / (double)currentRF.forwardADC;
 
     uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
 
-    // currentRF.forwardWatts = currentRF.forwardSamplesDiscarded;
-    currentRF.reverseWatts = currentRF.reverseSamplesDiscarded;
     currentRF.forwardWatts = RF_sensor_compensation(
         currentRF.forwardADC, &calibrationTable[0][bandIndex]);
+    // currentRF.reverseWatts = RF_sensor_compensation(
+    //     currentRF.reverseADC, &calibrationTable[1][bandIndex]);
+    // currentRF.reverseWatts = currentRF.reverseSamplesDiscarded;
     // currentRF.reverseWatts = currentRF.forwardWatts * currentRF.swrADC;
     // currentRF.swr =
-    //     calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
+    //     calculate_SWR_by_watts(currentRF.forwardWatts,
+    //     currentRF.reverseWatts);
 }
 
 // TODO: I don't think this is returning early if SWR is present
@@ -209,7 +212,7 @@ int8_t SWR_stable_average(void) {
 }
 
 #define FREQUENCY_SAMPLE_INTERVAL 1000
-#define RF_SAMPLE_INTERVAL 100
+#define RF_SAMPLE_INTERVAL 50
 
 void RF_sensor_update(void) {
     if (systick_elapsed_time(currentRF.lastFrequencyTime) >
@@ -220,7 +223,6 @@ void RF_sensor_update(void) {
     }
     if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
         LOG_TRACE({ println("updating RF"); });
-        currentRF.lastRFTime = systick_read();
         SWR_average();
     }
     if (currentRF.forwardADC < 8) {

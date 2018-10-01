@@ -1,6 +1,7 @@
 #include "shell_commands.h"
 #include "calibration.h"
 #include "display.h"
+#include "events.h"
 #include "os/console_io.h"
 #include "os/log.h"
 #include "os/log_macros.h"
@@ -184,7 +185,20 @@ int shell_show_bargraphs(int argc, char **argv) {
 
     (F Fw R Rw SWR      frequency)
     (0 0  0 0  0.000000 0)
+
+    {"forwardADC":"0","forwardWatts":"0.000000","reverseADC":"0","reverseWatts":"0.000000","swr":"0.000000","frequency":"-1"}
 */
+
+void print_RF_data_packet_json(void) {
+    print("{");
+    printf("\"forwardADC\":\"%d\",", currentRF.forwardADC);
+    printf("\"forwardWatts\":\"%f\",", currentRF.forwardWatts);
+    printf("\"reverseADC\":\"%d\",", currentRF.reverseADC);
+    printf("\"reverseWatts\":\"%f\",", currentRF.reverseWatts);
+    printf("\"swr\":\"%f\",", currentRF.swr);
+    printf("\"frequency\":\"%d\"", currentRF.frequency);
+    println("}");
+}
 
 void print_RF_data_packet(void) {
     print("(");
@@ -355,12 +369,12 @@ int poly(int argc, char **argv) {
 
 /* ************************************************************************** */
 
-int fwd(int argc, char **argv) {
-    get_forward_sample_test();
-}
-int rev(int argc, char **argv) {
-    get_reverse_sample_test();
-}
+int fwd(int argc, char **argv) { get_forward_sample_test(); }
+int rev(int argc, char **argv) { get_reverse_sample_test(); }
+
+/* ************************************************************************** */
+
+int tune(int argc, char **argv) { request_full_tune(); }
 
 /* ************************************************************************** */
 
@@ -389,4 +403,6 @@ void register_all_shell_commands(void) {
 
     shell_register_command(fwd, "fwd", NULL);
     shell_register_command(rev, "rev", NULL);
+
+    shell_register_command(tune, "tune", NULL);
 }
