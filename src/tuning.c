@@ -36,27 +36,10 @@ match_t bypassMatch;
 match_t hizMatch;
 match_t lozMatch;
 
-// Possible tune solutions, to be sent to put_relays()
 relays_s nextSolution;
-
-// The best tuning answer at any given time
 relays_s bestSolution;
-double bestSWR;
-uint16_t bestFWD;
-
-//
-double bypassSWR;
-uint16_t bypassFWD;
-
-//
 relays_s hizSolution;
-double hizSWR;
-uint16_t hizFWD;
-
-//
 relays_s lozSolution;
-double lozSWR;
-uint16_t lozFWD;
 
 /* ************************************************************************** */
 
@@ -165,8 +148,8 @@ uint8_t get_c_limit_max(void) {
 // Solution-related utility functions
 void clear_best_solution(void) {
     bestSolution.all = 0;
-    bestSWR = DBL_MAX;
-    bestFWD = 0;
+    bestMatch.reflectionCoefficient = DBL_MAX;
+    bestMatch.forward = 0;
 }
 
 void clear_all_solutions(void) {
@@ -175,18 +158,18 @@ void clear_all_solutions(void) {
     clear_best_solution();
 
     // Clear bypass
-    bypassSWR = DBL_MAX;
-    bypassFWD = 0;
+    bypassMatch.reflectionCoefficient = DBL_MAX;
+    bypassMatch.forward = 0;
 
     // Clear hiz
     hizSolution.all = 0;
-    hizSWR = DBL_MAX;
-    hizFWD = 0;
+    hizMatch.reflectionCoefficient = DBL_MAX;
+    hizMatch.forward = 0;
 
     // Clear loz
     lozSolution.all = 0;
-    lozSWR = DBL_MAX;
-    lozFWD = 0;
+    lozMatch.reflectionCoefficient = DBL_MAX;
+    lozMatch.forward = 0;
 
     solutionCount = 0;
     prevSolutionCount = 0;
@@ -228,8 +211,8 @@ void reset_search_area(void) {
 
 void save_new_best_solution(void) {
     bestSolution = nextSolution;
-    bestSWR = currentRF.swr;
-    bestFWD = currentRF.forwardADC;
+    bestMatch.reflectionCoefficient = currentRF.swr;
+    bestMatch.forward = currentRF.forwardADC;
 
     LOG_INFO({
         print("new best: ");
@@ -253,15 +236,16 @@ int8_t test_next_solution(uint8_t testMode) {
     // }
 
     if (testMode == 0) {
-        if (currentRF.swr < bestSWR) {
+        if (currentRF.swr < bestMatch.reflectionCoefficient) {
             save_new_best_solution();
-        } else if (currentRF.swr == bestSWR) {
-            if (currentRF.forwardADC > bestFWD) {
+        } else if (currentRF.swr == bestMatch.reflectionCoefficient) {
+            if (currentRF.forwardADC > bestMatch.forward) {
                 save_new_best_solution();
             }
         }
     } else if (testMode == 1) {
-        if ((currentRF.swr < bestSWR) || (currentRF.forwardADC > bestFWD)) {
+        if ((currentRF.swr < bestMatch.reflectionCoefficient) ||
+            (currentRF.forwardADC > bestMatch.forward)) {
             save_new_best_solution();
         }
     }
@@ -304,12 +288,12 @@ void test_bypass(void) {
     nextSolution.all = 0;
     test_next_solution(0);
 
-    bypassSWR = bestSWR;
-    bypassFWD = bestFWD;
+    bypassMatch = bestMatch;
 
     LOG_DEBUG({
         print_relays(&bypassRelays);
-        printf(" SWR: %f FWD: %d\r\n", bypassSWR, bypassFWD);
+        printf(" SWR: %f FWD: %d\r\n", bypassMatch.reflectionCoefficient,
+               bypassMatch.forward);
     });
 
     clear_best_solution();
@@ -324,12 +308,12 @@ void test_loz(void) {
     L_zip(7, 1);
 
     lozSolution = bestSolution;
-    lozSWR = bestSWR;
-    lozFWD = bestFWD;
+    lozMatch = bestMatch;
 
     LOG_DEBUG({
         print_relays(&lozSolution);
-        printf(" SWR: %f FWD: %d\r\n", lozSWR, lozFWD);
+        printf(" SWR: %f FWD: %d\r\n", lozMatch.reflectionCoefficient,
+               lozMatch.forward);
     });
 
     clear_best_solution();
@@ -344,43 +328,41 @@ void test_hiz(void) {
     L_zip(7, 1);
 
     hizSolution = bestSolution;
-    hizSWR = bestSWR;
-    hizFWD = bestFWD;
+    hizMatch = bestMatch;
 
     LOG_DEBUG({
         print_relays(&hizSolution);
-        printf(" SWR: %f FWD: %d\r\n", hizSWR, hizFWD);
+        printf(" SWR: %f FWD: %d\r\n", hizMatch.reflectionCoefficient,
+               hizMatch.forward);
     });
 
     clear_best_solution();
 }
 
 void restore_best_z(void) {
-    if (hizSWR < lozSWR) {
+    if (hizMatch.reflectionCoefficient < lozMatch.reflectionCoefficient) {
         bestSolution = hizSolution;
-        bestSWR = hizSWR;
-        bestFWD = hizFWD;
-    } else if (hizSWR == lozSWR) {
-        if (hizFWD > lozFWD) {
+        bestMatch = hizMatch;
+    } else if (hizMatch.reflectionCoefficient ==
+               lozMatch.reflectionCoefficient) {
+        if (hizMatch.forward > lozMatch.forward) {
             bestSolution = hizSolution;
-            bestSWR = hizSWR;
-            bestFWD = hizFWD;
+            bestMatch = hizMatch;
         } else {
             bestSolution = lozSolution;
-            bestSWR = lozSWR;
-            bestFWD = lozFWD;
+            bestMatch = lozMatch;
         }
     } else {
         bestSolution = lozSolution;
-        bestSWR = lozSWR;
-        bestFWD = lozFWD;
+        bestMatch = lozMatch;
     }
     nextSolution.z = bestSolution.z;
 
     LOG_INFO({
         print("best z: ");
         print_relays(&bestSolution);
-        printf(" SWR: %f FWD: %d\r\n", bestSWR, bestFWD);
+        printf(" SWR: %f FWD: %d\r\n", bestMatch.reflectionCoefficient,
+               bestMatch.forward);
     });
 }
 
@@ -413,7 +395,7 @@ void hiloz_tune(void) {
 void coarse_tune(void) {
     LOG_TRACE({ println("coarse_tune:"); });
     search_index_t current_index;
-    double earlyExitSWR = (bypassSWR / 2);
+    double earlyExitSWR = (bypassMatch.reflectionCoefficient / 2);
 
     // Do it
     current_index.inds = 0;
@@ -427,7 +409,7 @@ void coarse_tune(void) {
             if (test_next_solution(0) == -1) {
                 return;
             }
-            if (bestSWR <= earlyExitSWR) {
+            if (bestMatch.reflectionCoefficient <= earlyExitSWR) {
                 LOG_INFO({
                     print_solution_count();
                     println("");
@@ -448,7 +430,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
 
     search_area_t bracket_area;
 
-    double earlyExitSWR = (bestSWR / 2);
+    double earlyExitSWR = (bestMatch.reflectionCoefficient / 2);
 
     LOG_TRACE({
         printf("bracket_tune: (%d,%d) bestSolution: ", bracket, step);
@@ -484,7 +466,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
             if (test_next_solution(0) == -1) {
                 return;
             }
-            if (bestSWR < earlyExitSWR) {
+            if (bestMatch.reflectionCoefficient < earlyExitSWR) {
                 LOG_INFO({
                     print_solution_count();
                     println("");
@@ -602,11 +584,11 @@ void full_tune(void) {
     }
 
     // Save the result, if it's good enough
-    if (bestSWR < SWR1_7) {
+    if (bestMatch.reflectionCoefficient < SWR1_7) {
         LOG_INFO({
             print("Saving: ");
             print_relays(&currentRelays[system_flags.antenna]);
-            printf(" with SWR: %d", bestSWR);
+            printf(" with SWR: %d", bestMatch.reflectionCoefficient);
             println("");
         });
 
@@ -740,17 +722,17 @@ void tuning_followup_animation(void) {
             // relay_error_blink();
         }
     } else {
-        if (bestSWR < SWR1_7) {
+        if (bestMatch.reflectionCoefficient < SWR1_7) {
             LOG_INFO({ println("good match"); });
 
             play_animation(&center_crawl[0]);
 
-        } else if (bestSWR < SWR3_5) {
+        } else if (bestMatch.reflectionCoefficient < SWR3_5) {
             LOG_INFO({ println("decent match"); });
 
             // led_blink(2, MEDIUM);
 
-        } else if (bestSWR >= SWR3_5) {
+        } else if (bestMatch.reflectionCoefficient >= SWR3_5) {
             LOG_INFO({ println("badMatch"); });
 
             // led_blink(3, MEDIUM);
