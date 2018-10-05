@@ -36,6 +36,12 @@ match_t bypassMatch;
 match_t hizMatch;
 match_t lozMatch;
 
+void reset_match_data(match_t *match){
+    match->relays.all = 0;
+    match->reflectionCoefficient = DBL_MAX;
+    match->forward = 0;
+}
+
 relays_s nextSolution;
 
 /* ************************************************************************** */
@@ -142,31 +148,13 @@ uint8_t get_c_limit_max(void) {
 
 /* -------------------------------------------------------------------------- */
 
-// Solution-related utility functions
-void clear_best_solution(void) {
-    bestMatch.relays.all = 0;
-    bestMatch.reflectionCoefficient = DBL_MAX;
-    bestMatch.forward = 0;
-}
-
 void clear_all_solutions(void) {
     nextSolution.all = 0;
 
-    clear_best_solution();
-
-    // Clear bypass
-    bypassMatch.reflectionCoefficient = DBL_MAX;
-    bypassMatch.forward = 0;
-
-    // Clear hiz
-    hizMatch.relays.all = 0;
-    hizMatch.reflectionCoefficient = DBL_MAX;
-    hizMatch.forward = 0;
-
-    // Clear loz
-    lozMatch.relays.all = 0;
-    lozMatch.reflectionCoefficient = DBL_MAX;
-    lozMatch.forward = 0;
+    reset_match_data(&bestMatch);
+    reset_match_data(&bypassMatch);
+    reset_match_data(&hizMatch);
+    reset_match_data(&lozMatch);
 
     solutionCount = 0;
     prevSolutionCount = 0;
@@ -293,7 +281,7 @@ void test_bypass(void) {
                bypassMatch.forward);
     });
 
-    clear_best_solution();
+    reset_match_data(&bestMatch);
 }
 
 void test_loz(void) {
@@ -304,7 +292,6 @@ void test_loz(void) {
     L_zip(3, 0);
     L_zip(7, 1);
 
-    lozMatch.relays = bestMatch.relays;
     lozMatch = bestMatch;
 
     LOG_DEBUG({
@@ -313,7 +300,7 @@ void test_loz(void) {
                lozMatch.forward);
     });
 
-    clear_best_solution();
+    reset_match_data(&bestMatch);
 }
 
 void test_hiz(void) {
@@ -324,7 +311,6 @@ void test_hiz(void) {
     L_zip(3, 0);
     L_zip(7, 1);
 
-    hizMatch.relays = bestMatch.relays;
     hizMatch = bestMatch;
 
     LOG_DEBUG({
@@ -333,24 +319,20 @@ void test_hiz(void) {
                hizMatch.forward);
     });
 
-    clear_best_solution();
+    reset_match_data(&bestMatch);
 }
 
 void restore_best_z(void) {
     if (hizMatch.reflectionCoefficient < lozMatch.reflectionCoefficient) {
-        bestMatch.relays = hizMatch.relays;
         bestMatch = hizMatch;
     } else if (hizMatch.reflectionCoefficient ==
                lozMatch.reflectionCoefficient) {
         if (hizMatch.forward > lozMatch.forward) {
-            bestMatch.relays = hizMatch.relays;
             bestMatch = hizMatch;
         } else {
-            bestMatch.relays = lozMatch.relays;
             bestMatch = lozMatch;
         }
     } else {
-        bestMatch.relays = lozMatch.relays;
         bestMatch = lozMatch;
     }
     nextSolution.z = bestMatch.relays.z;
