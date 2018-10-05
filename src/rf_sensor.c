@@ -18,9 +18,8 @@ RF_power_t currentRF;
 
 void clear_currentRF(void) {
     currentRF.forwardADC = 0;
-    currentRF.forwardSamplesDiscarded = 0;
     currentRF.reverseADC = 0;
-    currentRF.reverseSamplesDiscarded = 0;
+    currentRF.matchQuality = 0.0;
     currentRF.swrADC = 0.0;
     currentRF.forwardWatts = 0.0;
     currentRF.reverseWatts = 0.0;
@@ -73,91 +72,43 @@ static double RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
 
     SWR = (1 + sqrt(Pr/Pf))/(1 - sqrt(Pr/Pf))
 */
-static double calculate_SWR(uint16_t tempFWD, uint16_t tempREV) {
-    double x = sqrt((double)tempREV / (double)tempFWD);
-    return ((1.0 + x) / (1.0 - x));
-}
 
 static double calculate_SWR_by_watts(double forward, double reverse) {
     double x = sqrt(reverse / forward);
     return ((1.0 + x) / (1.0 - x));
 }
 
-static double calc_vswr(double reflectionCoefficient) {
-    double x = fabs(reflectionCoefficient);
-    return ((1.0 + x) / (1.0 - x));
-}
+void update_RF_measurements(void) {
+    currentRF.lastRFTime = systick_read();
+    currentRF.forward = adc_take_average(0);
+    currentRF.reverse = adc_take_average(1);
 
-#define NUM_OF_FWD_SAMPLES 16
-void get_forward_sample(void) {
-    uint16_t samplebuffer[NUM_OF_FWD_SAMPLES];
-    uint16_t totalSamples = 0;
-    uint8_t samples = 0;
-
-    while (samples < NUM_OF_FWD_SAMPLES) {
-        uint16_t tempREV = adc_measure(0);
-        totalSamples++;
-        if (tempREV != 0) {
-            samplebuffer[samples++] = tempREV;
-        }
+    if (currentRF.forward.discardedSamples > 0) {
+        clear_currentRF();
+        return;
     }
-
-    uint32_t sum = 0;
-    for (uint8_t i = 0; i < NUM_OF_FWD_SAMPLES; i++) {
-        sum += samplebuffer[i];
-    }
-
-    currentRF.forwardADC = sum / NUM_OF_FWD_SAMPLES;
-    currentRF.forwardSamplesDiscarded = totalSamples - NUM_OF_FWD_SAMPLES;
-}
-
-#define NUM_OF_REV_SAMPLES 16
-void get_reverse_sample(void) {
-    uint16_t samplebuffer[NUM_OF_REV_SAMPLES];
-    uint16_t totalSamples = 0;
-    uint8_t samples = 0;
-
-    while (samples < NUM_OF_REV_SAMPLES) {
-        uint16_t tempREV = adc_measure(1);
-        totalSamples++;
-        if (tempREV != 0) {
-            samplebuffer[samples++] = tempREV;
-        }
-    }
-
-    uint32_t sum = 0;
-    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
-        sum += samplebuffer[i];
-    }
-
-    // currentRF.reverseADC = sum / NUM_OF_REV_SAMPLES;
-    currentRF.reverseADC = sum;
-    currentRF.reverseSamplesDiscarded = totalSamples - NUM_OF_REV_SAMPLES;
+    
+    currentRF.matchQuality = currentRF.reverse.value / currentRF.forward.value;
 }
 
 void SWR_average(void) {
     currentRF.lastRFTime = systick_read();
+    currentRF.forward = adc_take_average(0);
+    currentRF.reverse = adc_take_average(1);
 
-    get_forward_sample();
-    if (currentRF.forwardSamplesDiscarded != 0) {
+    if (currentRF.forward.discardedSamples > 0) {
         clear_currentRF();
         return;
     }
-    get_reverse_sample();
 
-    currentRF.swr = (double)currentRF.reverseADC / (double)currentRF.forwardADC;
+    currentRF.matchQuality = currentRF.reverse.value / currentRF.forward.value;
+    currentRF.swr = currentRF.matchQuality;
+    currentRF.forwardADC = (uint16_t)currentRF.forward.value;
 
-    uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
+    // uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
 
-    currentRF.forwardWatts = RF_sensor_compensation(
-        currentRF.forwardADC, &calibrationTable[0][bandIndex]);
-    // currentRF.reverseWatts = RF_sensor_compensation(
-    //     currentRF.reverseADC, &calibrationTable[1][bandIndex]);
-    // currentRF.reverseWatts = currentRF.reverseSamplesDiscarded;
-    // currentRF.reverseWatts = currentRF.forwardWatts * currentRF.swrADC;
-    // currentRF.swr =
-    //     calculate_SWR_by_watts(currentRF.forwardWatts,
-    //     currentRF.reverseWatts);
+    // currentRF.forwardWatts = RF_sensor_compensation(
+    //     currentRF.forwardADC, &calibrationTable[0][bandIndex]);
 }
 
 // TODO: I don't think this is returning early if SWR is present
@@ -228,82 +179,4 @@ void RF_sensor_update(void) {
     if (currentRF.forwardADC < 8) {
         clear_currentRF();
     }
-}
-
-/* -------------------------------------------------------------------------- */
-
-uint16_t get_forward_sample_test(void) {
-    uint16_t samplebuffer[NUM_OF_REV_SAMPLES];
-    // clear buffer
-    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
-        samplebuffer[i] = 0;
-    }
-
-    us_stopwatch_begin();
-
-    // grab a shitload of samples
-    uint16_t totalSamples = 0;
-    uint8_t samples = 0;
-    while (samples < NUM_OF_REV_SAMPLES) {
-        uint16_t tempREV = adc_measure(0);
-        totalSamples++;
-        if (tempREV != 0) {
-            samplebuffer[samples++] = tempREV;
-        }
-    }
-
-    us_stopwatch_end();
-
-    // print them out?
-    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
-        printf("(%d, %d)\r\n", i, samplebuffer[i]);
-    }
-
-    uint32_t sum = 0;
-    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
-        sum += samplebuffer[i];
-    }
-    uint16_t average = sum / NUM_OF_REV_SAMPLES;
-    printf("totalSamples: %d\r\n", totalSamples);
-    printf("average: %d\r\n", average);
-
-    return average;
-}
-
-uint16_t get_reverse_sample_test(void) {
-    uint16_t samplebuffer[NUM_OF_REV_SAMPLES];
-    // clear buffer
-    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
-        samplebuffer[i] = 0;
-    }
-
-    us_stopwatch_begin();
-
-    // grab a shitload of samples
-    uint16_t totalSamples = 0;
-    uint8_t samples = 0;
-    while (samples < NUM_OF_REV_SAMPLES) {
-        uint16_t tempREV = adc_measure(1);
-        totalSamples++;
-        if (tempREV != 0) {
-            samplebuffer[samples++] = tempREV;
-        }
-    }
-
-    us_stopwatch_end();
-
-    // print them out?
-    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
-        printf("(%d, %d)\r\n", i, samplebuffer[i]);
-    }
-
-    uint32_t sum = 0;
-    for (uint8_t i = 0; i < NUM_OF_REV_SAMPLES; i++) {
-        sum += samplebuffer[i];
-    }
-    uint16_t average = sum / NUM_OF_REV_SAMPLES;
-    printf("totalSamples: %d\r\n", totalSamples);
-    printf("average: %d\r\n", average);
-
-    return average;
 }

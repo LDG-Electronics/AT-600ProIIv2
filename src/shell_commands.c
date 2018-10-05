@@ -7,6 +7,7 @@
 #include "os/log_macros.h"
 #include "os/shell/shell.h"
 #include "os/shell/shell_command_processor.h"
+#include "peripherals/adc.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "rf_sensor.h"
 #include <ctype.h>
@@ -191,20 +192,22 @@ int shell_show_bargraphs(int argc, char **argv) {
 
 void print_RF_data_packet_json(void) {
     print("{");
-    printf("\"forwardADC\":\"%d\",", currentRF.forwardADC);
-    printf("\"forwardWatts\":\"%f\",", currentRF.forwardWatts);
-    printf("\"reverseADC\":\"%d\",", currentRF.reverseADC);
-    printf("\"reverseWatts\":\"%f\",", currentRF.reverseWatts);
-    printf("\"swr\":\"%f\",", currentRF.swr);
-    printf("\"frequency\":\"%d\"", currentRF.frequency);
+    printf("\"forwardADC\":%f,", currentRF.forward.value);
+    printf("\"reverseADC\":%f,", currentRF.reverse.value);
+    printf("\"matchQuality\":%f,", currentRF.matchQuality);
+    printf("\"forwardWatts\":%f,", currentRF.forwardWatts);
+    printf("\"reverseWatts\":%f,", currentRF.reverseWatts);
+    printf("\"swr\":%f,", currentRF.swr);
+    printf("\"frequency\":%d", currentRF.frequency);
     println("}");
 }
 
+
 void print_RF_data_packet(void) {
     print("(");
-    printf("%d ", currentRF.forwardADC);
+    printf("%d ", currentRF.forward.value);
     printf("%f ", currentRF.forwardWatts);
-    printf("%d ", currentRF.reverseADC);
+    printf("%d ", currentRF.reverse.value);
     printf("%f ", currentRF.reverseWatts);
     printf("%f ", currentRF.swr);
     printf("%d", currentRF.frequency);
@@ -214,7 +217,7 @@ void print_RF_data_packet(void) {
 int calibration_packet(int argc, char **argv) {
     // if called with no argument, print the entire RF data packet
     if (argc == 1) {
-        print_RF_data_packet();
+        print_RF_data_packet_json();
         return 0;
     }
 
@@ -369,8 +372,22 @@ int poly(int argc, char **argv) {
 
 /* ************************************************************************** */
 
-int fwd(int argc, char **argv) { get_forward_sample_test(); }
-int rev(int argc, char **argv) { get_reverse_sample_test(); }
+int fwd(int argc, char **argv) {
+    adc_result_t result = adc_take_average(0);
+
+    print_sample_buffer();
+
+    printf("totalSamples: %d\r\n", result.discardedSamples);
+    printf("average: %f\r\n", result.value);
+}
+int rev(int argc, char **argv) {
+    adc_result_t result = adc_take_average(1);
+
+    print_sample_buffer();
+
+    printf("totalSamples: %d\r\n", result.discardedSamples);
+    printf("average: %f\r\n", result.value);
+}
 
 /* ************************************************************************** */
 
