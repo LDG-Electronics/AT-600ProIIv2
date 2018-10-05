@@ -24,6 +24,18 @@ tuning_flags_s tuning_flags;
 
 /* -------------------------------------------------------------------------- */
 
+typedef struct {
+    relays_s relays;
+    double reflectionCoefficient; // reflection coefficient
+    double forward;
+    uint16_t attemptNumber;
+} match_t;
+
+match_t bestMatch;
+match_t bypassMatch;
+match_t hizMatch;
+match_t lozMatch;
+
 // Possible tune solutions, to be sent to put_relays()
 relays_s nextSolution;
 
