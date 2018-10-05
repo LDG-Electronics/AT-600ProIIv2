@@ -413,7 +413,7 @@ void show_current_power_and_SWR(void) {
     display_frame_t frame;
     frame.frame = 0;
 
-    if (currentRF.forwardADC != 0) {
+    if (currentRF.forwardWatts > 0) {
         uint8_t fwdIndex = array_lookup(currentRF.forwardWatts, fwdIndexArray);
         frame.upper = ledBarTable[fwdIndex];
     }
