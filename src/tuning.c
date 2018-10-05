@@ -37,9 +37,6 @@ match_t hizMatch;
 match_t lozMatch;
 
 relays_s nextSolution;
-relays_s bestSolution;
-relays_s hizSolution;
-relays_s lozSolution;
 
 /* ************************************************************************** */
 
@@ -147,7 +144,7 @@ uint8_t get_c_limit_max(void) {
 
 // Solution-related utility functions
 void clear_best_solution(void) {
-    bestSolution.all = 0;
+    bestMatch.relays.all = 0;
     bestMatch.reflectionCoefficient = DBL_MAX;
     bestMatch.forward = 0;
 }
@@ -162,12 +159,12 @@ void clear_all_solutions(void) {
     bypassMatch.forward = 0;
 
     // Clear hiz
-    hizSolution.all = 0;
+    hizMatch.relays.all = 0;
     hizMatch.reflectionCoefficient = DBL_MAX;
     hizMatch.forward = 0;
 
     // Clear loz
-    lozSolution.all = 0;
+    lozMatch.relays.all = 0;
     lozMatch.reflectionCoefficient = DBL_MAX;
     lozMatch.forward = 0;
 
@@ -210,13 +207,13 @@ void reset_search_area(void) {
 /* -------------------------------------------------------------------------- */
 
 void save_new_best_solution(void) {
-    bestSolution = nextSolution;
+    bestMatch.relays = nextSolution;
     bestMatch.reflectionCoefficient = currentRF.swr;
     bestMatch.forward = currentRF.forwardADC;
 
     LOG_INFO({
         print("new best: ");
-        print_relays(&bestSolution);
+        print_relays(&bestMatch.relays);
         println("");
     });
 }
@@ -307,11 +304,11 @@ void test_loz(void) {
     L_zip(3, 0);
     L_zip(7, 1);
 
-    lozSolution = bestSolution;
+    lozMatch.relays = bestMatch.relays;
     lozMatch = bestMatch;
 
     LOG_DEBUG({
-        print_relays(&lozSolution);
+        print_relays(&lozMatch.relays);
         printf(" SWR: %f FWD: %d\r\n", lozMatch.reflectionCoefficient,
                lozMatch.forward);
     });
@@ -327,11 +324,11 @@ void test_hiz(void) {
     L_zip(3, 0);
     L_zip(7, 1);
 
-    hizSolution = bestSolution;
+    hizMatch.relays = bestMatch.relays;
     hizMatch = bestMatch;
 
     LOG_DEBUG({
-        print_relays(&hizSolution);
+        print_relays(&hizMatch.relays);
         printf(" SWR: %f FWD: %d\r\n", hizMatch.reflectionCoefficient,
                hizMatch.forward);
     });
@@ -341,26 +338,26 @@ void test_hiz(void) {
 
 void restore_best_z(void) {
     if (hizMatch.reflectionCoefficient < lozMatch.reflectionCoefficient) {
-        bestSolution = hizSolution;
+        bestMatch.relays = hizMatch.relays;
         bestMatch = hizMatch;
     } else if (hizMatch.reflectionCoefficient ==
                lozMatch.reflectionCoefficient) {
         if (hizMatch.forward > lozMatch.forward) {
-            bestSolution = hizSolution;
+            bestMatch.relays = hizMatch.relays;
             bestMatch = hizMatch;
         } else {
-            bestSolution = lozSolution;
+            bestMatch.relays = lozMatch.relays;
             bestMatch = lozMatch;
         }
     } else {
-        bestSolution = lozSolution;
+        bestMatch.relays = lozMatch.relays;
         bestMatch = lozMatch;
     }
-    nextSolution.z = bestSolution.z;
+    nextSolution.z = bestMatch.relays.z;
 
     LOG_INFO({
         print("best z: ");
-        print_relays(&bestSolution);
+        print_relays(&bestMatch.relays);
         printf(" SWR: %f FWD: %d\r\n", bestMatch.reflectionCoefficient,
                bestMatch.forward);
     });
@@ -433,24 +430,24 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
     double earlyExitSWR = (bestMatch.reflectionCoefficient / 2);
 
     LOG_TRACE({
-        printf("bracket_tune: (%d,%d) bestSolution: ", bracket, step);
-        print_relays(&bestSolution);
+        printf("bracket_tune: (%d,%d) bestMatch.relays: ", bracket, step);
+        print_relays(&bestMatch.relays);
         println("");
     });
 
     // Define bracket_area
     bracket_area = search_area;
-    if (bestSolution.caps < bracket_area.maxCap - bracket) {
-        bracket_area.maxCap = bestSolution.caps + bracket;
+    if (bestMatch.relays.caps < bracket_area.maxCap - bracket) {
+        bracket_area.maxCap = bestMatch.relays.caps + bracket;
     }
-    if (bestSolution.inds < bracket_area.maxInd - bracket) {
-        bracket_area.maxInd = bestSolution.inds + bracket;
+    if (bestMatch.relays.inds < bracket_area.maxInd - bracket) {
+        bracket_area.maxInd = bestMatch.relays.inds + bracket;
     }
-    if (bestSolution.caps > bracket) {
-        bracket_area.minCap = bestSolution.caps - bracket;
+    if (bestMatch.relays.caps > bracket) {
+        bracket_area.minCap = bestMatch.relays.caps - bracket;
     }
-    if (bestSolution.inds > bracket) {
-        bracket_area.minInd = bestSolution.inds - bracket;
+    if (bestMatch.relays.inds > bracket) {
+        bracket_area.minInd = bestMatch.relays.inds - bracket;
     }
 
     LOG_DEBUG({ print_search_area(&bracket_area); });
@@ -548,14 +545,14 @@ void full_tune(void) {
         return;
     }
 
-    if (bestSolution.inds < 3) {
+    if (bestMatch.relays.inds < 3) {
         nextSolution.z = ~nextSolution.z;
 
         L_zip(1, 0);
         L_zip(3, 1);
         bracket_tune(2, 1);
 
-        nextSolution.z = bestSolution.z;
+        nextSolution.z = bestMatch.relays.z;
     }
 
     bracket_tune(30, 4);
@@ -576,7 +573,7 @@ void full_tune(void) {
     }
 
     // If nothing failed, we can update currentRelays with the best solution
-    currentRelays[system_flags.antenna] = bestSolution;
+    currentRelays[system_flags.antenna] = bestMatch.relays;
 
     if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
         tuning_flags.relayError = 1;
