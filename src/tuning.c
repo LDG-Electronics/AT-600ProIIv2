@@ -495,11 +495,8 @@ void reset_tuning_data(void) {
     This stage involves saving the found result to memory if it's good enough,
     as well as making sure the final answer gets published to the appropriate
     places.
-
 */
 void full_tune(void) {
-    uint16_t address = 0;
-
     LOG_TRACE({ println("full_tune"); });
 
     clear_tuning_flags();
@@ -569,8 +566,7 @@ void full_tune(void) {
             println("");
         });
 
-        address = convert_memory_address(currentRF.frequency);
-        memory_store(address);
+        memory_store(convert_memory_address(currentRF.frequency));
         return;
     }
 }
