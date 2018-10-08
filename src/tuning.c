@@ -36,7 +36,7 @@ match_t bypassMatch;
 match_t hizMatch;
 match_t lozMatch;
 
-void reset_match_data(match_t *match){
+void reset_match_data(match_t *match) {
     match->relays.all = 0;
     match->reflectionCoefficient = DBL_MAX;
     match->forward = 0;
@@ -144,52 +144,6 @@ uint8_t get_c_limit_max(void) {
         return (MAX_CAPACITORS >> 2);
     }
     return MAX_CAPACITORS;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void clear_all_solutions(void) {
-    nextSolution.all = 0;
-
-    reset_match_data(&bestMatch);
-    reset_match_data(&bypassMatch);
-    reset_match_data(&hizMatch);
-    reset_match_data(&lozMatch);
-
-    solutionCount = 0;
-    prevSolutionCount = 0;
-}
-
-/*  reset_search_area() clears search_area to it's default, widest values
-
-    The starting search area is essentially the entire solution space, starting
-    at (0,0) and ending at either the full maximum(255 or 127), or by the L or
-    C limited value (top two relays disabled).
-*/
-void reset_search_area(void) {
-    search_area.all = 0;
-    max_index.all = 0;
-    check_relay_limits();
-
-    // Find maximum C
-    search_area.maxCap = get_c_limit_max();
-    while (tuneStep[++max_index.caps + 1] < search_area.maxCap) {
-        // empty loop
-    }
-
-    // Find maximum L
-    search_area.maxInd = get_l_limit_max();
-    while (tuneStep[++max_index.inds + 1] < search_area.maxInd) {
-        // empty loop
-    }
-
-    // Find minimum C
-    search_area.minCap = 0;
-
-    // Find minimum L
-    search_area.minInd = 0;
-
-    LOG_INFO({ print_search_area(&search_area); });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -464,6 +418,52 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
 
 /* -------------------------------------------------------------------------- */
 
+/*  reset_search_area() clears search_area to it's default, widest values
+
+    The starting search area is essentially the entire solution space, starting
+    at (0,0) and ending at either the full maximum(255 or 127), or by the L or
+    C limited value (top two relays disabled).
+*/
+void reset_search_area(void) {
+    search_area.all = 0;
+    max_index.all = 0;
+    check_relay_limits();
+
+    // Find maximum C
+    search_area.maxCap = get_c_limit_max();
+    while (tuneStep[++max_index.caps + 1] < search_area.maxCap) {
+        // empty loop
+    }
+
+    // Find maximum L
+    search_area.maxInd = get_l_limit_max();
+    while (tuneStep[++max_index.inds + 1] < search_area.maxInd) {
+        // empty loop
+    }
+
+    // Find minimum C
+    search_area.minCap = 0;
+
+    // Find minimum L
+    search_area.minInd = 0;
+
+    LOG_INFO({ print_search_area(&search_area); });
+}
+
+void reset_tuning_data(void) {
+    nextSolution.all = 0;
+
+    reset_match_data(&bestMatch);
+    reset_match_data(&bypassMatch);
+    reset_match_data(&hizMatch);
+    reset_match_data(&lozMatch);
+
+    solutionCount = 0;
+    prevSolutionCount = 0;
+
+    reset_search_area();
+}
+
 /*  full_tune() finds the L and C values that have the lowest SWR
 
     The full tune has several distinct stages:
@@ -512,9 +512,7 @@ void full_tune(void) {
         }
     }
 
-    // Clear out any crap from previous tunes
-    clear_all_solutions();
-    reset_search_area();
+    reset_tuning_data();
 
     hiloz_tune();
     if (tuning_flags.errors != 0) {
