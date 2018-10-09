@@ -174,15 +174,17 @@ void request_full_tune(void) {
 
 void read_relays(void) {}
 
+// TODO - These animations feel TERRIBLE
+
 void capacitor_increment(void) {
     if (currentRelays[system_flags.antenna].caps < MAX_CAPACITORS) {
         currentRelays[system_flags.antenna].caps++;
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].caps--;
         }
-        show_cap_relays();
+        // show_cap_relays();
     } else {
-        play_animation_in_background(&blink_bottom_bar_3[0]);
+        // play_animation_in_background(&blink_bottom_bar_3[0]);
     }
 }
 
@@ -192,9 +194,9 @@ void capacitor_decrement(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].caps++;
         }
-        show_cap_relays();
+        // show_cap_relays();
     } else {
-        play_animation_in_background(&blink_bottom_bar_3[0]);
+        // play_animation_in_background(&blink_bottom_bar_3[0]);
     }
 }
 
@@ -204,9 +206,9 @@ void inductor_increment(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].inds--;
         }
-        show_ind_relays();
+        // show_ind_relays();
     } else {
-        play_animation_in_background(&blink_top_bar_3[0]);
+        // play_animation_in_background(&blink_top_bar_3[0]);
     }
 }
 
@@ -216,9 +218,9 @@ void inductor_decrement(void) {
         if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
             currentRelays[system_flags.antenna].inds++;
         }
-        show_ind_relays();
+        // show_ind_relays();
     } else {
-        play_animation_in_background(&blink_top_bar_3[0]);
+        // play_animation_in_background(&blink_top_bar_3[0]);
     }
 }
 
