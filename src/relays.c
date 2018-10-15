@@ -50,7 +50,6 @@ int8_t check_if_safe(void) {
 void update_bypass_status(relays_s *testRelays) {
     bypassStatus[system_flags.antenna] = 0;
     if ((testRelays->caps == 0) && (testRelays->inds == 0)) {
-
         bypassStatus[system_flags.antenna] = 1;
     }
 
@@ -62,8 +61,9 @@ void update_bypass_status(relays_s *testRelays) {
 
 */
 int8_t put_relays(relays_s *testRelays) {
-    if (check_if_safe() == -1)
+    if (check_if_safe() == -1) {
         return (-1);
+    }
 
     update_bypass_status(testRelays);
 
