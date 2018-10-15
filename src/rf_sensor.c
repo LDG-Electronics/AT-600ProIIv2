@@ -78,37 +78,23 @@ static double calculate_SWR_by_watts(double forward, double reverse) {
     return ((1.0 + x) / (1.0 - x));
 }
 
-void update_RF_measurements(void) {
-    currentRF.lastRFTime = systick_read();
-    currentRF.forward = adc_take_average(0);
-    currentRF.reverse = adc_take_average(1);
-
-    if (currentRF.forward.discardedSamples > 0) {
-        clear_currentRF();
-        return;
-    }
-    
-    currentRF.matchQuality = currentRF.reverse.value / currentRF.forward.value;
-}
-
 void SWR_average(void) {
     currentRF.lastRFTime = systick_read();
-    currentRF.forward = adc_take_average(0);
-    currentRF.reverse = adc_take_average(1);
+    currentRF.forward = adc_read(0);
+    currentRF.reverse = adc_read(1);
 
-    if (currentRF.forward.discardedSamples > 0) {
-        clear_currentRF();
-        return;
-    }
+    // if (currentRF.forward.discardedSamples > 0) {
+    //     clear_currentRF();
+    //     return;
+    // }
 
     currentRF.matchQuality = currentRF.reverse.value / currentRF.forward.value;
     currentRF.swr = currentRF.matchQuality;
     currentRF.forwardADC = (uint16_t)currentRF.forward.value;
 
-    // uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
-
-    // currentRF.forwardWatts = RF_sensor_compensation(
-    //     currentRF.forwardADC, &calibrationTable[0][bandIndex]);
+    uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
+    currentRF.forwardWatts = RF_sensor_compensation(
+        currentRF.forwardADC, &calibrationTable[0][bandIndex]);
 }
 
 // TODO: I don't think this is returning early if SWR is present
@@ -116,13 +102,13 @@ void SWR_average(void) {
 #define STABLE_RF_WINDOW 50
 int8_t wait_for_stable_FWD(void) {
     uint16_t currentFWD;
-    uint16_t previousFWD = adc_measure(0);
+    uint16_t previousFWD = adc_single_sample(0);
     int16_t deltaFWD = 0;
     int16_t deltaCompare = 0;
 
     system_time_t currentTime = systick_read();
     while (systick_elapsed_time(currentTime) <= STABLE_RF_WINDOW) {
-        currentFWD = adc_measure(0);
+        currentFWD = adc_single_sample(0);
 
         deltaFWD = abs((int16_t)currentFWD - (int16_t)previousFWD);
         deltaCompare = currentFWD >> 4;

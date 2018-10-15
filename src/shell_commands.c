@@ -202,7 +202,6 @@ void print_RF_data_packet_json(void) {
     println("}");
 }
 
-
 void print_RF_data_packet(void) {
     print("(");
     printf("%d ", currentRF.forward.value);
@@ -372,22 +371,8 @@ int poly(int argc, char **argv) {
 
 /* ************************************************************************** */
 
-int fwd(int argc, char **argv) {
-    adc_result_t result = adc_take_average(0);
-
-    print_sample_buffer();
-
-    printf("totalSamples: %d\r\n", result.discardedSamples);
-    printf("average: %f\r\n", result.value);
-}
-int rev(int argc, char **argv) {
-    adc_result_t result = adc_take_average(1);
-
-    print_sample_buffer();
-
-    printf("totalSamples: %d\r\n", result.discardedSamples);
-    printf("average: %f\r\n", result.value);
-}
+int fwd(int argc, char **argv) { adc_read(0); }
+int rev(int argc, char **argv) { adc_read(1); }
 
 /* ************************************************************************** */
 
