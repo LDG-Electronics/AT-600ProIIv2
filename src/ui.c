@@ -16,6 +16,9 @@ static uint8_t LOG_LEVEL = L_SILENT;
 void update_front_panel(void) {
     static system_time_t lastUpdateTime = 0;
 
+    // TODO: this is fucking up the background animation system
+    // Do the existing display mutexes solve this?
+
     if (systick_elapsed_time(lastUpdateTime) > FRONT_PANEL_UPDATE_INTERVAL) {
         show_current_power_and_SWR();
     }
@@ -30,7 +33,7 @@ void update_front_panel(void) {
 */
 void ui_idle_block(void) {
     RF_sensor_update();
-    update_front_panel();
+    // update_front_panel();
     shell_update();
     event_scheduler_update();
     save_flags();
@@ -48,7 +51,7 @@ void ui_idle_block(void) {
 #define SUBMENU_DURATION 2200
 
 void threshold_submenu(void) {
-    LOG_TRACE({ println("decode_escape_sequence"); });
+    LOG_TRACE({ println("threshold_submenu"); });
     blink_thresh(3); // blink for emphasis
     show_thresh();   // leave it on the screen
 
