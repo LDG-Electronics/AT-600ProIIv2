@@ -77,6 +77,37 @@ void threshold_submenu(void) {
     }
 }
 
+void scale_submenu(void) {
+    LOG_TRACE({ println("scale_submenu"); });
+    blink_scale(3); // blink for emphasis
+    show_scale();   // leave it on the screen
+
+    system_time_t startTime = systick_read(); // stash the current time
+
+    while (1) {
+        if (btn_is_down(LUP)) {
+            startTime = systick_read(); // reset the start time
+            
+            toggle_scale();
+
+            blink_scale(2); // blink for emphasis
+            show_scale();   // leave it on the screen
+        }
+
+        // Pressing FUNC again cancels and exits
+        if (btn_is_down(FUNC)) {
+            break;
+        }
+
+        // Cancel and exit if it's been longer than SUBMENU_DURATION
+        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION) {
+            break;
+        }
+
+        ui_idle_block();
+    }
+}
+
 void function_submenu(void) {
     LOG_TRACE({ println("function_submenu"); });
     while (btn_is_down(FUNC)) {
@@ -97,7 +128,7 @@ void function_submenu(void) {
         }
         if (btn_is_down(LUP)) {
             LOG_TRACE({ println("LUP"); });
-            toggle_scale();
+            scale_submenu();
             blink_scale(4);
             return;
         }
