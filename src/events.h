@@ -5,40 +5,26 @@
 
 /* ************************************************************************** */
 
-extern void events_init(void);
-
-/* ************************************************************************** */
-
-extern int16_t check_SWR_and_update_meters(void);
-
-/* ************************************************************************** */
-
-extern void read_bypass(void);
 extern void set_bypass_on(void);
 extern void set_bypass_off(void);
 extern void toggle_bypass(void);
 
-extern void read_peak(void);
 extern void set_peak_on(void);
 extern void set_peak_off(void);
 extern void toggle_peak(void);
 
-extern void read_scale(void);
 extern void set_scale_high(void);
 extern void set_scale_low(void);
 extern void toggle_scale(void);
 
-extern void read_auto_mode(void);
 extern void set_auto_on(void);
 extern void set_auto_off(void);
 extern void toggle_auto(void);
 
-extern void read_hiloz(void);
 extern void set_high_z(void);
 extern void set_low_z(void);
 extern void toggle_hiloz(void);
 
-extern void read_antenna(void);
 extern void set_antenna_one(void);
 extern void set_antenna_two(void);
 extern void toggle_antenna(void);
@@ -53,14 +39,11 @@ extern void request_full_tune(void);
 /* -------------------------------------------------------------------------- */
 
 // relay increment functions
-extern void read_relays(void);
-extern void capacitor_increment(void);
-extern void capacitor_decrement(void);
-extern void inductor_increment(void);
-extern void inductor_decrement(void);
+extern int8_t capacitor_increment(void);
+extern int8_t capacitor_decrement(void);
+extern int8_t inductor_increment(void);
+extern int8_t inductor_decrement(void);
 
 /* -------------------------------------------------------------------------- */
-
-extern int16_t send_RF_data_packet(void);
 
 #endif
