@@ -177,7 +177,7 @@ int shell_show_bargraphs(int argc, char **argv) {
 
 /* -------------------------------------------------------------------------- */
 
-/*  print_RF_data_packet()
+/*  calibration_packet()
 
     This function provides data to a calibration routine that runs on an LDG
     Servitor. The Servitor uses this data in conjunction with data from a
@@ -187,7 +187,7 @@ int shell_show_bargraphs(int argc, char **argv) {
     {"forwardADC":"0","forwardWatts":"0.000000","reverseADC":"0","reverseWatts":"0.000000","swr":"0.000000","frequency":"-1"}
 */
 
-void print_RF_data_packet_json(void) {
+int calibration_packet(int argc, char **argv) {
     print("{");
     printf("\"forwardADC\":%f,", currentRF.forward.value);
     printf("\"reverseADC\":%f,", currentRF.reverse.value);
@@ -197,49 +197,6 @@ void print_RF_data_packet_json(void) {
     printf("\"swr\":%f,", currentRF.swr);
     printf("\"frequency\":%d", currentRF.frequency);
     println("}");
-}
-
-int calibration_packet(int argc, char **argv) {
-    // if called with no argument, print the entire RF data packet
-    if (argc == 1) {
-        print_RF_data_packet_json();
-        return 0;
-    }
-
-    bool pF = false;
-    bool pR = false;
-    bool pS = false;
-    bool pP = false;
-
-    for (uint8_t i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-f") == 0) {
-            pF = true;
-        } else if (strcmp(argv[i], "-r") == 0) {
-            pR = true;
-        } else if (strcmp(argv[i], "-s") == 0) {
-            pS = true;
-        } else if (strcmp(argv[i], "-p") == 0) {
-            pP = true;
-        }
-    }
-
-    if (pF) {
-        printf("%u ", currentRF.forwardADC);
-        printf("%f ", currentRF.forwardWatts);
-    }
-    if (pR) {
-        printf("%u ", currentRF.reverseADC);
-        printf("%f ", currentRF.reverseWatts);
-    }
-    if (pS) {
-        printf("%f ", currentRF.swr);
-    }
-    if (pP) {
-        printf("%u ", currentRF.frequency);
-    }
-
-    println("");
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
