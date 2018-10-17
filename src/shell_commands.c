@@ -184,9 +184,6 @@ int shell_show_bargraphs(int argc, char **argv) {
     Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
     compensation tables to improve the accuracy of the RF sensor.
 
-    (F Fw R Rw SWR      frequency)
-    (0 0  0 0  0.000000 0)
-
     {"forwardADC":"0","forwardWatts":"0.000000","reverseADC":"0","reverseWatts":"0.000000","swr":"0.000000","frequency":"-1"}
 */
 
@@ -200,17 +197,6 @@ void print_RF_data_packet_json(void) {
     printf("\"swr\":%f,", currentRF.swr);
     printf("\"frequency\":%d", currentRF.frequency);
     println("}");
-}
-
-void print_RF_data_packet(void) {
-    print("(");
-    printf("%d ", currentRF.forward.value);
-    printf("%f ", currentRF.forwardWatts);
-    printf("%d ", currentRF.reverse.value);
-    printf("%f ", currentRF.reverseWatts);
-    printf("%f ", currentRF.swr);
-    printf("%d", currentRF.frequency);
-    println(")");
 }
 
 int calibration_packet(int argc, char **argv) {
