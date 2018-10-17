@@ -26,7 +26,6 @@
 typedef struct {
     shell_program_t callback;
     const char *command;
-    const char *usage;
 } shell_command_t;
 
 /*  command_list_t
@@ -48,7 +47,6 @@ command_list_t commands;
 void clear_shell_command(uint8_t index) {
     commands.list[index].callback = 0;
     commands.list[index].command = 0;
-    commands.list[index].usage = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -73,11 +71,9 @@ void shell_commands_init(void) {
 }
 
 // Add a command to the command list
-void shell_register_command(shell_program_t program, const char *command,
-                            const char *usage) {
+void shell_register_command(shell_program_t program, const char *command) {
     commands.list[commands.number].callback = program;
     commands.list[commands.number].command = command;
-    commands.list[commands.number].usage = usage;
 
     commands.number++;
 }

@@ -28,7 +28,7 @@ void log_init(void) {
     }
     logDatabase.numberOfFiles = 0;
 
-    shell_register_command(program_logedit_begin, "logedit", NULL);
+    shell_register_command(program_logedit_begin, "logedit");
 }
 
 void log_register__(const char *name, uint8_t *level) {

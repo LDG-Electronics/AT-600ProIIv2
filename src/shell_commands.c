@@ -327,27 +327,27 @@ void register_all_shell_commands(void) {
     log_register();
 
     // built-in shell commands
-    shell_register_command(shell_help, "help", NULL);
-    shell_register_command(shell_arg_test, "test", NULL);
+    shell_register_command(shell_help, "help");
+    shell_register_command(shell_arg_test, "test");
 
     // general purpose parameter touching
-    shell_register_command(shell_get_param, "get", NULL);
-    shell_register_command(shell_set_param, "set", NULL);
+    shell_register_command(shell_get_param, "get");
+    shell_register_command(shell_set_param, "set");
 
     // from display.c
-    shell_register_command(shell_show_bargraphs, "bar", NULL);
+    shell_register_command(shell_show_bargraphs, "bar");
 
     //
-    shell_register_command(calibration_packet, "cal", NULL);
+    shell_register_command(calibration_packet, "cal");
 
     // log level controls
-    shell_register_command(edit_log_levels, "log", NULL);
+    shell_register_command(edit_log_levels, "log");
 
     // calibration data
-    shell_register_command(poly, "poly", NULL);
+    shell_register_command(poly, "poly");
 
-    shell_register_command(fwd, "fwd", NULL);
-    shell_register_command(rev, "rev", NULL);
+    shell_register_command(fwd, "fwd");
+    shell_register_command(rev, "rev");
 
-    shell_register_command(tune, "tune", NULL);
+    shell_register_command(tune, "tune");
 }

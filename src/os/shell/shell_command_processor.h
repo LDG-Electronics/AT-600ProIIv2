@@ -5,8 +5,8 @@
 
 /* ************************************************************************** */
 
-extern void shell_register_command(shell_program_t program, const char *command,
-                                   const char *usage);
+extern void shell_register_command(shell_program_t program,
+                                   const char *command);
 
 /* ************************************************************************** */
 
