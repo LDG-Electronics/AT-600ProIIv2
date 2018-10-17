@@ -1,6 +1,5 @@
 #include "hardware.h"
 #include "display.h"
-#include "events.h"
 #include "flags.h"
 #include "os/buttons.h"
 #include "os/event_scheduler.h"
@@ -40,7 +39,6 @@ void startup(void) {
     // Driver setup
     buttons_init();
     display_init();
-    events_init();
     flags_init();
     nonvolatile_memory_init();
     relays_init();

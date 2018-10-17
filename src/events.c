@@ -9,6 +9,7 @@
 #include "relays.h"
 #include "rf_sensor.h"
 #include "tuning.h"
+#include <stdint.h>
 
 /* ************************************************************************** */
 
@@ -185,5 +186,4 @@ void inductor_decrement(void) {
     } else {
         // play_animation_in_background(&blink_top_bar_3[0]);
     }
-}
 }
