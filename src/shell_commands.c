@@ -46,16 +46,20 @@ int shell_show_bargraphs(int argc, char **argv) {
     {"forwardADC":"0","forwardWatts":"0.000000","reverseADC":"0","reverseWatts":"0.000000","swr":"0.000000","frequency":"-1"}
 */
 
+// json object represented by null-terminated array of "json field" structs
+const json_field_t RF[] = {
+    {"forwardADC", &currentRF.forward.value, jsonNumber},
+    {"reverseADC", &currentRF.reverse.value, jsonNumber},
+    {"matchQuality", &currentRF.matchQuality, jsonNumber},
+    {"forwardWatts", &currentRF.forwardWatts, jsonNumber},
+    {"reverseWatts", &currentRF.reverseWatts, jsonNumber},
+    {"swr", &currentRF.swr, jsonNumber},
+    {"frequency", &currentRF.frequency, jsonNumber},
+    {NULL, NULL, jsonNumber},
+};
+
 int calibration_packet(int argc, char **argv) {
-    print("{");
-    printf("\"forwardADC\":%f,", currentRF.forward.value);
-    printf("\"reverseADC\":%f,", currentRF.reverse.value);
-    printf("\"matchQuality\":%f,", currentRF.matchQuality);
-    printf("\"forwardWatts\":%f,", currentRF.forwardWatts);
-    printf("\"reverseWatts\":%f,", currentRF.reverseWatts);
-    printf("\"swr\":%f,", currentRF.swr);
-    printf("\"frequency\":%d", currentRF.frequency);
-    println("}");
+    json_serialize_and_print(&RF[0]);
 
     return 0;
 }
