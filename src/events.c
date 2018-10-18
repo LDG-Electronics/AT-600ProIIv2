@@ -1,15 +1,12 @@
-#include "display.h"
+#include "events.h"
 #include "flags.h"
 #include "memory.h"
 #include "os/console_io.h"
 #include "os/system_time.h"
-#include "peripherals/nonvolatile_memory.h"
 #include "peripherals/pic18f46k42.h"
 #include "peripherals/pins.h"
 #include "relays.h"
-#include "rf_sensor.h"
 #include "tuning.h"
-#include <stdint.h>
 
 /* ************************************************************************** */
 
@@ -90,8 +87,6 @@ void set_antenna(uint8_t value) {
     if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
         system_flags.antenna = undo;
     }
-
-    update_antenna_LED();
 }
 
 void set_antenna_one(void) { set_antenna(1); }
@@ -101,12 +96,12 @@ void toggle_antenna(void) { set_antenna(!system_flags.antenna); }
 /* -------------------------------------------------------------------------- */
 
 void manual_store(void) {
-    NVM_address_t address = convert_memory_address(currentRF.frequency);
+    // NVM_address_t address = convert_memory_address(currentRF.frequency);
 
-    memory_store(address);
+    // memory_store(address);
 
     // success animation?
-    play_animation(&center_crawl[0]);
+    // play_animation(&center_crawl[0]);
 
     // failure animation?
     // repeat_animation(&blink_both_bars, 2);
@@ -138,52 +133,54 @@ void request_full_tune(void) {
 
 /* -------------------------------------------------------------------------- */
 
-// TODO - These animations feel TERRIBLE
-
-void capacitor_increment(void) {
-    if (currentRelays[system_flags.antenna].caps < MAX_CAPACITORS) {
-        currentRelays[system_flags.antenna].caps++;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].caps--;
-        }
-        // show_cap_relays();
-    } else {
-        // play_animation_in_background(&blink_bottom_bar_3[0]);
+int8_t capacitor_increment(void) {
+    if (currentRelays[system_flags.antenna].caps == MAX_CAPACITORS) {
+        return -1; // can't increment past maximum; failure
     }
-}
 
-void capacitor_decrement(void) {
-    if (currentRelays[system_flags.antenna].caps > MIN_CAPACITORS) {
+    currentRelays[system_flags.antenna].caps++;
+    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
         currentRelays[system_flags.antenna].caps--;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].caps++;
-        }
-        // show_cap_relays();
-    } else {
-        // play_animation_in_background(&blink_bottom_bar_3[0]);
+        return -2; // put_relays() failed
     }
+    return 0; // successfully incremented
 }
 
-void inductor_increment(void) {
-    if (currentRelays[system_flags.antenna].inds < MAX_INDUCTORS) {
-        currentRelays[system_flags.antenna].inds++;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].inds--;
-        }
-        // show_ind_relays();
-    } else {
-        // play_animation_in_background(&blink_top_bar_3[0]);
+int8_t capacitor_decrement(void) {
+    if (currentRelays[system_flags.antenna].caps == MIN_CAPACITORS) {
+        return -1; // can't decrement past minimum; failure
     }
+
+    currentRelays[system_flags.antenna].caps--;
+    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
+        currentRelays[system_flags.antenna].caps++;
+        return -2; // put_relays() failed
+    }
+    return 0; // successfully decremented
 }
 
-void inductor_decrement(void) {
-    if (currentRelays[system_flags.antenna].inds > MIN_INDUCTORS) {
+int8_t inductor_increment(void) {
+    if (currentRelays[system_flags.antenna].inds == MAX_INDUCTORS) {
+        return -1; // can't increment past maximum; failure
+    }
+
+    currentRelays[system_flags.antenna].inds++;
+    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
         currentRelays[system_flags.antenna].inds--;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].inds++;
-        }
-        // show_ind_relays();
-    } else {
-        // play_animation_in_background(&blink_top_bar_3[0]);
+        return -2; // put_relays() failed
     }
+    return 0; // successfully incremented
+}
+
+int8_t inductor_decrement(void) {
+    if (currentRelays[system_flags.antenna].inds == MIN_INDUCTORS) {
+        return -1; // can't decrement past minimum; failure
+    }
+
+    currentRelays[system_flags.antenna].inds--;
+    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
+        currentRelays[system_flags.antenna].inds++;
+        return -2; // put_relays() failed
+    }
+    return 0; // successfully decremented
 }

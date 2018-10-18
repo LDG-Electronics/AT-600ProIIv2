@@ -1,6 +1,8 @@
 #ifndef _EVENTS_H_
 #define _EVENTS_H_
 
+#include <stdint.h>
+
 /* ************************************************************************** */
 
 extern void set_bypass_on(void);
@@ -37,10 +39,10 @@ extern void request_full_tune(void);
 /* -------------------------------------------------------------------------- */
 
 // relay increment functions
-extern void capacitor_increment(void);
-extern void capacitor_decrement(void);
-extern void inductor_increment(void);
-extern void inductor_decrement(void);
+extern int8_t capacitor_increment(void);
+extern int8_t capacitor_decrement(void);
+extern int8_t inductor_increment(void);
+extern int8_t inductor_decrement(void);
 
 /* -------------------------------------------------------------------------- */
 

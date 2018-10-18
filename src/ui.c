@@ -90,7 +90,7 @@ void scale_submenu(void) {
     while (1) {
         if (btn_is_down(LUP)) {
             startTime = systick_read(); // reset the start time
-            
+
             toggle_scale();
 
             blink_scale(2); // blink for emphasis
@@ -223,27 +223,49 @@ void relay_button_hold(void) {
     uint8_t incrementCount = 0;
     uint8_t incrementDelay = 200;
 
+    int8_t capResult = 0;
+    int8_t indResult = 0;
+
     // stay in loop while any relay button is held
     while (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
+        currentTime = systick_read();
         if (systick_elapsed_time(currentTime) >= incrementDelay) {
-            currentTime = systick_read();
-
-            // can't go up and down at the same time
+            // capacitor buttons
             if (btn_is_down(CUP) && btn_is_down(CDN)) {
-                // do nothing
+                LOG_TRACE({ println("CUP && CDN"); });
+                // can't go up and down at the same time; do nothing
             } else if (btn_is_down(CUP)) {
-                capacitor_increment();
+                LOG_TRACE({ println("CUP"); });
+                capResult = capacitor_increment();
             } else if (btn_is_down(CDN)) {
-                capacitor_decrement();
+                LOG_TRACE({ println("CDN"); });
+                capResult = capacitor_decrement();
             }
+            // inductor buttons
             if (btn_is_down(LUP) && btn_is_down(LDN)) {
-                // do nothing
-            } else if (btn_is_down(LDN)) {
-                inductor_decrement();
+                LOG_TRACE({ println("LUP && LDN"); });
+                // can't go up and down at the same time; do nothing
             } else if (btn_is_down(LUP)) {
-                inductor_increment();
+                LOG_TRACE({ println("LUP"); });
+                indResult = inductor_increment();
+            } else if (btn_is_down(LDN)) {
+                LOG_TRACE({ println("LDN"); });
+                indResult = inductor_decrement();
             }
 
+            // animation stuff
+            if (capResult == 0) {
+                show_cap_relays();
+            } else if (capResult == -1) {
+                play_animation_in_background(&blink_bottom_bar_3[0]);
+            }
+            if (indResult == 0) {
+                show_ind_relays();
+            } else if (indResult == -1) {
+                play_animation_in_background(&blink_top_bar_3[0]);
+            }
+
+            // refire timing stuff
             if (incrementCount < UINT8_MAX) {
                 incrementCount++;
             }
