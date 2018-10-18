@@ -25,9 +25,6 @@ void shell_init(void) {
     // sequence processing
     shell_sequences_init();
 
-    // shell commands
-    shell_commands_init();
-
     // shell history
     shell_history_init();
 }

@@ -5,6 +5,7 @@
 #include "os/console_io.h"
 #include "os/shell/shell.h"
 #include "os/shell/shell_command_processor.h"
+#include "os/shell/shell_json.h"
 #include "peripherals/adc.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "rf_sensor.h"
@@ -163,22 +164,4 @@ int rev(int argc, char **argv) {
 int tune(int argc, char **argv) {
     request_full_tune();
     return 0;
-}
-
-/* ************************************************************************** */
-
-void register_all_shell_commands(void) {
-    // from display.c
-    shell_register_command(shell_show_bargraphs, "bar");
-
-    //
-    shell_register_command(calibration_packet, "cal");
-
-    // calibration data
-    shell_register_command(poly, "poly");
-
-    shell_register_command(fwd, "fwd");
-    shell_register_command(rev, "rev");
-
-    shell_register_command(tune, "tune");
 }

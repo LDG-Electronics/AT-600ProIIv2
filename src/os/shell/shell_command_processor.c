@@ -6,79 +6,30 @@
 
 /* ************************************************************************** */
 
-/*  shell command list
+const shell_command_t commandList[] = {
+    BUILTIN_COMMANDS SHELL_COMMANDS{NULL, NULL},
+};
 
-    This data structure is the central registry for shell commands.
-
-    Individual commands should be defined in shell_commands.c and registered in
-    shell_commands_init().
-
-    The function signature of a shell command must be:
-    int (*shell_program_t) (int, char **)
-*/
-
-/*  command_list_t
-
-    list
-    An array of shell_command_t objects that stores all the registered shell
-    commands.
-
-    numOfRegisteredCommands
-    The number of commands registered with the shell
-*/
-typedef struct commands {
-    shell_command_t list[MAXIMUM_NUM_OF_SHELL_COMMANDS];
-    uint8_t number;
-} command_list_t;
-
-command_list_t commands;
-
-void clear_shell_command(uint8_t index) {
-    commands.list[index].callback = 0;
-    commands.list[index].command = 0;
-}
 
 /* -------------------------------------------------------------------------- */
 
 // Print all registered shell commands
 void shell_print_commands(void) {
-    for (uint8_t i = 0; i < commands.number; i++) {
-        if (commands.list[i].callback != 0 || commands.list[i].command != 0) {
-            println(commands.list[i].command);
-        }
+    uint8_t i = 0;
+    while (commandList[i].callback != NULL) {
+        println(commandList[i].command);
     }
 }
 
 /* ************************************************************************** */
 
-void shell_commands_init(void) {
-    // clear the entire command list
-    for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
-        clear_shell_command(i);
-    }
-    commands.number = 0;
-    
-    register_all_shell_commands();
-    register_builtin_shell_commands();
-}
-
-// Add a command to the command list
-void shell_register_command(shell_program_t program, const char *command) {
-    commands.list[commands.number].callback = program;
-    commands.list[commands.number].command = command;
-
-    commands.number++;
-}
-
-/* -------------------------------------------------------------------------- */
-
 static int8_t find_matching_command(char *string) {
     for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
-        if (commands.list[i].callback == 0)
+        if (commandList[i].callback == 0)
             continue;
 
         // If string matches one on the list
-        if (!strcmp(string, commands.list[i].command)) {
+        if (!strcmp(string, commandList[i].command)) {
             return i;
         }
     }
@@ -105,7 +56,7 @@ void process_shell_command(void) {
 
     // if we found a valid command, execute it
     if (command != -1) {
-        shell_program_t program = commands.list[command].callback;
+        shell_program_t program = commandList[command].callback;
         int result = program(argc, argv_list);
 
         if (result == 0) {
@@ -117,5 +68,3 @@ void process_shell_command(void) {
     printf("%s: command not found\r\n", shell.buffer);
     print(SHELL_PROMPT_STRING);
 }
-
-void execute_shell_command(void) {}

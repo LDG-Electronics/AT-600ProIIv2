@@ -49,8 +49,3 @@ int shell_arg_test(int argc, char **argv) {
 
 /* ************************************************************************** */
 
-void register_builtin_shell_commands(void) {
-    // built-in shell commands
-    shell_register_command(shell_help, "help");
-    shell_register_command(shell_arg_test, "test");
-}
