@@ -68,94 +68,6 @@ int shell_arg_test(int argc, char **argv) {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Parameter commands
-
-    get and set can be used to read and write the vast majority of system state
-    variables.
-
-    get is pretty self explanatory: it returns the current setting of the
-    requested parameter.
-
-    TODO: revise this paragraph to emphasize the last line and sets role in it
-    set is slightly trickier: Many variables require some action to be performed
-    when they're modified. This command has a duty to update system variables
-    responsibly, whatever that takes. It's unacceptable for the system to
-    rendered inoperable or otherwise damaged by modifying a parameter via set.
-
-    Parameter list:
-    currentRelays <- from relays.c
-        capacitors
-        inductors
-        z relay
-    currentRF <- from RF_sensor.c
-        forward
-        forwardWatts
-        reverse
-        reveresWatts
-        SWR
-        frequency
-    systemFlags <- from flags.c
-        ant1Bypass
-        ant2Bypass
-        antenna
-        autoMode
-        peakMode
-        scaleMode
-        powerStatus
-    currentTime
-    tuning status
-    current display
-
-    memories
-        recall memories by frequency
-        recall memories by date
-
-    system information
-        product name
-        serial number
-        sw version
-        board revision
-        compilation date
-        service history:
-
-    metrics
-        lifetime tune count
-        lifetime relay write count
-        highest power level recorded
-
-*/
-
-const char getParamUsage[] = "\
-This command is used to read the current value of settings from the tuner.\r\n\
-Available parameters are:\r\n\
-*** INSERT PARAMETER LIST HERE ***\r\n\
-";
-
-int shell_get_param(int argc, char **argv) {
-    if (argc == 1) {
-        print(getParamUsage);
-        return 0;
-    }
-    if (!strcmp(argv[1], "")) {
-    }
-    return 0;
-}
-
-const char setParamUsage[] = "\
-This command is used to modify the current value of settings from the tuner.\r\n\
-Available parameters are:\r\n\
-*** INSERT PARAMETER LIST HERE ***\r\n\
-";
-
-int shell_set_param(int argc, char **argv) {
-    if (argc == 1) {
-        print(setParamUsage);
-        return 0;
-    }
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
 // from display.c
 
 int shell_show_bargraphs(int argc, char **argv) {
@@ -329,10 +241,6 @@ void register_all_shell_commands(void) {
     // built-in shell commands
     shell_register_command(shell_help, "help");
     shell_register_command(shell_arg_test, "test");
-
-    // general purpose parameter touching
-    shell_register_command(shell_get_param, "get");
-    shell_register_command(shell_set_param, "set");
 
     // from display.c
     shell_register_command(shell_show_bargraphs, "bar");
