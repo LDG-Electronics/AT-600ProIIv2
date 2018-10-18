@@ -1,15 +1,75 @@
 #include "shell_command_processor.h"
 #include "../../shell_commands.h"
 #include "../console_io.h"
-#include "shell_command_builtins.h"
 #include <string.h>
 
 /* ************************************************************************** */
+// forward declaration
+extern void shell_print_commands(void);
+
+int shell_help(int argc, char **argv) {
+    println("-----------------------------------------------");
+    shell_print_commands();
+    println("-----------------------------------------------");
+
+    return 0;
+}
+
+const char argTestUsage[] = "\
+This command has no special arguments.\r\n\
+It is designed to test the TuneOS shell's arg parsing.\r\n\
+\r\n\
+Use it like this:\r\n\
+\"$ test command arg1 arg2 arg3\"\r\n\
+\r\n\
+To get this response:\r\n\
+Received 4 arguments for test command\r\n\
+1 - \"command\" [len:7]\r\n\
+2 - \"arg1\" [len:4]\r\n\
+3 - \"arg2\" [len:4]\r\n\
+4 - \"arg3\" [len:4]\r\n\
+";
+
+int shell_arg_test(int argc, char **argv) {
+    println("-----------------------------------------------");
+    println("SHELL ARG PARSING TEST UTILITY");
+    if (argc == 1) {
+        print(argTestUsage);
+    } else {
+        printf("Received %d arguments for test command\r\n", argc - 1);
+
+        // Prints: <argNum> - "<string>" [len:<length>]
+        for (uint8_t i = 1; i < argc; i++) {
+            printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i]));
+        }
+    }
+    println("-----------------------------------------------");
+
+    return 0;
+}
+
+#define BUILTIN_SHELL_COMMANDS                                                 \
+    {shell_help, "help"}, { shell_arg_test, "test" }
+/* ************************************************************************** */
+
+/*  shell_command_t
+
+    callback
+    A pointer to the shell command body.
+
+    command
+    A pointer to string that represents the command that needs to be typed
+*/
+typedef struct {
+    shell_program_t callback;
+    const char *command;
+} shell_command_t;
 
 const shell_command_t commandList[] = {
-    BUILTIN_COMMANDS SHELL_COMMANDS{NULL, NULL},
+    BUILTIN_SHELL_COMMANDS,
+    SHELL_COMMANDS,
+    {NULL, NULL},
 };
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -17,7 +77,7 @@ const shell_command_t commandList[] = {
 void shell_print_commands(void) {
     uint8_t i = 0;
     while (commandList[i].callback != NULL) {
-        println(commandList[i].command);
+        println(commandList[i++].command);
     }
 }
 
@@ -36,12 +96,9 @@ static int8_t find_matching_command(char *string) {
     return -1;
 }
 
-int argc;
-char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
-int8_t command;
-
 void process_shell_command(void) {
-    argc = 0;
+    int argc = 0;
+    char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
 
     // tokenize the shell buffer
     // argv_list will end up containing a pointer to each token
@@ -52,7 +109,7 @@ void process_shell_command(void) {
     }
 
     // figure out which command matches the received string
-    command = find_matching_command(argv_list[0]);
+    int8_t command = find_matching_command(argv_list[0]);
 
     // if we found a valid command, execute it
     if (command != -1) {

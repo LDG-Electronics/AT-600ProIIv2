@@ -15,6 +15,6 @@ extern int tune(int argc, char **argv);
 #define SHELL_COMMANDS                                                         \
     {shell_show_bargraphs, "bar"}, {calibration_packet, "cal"},                \
         {poly, "poly"}, {fwd, "fwd"}, {rev, "rev"}, {tune, "tune"},            \
-        {program_logedit_begin, "logedit"},
+        {program_logedit_begin, "logedit"}
 
 #endif
