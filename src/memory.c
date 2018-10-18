@@ -7,7 +7,10 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-void memory_init(void) { log_register(); }
+void memory_init(void) {
+    nonvolatile_memory_init();
+    log_register();
+}
 
 /* ************************************************************************** */
 
