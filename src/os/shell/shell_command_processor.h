@@ -5,6 +5,21 @@
 
 /* ************************************************************************** */
 
+/*  shell_command_t
+
+    callback
+    A pointer to the shell command body.
+
+    command
+    A pointer to string that represents the command that needs to be typed
+*/
+typedef struct {
+    shell_program_t callback;
+    const char *command;
+} shell_command_t;
+
+/* ************************************************************************** */
+
 extern void shell_register_command(shell_program_t program,
                                    const char *command);
 

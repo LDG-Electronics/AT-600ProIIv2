@@ -1,5 +1,6 @@
 #include "shell_command_processor.h"
 #include "../console_io.h"
+#include "shell_command_builtins.h"
 #include <string.h>
 
 /* ************************************************************************** */
@@ -14,19 +15,6 @@
     The function signature of a shell command must be:
     int (*shell_program_t) (int, char **)
 */
-
-/*  shell_command_t
-
-    callback
-    A pointer to the shell command body.
-
-    command
-    A pointer to string that represents the command that needs to be typed
-*/
-typedef struct {
-    shell_program_t callback;
-    const char *command;
-} shell_command_t;
 
 /*  command_list_t
 
@@ -68,6 +56,7 @@ void shell_commands_init(void) {
         clear_shell_command(i);
     }
     commands.number = 0;
+    register_builtin_shell_commands();
 }
 
 // Add a command to the command list
