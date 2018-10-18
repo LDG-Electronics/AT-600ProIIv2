@@ -82,7 +82,7 @@ void print_relays(relays_s *relays) {
            relays->ant);
 }
 
-// Same as log_relays(), but also appends a CRLF.
+// Same as print_relays(), but also appends a CRLF.
 void print_relays_ln(relays_s *relays) {
     print_relays(relays);
 
