@@ -1,6 +1,7 @@
 #include "hardware.h"
 #include "display.h"
 #include "flags.h"
+#include "memory.h"
 #include "os/buttons.h"
 #include "os/event_scheduler.h"
 #include "os/log.h"
@@ -19,11 +20,21 @@
 #include "tuning.h"
 
 /* ************************************************************************** */
-// Forward Declarations
-void interrupt_init(void);
+/*  Notes on startup()
 
-/* ************************************************************************** */
+    This function shall be called exactly once: In main(), before any main loop
+    or task scheduler is started.
 
+    The only contents of startup() should be the various xxx_init() functions
+    used to initialize various parts of the system.
+
+    Facts about the init process:
+    init functions may or may not have dependecies
+    init functions may or may not be idempotent
+    init functions for peripherals should be called during the init for whatever
+    driver or system uses that peripheral
+
+*/
 void startup(void) {
     // System setup
     oscillator_init();
@@ -43,7 +54,7 @@ void startup(void) {
     RF_sensor_init();
     stopwatch_init();
     tuning_init();
-    nonvolatile_memory_init();
+    memory_init();
     flags_init();
 
     // System setup, round 2
@@ -53,12 +64,15 @@ void startup(void) {
 
     reset_vector_handler();
 
+    // Attempt to load previously saved flags
+    load_flags();
+
     // Push out the initial relay settings
     put_relays(&currentRelays[system_flags.antenna]);
 
     // initialize the display
-    play_animation_in_background(&right_crawl[0]);
     update_status_LEDs();
+    play_animation(&right_crawl[0]);
 }
 
 // TODO: rewrite the shutdown sequence
