@@ -57,9 +57,6 @@ void startup(void) {
     memory_init();
     flags_init();
 
-    // System setup, round 2
-    register_all_shell_commands();
-
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
     reset_vector_handler();

@@ -1,4 +1,5 @@
 #include "shell_command_processor.h"
+#include "../../shell_commands.h"
 #include "../console_io.h"
 #include "shell_command_builtins.h"
 #include <string.h>
@@ -56,6 +57,8 @@ void shell_commands_init(void) {
         clear_shell_command(i);
     }
     commands.number = 0;
+    
+    register_all_shell_commands();
     register_builtin_shell_commands();
 }
 
