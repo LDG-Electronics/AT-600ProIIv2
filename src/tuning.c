@@ -222,7 +222,7 @@ void LC_zip(void) {
 }
 
 void test_bypass(void) {
-    LOG_TRACE({ println("bypass:"); });
+    LOG_TRACE({ println("test_bypass:"); });
 
     nextSolution.all = 0;
     test_next_solution(0);
@@ -239,7 +239,7 @@ void test_bypass(void) {
 }
 
 void test_loz(void) {
-    LOG_TRACE({ println("loz:"); });
+    LOG_TRACE({ println("test_loz:"); });
 
     nextSolution.z = 0;
     LC_zip();
@@ -258,7 +258,7 @@ void test_loz(void) {
 }
 
 void test_hiz(void) {
-    LOG_TRACE({ println("hiz:"); });
+    LOG_TRACE({ println("test_hiz:"); });
 
     nextSolution.z = 1;
     LC_zip();
