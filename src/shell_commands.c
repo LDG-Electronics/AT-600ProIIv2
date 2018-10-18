@@ -3,8 +3,6 @@
 #include "display.h"
 #include "events.h"
 #include "os/console_io.h"
-#include "os/log.h"
-#include "os/log_macros.h"
 #include "os/shell/shell.h"
 #include "os/shell/shell_command_processor.h"
 #include "peripherals/adc.h"
@@ -14,13 +12,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-static uint8_t LOG_LEVEL = L_SILENT;
-
-/* ************************************************************************** */
-
-// Shell command standard return values
-#define SHELL_RET_SUCCESS 0
-#define SHELL_RET_FAILURE 1
 
 /* ************************************************************************** */
 
@@ -31,7 +22,7 @@ int shell_help(int argc, char **argv) {
     shell_print_commands();
     println("-----------------------------------------------");
 
-    return SHELL_RET_SUCCESS;
+    return 0;
 }
 
 const char argTestUsage[] = "\
@@ -64,7 +55,7 @@ int shell_arg_test(int argc, char **argv) {
     }
     println("-----------------------------------------------");
 
-    return SHELL_RET_SUCCESS;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -109,36 +100,8 @@ int calibration_packet(int argc, char **argv) {
     printf("\"swr\":%f,", currentRF.swr);
     printf("\"frequency\":%d", currentRF.frequency);
     println("}");
-}
 
-/* -------------------------------------------------------------------------- */
-
-int edit_log_levels(int argc, char **argv) {
-    switch (argc) {
-    case 1:
-        println("log set <file> <value>");
-        println("log read");
-        return 0;
-    case 2:
-        if (strcmp(argv[1], "read") == 0) {
-            print_log_list();
-        }
-        return 0;
-    case 4:
-        if (strcmp(argv[1], "set") == 0) {
-            uint8_t file = atoi(argv[2]);
-            uint8_t i = 0;
-            for (i = 0; i < logDatabase.numberOfFiles; i++) {
-                if (!strcmp(argv[3], level_names[i])) {
-                    log_level_edit(file, i);
-                    return 0;
-                }
-            }
-        }
-    default:
-        println("invalid arguments");
-        return 0;
-    }
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -224,20 +187,27 @@ int poly(int argc, char **argv) {
     return 0;
 }
 
-/* ************************************************************************** */
+/* -------------------------------------------------------------------------- */
 
-int fwd(int argc, char **argv) { adc_read(0); }
-int rev(int argc, char **argv) { adc_read(1); }
+int fwd(int argc, char **argv) {
+    adc_read(0);
+    return 0;
+}
+int rev(int argc, char **argv) {
+    adc_read(1);
+    return 0;
+}
 
-/* ************************************************************************** */
+/* -------------------------------------------------------------------------- */
 
-int tune(int argc, char **argv) { request_full_tune(); }
+int tune(int argc, char **argv) {
+    request_full_tune();
+    return 0;
+}
 
 /* ************************************************************************** */
 
 void register_all_shell_commands(void) {
-    log_register();
-
     // built-in shell commands
     shell_register_command(shell_help, "help");
     shell_register_command(shell_arg_test, "test");
@@ -247,9 +217,6 @@ void register_all_shell_commands(void) {
 
     //
     shell_register_command(calibration_packet, "cal");
-
-    // log level controls
-    shell_register_command(edit_log_levels, "log");
 
     // calibration data
     shell_register_command(poly, "poly");
