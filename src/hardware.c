@@ -37,14 +37,14 @@ void startup(void) {
     event_scheduler_init();
 
     // Driver setup
+    relays_init();
     buttons_init();
     display_init();
-    flags_init();
-    nonvolatile_memory_init();
-    relays_init();
     RF_sensor_init();
     stopwatch_init();
     tuning_init();
+    nonvolatile_memory_init();
+    flags_init();
 
     // System setup, round 2
     register_all_shell_commands();
