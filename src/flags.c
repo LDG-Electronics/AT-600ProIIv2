@@ -17,6 +17,8 @@ uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS];
 /* ************************************************************************** */
 
 void flags_init(void) {
+    nonvolatile_memory_init();
+
     // populate system_flags with default values
     system_flags.ant1Bypass = 1;  // default value is bypass
     system_flags.ant2Bypass = 1;  // default value is bypass
@@ -26,9 +28,6 @@ void flags_init(void) {
     system_flags.scaleMode = 0;   // default value is
     system_flags.powerStatus = 1; // default value is 1
     swrThreshIndex = 0;
-
-    // Attempt to load previously saved flags
-    load_flags();
 
     // copy stored bypass values to the usable array
     bypassStatus[0] = system_flags.ant1Bypass;
@@ -40,10 +39,10 @@ void flags_init(void) {
 /* -------------------------------------------------------------------------- */
 
 void load_flags(void) {
+    LOG_TRACE({ println("load_flags"); });
+
     uint8_t address = 0;
     uint8_t valid = 0;
-
-    LOG_TRACE({ println("load_flags"); });
 
     while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
         if ((internal_eeprom_read(address) & 0x80) == 0) {
@@ -67,19 +66,23 @@ void load_flags(void) {
         preBypassRelays[0].bot = internal_eeprom_read(address + 7);
         preBypassRelays[1].top = internal_eeprom_read(address + 8);
         preBypassRelays[1].bot = internal_eeprom_read(address + 9);
+
+        // copy stored bypass values to the usable array
+        bypassStatus[0] = system_flags.ant1Bypass;
+        bypassStatus[1] = system_flags.ant2Bypass;
     } else {
         LOG_INFO({ println("no valid record"); });
     }
 }
 
 void save_flags(void) {
+    LOG_TRACE({ println("save_flags"); });
+
     uint8_t address = 0;
     uint8_t tempThreshIndex = 0;
 
     relays_s tempRelays[NUM_OF_ANTENNA_PORTS * 2];
     system_flags_s temp_flags;
-
-    LOG_TRACE({ println("save_flags"); });
 
     while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
         if ((internal_eeprom_read(address) & 0x80) == 0)
