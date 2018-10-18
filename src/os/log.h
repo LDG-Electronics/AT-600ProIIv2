@@ -4,26 +4,13 @@
 #include <stdint.h>
 
 /* ************************************************************************** */
-
-extern const char *level_names[];
-
-extern const char *level_colors[];
-
-typedef enum {
-    L_SILENT,
-    L_FATAL,
-    L_ERROR,
-    L_WARN,
-    L_INFO,
-    L_DEBUG,
-    L_TRACE,
-} log_levels_t;
-
-/* ************************************************************************** */
-
+/*  log_level_t
+    This is essentially a key:value object that represents the current logging
+    level of each registered file
+*/
 typedef struct {
     const char *name;
-    uint8_t *level;
+    uint8_t *levelPtr;
 } log_level_t;
 
 #define MAX_NUMBER_OF_FILES 20
@@ -40,12 +27,8 @@ extern log_database_t logDatabase;
 // setup
 extern void log_init(void);
 
-extern void log_level_edit(uint8_t file, uint8_t level);
-
-extern void print_log_list(void);
-
+// shell program to edit registered logging levels
 int program_logedit_begin(int argc, char **argv);
-
 int program_logedit_continue(int argc, char **argv);
 
 /* ************************************************************************** */

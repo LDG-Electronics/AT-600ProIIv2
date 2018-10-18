@@ -6,8 +6,10 @@
 #include "system_time.h"
 #include <ctype.h>
 #include <stdbool.h>
+#include <string.h>
 
 /* ************************************************************************** */
+
 const char *level_names[] = {
     "SILENT", "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE",
 };
@@ -24,22 +26,45 @@ log_database_t logDatabase;
 void log_init(void) {
     for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
         logDatabase.file[i].name = NULL;
-        logDatabase.file[i].level = NULL;
+        logDatabase.file[i].levelPtr = NULL;
     }
     logDatabase.numberOfFiles = 0;
 
     shell_register_command(program_logedit_begin, "logedit");
 }
 
-void log_register__(const char *name, uint8_t *level) {
-    logDatabase.file[logDatabase.numberOfFiles].name = name;
-    logDatabase.file[logDatabase.numberOfFiles].level = level;
+void log_register__(const char *name, uint8_t *levelPtr) {
+    // make sure we're not double-registering
+    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
+        if (!strcmp(name, logDatabase.file[i].name)) {
+            return; // file is already registered
+        }
+    }
 
+    // We're good, register the file
+    logDatabase.file[logDatabase.numberOfFiles].name = name;
+    logDatabase.file[logDatabase.numberOfFiles].levelPtr = levelPtr;
     logDatabase.numberOfFiles++;
 }
 
+/* ************************************************************************** */
+
+void log_header(uint8_t msgLevel, const char *file, int line) {
+    reset_text_attributes();
+    printf("%ul ", (uint32_t)systick_read());
+
+    printf("%s%-5s", level_colors[msgLevel], level_names[msgLevel]);
+
+    print("\033[1;37m");
+    printf(" %s:%d: ", file, line);
+
+    print("\033[0;37;40m");
+}
+
+/* ************************************************************************** */
+
 void log_level_edit(uint8_t fileID, uint8_t level) {
-    *logDatabase.file[fileID].level = level;
+    *logDatabase.file[fileID].levelPtr = level;
 }
 
 void print_log_level(uint8_t level) {
@@ -57,7 +82,7 @@ void print_names_of_log_levels(void) {
 void print_managed_log_table(void) {
     for (uint8_t i = 0; i < logDatabase.numberOfFiles; i++) {
         printf(" #%-2d | ", (int)i);
-        uint8_t level = *logDatabase.file[i].level;
+        uint8_t level = *logDatabase.file[i].levelPtr;
         printf("%s%-6s", level_colors[level], level_names[level]);
         print("\033[0;37m | ");
         println(logDatabase.file[i].name);
@@ -88,7 +113,7 @@ uint8_t selectedLine = 0;
 uint8_t selectedLevel = 0;
 
 void reprint_line(void) {
-    uint8_t level = *logDatabase.file[selectedLine].level;
+    uint8_t level = *logDatabase.file[selectedLine].levelPtr;
     term_cursor_home();
     term_cursor_right(7);
     print_log_level(level);
@@ -97,7 +122,7 @@ void reprint_line(void) {
 }
 
 void highlight_line(void) {
-    uint8_t level = *logDatabase.file[selectedLine].level;
+    uint8_t level = *logDatabase.file[selectedLine].levelPtr;
     term_cursor_home();
     term_cursor_right(7);
     print("\033[7m"); // invert colors
@@ -114,7 +139,7 @@ void logedit_keys(key_t key) {
         if (selectedLine > 0) {
             reprint_line();
             selectedLine--;
-            selectedLevel = *logDatabase.file[selectedLine].level;
+            selectedLevel = *logDatabase.file[selectedLine].levelPtr;
             term_cursor_up(1);
             highlight_line();
         }
@@ -123,7 +148,7 @@ void logedit_keys(key_t key) {
         if (selectedLine < logDatabase.numberOfFiles - 1) {
             reprint_line();
             selectedLine++;
-            selectedLevel = *logDatabase.file[selectedLine].level;
+            selectedLevel = *logDatabase.file[selectedLine].levelPtr;
             term_cursor_down(1);
             highlight_line();
         }
@@ -179,37 +204,3 @@ int program_logedit_begin(int argc, char **argv) {
     shell_set_program_callback(program_logedit);
     return 1;
 }
-
-/* ************************************************************************** */
-
-bool log_header(uint8_t msgLevel, uint8_t localLevel, const char *file,
-                int line) {
-    if (msgLevel > localLevel) {
-        return false;
-    }
-
-    reset_text_attributes();
-    printf("%ul ", (uint32_t)systick_read());
-
-    printf("%s%-5s", level_colors[msgLevel], level_names[msgLevel]);
-
-    print("\033[1;37m");
-    printf(" %s:%d: ", file, line);
-
-    print("\033[0;37;40m");
-
-    return true;
-}
-
-#if 0
-void log_message_test(void) {
-    uint8_t test = 1;
-
-    LOG_TRACE({ printf("trace log entry #%d\r\n", test++); });
-    LOG_DEBUG({ printf("debug log entry #%d\r\n", test++); });
-    LOG_INFO({ printf("info log entry #%d\r\n", test++); });
-    LOG_WARN({ printf("warn log entry #%d\r\n", test++); });
-    LOG_ERROR({ printf("error log entry #%d\r\n", test++); });
-    LOG_FATAL({ printf("fatal log entry #%d\r\n", test++); });
-}
-#endif
