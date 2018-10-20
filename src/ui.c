@@ -221,15 +221,20 @@ void relay_button_hold(void) {
     LOG_TRACE({ println("relay_button_hold"); });
     system_time_t currentTime = systick_read();
     uint8_t incrementCount = 0;
-    uint8_t incrementDelay = 200;
+    uint8_t incrementDelay = 0;
+    uint16_t timeout = 500;
 
     int8_t capResult = 0;
     int8_t indResult = 0;
 
     // stay in loop while any relay button is held
-    while (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
-        currentTime = systick_read();
+    while (timeout != 0) {
+        if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)){
+            timeout = 500;
+        }
+        timeout--;
         if (systick_elapsed_time(currentTime) >= incrementDelay) {
+            currentTime = systick_read();
             // capacitor buttons
             if (btn_is_down(CUP) && btn_is_down(CDN)) {
                 LOG_TRACE({ println("CUP && CDN"); });
@@ -269,6 +274,9 @@ void relay_button_hold(void) {
             if (incrementCount < UINT8_MAX) {
                 incrementCount++;
             }
+            if (incrementCount == 1) {
+                incrementDelay = 200;
+            }
             if (incrementCount == 4) {
                 incrementDelay = 75;
             }
@@ -279,7 +287,8 @@ void relay_button_hold(void) {
         ui_idle_block();
     }
     // lock_display();
-    event_register("display_release", display_release, 1000);
+    // event_register("display_release", display_release, 1000);
+    display_clear();
 }
 
 void tune_hold(void) {
