@@ -1,7 +1,6 @@
 #include "display.h"
 #include "flags.h"
 #include "os/buttons.h"
-#include "os/event_scheduler.h"
 #include "os/log_macros.h"
 #include "peripherals/pic18f46k42.h"
 #include "peripherals/pins.h"
@@ -161,75 +160,6 @@ void play_interruptable_animation(const animation_s *animation) {
 
         i++;
     }
-}
-
-/* -------------------------------------------------------------------------- */
-
-// background animation system, using TuneOS event scheduler
-
-struct {
-    const animation_s *animation;
-    uint16_t frameIndex;
-} bgA; // bgA = backgroundAnimation
-
-void play_animation_in_background(const animation_s *animation) {
-    LOG_TRACE({ println("bgA begin"); });
-    // is the display available?
-    if (displayBuffer.upperMutex == 1) {
-        // println("upperMutex already claimed");
-        return;
-    }
-    if (displayBuffer.lowerMutex == 1) {
-        // println("lowerMutex already claimed");
-        return;
-    }
-
-    // is there another bgA event in the queue?
-    if (event_queue_lookup("bgA") != -1) {
-        // println("bgA animation already in event queue");
-        return;
-    }
-
-    // set up the state variables
-    bgA.animation = animation;
-    bgA.frameIndex = 0;
-
-    // Check if the provided animation has a header frame
-    if (animation[0].frame_delay == 0) {
-        bgA.frameIndex = 1;
-    }
-
-    // Register the event
-    event_register("bgA", continue_animation_in_background, 1);
-}
-
-int16_t continue_animation_in_background(void) {
-    LOG_TRACE({ println("bgA cont"); });
-    bool useUpper = true;
-    bool useLower = true;
-
-    // Check if the provided animation has a header frame
-    if (bgA.animation[0].frame_delay == 0) {
-        useUpper = bgA.animation[0].upper;
-        useLower = bgA.animation[0].lower;
-    }
-
-    // publish the current frame
-    if (useUpper) {
-        displayBuffer.next.upper = bgA.animation[bgA.frameIndex].upper;
-    }
-    if (useLower) {
-        displayBuffer.next.lower = bgA.animation[bgA.frameIndex].lower;
-    }
-
-    push_frame_buffer();
-
-    // a delay of 0 is the signal that the animation is completed
-    if (bgA.animation[bgA.frameIndex].frame_delay == 0) {
-        // unlock_display();
-    }
-
-    return bgA.animation[bgA.frameIndex++].frame_delay;
 }
 
 /* -------------------------------------------------------------------------- */

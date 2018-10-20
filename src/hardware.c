@@ -3,7 +3,6 @@
 #include "flags.h"
 #include "memory.h"
 #include "os/buttons.h"
-#include "os/event_scheduler.h"
 #include "os/log.h"
 #include "os/shell/shell.h"
 #include "os/system_time.h"
@@ -45,7 +44,6 @@ void startup(void) {
     shell_init();
     log_init();
     systick_init();
-    event_scheduler_init();
 
     // Driver setup
     relays_init();

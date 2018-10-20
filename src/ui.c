@@ -3,7 +3,6 @@
 #include "events.h"
 #include "flags.h"
 #include "os/buttons.h"
-#include "os/event_scheduler.h"
 #include "os/log_macros.h"
 #include "os/shell/shell.h"
 #include "os/system_time.h"
@@ -32,10 +31,10 @@ void update_front_panel(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 void ui_idle_block(void) {
-    RF_sensor_update();
+    // RF_sensor_update();
     // update_front_panel();
     shell_update();
-    event_scheduler_update();
+    // event_scheduler_update();
     save_flags();
 }
 
@@ -216,23 +215,25 @@ void shutdown_submenu(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-
+#define TIMEOUT_INTERVAL 500
 void relay_button_hold(void) {
     LOG_TRACE({ println("relay_button_hold"); });
     system_time_t currentTime = systick_read();
+    system_time_t time = systick_read();
     uint8_t incrementCount = 0;
     uint8_t incrementDelay = 0;
-    uint16_t timeout = 500;
 
     int8_t capResult = 0;
     int8_t indResult = 0;
 
     // stay in loop while any relay button is held
-    while (timeout != 0) {
-        if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)){
-            timeout = 500;
+    while (1) {
+        if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
+            time = systick_read();
         }
-        timeout--;
+        if (systick_elapsed_time(time) >= TIMEOUT_INTERVAL) {
+            break;
+        }
         if (systick_elapsed_time(currentTime) >= incrementDelay) {
             currentTime = systick_read();
             // capacitor buttons
@@ -259,15 +260,19 @@ void relay_button_hold(void) {
             }
 
             // animation stuff
-            if (capResult == 0) {
-                show_cap_relays();
-            } else if (capResult == -1) {
-                play_animation_in_background(&blink_bottom_bar_3[0]);
-            }
-            if (indResult == 0) {
-                show_ind_relays();
-            } else if (indResult == -1) {
-                play_animation_in_background(&blink_top_bar_3[0]);
+            if ((capResult == -1) && (indResult == -1)) {
+                // need to play blink both bars
+            } else {
+                if (capResult == 0) {
+                    show_cap_relays();
+                } else if (capResult == -1) {
+                    // blink bottom bar
+                }
+                if (indResult == 0) {
+                    show_ind_relays();
+                } else if (indResult == -1) {
+                    // blink top bar
+                }
             }
 
             // refire timing stuff
@@ -277,17 +282,15 @@ void relay_button_hold(void) {
             if (incrementCount == 1) {
                 incrementDelay = 200;
             }
-            if (incrementCount == 4) {
-                incrementDelay = 75;
+            if (incrementCount == 8) {
+                incrementDelay = 100;
             }
-            if (incrementCount == 32) {
-                incrementDelay = 50;
+            if (incrementCount == 26) {
+                incrementDelay = 75;
             }
         }
         ui_idle_block();
     }
-    // lock_display();
-    // event_register("display_release", display_release, 1000);
     display_clear();
 }
 

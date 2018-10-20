@@ -74,10 +74,6 @@ extern void repeat_animation(const animation_s *animation, uint8_t repeats);
 // Play an animation from animations.h and return early if a button is pressed
 extern void play_interruptable_animation(const animation_s *animation);
 
-// Play an animation in the 'background' using the event scheduler
-extern void play_animation_in_background(const animation_s *animation);
-extern int16_t continue_animation_in_background(void);
-
 /* -------------------------------------------------------------------------- */
 
 // display functions that use the frame buffer
