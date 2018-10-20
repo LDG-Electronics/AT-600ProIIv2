@@ -31,10 +31,9 @@ void update_front_panel(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 void ui_idle_block(void) {
-    // RF_sensor_update();
+    RF_sensor_update();
     // update_front_panel();
     shell_update();
-    // event_scheduler_update();
     save_flags();
 }
 
