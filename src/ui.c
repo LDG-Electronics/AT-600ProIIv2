@@ -30,8 +30,11 @@ void update_front_panel(void) {
     This function contains various 'background' activities that should be
     periodically serviced when the system isn't doing anything else important.
 */
+
+// TODO: idle block activities need to be profiled for average/maximum runtime
+// TODO: need round-robin idle task dispatcher?
 void ui_idle_block(void) {
-    RF_sensor_update();
+    // RF_sensor_update();
     // update_front_panel();
     shell_update();
     save_flags();
