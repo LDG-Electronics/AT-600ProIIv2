@@ -6,16 +6,6 @@
 
 /* ************************************************************************** */
 
-// Timer0 is used in the stopwatch module
-// Timer1 is unused
-// Timer2 is used for the systick module
-// Timer3 is used in the frequency counter
-// Timer4 is unused
-// Timer5 is unused
-// Timer6 is used for the button debounce subsystem
-
-/* ************************************************************************** */
-
 // Setup
 #define timer0_clock_source(value) T0CON1bits.CS = value
 #define timer0_prescale(value) T0CON1bits.CKPS = value
