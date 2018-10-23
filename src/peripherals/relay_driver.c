@@ -7,7 +7,6 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-// TODO: do I need to write a generic bitbang SPI driver to fit under this file?
 void relay_driver_init(void) {
     // set bitbang spi relay pins to default values
     RELAY_STROBE_PIN = 1;
