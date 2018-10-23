@@ -8,7 +8,7 @@
 #include "os/system_time.h"
 #include "relays.h"
 #include "rf_sensor.h"
-static uint8_t LOG_LEVEL = L_INFO;
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
@@ -367,7 +367,29 @@ void relay_button_hold(void) {
 }
 
 /* -------------------------------------------------------------------------- */
+/*  Handler for holding TUNE button
 
+    TUNE button behavior is determined by how long you hold the button for.
+
+    A short press toggles between bypass and not-bypass.
+    A medium press initiates a memory tune.
+    A long press initiates a full tune.
+    Holding the button for too long cancels out and does nothing. This is help
+    mitigate accidental button presses.
+
+    It plays an animation on the bargraph to represent how long the button has
+    been held for:
+
+    Short press:
+    |*------*|
+    |*------*|
+    Medium press:
+    |--*--*--|
+    |--*--*--|
+    Long press:
+    |---**---|
+    |---**---|
+*/
 void tune_hold(void) {
     LOG_TRACE({ println("tune_hold"); });
     system_time_t elapsedTime;
@@ -409,44 +431,74 @@ void tune_hold(void) {
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Handler for holding FUNC button
+
+    The FUNC button is the gateway to changing many of the tuner's settings.
+
+    The other front panel buttons have their functions printed underneath in a
+    smaller font.
+
+    Functions:
+    POWER: No function
+    FUNC: This wouldn't even make sense
+    ANT: Hi/LoZ toggle
+    CUP: Peak mode toggle
+    CDN: Auto mode toggle
+    LUP: Scale cycle
+    LDN: SWR Threshold cycle
+    TUNE: Manually store memory
+
+    Holding the FUNC button + pressing another button shows the current value of
+    the related setting. This does not change the setting.
+
+    Pressing and releasing the FUNC button enters "function mode" by calling
+    function_submenu(). While in function mode, pressing another button will
+    perform the related action and exit function mode.
+*/
 void func_hold(void) {
     LOG_TRACE({ println("func_hold"); });
-    uint8_t FuncHoldProcessed = 0;
+    bool pressedOtherButton = false;
 
-    while (btn_is_down(FUNC)) // stay in loop while FUNC is held
-    {
+    while (btn_is_down(FUNC)) {
         if (btn_is_down(CUP)) {
-            FuncHoldProcessed = 1;
+            pressedOtherButton = true;
             show_peak();
         }
         if (btn_is_down(CDN)) {
-            FuncHoldProcessed = 1;
+            pressedOtherButton = true;
             blink_auto(3);
             show_auto();
         }
         if (btn_is_down(LDN)) {
-            FuncHoldProcessed = 1;
+            pressedOtherButton = true;
             blink_thresh(3);
             show_thresh();
         }
         if (btn_is_down(LUP)) {
-            FuncHoldProcessed = 1;
+            pressedOtherButton = true;
             blink_scale(3);
             show_scale();
         }
         if (btn_is_down(ANT)) {
-            FuncHoldProcessed = 1;
+            pressedOtherButton = true;
             blink_HiLoZ(2);
             show_HiLoZ();
         }
 
         ui_idle_block();
     }
-    if (FuncHoldProcessed == 0) {
+    if (!pressedOtherButton) {
         function_submenu();
     }
+
+    display_clear();
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Handler for holding ANT button
+
+*/
 void ant_hold(void) {
     LOG_TRACE({ println("ant_hold"); });
     toggle_antenna();
@@ -458,8 +510,11 @@ void ant_hold(void) {
     }
 }
 
-#define POWER_HOLD_DURATION 1500
+/* -------------------------------------------------------------------------- */
+/*  Handler for holding POWER button
 
+*/
+#define POWER_HOLD_DURATION 1500
 void power_hold(void) {
     LOG_TRACE({ println("power_hold"); });
     system_time_t startTime = systick_read();
