@@ -38,12 +38,4 @@ extern void request_full_tune(void);
 
 /* -------------------------------------------------------------------------- */
 
-// relay increment functions
-extern int8_t capacitor_increment(void);
-extern int8_t capacitor_decrement(void);
-extern int8_t inductor_increment(void);
-extern int8_t inductor_decrement(void);
-
-/* -------------------------------------------------------------------------- */
-
 #endif

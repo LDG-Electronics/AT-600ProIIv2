@@ -6,8 +6,9 @@
 #include "os/log_macros.h"
 #include "os/shell/shell.h"
 #include "os/system_time.h"
+#include "relays.h"
 #include "rf_sensor.h"
-static uint8_t LOG_LEVEL = L_SILENT;
+static uint8_t LOG_LEVEL = L_INFO;
 
 /* ************************************************************************** */
 
@@ -217,13 +218,92 @@ void shutdown_submenu(void) {
 }
 
 /* -------------------------------------------------------------------------- */
-#define TIMEOUT_INTERVAL 500
+
+#define RELAY_NO_CHANGE 0
+#define RELAY_INCDEC_SUCCESSFUL 1
+#define RELAY_INCDEC_FAILURE -1
+
+#define BLINK_INTERVAL 175
+void play_relay_animation(int8_t capResult, int8_t indResult) {
+    static system_time_t previousBlinkTime = 0;
+    static uint8_t blinkState = 0xff;
+    static bool blinkingUpperBar = false;
+    static bool blinkingLowerBar = false;
+    static uint8_t upperBarBlinkCount = 0;
+    static uint8_t lowerBarBlinkCount = 0;
+
+    /*  figure out whether each bar is currently blinking
+        xxxResult values:
+        1   show current relays
+        0   continue previous blink or do nothing
+        -1  enable blinking
+    */
+    if (capResult == 1) {
+        blinkingLowerBar = false;
+    } else if (capResult == -1) {
+        blinkingLowerBar = true;
+        lowerBarBlinkCount = 0;
+    }
+    if (indResult == 1) {
+        blinkingUpperBar = false;
+    } else if (indResult == -1) {
+        blinkingUpperBar = true;
+        upperBarBlinkCount = 0;
+    }
+
+    if (blinkingUpperBar) {
+        displayBuffer.next.upper = blinkState;
+    } else {
+        displayBuffer.next.upper = currentRelays[system_flags.antenna].inds;
+    }
+    if (blinkingLowerBar) {
+        displayBuffer.next.lower = blinkState;
+    } else {
+        displayBuffer.next.lower = currentRelays[system_flags.antenna].caps;
+    }
+
+    if (systick_elapsed_time(previousBlinkTime) >= BLINK_INTERVAL) {
+        previousBlinkTime = systick_read();
+
+        if (blinkingUpperBar) {
+            upperBarBlinkCount++;
+        }
+        if (upperBarBlinkCount == 6) {
+            blinkingUpperBar = false;
+        }
+        if (blinkingLowerBar) {
+            lowerBarBlinkCount++;
+        }
+        if (lowerBarBlinkCount == 6) {
+            blinkingLowerBar = false;
+        }
+
+        // invert the state for the next iteration
+        blinkState = ~blinkState;
+    }
+
+    // publish whatever we decided we needed
+    push_frame_buffer();
+}
+
+uint8_t calculate_retrigger_delay(uint8_t incrementCount) {
+    if (incrementCount < 8) {
+        return 200;
+    } else if (incrementCount < 26) {
+        return 100;
+    } else {
+        return 75;
+    }
+}
+
+#define TIMEOUT_INTERVAL 1000
 void relay_button_hold(void) {
     LOG_TRACE({ println("relay_button_hold"); });
     system_time_t currentTime = systick_read();
-    system_time_t time = systick_read();
-    uint8_t incrementCount = 0;
-    uint8_t incrementDelay = 0;
+    system_time_t lastTriggerTime = currentTime;
+    uint8_t triggerCount = 0;
+    uint8_t retriggerDelay = 0;
+    relays_s newRelays = currentRelays[system_flags.antenna];
 
     int8_t capResult = 0;
     int8_t indResult = 0;
@@ -231,70 +311,62 @@ void relay_button_hold(void) {
     // stay in loop while any relay button is held
     while (1) {
         if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
-            time = systick_read();
+            currentTime = systick_read();
         }
-        if (systick_elapsed_time(time) >= TIMEOUT_INTERVAL) {
+        if (systick_elapsed_time(currentTime) >= TIMEOUT_INTERVAL) {
             break;
         }
-        if (systick_elapsed_time(currentTime) >= incrementDelay) {
-            currentTime = systick_read();
+        if (systick_elapsed_time(lastTriggerTime) >= retriggerDelay) {
+            lastTriggerTime = systick_read();
             // capacitor buttons
+            capResult = 0;
             if (btn_is_down(CUP) && btn_is_down(CDN)) {
-                LOG_TRACE({ println("CUP && CDN"); });
                 // can't go up and down at the same time; do nothing
             } else if (btn_is_down(CUP)) {
-                LOG_TRACE({ println("CUP"); });
-                capResult = capacitor_increment();
+                capResult = -1;
+                if (newRelays.caps < MAX_CAPACITORS) {
+                    newRelays.caps++;
+                    capResult = 1;
+                }
             } else if (btn_is_down(CDN)) {
-                LOG_TRACE({ println("CDN"); });
-                capResult = capacitor_decrement();
+                capResult = -1;
+                if (newRelays.caps > MIN_CAPACITORS) {
+                    newRelays.caps--;
+                    capResult = 1;
+                }
             }
             // inductor buttons
+            indResult = 0;
             if (btn_is_down(LUP) && btn_is_down(LDN)) {
-                LOG_TRACE({ println("LUP && LDN"); });
                 // can't go up and down at the same time; do nothing
             } else if (btn_is_down(LUP)) {
-                LOG_TRACE({ println("LUP"); });
-                indResult = inductor_increment();
+                indResult = -1;
+                if (newRelays.inds < MAX_INDUCTORS) {
+                    newRelays.inds++;
+                    indResult = 1;
+                }
             } else if (btn_is_down(LDN)) {
-                LOG_TRACE({ println("LDN"); });
-                indResult = inductor_decrement();
-            }
-
-            // animation stuff
-            if ((capResult == -1) && (indResult == -1)) {
-                // need to play blink both bars
-            } else {
-                if (capResult == 0) {
-                    show_cap_relays();
-                } else if (capResult == -1) {
-                    // blink bottom bar
-                }
-                if (indResult == 0) {
-                    show_ind_relays();
-                } else if (indResult == -1) {
-                    // blink top bar
+                indResult = -1;
+                if (newRelays.inds > MIN_INDUCTORS) {
+                    newRelays.inds--;
+                    indResult = 1;
                 }
             }
+            put_relays(&newRelays);
 
-            // refire timing stuff
-            if (incrementCount < UINT8_MAX) {
-                incrementCount++;
+            // retrigger timing stuff
+            if (triggerCount < UINT8_MAX) {
+                triggerCount++;
             }
-            if (incrementCount == 1) {
-                incrementDelay = 200;
-            }
-            if (incrementCount == 8) {
-                incrementDelay = 100;
-            }
-            if (incrementCount == 26) {
-                incrementDelay = 75;
-            }
+            retriggerDelay = calculate_retrigger_delay(triggerCount);
         }
+        play_relay_animation(capResult, indResult);
         ui_idle_block();
     }
     display_clear();
 }
+
+/* -------------------------------------------------------------------------- */
 
 void tune_hold(void) {
     LOG_TRACE({ println("tune_hold"); });
