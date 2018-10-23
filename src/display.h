@@ -49,9 +49,6 @@ extern void update_power_LED(void);
 /* -------------------------------------------------------------------------- */
 // Front panel bargraph manipulations
 
-// Publishes a raw frame to the display
-extern void FP_update(uint16_t data);
-
 // Publish the contents of display.frameBuffer
 extern void push_frame_buffer(void);
 
@@ -102,4 +99,4 @@ extern void show_thresh(void);
 extern void show_power_and_SWR(uint16_t forwardWatts, double swrValue);
 extern void show_current_power_and_SWR(void);
 
-#endif
+#endif // _DISPLAY_H_
