@@ -217,150 +217,226 @@ void shutdown_submenu(void) {
     }
 }
 
-/* -------------------------------------------------------------------------- */
+/* ************************************************************************** */
+/*  Top level ui loops
 
-#define RELAY_NO_CHANGE 0
-#define RELAY_INCDEC_SUCCESSFUL 1
-#define RELAY_INCDEC_FAILURE -1
+*/
+/* ************************************************************************** */
+/*  Collective handler for CUP, CDN, LUP, and LDN
 
-#define BLINK_INTERVAL 175
-void play_relay_animation(int8_t capResult, int8_t indResult) {
+*/
+typedef enum {
+    RLY_INC_NO_CHANGE = 0,     // continue previous blink or do nothing
+    RLY_INCREMENT_SUCCESS = 1, // show current relays
+    RLY_LIMIT_REACHED = -1,    // begin/continue blinking
+} relayIncrementResult_t;
+
+// WARNING - Dragons incoming
+#define BLINK_INTERVAL 100
+static void relay_animation_handler(int8_t capResult, int8_t indResult) {
     static system_time_t previousBlinkTime = 0;
-    static uint8_t blinkState = 0xff;
-    static bool blinkingUpperBar = false;
-    static bool blinkingLowerBar = false;
+    static uint8_t blinkFrame = 0xff;
+    static bool upperBarIsBlinking = false;
+    static bool lowerBarIsBlinking = false;
     static uint8_t upperBarBlinkCount = 0;
     static uint8_t lowerBarBlinkCount = 0;
 
-    /*  figure out whether each bar is currently blinking
-        xxxResult values:
-        1   show current relays
-        0   continue previous blink or do nothing
-        -1  enable blinking
+    /*  When we transition from !blinking -> blinking, reset previousBlinkTime
+        and blinkFrame
+
+        This prevents the blinking from starting in the middle of a cycle.
+        It also prevents the blinking from starting on an 'off' cycle.
     */
-    if (capResult == 1) {
-        blinkingLowerBar = false;
-    } else if (capResult == -1) {
-        blinkingLowerBar = true;
+    if ((!lowerBarIsBlinking && !upperBarIsBlinking) &&
+        ((capResult == RLY_LIMIT_REACHED) ||
+         (indResult == RLY_LIMIT_REACHED))) {
+        previousBlinkTime = systick_read();
+        blinkFrame = 0xff;
+    }
+
+    // to blink or not to blink
+    if (capResult == RLY_INCREMENT_SUCCESS) {
+        lowerBarIsBlinking = false;
+    } else if (capResult == RLY_LIMIT_REACHED) {
+        lowerBarIsBlinking = true;
         lowerBarBlinkCount = 0;
     }
-    if (indResult == 1) {
-        blinkingUpperBar = false;
-    } else if (indResult == -1) {
-        blinkingUpperBar = true;
+    if (indResult == RLY_INCREMENT_SUCCESS) {
+        upperBarIsBlinking = false;
+    } else if (indResult == RLY_LIMIT_REACHED) {
+        upperBarIsBlinking = true;
         upperBarBlinkCount = 0;
     }
 
-    if (blinkingUpperBar) {
-        displayBuffer.next.upper = blinkState;
-    } else {
-        displayBuffer.next.upper = currentRelays[system_flags.antenna].inds;
-    }
-    if (blinkingLowerBar) {
-        displayBuffer.next.lower = blinkState;
-    } else {
-        displayBuffer.next.lower = currentRelays[system_flags.antenna].caps;
-    }
+    // load the appropriate images into the frame buffer
+    relays_t relays = read_current_relays();
+    displayBuffer.next.upper = relays.inds;
+    displayBuffer.next.lower = relays.caps;
 
-    if (systick_elapsed_time(previousBlinkTime) >= BLINK_INTERVAL) {
-        previousBlinkTime = systick_read();
-
-        if (blinkingUpperBar) {
-            upperBarBlinkCount++;
+    // is either bar blinking?
+    if (upperBarIsBlinking || lowerBarIsBlinking) {
+        if (upperBarIsBlinking) {
+            displayBuffer.next.upper = blinkFrame;
         }
-        if (upperBarBlinkCount == 6) {
-            blinkingUpperBar = false;
-        }
-        if (blinkingLowerBar) {
-            lowerBarBlinkCount++;
-        }
-        if (lowerBarBlinkCount == 6) {
-            blinkingLowerBar = false;
+        if (lowerBarIsBlinking) {
+            displayBuffer.next.lower = blinkFrame;
         }
 
-        // invert the state for the next iteration
-        blinkState = ~blinkState;
+        // count time between blinks, and count number of blinks
+        if (systick_elapsed_time(previousBlinkTime) >= BLINK_INTERVAL) {
+            previousBlinkTime = systick_read();
+
+            if (upperBarIsBlinking) {
+                upperBarBlinkCount++;
+            }
+            if (upperBarBlinkCount == 6) {
+                upperBarIsBlinking = false;
+            }
+            if (lowerBarIsBlinking) {
+                lowerBarBlinkCount++;
+            }
+            if (lowerBarBlinkCount == 6) {
+                lowerBarIsBlinking = false;
+            }
+
+            // invert the frame in preparation for the next iteration
+            blinkFrame = ~blinkFrame;
+        }
     }
 
     // publish whatever we decided we needed
     push_frame_buffer();
 }
 
-uint8_t calculate_retrigger_delay(uint8_t incrementCount) {
-    if (incrementCount < 8) {
+//
+uint8_t calculate_retrigger_delay(uint8_t triggerCount) {
+    if (triggerCount < 8) {
         return 200;
-    } else if (incrementCount < 26) {
+    } else if (triggerCount < 32) {
         return 100;
     } else {
         return 75;
     }
 }
 
-#define TIMEOUT_INTERVAL 1000
+uint8_t process_CUP_or_CDN(uint8_t capacitors, int8_t *capResult) {
+    *capResult = 0;
+
+    if (btn_is_down(CUP) && btn_is_down(CDN)) {
+        // can't go up and down at the same time; do nothing
+    } else if (btn_is_down(CUP)) {
+        *capResult = RLY_LIMIT_REACHED;
+        if (capacitors < MAX_CAPACITORS) {
+            capacitors++;
+            *capResult = RLY_INCREMENT_SUCCESS;
+        }
+    } else if (btn_is_down(CDN)) {
+        *capResult = RLY_LIMIT_REACHED;
+        if (capacitors > MIN_CAPACITORS) {
+            capacitors--;
+            *capResult = RLY_INCREMENT_SUCCESS;
+        }
+    }
+    return capacitors;
+}
+
+uint8_t process_LUP_or_LDN(uint8_t inductors, int8_t *indResult) {
+    *indResult = 0;
+
+    if (btn_is_down(LUP) && btn_is_down(LDN)) {
+        // can't go up and down at the same time; do nothing
+    } else if (btn_is_down(LUP)) {
+        *indResult = RLY_LIMIT_REACHED;
+        if (inductors < MAX_INDUCTORS) {
+            inductors++;
+            *indResult = RLY_INCREMENT_SUCCESS;
+        }
+    } else if (btn_is_down(LDN)) {
+        *indResult = RLY_LIMIT_REACHED;
+        if (inductors > MIN_INDUCTORS) {
+            inductors--;
+            *indResult = RLY_INCREMENT_SUCCESS;
+        }
+    }
+    return inductors;
+}
+
+#define TIMEOUT_INTERVAL 500
+static int8_t timeout_handler(void) {
+    // this keeps track of the last time a relay button was down
+    static system_time_t lastTimeButtonWasDown;
+    if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
+        lastTimeButtonWasDown = systick_read();
+    } else {
+        // if we ARE NOT holding a relay button, any other button press should
+        // kick us out
+        if (check_multiple_buttons(&btn_is_down, 4, POWER, ANT, FUNC, TUNE)) {
+            return 1;
+        }
+    }
+    if (systick_elapsed_time(lastTimeButtonWasDown) >= TIMEOUT_INTERVAL) {
+        return 1;
+    }
+
+    return 0;
+}
+
+/*  relay_button_hold() is an absolute clusterfuck
+
+    This function can be greatly simplified by using the TuneOS event scheduler.
+    Unfortunately, the event scheduler needs more work, and it's not worth it to
+    finish it since nothing else in the tuner needs it.
+
+    The reason this is a clusterfuck is because we need multiple, coexisting,
+    non-blocking animations that also respond to new user input. This... thing
+    relies VERY heavily on the system timer and a bunch of crappy static
+    variables to manage animation state through time.
+
+*/
 void relay_button_hold(void) {
     LOG_TRACE({ println("relay_button_hold"); });
-    system_time_t currentTime = systick_read();
-    system_time_t lastTriggerTime = currentTime;
+    system_time_t lastTriggerTime = systick_read();
     uint8_t triggerCount = 0;
-    uint8_t retriggerDelay = 0;
-    relays_s newRelays = currentRelays[system_flags.antenna];
+    uint8_t retriggerDelay = 0; // trigger immediately the first time
+    relays_t relays;
 
     int8_t capResult = 0;
     int8_t indResult = 0;
 
-    // stay in loop while any relay button is held
+    /*  I know the ui loop idiom is not supposed to be while(1), but this is a
+        wierd situation. We actually do not want to leave this loop immediately
+        when the relay buttons are released. Instead, we need to stay here for
+        an extra half second, so that the currently selected relays can linger
+        on the display.
+    */
     while (1) {
-        if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
-            currentTime = systick_read();
-        }
-        if (systick_elapsed_time(currentTime) >= TIMEOUT_INTERVAL) {
+        if (timeout_handler()) {
             break;
         }
+
+        // only trigger/retrigger if it's been long enough
         if (systick_elapsed_time(lastTriggerTime) >= retriggerDelay) {
             lastTriggerTime = systick_read();
-            // capacitor buttons
-            capResult = 0;
-            if (btn_is_down(CUP) && btn_is_down(CDN)) {
-                // can't go up and down at the same time; do nothing
-            } else if (btn_is_down(CUP)) {
-                capResult = -1;
-                if (newRelays.caps < MAX_CAPACITORS) {
-                    newRelays.caps++;
-                    capResult = 1;
-                }
-            } else if (btn_is_down(CDN)) {
-                capResult = -1;
-                if (newRelays.caps > MIN_CAPACITORS) {
-                    newRelays.caps--;
-                    capResult = 1;
-                }
-            }
-            // inductor buttons
-            indResult = 0;
-            if (btn_is_down(LUP) && btn_is_down(LDN)) {
-                // can't go up and down at the same time; do nothing
-            } else if (btn_is_down(LUP)) {
-                indResult = -1;
-                if (newRelays.inds < MAX_INDUCTORS) {
-                    newRelays.inds++;
-                    indResult = 1;
-                }
-            } else if (btn_is_down(LDN)) {
-                indResult = -1;
-                if (newRelays.inds > MIN_INDUCTORS) {
-                    newRelays.inds--;
-                    indResult = 1;
-                }
-            }
-            put_relays(&newRelays);
 
-            // retrigger timing stuff
+            // increment or decrement as appropriate
+            relays = read_current_relays();
+            relays.caps = process_CUP_or_CDN(relays.caps, &capResult);
+            relays.inds = process_LUP_or_LDN(relays.inds, &indResult);
+            if ((capResult == RLY_INCREMENT_SUCCESS) ||
+                (indResult == RLY_INCREMENT_SUCCESS)) {
+                put_relays(&relays);
+            }
+
+            //
             if (triggerCount < UINT8_MAX) {
                 triggerCount++;
             }
             retriggerDelay = calculate_retrigger_delay(triggerCount);
         }
-        play_relay_animation(capResult, indResult);
+
+        // animations need to be serviced more often than retriggerDelay allows
+        relay_animation_handler(capResult, indResult);
+
         ui_idle_block();
     }
     display_clear();
