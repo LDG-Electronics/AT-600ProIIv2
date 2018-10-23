@@ -575,8 +575,8 @@ void full_tune(void) {
 #define MEMORY_GAP 2
 #define NUM_OF_MEMORIES 6
 
-volatile double bestMemorySWR;
-volatile relays_t bestMemory;
+double bestMemorySWR;
+relays_t bestMemory;
 relays_t memoryBuffer[NUM_OF_MEMORIES];
 
 void prepare_memories(void) {
