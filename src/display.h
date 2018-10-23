@@ -76,12 +76,6 @@ extern void play_interruptable_animation(const animation_s *animation);
 
 /* -------------------------------------------------------------------------- */
 
-// display functions that use the frame buffer
-extern void show_cap_relays(void);
-extern void show_ind_relays(void);
-
-/* -------------------------------------------------------------------------- */
-
 extern void show_relays(void);
 extern void blink_bypass(void);
 extern void blink_antenna(void);

@@ -81,7 +81,7 @@ void save_flags(void) {
     uint8_t address = 0;
     uint8_t tempThreshIndex = 0;
 
-    relays_s tempRelays[NUM_OF_ANTENNA_PORTS * 2];
+    relays_t tempRelays[NUM_OF_ANTENNA_PORTS * 2];
     system_flags_s temp_flags;
 
     while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {

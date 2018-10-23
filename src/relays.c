@@ -10,9 +10,9 @@ static uint8_t LOG_LEVEL = L_SILENT;
 /* ************************************************************************** */
 
 // Global
-relays_s currentRelays[NUM_OF_ANTENNA_PORTS];
-relays_s bypassRelays;
-relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
+relays_t currentRelays[NUM_OF_ANTENNA_PORTS];
+relays_t bypassRelays;
+relays_t preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ int8_t check_if_safe(void) {
     return 0;
 }
 
-void update_bypass_status(relays_s *testRelays) {
+void update_bypass_status(relays_t *testRelays) {
     bypassStatus[system_flags.antenna] = 0;
     if ((testRelays->caps == 0) && (testRelays->inds == 0)) {
         bypassStatus[system_flags.antenna] = 1;
@@ -60,7 +60,7 @@ void update_bypass_status(relays_s *testRelays) {
     struct to the physical relays.
 
 */
-int8_t put_relays(relays_s *relays) {
+int8_t put_relays(relays_t *relays) {
     if (check_if_safe() == -1) {
         return (-1);
     }
@@ -81,14 +81,7 @@ int8_t put_relays(relays_s *relays) {
 /* -------------------------------------------------------------------------- */
 
 // Prints the contents of relay struct as "(caps, inds, z)"
-void print_relays(relays_s *relays) {
+void print_relays(relays_t *relays) {
     printf("(C%d, L%d, Z%d, A%d)", relays->caps, relays->inds, relays->z,
            relays->ant);
-}
-
-// Same as print_relays(), but also appends a CRLF.
-void print_relays_ln(relays_s *relays) {
-    print_relays(relays);
-
-    println("");
 }

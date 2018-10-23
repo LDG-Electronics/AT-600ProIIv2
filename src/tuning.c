@@ -25,7 +25,7 @@ tuning_flags_s tuning_flags;
 /* -------------------------------------------------------------------------- */
 
 typedef struct {
-    relays_s relays;
+    relays_t relays;
     double reflectionCoefficient; // reflection coefficient
     double forward;
     uint16_t attemptNumber;
@@ -42,7 +42,7 @@ void reset_match_data(match_t *match) {
     match->forward = 0;
 }
 
-relays_s nextSolution;
+relays_t nextSolution;
 
 /* ************************************************************************** */
 
@@ -549,10 +549,7 @@ void full_tune(void) {
         return;
     }
 
-    // If nothing failed, we can update currentRelays with the best solution
-    currentRelays[system_flags.antenna] = bestMatch.relays;
-
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
+    if (put_relays(&bestMatch.relays) == -1) {
         tuning_flags.relayError = 1;
         return;
     }
@@ -561,7 +558,7 @@ void full_tune(void) {
     if (bestMatch.reflectionCoefficient < SWR1_7) {
         LOG_INFO({
             print("Saving: ");
-            print_relays(&currentRelays[system_flags.antenna]);
+            print_relays(&bestMatch.relays);
             printf(" with SWR: %d", bestMatch.reflectionCoefficient);
             println("");
         });
@@ -579,8 +576,8 @@ void full_tune(void) {
 #define NUM_OF_MEMORIES 6
 
 volatile double bestMemorySWR;
-volatile relays_s bestMemory;
-relays_s memoryBuffer[NUM_OF_MEMORIES];
+volatile relays_t bestMemory;
+relays_t memoryBuffer[NUM_OF_MEMORIES];
 
 void prepare_memories(void) {
     LOG_TRACE({ println("prepare_memories"); });
@@ -599,7 +596,7 @@ void prepare_memories(void) {
     memoryBuffer[5].all = memory_recall(address + MEMORY_GAP);
 }
 
-void test_memory(relays_s *memory) {
+void test_memory(relays_t *memory) {
     LOG_TRACE({ println("test_memory"); });
 
     put_relays(memory);
@@ -607,7 +604,8 @@ void test_memory(relays_s *memory) {
 
     LOG_INFO({
         printf("SWR: %f\r\n", currentRF.swr);
-        print_relays_ln(memory);
+        print_relays(memory);
+        println("");
     });
 
     if (currentRF.swr < bestMemorySWR) {
@@ -619,8 +617,7 @@ void test_memory(relays_s *memory) {
 void restore_best_memory(void) {
     LOG_TRACE({ println("restore_best_memory"); });
 
-    currentRelays[system_flags.antenna] = bestMemory;
-    put_relays(&currentRelays[system_flags.antenna]);
+    put_relays(&bestMemory);
 }
 
 void memory_tune(void) {
@@ -650,7 +647,8 @@ void memory_tune(void) {
     if (bestMemorySWR < SWR1_7) {
         LOG_INFO({
             printf("found memory: %f", currentRF.swr);
-            print_relays_ln(&currentRelays[system_flags.antenna]);
+            print_relays(&currentRelays[system_flags.antenna]);
+            println("");
         });
 
         return;

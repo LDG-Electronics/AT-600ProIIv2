@@ -30,7 +30,7 @@
 
 /* ************************************************************************** */
 
-/*  relays_s is used to simplify the storage and management of relay settings.
+/*  relays_t is used to simplify the storage and management of relay settings.
 
 */
 typedef union {
@@ -45,21 +45,28 @@ typedef union {
         uint8_t bot;
     };
     uint16_t all;
-} relays_s;
-
-/* ************************************************************************** */
-
-extern relays_s currentRelays[NUM_OF_ANTENNA_PORTS];
-extern relays_s bypassRelays;
-extern relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
-
-/* ************************************************************************** */
-
-extern void relays_init(void);
-extern int8_t put_relays(relays_s *relays);
+} relays_t;
 
 // Prints the contents of a relay struct as "(caps, inds, z)"
-extern void print_relays(relays_s *relays);
-extern void print_relays_ln(relays_s *relays);
+extern void print_relays(relays_t *relays);
+
+/* ************************************************************************** */
+
+// read-only: contains the most recently published relays
+extern relays_t currentRelays[NUM_OF_ANTENNA_PORTS];
+
+// returns a copy of the most recently published relays
+#define read_current_relays() currentRelays[system_flags.antenna]
+
+extern relays_t bypassRelays;
+extern relays_t preBypassRelays[NUM_OF_ANTENNA_PORTS];
+
+/* ************************************************************************** */
+
+// setup
+extern void relays_init(void);
+
+// publish new relays
+extern int8_t put_relays(relays_t *relays);
 
 #endif

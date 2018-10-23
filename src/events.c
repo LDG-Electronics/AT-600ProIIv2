@@ -11,27 +11,17 @@
 /* ************************************************************************** */
 
 void set_bypass_off(void) {
-    relays_s undoRelays;
-    undoRelays = currentRelays[system_flags.antenna];
-
-    currentRelays[system_flags.antenna] = preBypassRelays[system_flags.antenna];
-
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-        currentRelays[system_flags.antenna] = undoRelays;
+    if (put_relays(&preBypassRelays[system_flags.antenna]) == -1) {
+        // TODO: what do we do on relayerror?
     }
 }
 
 void set_bypass_on(void) {
-    relays_s undoRelays;
-    undoRelays = currentRelays[system_flags.antenna];
-
-    preBypassRelays[system_flags.antenna] = currentRelays[system_flags.antenna];
-    currentRelays[system_flags.antenna].caps = 0;
-    currentRelays[system_flags.antenna].inds = 0;
-    currentRelays[system_flags.antenna].z = 0;
+    // save current relays into preBypassRelays
+    preBypassRelays[system_flags.antenna] = read_current_relays();
 
     if (put_relays(&bypassRelays) == -1) {
-        currentRelays[system_flags.antenna] = undoRelays;
+        // TODO: what do we do on relayerror?
     }
 }
 
@@ -64,28 +54,27 @@ void toggle_auto(void) { system_flags.autoMode = !system_flags.autoMode; }
 /* -------------------------------------------------------------------------- */
 
 void set_hiloz(uint8_t value) {
-    uint8_t undo = currentRelays[system_flags.antenna].z;
+    relays_t relays = read_current_relays();
 
-    currentRelays[system_flags.antenna].z = value;
+    relays.z = value;
 
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-        currentRelays[system_flags.antenna].z = undo;
+    if (put_relays(&relays) == -1) {
+        // TODO: what do we do on relayerror?
     }
 }
 
 void set_high_z(void) { set_hiloz(1); }
-void set_low_z(void) { set_hiloz(1); }
+void set_low_z(void) { set_hiloz(0); }
 void toggle_hiloz(void) { set_hiloz(!currentRelays[system_flags.antenna].z); }
 
 /* -------------------------------------------------------------------------- */
 
 void set_antenna(uint8_t value) {
-    uint8_t undo = system_flags.antenna;
-
     system_flags.antenna = value;
+    relays_t relays = read_current_relays();
 
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-        system_flags.antenna = undo;
+    if (put_relays(&relays) == -1) {
+        // TODO: what do we do on relayerror?
     }
 }
 

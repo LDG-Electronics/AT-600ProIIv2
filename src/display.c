@@ -163,21 +163,6 @@ void play_interruptable_animation(const animation_s *animation) {
 }
 
 /* -------------------------------------------------------------------------- */
-// display functions that use the frame buffer
-
-void show_cap_relays(void) {
-    displayBuffer.next.lower = currentRelays[system_flags.antenna].caps;
-
-    push_frame_buffer();
-}
-
-void show_ind_relays(void) {
-    displayBuffer.next.upper = currentRelays[system_flags.antenna].inds;
-
-    push_frame_buffer();
-}
-
-/* -------------------------------------------------------------------------- */
 
 void show_peak(void) {
     if (system_flags.peakMode == 0) {
@@ -206,11 +191,11 @@ void blink_antenna(void) {
 }
 
 void show_relays(void) {
+    relays_t relays = read_current_relays();
     display_frame_t frame;
 
-    frame.upper = ((currentRelays[system_flags.antenna].inds & 0x7f) |
-                   ((currentRelays[system_flags.antenna].z & 0x01) << 7));
-    frame.lower = currentRelays[system_flags.antenna].caps;
+    frame.upper = ((relays.inds & 0x7f) | ((relays.z & 0x01) << 7));
+    frame.lower = relays.caps;
 
     FP_update(frame.frame);
 }
