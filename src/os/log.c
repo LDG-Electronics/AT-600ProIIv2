@@ -49,7 +49,7 @@ void log_register__(const char *name, uint8_t *levelPtr) {
 
 void log_header(uint8_t msgLevel, const char *file, int line) {
     reset_text_attributes();
-    printf("%ul ", (uint32_t)systick_read());
+    printf("%lu ", (uint32_t)systick_read());
 
     printf("%s%-5s", level_colors[msgLevel], level_names[msgLevel]);
 

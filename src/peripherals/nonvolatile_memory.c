@@ -172,8 +172,8 @@ void print_flash_buffer(NVM_address_t address, uint8_t *buffer) {
     uint8_t element = address & FLASH_ELEMENT_MASK;
 
     println("");
-    printf("address: %ul ", address);
-    printf("block: %ul ", (address & FLASH_BLOCK_MASK));
+    printf("address: %lu ", address);
+    printf("block: %lu ", (address & FLASH_BLOCK_MASK));
     printf("element: %d\r\n", element);
 
     for (uint8_t i = 0; i < FLASH_BUFFER_SIZE; i++) {
@@ -190,9 +190,9 @@ void print_flash_buffer(NVM_address_t address, uint8_t *buffer) {
 }
 
 static void set_TBLPTR(NVM_address_t address) {
-    LOG_DEBUG({ printf("address: %ul\r\n", address); });
+    LOG_DEBUG({ printf("address: %lu\r\n", address); });
     TBLPTR = address;
-    LOG_DEBUG({ printf("TBLPTR: %ul\r\n", TBLPTR); });
+    LOG_DEBUG({ printf("TBLPTR: %lu\r\n", TBLPTR); });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -311,7 +311,7 @@ int shell_eeprom(int argc, char **argv) {
         if (!strcmp(argv[1], "read")) {
             LOG_TRACE({ println("eeprom read <address>"); });
             uint16_t address = atoi(argv[2]);
-            LOG_DEBUG({ printf("address: %ul\r\n", (uint32_t)address); });
+            LOG_DEBUG({ printf("address: %lu\r\n", (uint32_t)address); });
 
             printf("%02x\r\n", internal_eeprom_read(address));
             return 0;
@@ -325,7 +325,7 @@ int shell_eeprom(int argc, char **argv) {
             uint16_t address = atoi(argv[2]);
             uint8_t data = atoi(argv[3]);
 
-            LOG_DEBUG({ printf("address: %ul\r\n", (uint32_t)address); });
+            LOG_DEBUG({ printf("address: %lu\r\n", (uint32_t)address); });
 
             internal_eeprom_write(address, data);
             printf("%02x\r\n", internal_eeprom_read(address));

@@ -281,6 +281,6 @@ extern void log_header(uint8_t msgLevel, const char *file, int line);
     function_you_want_to_measure();
     LOG_DEBUG({
         us_stopwatch_end();
-        printf("%ul microseconds", us_stopwatch_read());
+        printf("%lu microseconds", us_stopwatch_read());
     });
 */
