@@ -56,7 +56,7 @@ extern relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
 /* ************************************************************************** */
 
 extern void relays_init(void);
-extern int8_t put_relays(relays_s *testRelays);
+extern int8_t put_relays(relays_s *relays);
 
 // Prints the contents of a relay struct as "(caps, inds, z)"
 extern void print_relays(relays_s *relays);

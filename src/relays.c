@@ -60,15 +60,19 @@ void update_bypass_status(relays_s *testRelays) {
     struct to the physical relays.
 
 */
-int8_t put_relays(relays_s *testRelays) {
+int8_t put_relays(relays_s *relays) {
     if (check_if_safe() == -1) {
         return (-1);
     }
 
-    update_bypass_status(testRelays);
+    update_bypass_status(relays);
 
-    publish_relays(testRelays->all);
+    publish_relays(relays->all);
 
+    // Update the global bulletin board
+    currentRelays[system_flags.antenna] = *relays;
+
+    // wait for the relay to stop bouncing
     delay_ms(RELAY_COIL_DELAY);
 
     return 0;
