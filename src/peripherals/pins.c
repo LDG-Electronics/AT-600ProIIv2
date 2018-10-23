@@ -72,8 +72,10 @@ void pins_init(void) {
     TRISBbits.TRISB2 = 1; // CUP_BUTTON
     TRISBbits.TRISB4 = 1; // FUNC_BUTTON
     TRISBbits.TRISB5 = 1; // LDN_BUTTON
-    TRISBbits.TRISB6 = 1; // ANT_BUTTON
-    TRISBbits.TRISB7 = 1; // TUNE_BUTTON
+    // TRISBbits.TRISB6 = 1; // ANT_BUTTON
+    TRISEbits.TRISE2 = 1; // ANT_BUTTON
+    // TRISBbits.TRISB7 = 1; // TUNE_BUTTON
+    TRISEbits.TRISE1 = 1; // TUNE_BUTTON
 
     // Front Panel bitbang SPI
     TRISAbits.TRISA6 = 0; // FP_CLOCK_PIN
@@ -85,7 +87,7 @@ void pins_init(void) {
     TRISBbits.TRISB1 = 0; // ANT_LED_PIN
     TRISCbits.TRISC3 = 0; // BYPASS_LED_PIN
 
-    // Relay SPI
+    // Relay driver bitbang SPI
     TRISCbits.TRISC0 = 0; // RELAY_CLOCK_PIN
     TRISCbits.TRISC1 = 0; // RELAY_DATA_PIN
     TRISCbits.TRISC2 = 0; // RELAY_STROBE_PIN
@@ -98,11 +100,12 @@ void pins_init(void) {
     TRISDbits.TRISD2 = 0; // Debug TX
     TRISDbits.TRISD3 = 1; // Debug RX
 
+    // SWR sensor analog enabled
     ANSELAbits.ANSELA0 = 1; // FWD_PIN
     ANSELAbits.ANSELA1 = 1; // REV_PIN
 
-    // WPUAbits.WPUA3 = 1; // POWER_BUTTON
-    WPUEbits.WPUE1 = 1; // POWER_BUTTON
+    // Front panel pullups
+    WPUAbits.WPUA3 = 1; // POWER_BUTTON
     WPUAbits.WPUA4 = 1; // CDN_BUTTON
     WPUAbits.WPUA5 = 1; // LUP_BUTTON
     WPUBbits.WPUB2 = 1; // CUP_BUTTON
@@ -110,5 +113,6 @@ void pins_init(void) {
     WPUBbits.WPUB5 = 1; // LDN_BUTTON
     // WPUBbits.WPUB6 = 1; // ANT_BUTTON
     WPUEbits.WPUE2 = 1; // ANT_BUTTON
-    WPUBbits.WPUB7 = 1; // TUNE_BUTTON
+    // WPUBbits.WPUB7 = 1; // TUNE_BUTTON
+    WPUEbits.WPUE1 = 1; // TUNE_BUTTON
 }

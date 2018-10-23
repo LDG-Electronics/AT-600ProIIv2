@@ -40,7 +40,7 @@
 // Radio key line - used with IC-PAC or YT-PAC-1200 cable to key radio
 #define RADIO_CMD_PIN PORTAbits.RA7
 
-// Relay bitbang SPI
+// Relay driver bitbang SPI
 #define RELAY_CLOCK_PIN LATCbits.LATC0
 #define RELAY_DATA_PIN LATCbits.LATC1
 #define RELAY_STROBE_PIN LATCbits.LATC2
