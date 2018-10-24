@@ -35,7 +35,7 @@ void update_front_panel(void) {
 // TODO: idle block activities need to be profiled for average/maximum runtime
 // TODO: need round-robin idle task dispatcher?
 void ui_idle_block(void) {
-    // RF_sensor_update();
+    RF_sensor_update();
     // update_front_panel();
     shell_update();
     save_flags();
