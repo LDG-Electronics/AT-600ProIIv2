@@ -9,37 +9,15 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 void frequency_counter_init(void) {
     timer3_clock_source(TMR_CLK_FOSC);
+    timer4_clock_source(TMR_CLK_FOSC);
+    timer4_prescale(TMR_PRE_1_128);
+    timer4_postscale(TMR_POST_1_2);
+    timer4_period_set(0xF9);
+
     log_register();
 }
 
 /* -------------------------------------------------------------------------- */
-/*  validate_frequency_signal()
-
-    This function confirms that a valid Frequency signal is present on the input
-    of FREQ_PIN. It does this by counting the number of state changes during a
-    40 ms window. In traditional UNIX style, return value of 0 means success,
-    and -1 means failure.
-*/
-#define PERIOD_THRESHOLD 2
-#define PERIOD_VALIDATION_WINDOW 40
-static int8_t validate_frequency_signal(void) {
-    system_time_t currentTime = systick_read();
-    uint16_t freqPinCount = 0;
-    uint8_t prevFreqPin = FREQ_PIN;
-
-    while (systick_elapsed_time(currentTime) < PERIOD_VALIDATION_WINDOW) {
-        if (prevFreqPin != FREQ_PIN) {
-            prevFreqPin = FREQ_PIN;
-            freqPinCount++;
-        }
-    }
-
-    if (freqPinCount > PERIOD_THRESHOLD) {
-        return 0;
-    }
-
-    return -1;
-}
 
 /*  Notes on period measurement
 
@@ -115,27 +93,53 @@ void __interrupt(irq(TMR3), high_priority) timer3_overflow_ISR(void) {
 }
 
 uint32_t get_period(void) {
-    // Prepare the timer
+    // counting timer
     timer3_clear();
     timer3_IF_clear();
     timer3Count = 0;
     timer3_interrupt_enable();
 
+    // timeout timer
+    timer4_clear();
+    timer4_IF_clear();
+    timer4_start();
+
     // align ourselves with the rising edge of FREQ_PIN
     while (FREQ_PIN != 0) {
-        // while high
+        if (timer4_IF_read()) {
+            timer4_stop();
+            return 0;
+        }
     }
+
+    timer4_stop();
+    timer4_clear();
+    timer4_IF_clear();
+    timer4_start();
+
     while (FREQ_PIN == 0) {
-        // while low
+        if (timer4_IF_read()) {
+            timer4_stop();
+            return 0;
+        }
     }
+
+    timer4_stop();
+    timer4_clear();
+    timer4_IF_clear();
+    timer4_start();
 
     // engage
     timer3_start();
     while (FREQ_PIN != 0) {
-        // while high
+        if (timer4_IF_read()) {
+            timer4_stop();
+            return 0;
+        }
     }
     timer3_stop();
     timer3_interrupt_disable();
+    timer4_stop();
 
     // calculate total elapsed time
     timer3Count += timer3_read();
@@ -165,16 +169,20 @@ uint32_t get_period(void) {
 #define MAGIC_FREQUENCY_NUMBER 1057000000
 #define NUM_OF_PERIOD_SAMPLES 4
 uint16_t get_frequency(void) {
-    // Make sure there's a frequency signal
-    if (validate_frequency_signal() == -1) {
-        return 0xffff;
-    }
-
+    uint32_t result = 0;
     uint32_t tempPeriod = 0;
 
     // Take measurements
     for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++) {
-        tempPeriod += get_period();
+        // us_stopwatch_begin();
+
+        result = get_period();
+        if (result == 0) {
+            return 0xffff;
+        }
+        tempPeriod += result;
+
+        // printf("%lu uS\r\n", us_stopwatch_end());
     }
 
     tempPeriod /= NUM_OF_PERIOD_SAMPLES;

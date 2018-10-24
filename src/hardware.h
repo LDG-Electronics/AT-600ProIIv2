@@ -10,7 +10,7 @@
 // Timer1 is unused
 // Timer2 is used for the systick module
 // Timer3 is used in the frequency counter
-// Timer4 is unused
+// Timer4 is used in the frequency counter
 // Timer5 is unused
 // Timer6 is used for the button debounce subsystem
 
