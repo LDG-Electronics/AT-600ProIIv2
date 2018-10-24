@@ -314,6 +314,7 @@ void hiloz_tune(void) {
     });
 }
 
+/* -------------------------------------------------------------------------- */
 /*  coarse_tune() searches across the entire set of possible solutions
 
     It uses two nested loops to cycle through capacitors, move to the next
@@ -357,22 +358,10 @@ void coarse_tune(void) {
     });
 }
 
-void bracket_tune(uint8_t bracket, uint8_t step) {
-    uint16_t tryCap;
-    uint16_t tryInd;
+/* -------------------------------------------------------------------------- */
 
-    search_area_t bracket_area;
-
-    double earlyExitSWR = (bestMatch.reflectionCoefficient / 2);
-
-    LOG_TRACE({
-        printf("bracket_tune: (%d,%d) bestMatch.relays: ", bracket, step);
-        print_relays(&bestMatch.relays);
-        println("");
-    });
-
-    // Define bracket_area
-    bracket_area = search_area;
+search_area_t define_bracket_area(uint8_t bracket) {
+    search_area_t bracket_area = search_area;
     if (bestMatch.relays.caps < bracket_area.maxCap - bracket) {
         bracket_area.maxCap = bestMatch.relays.caps + bracket;
     }
@@ -387,6 +376,23 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
     }
 
     LOG_DEBUG({ print_search_area(&bracket_area); });
+
+    return bracket_area;
+}
+
+void bracket_tune(uint8_t bracket, uint8_t step) {
+    LOG_TRACE({
+        printf("bracket_tune: (%d,%d) bestMatch.relays: ", bracket, step);
+        print_relays(&bestMatch.relays);
+        println("");
+    });
+
+    uint16_t tryCap;
+    uint16_t tryInd;
+
+    search_area_t bracket_area = define_bracket_area(bracket);
+
+    double earlyExitSWR = (bestMatch.reflectionCoefficient / 2);
 
     // Do it
     tryInd = bracket_area.minInd;
@@ -410,6 +416,26 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
         }
         tryInd += step;
     }
+    LOG_INFO({
+        print_solution_count();
+        println("");
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+
+void line_tune(uint8_t length) {
+    LOG_TRACE({ println("line_tune:"); });
+    uint16_t tryCap = bestMatch.relays.caps - length;
+
+    while (tryCap < bestMatch.relays.caps + length) {
+        nextSolution.caps = tryCap;
+        if (test_next_solution(0) == -1) {
+            return;
+        }
+        tryCap++;
+    }
+
     LOG_INFO({
         print_solution_count();
         println("");
@@ -545,6 +571,11 @@ void full_tune(void) {
 
     bracket_tune(5, 2);
     bracket_tune(2, 1);
+    if (tuning_flags.errors != 0) {
+        return;
+    }
+
+    line_tune(8);
     if (tuning_flags.errors != 0) {
         return;
     }
