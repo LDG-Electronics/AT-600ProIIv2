@@ -49,14 +49,14 @@ int shell_show_bargraphs(int argc, char **argv) {
 
 // json object represented by null-terminated array of "json field" structs
 const json_field_t RF[] = {
-    {"forwardADC", &currentRF.forward.value, jsonNumber},
-    {"reverseADC", &currentRF.reverse.value, jsonNumber},
-    {"matchQuality", &currentRF.matchQuality, jsonNumber},
-    {"forwardWatts", &currentRF.forwardWatts, jsonNumber},
-    {"reverseWatts", &currentRF.reverseWatts, jsonNumber},
-    {"swr", &currentRF.swr, jsonNumber},
-    {"frequency", &currentRF.frequency, jsonNumber},
-    {NULL, NULL, jsonNumber},
+    {"forwardADC", &(currentRF.forward.value), jsonDouble},
+    {"reverseADC", &(currentRF.reverse.value), jsonDouble},
+    {"matchQuality", &(currentRF.matchQuality), jsonDouble},
+    {"forwardWatts", &(currentRF.forwardWatts), jsonDouble},
+    {"reverseWatts", &(currentRF.reverseWatts), jsonDouble},
+    {"swr", &(currentRF.swr), jsonDouble},
+    {"frequency", &(currentRF.frequency), jsonU16},
+    {NULL, NULL, jsonObject},
 };
 
 int calibration_packet(int argc, char **argv) {

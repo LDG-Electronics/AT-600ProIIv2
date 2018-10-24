@@ -5,7 +5,15 @@
 
 typedef enum {
     jsonString,
-    jsonNumber,
+    jsonDouble,
+    jsonU8,
+    jsonI8,
+    jsonU16,
+    jsonI16,
+    jsonU24,
+    jsonI24,
+    jsonU32,
+    jsonI32,
     jsonObject,
     jsonArray,
     jsonTrue,
@@ -22,6 +30,7 @@ typedef struct {
 
 /* ************************************************************************** */
 
+extern void print_json_field(const json_field_t *field);
 extern void json_serialize_and_print(const json_field_t *object);
 
 #endif
