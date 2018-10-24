@@ -58,7 +58,10 @@ extern relays_t currentRelays[NUM_OF_ANTENNA_PORTS];
 // returns a copy of the most recently published relays
 #define read_current_relays() currentRelays[system_flags.antenna]
 
+// read-only: should only ever contain {0,0,0}
 extern relays_t bypassRelays;
+
+// NOT read-only:
 extern relays_t preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
 /* ************************************************************************** */
@@ -69,4 +72,4 @@ extern void relays_init(void);
 // publish new relays
 extern int8_t put_relays(relays_t *relays);
 
-#endif
+#endif // _RELAYS_H_
