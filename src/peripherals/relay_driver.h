@@ -31,6 +31,6 @@
 
 extern void relay_driver_init(void);
 
-extern void publish_relays(uint16_t word);
+extern void publish_relays(uint8_t caps, uint8_t inds, uint8_t z, uint8_t ant);
 
 #endif

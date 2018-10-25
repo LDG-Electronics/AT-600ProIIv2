@@ -55,9 +55,14 @@ static void relay_spi_bitbang_tx_word(uint16_t word) {
     delay_us(10);
 }
 
-void publish_relays(uint16_t word) {
+void publish_relays(uint8_t caps, uint8_t inds, uint8_t z, uint8_t ant) {
+    packed_relay_bits_t relayBits;
+    relayBits.caps = caps;
+    relayBits.inds = inds;
+    relayBits.z = z;
+    relayBits.ant = ant;
 
-    relay_spi_bitbang_tx_word(word);
+    relay_spi_bitbang_tx_word(relayBits.bits);
 
     // wait for the relay to stop bouncing
     delay_ms(RELAY_COIL_DELAY);

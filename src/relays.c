@@ -90,7 +90,7 @@ int8_t put_relays(relays_t *relays) {
     update_bypass_status(relays);
 
     // pass off the new relays to the relay driver
-    publish_relays(relays->all);
+    publish_relays(relays->caps, relays->inds, relays->z, relays->ant);
 
     // Update the global bulletin board
     currentRelays[system_flags.antenna] = *relays;

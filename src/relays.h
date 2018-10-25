@@ -18,10 +18,10 @@
 */
 typedef union {
     struct {
-        unsigned caps : 7;
-        unsigned z : 1;
-        unsigned inds : 7;
-        unsigned ant : 1; // Relay is wired backwards: the off position is ANT2
+        uint8_t caps;
+        uint8_t inds;
+        uint8_t z;
+        uint8_t ant; // Relay is wired backwards: the off position is ANT2
     };
     struct {
         uint8_t top;
