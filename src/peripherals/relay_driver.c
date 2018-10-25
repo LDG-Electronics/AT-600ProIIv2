@@ -18,7 +18,7 @@ void relay_driver_init(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void publish_relays(uint16_t word) {
+static void relay_spi_bitbang_tx_word(uint16_t word) {
     RELAY_STROBE_PIN = 1;
     RELAY_CLOCK_PIN = 0;
 
@@ -38,4 +38,9 @@ void publish_relays(uint16_t word) {
     delay_us(10);
     RELAY_STROBE_PIN = 1;
     delay_us(10);
+}
+
+void publish_relays(uint16_t word) {
+
+    relay_spi_bitbang_tx_word(word);
 }
