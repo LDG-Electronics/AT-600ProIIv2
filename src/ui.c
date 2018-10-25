@@ -2,6 +2,7 @@
 #include "display.h"
 #include "events.h"
 #include "flags.h"
+#include "frequency_counter.h"
 #include "os/buttons.h"
 #include "os/log_macros.h"
 #include "os/shell/shell.h"
@@ -11,32 +12,34 @@
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
-
-#define FRONT_PANEL_UPDATE_INTERVAL 30
-void update_front_panel(void) {
-    static system_time_t lastUpdateTime = 0;
-
-    // TODO: this is fucking up the background animation system
-    // Do the existing display mutexes solve this?
-
-    if (systick_elapsed_time(lastUpdateTime) > FRONT_PANEL_UPDATE_INTERVAL) {
-        show_current_power_and_SWR();
-    }
-
-    lastUpdateTime = systick_read();
-}
-
-/* ************************************************************************** */
 /*  Notes on the system idle block
     This function contains various 'background' activities that should be
     periodically serviced when the system isn't doing anything else important.
 */
 
-// TODO: idle block activities need to be profiled for average/maximum runtime
-// TODO: need round-robin idle task dispatcher?
+#define FRONT_PANEL_UPDATE_INTERVAL 30
+#define FREQUENCY_SAMPLE_INTERVAL 1000
+#define RF_SAMPLE_INTERVAL 50
 void ui_idle_block(void) {
-    RF_sensor_update();
-    // update_front_panel();
+    // check RF
+    if (systick_elapsed_time(currentRF.lastFrequencyTime) >
+        FREQUENCY_SAMPLE_INTERVAL) {
+        LOG_TRACE({ println("updating frequency"); });
+        currentRF.lastFrequencyTime = systick_read();
+        currentRF.frequency = get_frequency();
+    }
+    if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
+        LOG_TRACE({ println("updating RF"); });
+        SWR_average();
+    }
+
+    // update bargrapghs
+    static system_time_t lastUpdateTime = 0;
+    if (systick_elapsed_time(lastUpdateTime) > FRONT_PANEL_UPDATE_INTERVAL) {
+        show_current_power_and_SWR();
+    }
+    lastUpdateTime = systick_read();
+
     shell_update();
     save_flags();
 }
