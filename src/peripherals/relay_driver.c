@@ -43,4 +43,7 @@ static void relay_spi_bitbang_tx_word(uint16_t word) {
 void publish_relays(uint16_t word) {
 
     relay_spi_bitbang_tx_word(word);
+
+    // wait for the relay to stop bouncing
+    delay_ms(RELAY_COIL_DELAY);
 }

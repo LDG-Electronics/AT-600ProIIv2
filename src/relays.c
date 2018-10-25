@@ -95,8 +95,5 @@ int8_t put_relays(relays_t *relays) {
     // Update the global bulletin board
     currentRelays[system_flags.antenna] = *relays;
 
-    // wait for the relay to stop bouncing
-    delay_ms(RELAY_COIL_DELAY);
-
     return 0;
 }
