@@ -91,26 +91,6 @@ uint8_t get_buttons(void) {
 
 /* -------------------------------------------------------------------------- */
 
-// Returns a 1 if any of the listed buttons is experiencing the specified state
-uint8_t check_multiple_buttons(button_check_t btn_is_xxx,
-                               uint8_t numberOfButtons, ...) {
-    va_list ap;
-
-    va_start(ap, numberOfButtons);
-
-    for (uint8_t i = 0; i < numberOfButtons; i++) {
-        if (btn_is_xxx(va_arg(ap, buttonName_t))) {
-            va_end(list);
-            return 1;
-        }
-    }
-
-    va_end(list);
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
 // Returns 1 if buttons entire history is 'down', aka button is being held.
 uint8_t btn_is_down(buttonName_t buttonName) {
     return (buttonHistory[buttonName] == 0b11111111);

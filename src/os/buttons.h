@@ -103,10 +103,6 @@ extern uint8_t get_buttons(void);
     or not being touched at all.
 */
 
-// Returns a 1 if any of the listed buttons is experiencing the specified state
-extern uint8_t check_multiple_buttons(button_check_t btn_is_xxx,
-                                      uint8_t numberOfButtons, ...);
-
 // Returns 1 if the specified button has been down for 8 samples
 extern uint8_t btn_is_down(buttonName_t buttonName);
 

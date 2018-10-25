@@ -359,12 +359,14 @@ static int8_t timeout_handler(void) {
     // this keeps track of the last time a relay button was down
     static system_time_t lastTimeButtonWasDown;
 
-    if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
+    if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
+        btn_is_down(LDN)) {
         lastTimeButtonWasDown = systick_read();
     } else {
         // if we ARE NOT holding a relay button, any other button press should
         // kick us out
-        if (check_multiple_buttons(&btn_is_down, 4, POWER, ANT, FUNC, TUNE)) {
+        if (btn_is_down(POWER) || btn_is_down(ANT) || btn_is_down(FUNC) ||
+            btn_is_down(TUNE)) {
             return 0;
         }
     }
@@ -615,7 +617,8 @@ void ui_mainloop(void) {
 
     while (1) {
         // Relay buttons
-        if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
+        if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
+            btn_is_down(LDN)) {
             relay_button_hold();
         }
 
