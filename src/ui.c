@@ -308,54 +308,47 @@ static void relay_animation_handler(int8_t capResult, int8_t indResult) {
     push_frame_buffer();
 }
 
-//
-uint8_t calculate_retrigger_delay(uint8_t triggerCount) {
-    if (triggerCount < 8) {
-        return 200;
-    } else if (triggerCount < 32) {
-        return 100;
-    } else {
-        return 75;
-    }
-}
-
 uint8_t process_CUP_or_CDN(uint8_t capacitors, int8_t *capResult) {
-    *capResult = 0;
+    *capResult = RLY_INC_NO_CHANGE;
 
     if (btn_is_down(CUP) && btn_is_down(CDN)) {
         // can't go up and down at the same time; do nothing
     } else if (btn_is_down(CUP)) {
-        *capResult = RLY_LIMIT_REACHED;
         if (capacitors < MAX_CAPACITORS) {
             capacitors++;
             *capResult = RLY_INCREMENT_SUCCESS;
+        } else {
+            *capResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(CDN)) {
-        *capResult = RLY_LIMIT_REACHED;
         if (capacitors > MIN_CAPACITORS) {
             capacitors--;
             *capResult = RLY_INCREMENT_SUCCESS;
+        } else {
+            *capResult = RLY_LIMIT_REACHED;
         }
     }
     return capacitors;
 }
 
 uint8_t process_LUP_or_LDN(uint8_t inductors, int8_t *indResult) {
-    *indResult = 0;
+    *indResult = RLY_INC_NO_CHANGE;
 
     if (btn_is_down(LUP) && btn_is_down(LDN)) {
         // can't go up and down at the same time; do nothing
     } else if (btn_is_down(LUP)) {
-        *indResult = RLY_LIMIT_REACHED;
         if (inductors < MAX_INDUCTORS) {
             inductors++;
             *indResult = RLY_INCREMENT_SUCCESS;
+        } else {
+            *indResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(LDN)) {
-        *indResult = RLY_LIMIT_REACHED;
         if (inductors > MIN_INDUCTORS) {
             inductors--;
             *indResult = RLY_INCREMENT_SUCCESS;
+        } else {
+            *indResult = RLY_LIMIT_REACHED;
         }
     }
     return inductors;
@@ -365,20 +358,32 @@ uint8_t process_LUP_or_LDN(uint8_t inductors, int8_t *indResult) {
 static int8_t timeout_handler(void) {
     // this keeps track of the last time a relay button was down
     static system_time_t lastTimeButtonWasDown;
+
     if (check_multiple_buttons(&btn_is_down, 4, CUP, CDN, LUP, LDN)) {
         lastTimeButtonWasDown = systick_read();
     } else {
         // if we ARE NOT holding a relay button, any other button press should
         // kick us out
         if (check_multiple_buttons(&btn_is_down, 4, POWER, ANT, FUNC, TUNE)) {
-            return 1;
+            return 0;
         }
     }
     if (systick_elapsed_time(lastTimeButtonWasDown) >= TIMEOUT_INTERVAL) {
-        return 1;
+        return 0;
     }
 
-    return 0;
+    return 1;
+}
+
+//
+uint8_t calculate_retrigger_delay(uint8_t triggerCount) {
+    if (triggerCount < 8) {
+        return 200;
+    } else if (triggerCount < 32) {
+        return 100;
+    } else {
+        return 75;
+    }
 }
 
 /*  relay_button_hold() is an absolute clusterfuck
@@ -409,22 +414,20 @@ void relay_button_hold(void) {
         an extra half second, so that the currently selected relays can linger
         on the display.
     */
-    while (1) {
-        if (timeout_handler()) {
-            break;
-        }
-
+    while (timeout_handler()) {
         // only trigger/retrigger if it's been long enough
         if (systick_elapsed_time(lastTriggerTime) >= retriggerDelay) {
             lastTriggerTime = systick_read();
 
             // increment or decrement as appropriate
             relays = read_current_relays();
+            // TODO: remove returns, do it all by reference
             relays.caps = process_CUP_or_CDN(relays.caps, &capResult);
             relays.inds = process_LUP_or_LDN(relays.inds, &indResult);
             if ((capResult == RLY_INCREMENT_SUCCESS) ||
                 (indResult == RLY_INCREMENT_SUCCESS)) {
                 put_relays(&relays);
+                // TODO: relay error handling???
             }
 
             //
@@ -498,8 +501,8 @@ void tune_hold(void) {
         toggle_bypass();
         blink_bypass();
     } else if (elapsedTime < BTN_PRESS_MEDIUM) {
-        // request_memory_tune();
-        request_full_tune();
+        request_memory_tune();
+        // request_full_tune();
     } else if (elapsedTime < BTN_PRESS_LONG) {
         request_full_tune();
     } else if (elapsedTime >= BTN_PRESS_LONG) {
