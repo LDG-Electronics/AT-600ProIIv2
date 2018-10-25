@@ -17,14 +17,18 @@ RF_power_t currentRF;
 /* ************************************************************************** */
 
 void clear_currentRF(void) {
+    currentRF.forward.value = 0;
+    currentRF.forward.discardedSamples = 0;
+    currentRF.reverse.value = 0;
+    currentRF.reverse.discardedSamples = 0;
+    currentRF.matchQuality = 0.0;
     currentRF.forwardADC = 0;
     currentRF.reverseADC = 0;
-    currentRF.matchQuality = 0.0;
     currentRF.swrADC = 0.0;
     currentRF.forwardWatts = 0.0;
     currentRF.reverseWatts = 0.0;
     currentRF.swr = 0.0;
-    currentRF.frequency = 0xffffff;
+    currentRF.frequency = 0xffff;
 }
 
 void RF_sensor_init(void) {
@@ -146,23 +150,4 @@ int8_t SWR_stable_average(void) {
     }
 
     return 0;
-}
-
-#define FREQUENCY_SAMPLE_INTERVAL 1000
-#define RF_SAMPLE_INTERVAL 50
-
-void RF_sensor_update(void) {
-    if (systick_elapsed_time(currentRF.lastFrequencyTime) >
-        FREQUENCY_SAMPLE_INTERVAL) {
-        LOG_TRACE({ println("updating frequency"); });
-        currentRF.lastFrequencyTime = systick_read();
-        currentRF.frequency = get_frequency();
-    }
-    if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
-        LOG_TRACE({ println("updating RF"); });
-        SWR_average();
-    }
-    if (currentRF.forwardADC < 8) {
-        clear_currentRF();
-    }
 }
