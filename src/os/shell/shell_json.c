@@ -29,8 +29,7 @@ void json_serialize_and_print(const json_field_t *object) {
     print("{");
 
     while (object->string != NULL) {
-        print_json_field(object);
-        object++;
+        print_json_field(object++);
         if (object->string != NULL) {
             print(",");
         }
