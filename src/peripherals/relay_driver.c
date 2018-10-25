@@ -6,6 +6,21 @@
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
+/*  packed_relay_bits_t is used to simplify the translation of software representation of
+    relay information into a packed bit representation that's useful for
+    communicating with the hardware.
+*/
+typedef union {
+    struct {
+        unsigned caps : 7;
+        unsigned z : 1;
+        unsigned inds : 7;
+        unsigned ant : 1; // Relay is wired backwards: the off position is ANT2
+    };
+    uint16_t bits;
+} packed_relay_bits_t;
+
+/* ************************************************************************** */
 
 void relay_driver_init(void) {
     // set bitbang spi relay pins to default values
