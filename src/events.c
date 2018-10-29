@@ -97,6 +97,19 @@ void manual_store(void) {
 }
 
 /* -------------------------------------------------------------------------- */
+void set_power_status(uint8_t value) {
+    systemFlags.powerStatus = value;
+
+    if (systemFlags.powerStatus == 1) {
+        println("hello again!");
+    } else {
+        println("goodbye!");
+    }
+}
+
+void toggle_power_status(void) { set_power_status(!systemFlags.powerStatus); }
+
+/* -------------------------------------------------------------------------- */
 
 void request_memory_tune(void) {
     RADIO_CMD_PIN = 1;
