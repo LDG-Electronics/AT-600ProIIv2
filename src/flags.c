@@ -131,9 +131,9 @@ void load_flags(void) {
 /* -------------------------------------------------------------------------- */
 
 // save current system settings to EEPROM
+// TODO: if this is called too often, it fails to detect matching records
 void save_flags(void) {
     LOG_TRACE({ println("save_flags"); });
-    us_stopwatch_begin();
 
     // copy usable bypass array values back into flags
     // Ant relay is wired backwards: 0 is ANT2, 1 is ANT1
@@ -155,6 +155,7 @@ void save_flags(void) {
         address = 0;
     }
 
+    // grab the most recent record
     flag_record_t existingRecord = read_record(address);
 
     // make sure what we're trying to save is different
@@ -165,7 +166,6 @@ void save_flags(void) {
         }
     }
 
-    // see if the new record matches the old record
     if (recordsAreDifferent) {
         // invalidate the old record
         internal_eeprom_write(address, 0xff);
@@ -181,5 +181,4 @@ void save_flags(void) {
     } else {
         LOG_INFO({ println("new record matched existing record"); });
     }
-    us_stopwatch_print();
 }
