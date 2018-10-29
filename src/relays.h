@@ -23,10 +23,6 @@ typedef union {
         uint8_t z;
         uint8_t ant; // Relay is wired backwards: the off position is ANT2
     };
-    struct {
-        uint8_t top;
-        uint8_t bot;
-    };
     uint32_t all;
 } relays_t;
 
@@ -51,6 +47,9 @@ extern relays_t preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
 // setup
 extern void relays_init(void);
+
+extern packed_relay_bits_t pack_relays(relays_t *relays);
+extern relays_t unpack_relays(packed_relay_bits_t *relayBits);
 
 // publish new relays
 extern int8_t put_relays(relays_t *relays);

@@ -38,6 +38,10 @@ typedef union {
         unsigned inds : NUM_OF_INDUCTORS;
         unsigned ant : 1; // Relay is wired backwards: the off position is ANT2
     };
+    struct {
+        uint8_t top;
+        uint8_t bot;
+    };
     uint16_t bits;
 } packed_relay_bits_t;
 
@@ -45,6 +49,6 @@ typedef union {
 
 extern void relay_driver_init(void);
 
-extern void publish_relays(uint8_t caps, uint8_t inds, uint8_t z, uint8_t ant);
+extern void publish_relays(packed_relay_bits_t *relayBits);
 
 #endif

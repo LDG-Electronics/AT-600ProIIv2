@@ -39,6 +39,30 @@ void relays_init(void) {
 }
 
 /* -------------------------------------------------------------------------- */
+
+packed_relay_bits_t pack_relays(relays_t *relays) {
+    packed_relay_bits_t relayBits;
+
+    relayBits.caps = relays->caps;
+    relayBits.inds = relays->inds;
+    relayBits.z = relays->z;
+    relayBits.ant = relays->ant;
+
+    return relayBits;
+}
+
+relays_t unpack_relays(packed_relay_bits_t *relayBits) {
+    relays_t relays;
+
+    relays.caps = relayBits->caps;
+    relays.inds = relayBits->inds;
+    relays.z = relayBits->z;
+    relays.ant = relayBits->ant;
+
+    return relays;
+}
+
+/* -------------------------------------------------------------------------- */
 /*  check_if_safe() takes an SWR measurement and determines if it's too
     dangerous to switch relays. Relays should not be touched above 100W or 125W.
 
@@ -90,7 +114,8 @@ int8_t put_relays(relays_t *relays) {
     update_bypass_status(relays);
 
     // pass off the new relays to the relay driver
-    publish_relays(relays->caps, relays->inds, relays->z, relays->ant);
+    packed_relay_bits_t relayBits = pack_relays(relays);
+    publish_relays(&relayBits);
 
     // Update the global bulletin board
     currentRelays[system_flags.antenna] = *relays;
