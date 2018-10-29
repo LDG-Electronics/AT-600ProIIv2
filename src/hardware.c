@@ -62,12 +62,17 @@ void startup(void) {
     // Attempt to load previously saved flags
     load_flags();
 
-    // Push out the initial relay settings
-    put_relays(&currentRelays[systemFlags.antenna]);
+    // if the unit is off, make sure that we're quiet
+    if (systemFlags.powerStatus == 1) {
+        // Push out the initial relay settings
+        put_relays(&currentRelays[systemFlags.antenna]);
 
-    // initialize the display
-    update_status_LEDs();
-    play_animation(&right_crawl[0]);
+        // initialize the display
+        update_status_LEDs();
+        play_animation(&right_crawl[0]);
+    } else {
+        put_relays(&bypassRelays);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
