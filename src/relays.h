@@ -27,7 +27,7 @@ typedef union {
         uint8_t top;
         uint8_t bot;
     };
-    uint16_t all;
+    uint32_t all;
 } relays_t;
 
 // Prints the contents of a relay struct as "(caps, inds, z)"
