@@ -42,15 +42,12 @@ extern void display_init(void);
 // Front panel status LED manipulations
 extern void clear_status_LEDs(void);
 extern void update_status_LEDs(void);
-extern void update_antenna_LED(void);
-extern void update_bypass_LED(void);
-extern void update_power_LED(void);
 
 /* -------------------------------------------------------------------------- */
 // Front panel bargraph manipulations
 
 // Publish the contents of display.frameBuffer
-extern void push_frame_buffer(void);
+extern void display_update(void);
 
 // Clears the display by turning off both bargraphs
 extern void display_clear(void);
@@ -73,7 +70,6 @@ extern void play_interruptable_animation(const animation_s *animation);
 
 /* -------------------------------------------------------------------------- */
 
-extern void show_relays(void);
 extern void blink_bypass(void);
 extern void blink_antenna(void);
 extern void show_peak(void);

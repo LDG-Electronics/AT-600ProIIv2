@@ -37,23 +37,16 @@ void clear_status_LEDs(void) {
 }
 
 void update_status_LEDs(void) {
-    POWER_LED_PIN = systemFlags.powerStatus;
-    ANT_LED_PIN = ~systemFlags.antenna;
-    BYPASS_LED_PIN = bypassStatus[systemFlags.antenna];
+    if (systemFlags.powerStatus == 1) {
+        POWER_LED_PIN = systemFlags.powerStatus;
+        ANT_LED_PIN = ~systemFlags.antenna;
+        BYPASS_LED_PIN = bypassStatus[systemFlags.antenna];
+    } else {
+        clear_status_LEDs();
+    }
 }
-
-void update_antenna_LED(void) { ANT_LED_PIN = ~systemFlags.antenna; }
-
-void update_bypass_LED(void) {
-    BYPASS_LED_PIN = bypassStatus[systemFlags.antenna];
-}
-
-void update_power_LED(void) { POWER_LED_PIN = systemFlags.powerStatus; }
 
 /* ************************************************************************** */
-
-// Publishes a raw frame to the display
-void FP_update(uint16_t data) { spi_tx_word(data); }
 
 // Publish the contents of display.frameBuffer
 void push_frame_buffer(void) {
@@ -61,8 +54,21 @@ void push_frame_buffer(void) {
     displayBuffer.current.frame = displayBuffer.next.frame;
 }
 
+void display_update(void) {
+    if (systemFlags.powerStatus == 1) {
+        push_frame_buffer();
+    } else {
+        // if the unit is 'off', make sure we can't accidentally display stuff
+        displayBuffer.next.frame = 0;
+        push_frame_buffer();
+    }
+}
+
 // Clears the display by turning off both bargraphs
-void display_clear(void) { FP_update(0x0000); }
+void display_clear(void) {
+    displayBuffer.next.frame = 0;
+    push_frame_buffer();
+}
 
 // Clears the display and releases the display object
 int16_t display_release(void) {
@@ -173,11 +179,15 @@ void show_peak(void) {
 }
 
 void blink_bypass(void) {
+    relays_t relays = read_current_relays();
+
     if (bypassStatus[systemFlags.antenna] == 1) {
         repeat_animation(&blink_both_bars[0], 3);
     } else {
-        show_relays();
-        delay_ms(150);
+        displayBuffer.next.upper = relays.inds;
+        displayBuffer.next.lower = relays.caps;
+        display_update();
+        delay_ms(250);
         display_clear();
     }
 }
@@ -188,16 +198,6 @@ void blink_antenna(void) {
     } else {
         play_animation(&left_wave[0]);
     }
-}
-
-void show_relays(void) {
-    relays_t relays = read_current_relays();
-    display_frame_t frame;
-
-    frame.upper = ((relays.inds & 0x7f) | ((relays.z & 0x01) << 7));
-    frame.lower = relays.caps;
-
-    FP_update(frame.frame);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -212,10 +212,14 @@ void blink_auto(uint8_t blinks) {
 
 void show_auto(void) {
     if (systemFlags.autoMode == 0) {
-        FP_update(0x8181);
+        displayBuffer.next.lower = 0x81;
+        displayBuffer.next.upper = 0x81;
     } else {
-        FP_update(0x1818);
+        displayBuffer.next.lower = 0x18;
+        displayBuffer.next.upper = 0x18;
     }
+
+    display_update();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -229,17 +233,15 @@ void blink_HiLoZ(uint8_t blinks) {
 }
 
 void show_HiLoZ(void) {
-    display_frame_t frame;
-
     if (currentRelays[systemFlags.antenna].z == 1) {
-        frame.lower = 0xc0;
-        frame.upper = 0xc0;
+        displayBuffer.next.lower = 0xc0;
+        displayBuffer.next.upper = 0xc0;
     } else {
-        frame.lower = 0x03;
-        frame.upper = 0x03;
+        displayBuffer.next.lower = 0x03;
+        displayBuffer.next.upper = 0x03;
     }
 
-    FP_update(frame.frame);
+    display_update();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -253,16 +255,15 @@ void blink_scale(uint8_t blinks) {
 }
 
 void show_scale(void) {
-    display_frame_t frame;
-    frame.lower = 0;
+    displayBuffer.next.lower = 0;
 
     if (systemFlags.scaleMode == 0) {
-        frame.upper = 0x08;
+        displayBuffer.next.upper = 0x08;
     } else {
-        frame.upper = 0x80;
+        displayBuffer.next.upper = 0x80;
     }
 
-    FP_update(frame.frame);
+    display_update();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -274,12 +275,10 @@ void blink_thresh(uint8_t blinks) {
 }
 
 void show_thresh(void) {
-    display_frame_t frame;
-    frame.upper = 0;
+    displayBuffer.next.upper = 0;
+    displayBuffer.next.lower = swrThreshDisplay[swrThreshIndex];
 
-    frame.lower = swrThreshDisplay[swrThreshIndex];
-
-    FP_update(frame.frame);
+    display_update();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -315,28 +314,24 @@ static uint8_t array_lookup(double data, double *array) {
 }
 
 void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
-    display_frame_t frame;
-    frame.frame = 0;
+    displayBuffer.next.upper =
+        ledBarTable[array_lookup(forwardWatts, fwdIndexArray)];
+    displayBuffer.next.lower =
+        ledBarTable[array_lookup(swrValue, swrIndexArray)];
 
-    frame.upper = ledBarTable[array_lookup(forwardWatts, fwdIndexArray)];
-    frame.lower = ledBarTable[array_lookup(swrValue, swrIndexArray)];
-
-    FP_update(frame.frame);
+    display_update();
 }
 
 void show_current_power_and_SWR(void) {
-    display_frame_t frame;
-    frame.frame = 0;
-
     if (currentRF.forwardWatts > 0) {
         uint8_t fwdIndex = array_lookup(currentRF.forwardWatts, fwdIndexArray);
-        frame.upper = ledBarTable[fwdIndex];
+        displayBuffer.next.upper = ledBarTable[fwdIndex];
     }
 
     if (currentRF.swr != 0) {
         uint8_t swrIndex = array_lookup(currentRF.swr, swrIndexArray);
-        frame.lower = ledBarTable[swrIndex];
+        displayBuffer.next.lower = ledBarTable[swrIndex];
     }
 
-    FP_update(frame.frame);
+    display_update();
 }
