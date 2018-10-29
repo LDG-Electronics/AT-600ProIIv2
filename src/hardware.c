@@ -63,7 +63,7 @@ void startup(void) {
     load_flags();
 
     // Push out the initial relay settings
-    put_relays(&currentRelays[system_flags.antenna]);
+    put_relays(&currentRelays[systemFlags.antenna]);
 
     // initialize the display
     update_status_LEDs();

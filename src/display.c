@@ -37,18 +37,18 @@ void clear_status_LEDs(void) {
 }
 
 void update_status_LEDs(void) {
-    POWER_LED_PIN = system_flags.powerStatus;
-    ANT_LED_PIN = ~system_flags.antenna;
-    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
+    POWER_LED_PIN = systemFlags.powerStatus;
+    ANT_LED_PIN = ~systemFlags.antenna;
+    BYPASS_LED_PIN = bypassStatus[systemFlags.antenna];
 }
 
-void update_antenna_LED(void) { ANT_LED_PIN = ~system_flags.antenna; }
+void update_antenna_LED(void) { ANT_LED_PIN = ~systemFlags.antenna; }
 
 void update_bypass_LED(void) {
-    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
+    BYPASS_LED_PIN = bypassStatus[systemFlags.antenna];
 }
 
-void update_power_LED(void) { POWER_LED_PIN = system_flags.powerStatus; }
+void update_power_LED(void) { POWER_LED_PIN = systemFlags.powerStatus; }
 
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ void play_interruptable_animation(const animation_s *animation) {
 /* -------------------------------------------------------------------------- */
 
 void show_peak(void) {
-    if (system_flags.peakMode == 0) {
+    if (systemFlags.peakMode == 0) {
         play_animation(&peak_off[0]);
     } else {
         play_animation(&peak_on[0]);
@@ -173,7 +173,7 @@ void show_peak(void) {
 }
 
 void blink_bypass(void) {
-    if (bypassStatus[system_flags.antenna] == 1) {
+    if (bypassStatus[systemFlags.antenna] == 1) {
         repeat_animation(&blink_both_bars[0], 3);
     } else {
         show_relays();
@@ -183,7 +183,7 @@ void blink_bypass(void) {
 }
 
 void blink_antenna(void) {
-    if (system_flags.antenna == 1) {
+    if (systemFlags.antenna == 1) {
         play_animation(&right_wave[0]);
     } else {
         play_animation(&left_wave[0]);
@@ -203,7 +203,7 @@ void show_relays(void) {
 /* -------------------------------------------------------------------------- */
 
 void blink_auto(uint8_t blinks) {
-    if (system_flags.autoMode == 0) {
+    if (systemFlags.autoMode == 0) {
         repeat_animation(&auto_off[0], blinks);
     } else {
         repeat_animation(&auto_on[0], blinks);
@@ -211,7 +211,7 @@ void blink_auto(uint8_t blinks) {
 }
 
 void show_auto(void) {
-    if (system_flags.autoMode == 0) {
+    if (systemFlags.autoMode == 0) {
         FP_update(0x8181);
     } else {
         FP_update(0x1818);
@@ -221,7 +221,7 @@ void show_auto(void) {
 /* -------------------------------------------------------------------------- */
 
 void blink_HiLoZ(uint8_t blinks) {
-    if (currentRelays[system_flags.antenna].z == 1) {
+    if (currentRelays[systemFlags.antenna].z == 1) {
         repeat_animation(&hiz_wave[0], blinks);
     } else {
         repeat_animation(&loz_wave[0], blinks);
@@ -231,7 +231,7 @@ void blink_HiLoZ(uint8_t blinks) {
 void show_HiLoZ(void) {
     display_frame_t frame;
 
-    if (currentRelays[system_flags.antenna].z == 1) {
+    if (currentRelays[systemFlags.antenna].z == 1) {
         frame.lower = 0xc0;
         frame.upper = 0xc0;
     } else {
@@ -245,7 +245,7 @@ void show_HiLoZ(void) {
 /* -------------------------------------------------------------------------- */
 
 void blink_scale(uint8_t blinks) {
-    if (system_flags.scaleMode == 0) {
+    if (systemFlags.scaleMode == 0) {
         repeat_animation(&high_scale[0], blinks);
     } else {
         repeat_animation(&low_scale[0], blinks);
@@ -256,7 +256,7 @@ void show_scale(void) {
     display_frame_t frame;
     frame.lower = 0;
 
-    if (system_flags.scaleMode == 0) {
+    if (systemFlags.scaleMode == 0) {
         frame.upper = 0x08;
     } else {
         frame.upper = 0x80;

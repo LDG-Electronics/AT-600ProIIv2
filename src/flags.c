@@ -19,7 +19,7 @@ typedef union {
     uint8_t array[FLAG_RECORD_SIZE];
 } flag_record_t;
 
-system_flags_t system_flags;
+system_flags_t systemFlags;
 
 uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS];
 
@@ -28,19 +28,19 @@ uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS];
 void flags_init(void) {
     nonvolatile_memory_init();
 
-    // populate system_flags with default values
-    system_flags.ant1Bypass = 1;  // default value is bypass
-    system_flags.ant2Bypass = 1;  // default value is bypass
-    system_flags.antenna = 0;     // default value is Ant 2
-    system_flags.autoMode = 0;    // default value is semi mode
-    system_flags.peakMode = 0;    // default value is NOT peak mode
-    system_flags.scaleMode = 0;   // default value is
-    system_flags.powerStatus = 1; // default value is 1
+    // populate systemFlags with default values
+    systemFlags.ant1Bypass = 1;  // default value is bypass
+    systemFlags.ant2Bypass = 1;  // default value is bypass
+    systemFlags.antenna = 0;     // default value is Ant 2
+    systemFlags.autoMode = 0;    // default value is semi mode
+    systemFlags.peakMode = 0;    // default value is NOT peak mode
+    systemFlags.scaleMode = 0;   // default value is
+    systemFlags.powerStatus = 1; // default value is 1
     swrThreshIndex = 0;
 
     // copy stored bypass values to the usable array
-    bypassStatus[0] = system_flags.ant1Bypass;
-    bypassStatus[1] = system_flags.ant2Bypass;
+    bypassStatus[0] = systemFlags.ant1Bypass;
+    bypassStatus[1] = systemFlags.ant2Bypass;
 
     log_register();
 }
@@ -113,7 +113,7 @@ void load_flags(void) {
 
         // load record back into the world
         swrThreshIndex = existingRecord.threshIndex;
-        system_flags = existingRecord.flags;
+        systemFlags = existingRecord.flags;
         currentRelays[0] = unpack_relays(&existingRecord.relayBits[0]);
         currentRelays[1] = unpack_relays(&existingRecord.relayBits[1]);
         preBypassRelays[0] = unpack_relays(&existingRecord.relayBits[2]);
@@ -121,8 +121,8 @@ void load_flags(void) {
 
         // copy stored bypass values to the usable array
         // Ant relay is wired backwards: 0 is ANT2, 1 is ANT1
-        bypassStatus[0] = system_flags.ant2Bypass;
-        bypassStatus[1] = system_flags.ant1Bypass;
+        bypassStatus[0] = systemFlags.ant2Bypass;
+        bypassStatus[1] = systemFlags.ant1Bypass;
     } else {
         LOG_INFO({ println("no valid record"); });
     }
@@ -137,13 +137,13 @@ void save_flags(void) {
 
     // copy usable bypass array values back into flags
     // Ant relay is wired backwards: 0 is ANT2, 1 is ANT1
-    system_flags.ant2Bypass = bypassStatus[0];
-    system_flags.ant1Bypass = bypassStatus[1];
+    systemFlags.ant2Bypass = bypassStatus[0];
+    systemFlags.ant1Bypass = bypassStatus[1];
 
     // grab a copy of the 'world', such as it is
     flag_record_t newRecord;
     newRecord.threshIndex = swrThreshIndex;
-    newRecord.flags = system_flags;
+    newRecord.flags = systemFlags;
     newRecord.relayBits[0] = pack_relays(&currentRelays[0]);
     newRecord.relayBits[1] = pack_relays(&currentRelays[1]);
     newRecord.relayBits[2] = pack_relays(&preBypassRelays[0]);

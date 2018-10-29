@@ -32,7 +32,7 @@ typedef union {
 extern relays_t currentRelays[NUM_OF_ANTENNA_PORTS];
 
 // returns a copy of the most recently published relays
-#define read_current_relays() currentRelays[system_flags.antenna]
+#define read_current_relays() currentRelays[systemFlags.antenna]
 
 // read-only: should only ever contain {0,0,0}
 extern relays_t bypassRelays;

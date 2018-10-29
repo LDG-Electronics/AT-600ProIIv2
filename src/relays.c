@@ -72,9 +72,9 @@ int8_t check_if_safe(void) {
 }
 
 void update_bypass_status(relays_t *relays) {
-    bypassStatus[system_flags.antenna] = 0;
+    bypassStatus[systemFlags.antenna] = 0;
     if ((relays->caps == 0) && (relays->inds == 0)) {
-        bypassStatus[system_flags.antenna] = 1;
+        bypassStatus[systemFlags.antenna] = 1;
     }
 
     update_bypass_LED();
@@ -88,13 +88,13 @@ int8_t put_relays(relays_t *relays) {
     LOG_TRACE({ println("put_relays"); });
 
     // overwrite the antenna setting just in case it got clobbered by something
-    relays->ant = system_flags.antenna;
+    relays->ant = systemFlags.antenna;
 
     LOG_INFO({
         print("new relays: ");
         print_relays(relays);
         print(", old relays: ");
-        print_relays(&currentRelays[system_flags.antenna]);
+        print_relays(&currentRelays[systemFlags.antenna]);
         println("");
     });
 
@@ -113,7 +113,7 @@ int8_t put_relays(relays_t *relays) {
     publish_relays(&relayBits);
 
     // Update the global bulletin board
-    currentRelays[system_flags.antenna] = *relays;
+    currentRelays[systemFlags.antenna] = *relays;
 
     return 0;
 }

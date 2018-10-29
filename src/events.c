@@ -11,14 +11,14 @@
 /* ************************************************************************** */
 
 void set_bypass_off(void) {
-    if (put_relays(&preBypassRelays[system_flags.antenna]) == -1) {
+    if (put_relays(&preBypassRelays[systemFlags.antenna]) == -1) {
         // TODO: what do we do on relayerror?
     }
 }
 
 void set_bypass_on(void) {
     // save current relays into preBypassRelays
-    preBypassRelays[system_flags.antenna] = read_current_relays();
+    preBypassRelays[systemFlags.antenna] = read_current_relays();
 
     if (put_relays(&bypassRelays) == -1) {
         // TODO: what do we do on relayerror?
@@ -26,7 +26,7 @@ void set_bypass_on(void) {
 }
 
 void toggle_bypass(void) {
-    if (bypassStatus[system_flags.antenna] == 1) {
+    if (bypassStatus[systemFlags.antenna] == 1) {
         set_bypass_off();
     } else {
         set_bypass_on();
@@ -35,21 +35,21 @@ void toggle_bypass(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void set_peak_on(void) { system_flags.peakMode = 1; }
-void set_peak_off(void) { system_flags.peakMode = 0; }
-void toggle_peak(void) { system_flags.peakMode = !system_flags.peakMode; }
+void set_peak_on(void) { systemFlags.peakMode = 1; }
+void set_peak_off(void) { systemFlags.peakMode = 0; }
+void toggle_peak(void) { systemFlags.peakMode = !systemFlags.peakMode; }
 
 /* -------------------------------------------------------------------------- */
 
-void set_scale_high(void) { system_flags.scaleMode = 1; }
-void set_scale_low(void) { system_flags.scaleMode = 0; }
-void toggle_scale(void) { system_flags.scaleMode = !system_flags.scaleMode; }
+void set_scale_high(void) { systemFlags.scaleMode = 1; }
+void set_scale_low(void) { systemFlags.scaleMode = 0; }
+void toggle_scale(void) { systemFlags.scaleMode = !systemFlags.scaleMode; }
 
 /* -------------------------------------------------------------------------- */
 
-void set_auto_on(void) { system_flags.autoMode = 1; }
-void set_auto_off(void) { system_flags.autoMode = 0; }
-void toggle_auto(void) { system_flags.autoMode = !system_flags.autoMode; }
+void set_auto_on(void) { systemFlags.autoMode = 1; }
+void set_auto_off(void) { systemFlags.autoMode = 0; }
+void toggle_auto(void) { systemFlags.autoMode = !systemFlags.autoMode; }
 
 /* -------------------------------------------------------------------------- */
 
@@ -65,12 +65,12 @@ void set_hiloz(uint8_t value) {
 
 void set_high_z(void) { set_hiloz(1); }
 void set_low_z(void) { set_hiloz(0); }
-void toggle_hiloz(void) { set_hiloz(!currentRelays[system_flags.antenna].z); }
+void toggle_hiloz(void) { set_hiloz(!currentRelays[systemFlags.antenna].z); }
 
 /* -------------------------------------------------------------------------- */
 
 void set_antenna(uint8_t value) {
-    system_flags.antenna = value;
+    systemFlags.antenna = value;
     relays_t relays = read_current_relays();
 
     if (put_relays(&relays) == -1) {
@@ -80,7 +80,7 @@ void set_antenna(uint8_t value) {
 
 void set_antenna_one(void) { set_antenna(1); }
 void set_antenna_two(void) { set_antenna(0); }
-void toggle_antenna(void) { set_antenna(!system_flags.antenna); }
+void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
 
 /* -------------------------------------------------------------------------- */
 

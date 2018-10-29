@@ -664,7 +664,7 @@ void memory_tune(void) {
 
     prepare_memories();
 
-    test_memory(&currentRelays[system_flags.antenna]);
+    test_memory(&currentRelays[systemFlags.antenna]);
     while (i < NUM_OF_MEMORIES) {
         test_memory(&memoryBuffer[i]);
         delay_ms(25);
@@ -678,7 +678,7 @@ void memory_tune(void) {
     if (bestMemorySWR < SWR1_7) {
         LOG_INFO({
             printf("found memory: %f", currentRF.swr);
-            print_relays(&currentRelays[system_flags.antenna]);
+            print_relays(&currentRelays[systemFlags.antenna]);
             println("");
         });
 

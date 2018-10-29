@@ -28,13 +28,13 @@ typedef union {
 /* ************************************************************************** */
 
 // Global flags 
-extern system_flags_t system_flags;
+extern system_flags_t systemFlags;
 
 /*  This is used to access the current bypass status using the same idiom as
     accessing currentRelays:
 
-    currentRelays[system_flags.antenna]
-    bypassStatus[system_flags.antenna]
+    currentRelays[systemFlags.antenna]
+    bypassStatus[systemFlags.antenna]
     etc
 */
 extern uint8_t bypassStatus[2];
