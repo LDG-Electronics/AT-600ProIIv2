@@ -1,18 +1,27 @@
 #include "flags.h"
 #include "os/log_macros.h"
 #include "peripherals/nonvolatile_memory.h"
+#include "peripherals/relay_driver.h"
 #include "relays.h"
 #include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-system_flags_s system_flags;
+#define NUMBER_OF_RECORD_SLOTS 15
+#define FLAG_RECORD_SIZE 10
+typedef union {
+    struct {
+        uint8_t threshIndex;
+        system_flags_t flags;
+        packed_relays_t relayBits[NUM_OF_ANTENNA_PORTS * 2];
+    };
+    uint8_t array[FLAG_RECORD_SIZE];
+} flag_record_t;
+
+system_flags_t system_flags;
 
 uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS];
-
-#define FLAG_BLOCK_WIDTH 10
-#define NUM_OF_FLAG_BLOCKS 15
 
 /* ************************************************************************** */
 
@@ -36,98 +45,141 @@ void flags_init(void) {
     log_register();
 }
 
+/* ************************************************************************** */
+
+// reads EEPROM at the given address and returns a populated record
+flag_record_t read_record(uint8_t address) {
+    flag_record_t record;
+
+    // first element needs to be modified
+    record.threshIndex = (internal_eeprom_read(address) & 0x7f);
+
+    // remaining elements can be read directly
+    for (uint8_t i = 1; i < FLAG_RECORD_SIZE; i++) {
+        record.array[i] = (internal_eeprom_read(address + i));
+    }
+
+    return record;
+}
+
+// writes the provided record to EEPROM at the given address
+void write_record(flag_record_t *record, uint8_t address) {
+    // first element needs to be modified
+    internal_eeprom_write(address, (record->threshIndex & 0x7f));
+
+    // remaining elements can be written directly
+    for (uint8_t i = 1; i < FLAG_RECORD_SIZE; i++) {
+        internal_eeprom_write(address + i, record->array[i]);
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 
+#define NO_VALID_RECORD -1
+
+/*  identify_valid_record() steps through EEPROM, reading the first byte of
+    every stored record, looking for one where the first bit is 0.
+
+    When a new record is written, the previous record's first bit is set to 1.
+    In this way, only one record should have its first bit cleared, thereby
+    denoting the most recently saved record.
+*/
+int16_t identify_valid_record(void) {
+    uint8_t address = 0;
+
+    while (address < (FLAG_RECORD_SIZE * NUMBER_OF_RECORD_SLOTS)) {
+        if ((internal_eeprom_read(address) & 0x80) == 0) {
+            return address;
+        }
+        address += FLAG_RECORD_SIZE;
+    }
+
+    // didn't find record
+    return NO_VALID_RECORD;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// restore most recently saved system settings from EEPROM
 void load_flags(void) {
     LOG_TRACE({ println("load_flags"); });
 
-    uint8_t address = 0;
-    uint8_t valid = 0;
+    int16_t address = identify_valid_record();
 
-    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
-        if ((internal_eeprom_read(address) & 0x80) == 0) {
-            valid = 1;
-            break;
-        }
-        address += FLAG_BLOCK_WIDTH;
-    }
+    if (address != NO_VALID_RECORD) {
+        LOG_INFO({ printf("found valid records at: %d\r\n", address); });
 
-    if (valid == 1) {
-        LOG_INFO({ printf("found valid records at: %d", address); });
+        flag_record_t existingRecord = read_record(address);
 
-        // Read stored values out into their containers
-        swrThreshIndex = (internal_eeprom_read(address) & 0x07);
-        system_flags.flags = internal_eeprom_read(address + 1);
-        currentRelays[0].top = internal_eeprom_read(address + 2);
-        currentRelays[0].bot = internal_eeprom_read(address + 3);
-        currentRelays[1].top = internal_eeprom_read(address + 4);
-        currentRelays[1].bot = internal_eeprom_read(address + 5);
-        preBypassRelays[0].top = internal_eeprom_read(address + 6);
-        preBypassRelays[0].bot = internal_eeprom_read(address + 7);
-        preBypassRelays[1].top = internal_eeprom_read(address + 8);
-        preBypassRelays[1].bot = internal_eeprom_read(address + 9);
+        // load record back into the world
+        swrThreshIndex = existingRecord.threshIndex;
+        system_flags = existingRecord.flags;
+        currentRelays[0] = unpack_relays(&existingRecord.relayBits[0]);
+        currentRelays[1] = unpack_relays(&existingRecord.relayBits[1]);
+        preBypassRelays[0] = unpack_relays(&existingRecord.relayBits[2]);
+        preBypassRelays[1] = unpack_relays(&existingRecord.relayBits[3]);
 
         // copy stored bypass values to the usable array
-        bypassStatus[0] = system_flags.ant1Bypass;
-        bypassStatus[1] = system_flags.ant2Bypass;
+        // Ant relay is wired backwards: 0 is ANT2, 1 is ANT1
+        bypassStatus[0] = system_flags.ant2Bypass;
+        bypassStatus[1] = system_flags.ant1Bypass;
     } else {
         LOG_INFO({ println("no valid record"); });
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
+// save current system settings to EEPROM
 void save_flags(void) {
     LOG_TRACE({ println("save_flags"); });
+    us_stopwatch_begin();
 
-    uint8_t address = 0;
-    uint8_t tempThreshIndex = 0;
+    // copy usable bypass array values back into flags
+    // Ant relay is wired backwards: 0 is ANT2, 1 is ANT1
+    system_flags.ant2Bypass = bypassStatus[0];
+    system_flags.ant1Bypass = bypassStatus[1];
 
-    relays_t tempRelays[NUM_OF_ANTENNA_PORTS * 2];
-    system_flags_s temp_flags;
+    // grab a copy of the 'world', such as it is
+    flag_record_t newRecord;
+    newRecord.threshIndex = swrThreshIndex;
+    newRecord.flags = system_flags;
+    newRecord.relayBits[0] = pack_relays(&currentRelays[0]);
+    newRecord.relayBits[1] = pack_relays(&currentRelays[1]);
+    newRecord.relayBits[2] = pack_relays(&preBypassRelays[0]);
+    newRecord.relayBits[3] = pack_relays(&preBypassRelays[1]);
 
-    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
-        if ((internal_eeprom_read(address) & 0x80) == 0)
-            break;
-        address += FLAG_BLOCK_WIDTH;
+    int16_t address = identify_valid_record();
+    // if no record found, then we're saving to address 0
+    if (address == NO_VALID_RECORD) {
+        address = 0;
     }
 
-    tempThreshIndex = (internal_eeprom_read(address) & 0x7f);
-    temp_flags.flags = internal_eeprom_read(address + 1);
-    tempRelays[0].top = internal_eeprom_read(address + 2);
-    tempRelays[0].bot = internal_eeprom_read(address + 3);
-    tempRelays[1].top = internal_eeprom_read(address + 4);
-    tempRelays[1].bot = internal_eeprom_read(address + 5);
-    tempRelays[2].top = internal_eeprom_read(address + 6);
-    tempRelays[2].bot = internal_eeprom_read(address + 7);
-    tempRelays[3].top = internal_eeprom_read(address + 8);
-    tempRelays[3].bot = internal_eeprom_read(address + 9);
+    flag_record_t existingRecord = read_record(address);
 
-    if ((tempThreshIndex != swrThreshIndex) ||
-        (temp_flags.flags != system_flags.flags) ||
-        (tempRelays[0].top != currentRelays[0].top) ||
-        (tempRelays[0].bot != currentRelays[0].bot) ||
-        (tempRelays[1].top != currentRelays[1].top) ||
-        (tempRelays[1].bot != currentRelays[1].bot) ||
-        (tempRelays[2].top != preBypassRelays[0].top) ||
-        (tempRelays[2].bot != preBypassRelays[0].bot) ||
-        (tempRelays[3].top != preBypassRelays[1].top) ||
-        (tempRelays[3].bot != preBypassRelays[1].bot)) {
+    // make sure what we're trying to save is different
+    bool recordsAreDifferent = false;
+    for (uint8_t i = 0; i < FLAG_RECORD_SIZE; i++) {
+        if (existingRecord.array[i] != newRecord.array[i]) {
+            recordsAreDifferent = true;
+        }
+    }
+
+    // see if the new record matches the old record
+    if (recordsAreDifferent) {
+        // invalidate the old record
         internal_eeprom_write(address, 0xff);
 
-        address += FLAG_BLOCK_WIDTH;
-        if (address > (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS))
+        // increment to the next record location
+        address += FLAG_RECORD_SIZE;
+        if (address > (FLAG_RECORD_SIZE * NUMBER_OF_RECORD_SLOTS)) {
             address = 0;
+        }
 
-        LOG_INFO({ printf("saving records at: %d", address); });
-
-        internal_eeprom_write(address, (swrThreshIndex & 0x7f));
-        internal_eeprom_write(address + 1, system_flags.flags);
-        internal_eeprom_write(address + 2, currentRelays[0].top);
-        internal_eeprom_write(address + 3, currentRelays[0].bot);
-        internal_eeprom_write(address + 4, currentRelays[1].top);
-        internal_eeprom_write(address + 5, currentRelays[1].bot);
-        internal_eeprom_write(address + 6, preBypassRelays[0].top);
-        internal_eeprom_write(address + 7, preBypassRelays[0].bot);
-        internal_eeprom_write(address + 8, preBypassRelays[1].top);
-        internal_eeprom_write(address + 9, preBypassRelays[1].bot);
+        LOG_INFO({ printf("saving records at: %d\r\n", address); });
+        write_record(&newRecord, address);
+    } else {
+        LOG_INFO({ println("new record matched existing record"); });
     }
+    us_stopwatch_print();
 }

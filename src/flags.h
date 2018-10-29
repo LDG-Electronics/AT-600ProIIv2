@@ -4,19 +4,9 @@
 #include <stdint.h>
 
 /* ************************************************************************** */
-
-/*  Globally visible struct definitions.
-    
-    Because C's entire system of includes and headers is dumb, this file is the
-    easiest way to make certain that every part of the program will have access
-    to the definition of any structs that are used.
-    
-    Something something translation units, something something object linking.
-*/
-
-/*  system_flags_s contains information that should be retained after cycling the
-    power.  The contents are saved to EEPROM whenever a setting is changed, and
-    are read from EEPROM during boot.
+/*  system_flags_t contains information that should be retained after cycling
+    the power.  The contents are saved to EEPROM whenever a setting is changed,
+    and are read from EEPROM during boot.
     
     If possible, keep this struct under 8 bits in size, because we have to
     access if from all over the place.
@@ -30,22 +20,34 @@ typedef union {
         unsigned peakMode : 1; // 
         unsigned scaleMode : 1; // 
         unsigned powerStatus : 1;
+        unsigned unused : 1;
     };
-    uint8_t flags;
-} system_flags_s;
+    uint8_t savedFlags;
+} system_flags_t;
 
 /* ************************************************************************** */
 
 // Global flags 
-extern system_flags_s system_flags;
+extern system_flags_t system_flags;
 
+/*  This is used to access the current bypass status using the same idiom as
+    accessing currentRelays:
+
+    currentRelays[system_flags.antenna]
+    bypassStatus[system_flags.antenna]
+    etc
+*/
 extern uint8_t bypassStatus[2];
 
 /* ************************************************************************** */
 
+// setup
 extern void flags_init(void);
 
-extern void save_flags(void);
+// restore most recently saved system settings from EEPROM
 extern void load_flags(void);
+
+// save current system settings to EEPROM
+extern void save_flags(void);
 
 #endif
