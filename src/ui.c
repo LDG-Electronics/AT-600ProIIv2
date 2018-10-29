@@ -12,6 +12,15 @@
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
+
+typedef struct {
+    unsigned RFisPresent : 1;
+    unsigned updatingBargraphs : 1;
+} ui_flags_t;
+
+ui_flags_t uiFlags;
+
+/* ************************************************************************** */
 /*  Notes on the system idle block
     This function contains various 'background' activities that should be
     periodically serviced when the system isn't doing anything else important.
@@ -21,26 +30,33 @@ static uint8_t LOG_LEVEL = L_SILENT;
 #define FREQUENCY_SAMPLE_INTERVAL 1000
 #define RF_SAMPLE_INTERVAL 50
 void ui_idle_block(void) {
-    // check RF
-    if (systick_elapsed_time(currentRF.lastFrequencyTime) >
-        FREQUENCY_SAMPLE_INTERVAL) {
-        LOG_TRACE({ println("updating frequency"); });
-        get_frequency();
-    }
-    if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
-        LOG_TRACE({ println("updating RF"); });
-        SWR_average();
-    }
+    // check if RF is present
 
-    // update bargrapghs
-    static system_time_t lastUpdateTime = 0;
-    if (systick_elapsed_time(lastUpdateTime) > FRONT_PANEL_UPDATE_INTERVAL) {
-        show_current_power_and_SWR();
+    // if RF is present
+    if (uiFlags.RFisPresent) {
+        // measure frequency
+        if (systick_elapsed_time(currentRF.lastFrequencyTime) >
+            FREQUENCY_SAMPLE_INTERVAL) {
+            LOG_TRACE({ println("updating frequency"); });
+            get_frequency();
+        }
+
+        // then measure RF
+        if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
+            LOG_TRACE({ println("updating RF"); });
+            measure_RF();
+        }
+
+        static system_time_t lastUpdateTime = 0;
+        // then update bargrapghs
+        if (systick_elapsed_time(lastUpdateTime) >
+            FRONT_PANEL_UPDATE_INTERVAL) {
+            show_current_power_and_SWR();
+        }
+        lastUpdateTime = systick_read();
     }
-    lastUpdateTime = systick_read();
 
     shell_update();
-    save_flags();
 }
 
 /* ************************************************************************** */
@@ -307,7 +323,7 @@ static void relay_animation_handler(int8_t capResult, int8_t indResult) {
     }
 
     // publish whatever we decided we needed
-    push_frame_buffer();
+    display_update();
 }
 
 uint8_t process_CUP_or_CDN(uint8_t capacitors, int8_t *capResult) {
@@ -586,7 +602,7 @@ void ant_hold(void) {
     LOG_TRACE({ println("ant_hold"); });
     toggle_antenna();
     blink_antenna();
-    update_antenna_LED();
+    update_status_LEDs();
 
     while (btn_is_down(ANT)) {
         ui_idle_block();
@@ -600,49 +616,72 @@ void ant_hold(void) {
 #define POWER_HOLD_DURATION 1500
 void power_hold(void) {
     LOG_TRACE({ println("power_hold"); });
-    system_time_t elapsedTime;
-    system_time_t startTime = systick_read();
 
-    while (btn_is_down(POWER)) {
-        elapsedTime = systick_elapsed_time(startTime);
-        if (elapsedTime >= POWER_HOLD_DURATION) {
-            break;
+    if (systemFlags.powerStatus == 0) {
+        set_power_on();
+        update_status_LEDs();
+        while (btn_is_down(POWER)) {
+            ui_idle_block();
         }
+    } else {
+        system_time_t elapsedTime;
+        system_time_t startTime = systick_read();
 
-        ui_idle_block();
-    }
+        while (btn_is_down(POWER)) {
+            elapsedTime = systick_elapsed_time(startTime);
+            if (elapsedTime >= POWER_HOLD_DURATION) {
+                set_power_off();
+                display_clear();
+                clear_status_LEDs();
+                while (btn_is_down(POWER)) {
+                    // make sure we wait here until POWER is released
+                }
+            }
 
-    if (elapsedTime >= POWER_HOLD_DURATION) {
+            ui_idle_block();
+        }
     }
-    delay_ms(25);
 }
 
 /* ************************************************************************** */
+#define FLAG_SAVE_INTERVAL 200
 
 void ui_mainloop(void) {
     log_register();
+    static system_time_t lastFlagSaveTime = 0;
 
     while (1) {
-        // Relay buttons
-        if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
-            btn_is_down(LDN)) {
-            relay_button_hold();
+        // Most buttons only work when the system is 'on'
+        if (systemFlags.powerStatus == 1) {
+            // Relay buttons
+            if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
+                btn_is_down(LDN)) {
+                relay_button_hold();
+            }
+
+            // Other buttons
+            if (btn_is_down(FUNC)) {
+                func_hold();
+            }
+            if (btn_is_down(TUNE)) {
+                tune_hold();
+            }
+            if (btn_is_down(ANT)) {
+                ant_hold();
+            }
         }
 
-        // Other buttons
-        if (btn_is_down(FUNC)) {
-            func_hold();
-        }
-        if (btn_is_down(TUNE)) {
-            tune_hold();
-        }
-        if (btn_is_down(ANT)) {
-            ant_hold();
-        }
+        // POWER works whether the unit is 'on'
         if (btn_is_down(POWER)) {
             power_hold();
         }
 
         ui_idle_block();
+
+        // save flags
+        if (systick_elapsed_time(lastFlagSaveTime) > FLAG_SAVE_INTERVAL) {
+            lastFlagSaveTime = systick_read();
+            save_flags(); // takes either 80uS or 28mS
+        }
     }
 }

@@ -45,7 +45,8 @@ extern void manual_store(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern void set_power_status(uint8_t value);
+extern void set_power_on(void);
+extern void set_power_off(void);
 extern void toggle_power_status(void);
 
 /* ************************************************************************** */

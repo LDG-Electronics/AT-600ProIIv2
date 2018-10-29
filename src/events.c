@@ -101,11 +101,16 @@ void set_power_status(uint8_t value) {
     systemFlags.powerStatus = value;
 
     if (systemFlags.powerStatus == 1) {
-        println("hello again!");
+        put_relays(&currentRelays[systemFlags.antenna]);
     } else {
-        println("goodbye!");
+        relays_t temp = read_current_relays();
+        put_relays(&bypassRelays);
+        currentRelays[systemFlags.antenna] = temp;
     }
 }
+
+void set_power_on(void) { set_power_status(1); }
+void set_power_off(void) { set_power_status(0); }
 
 void toggle_power_status(void) { set_power_status(!systemFlags.powerStatus); }
 
