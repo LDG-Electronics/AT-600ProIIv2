@@ -48,6 +48,9 @@ extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */
 
+// SWR measurement functions
+extern int8_t check_for_RF(void);
+
 // measures RF and calculates SWR
 extern void measure_RF(void);
 

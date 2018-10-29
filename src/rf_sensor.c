@@ -58,6 +58,13 @@ void SWR_threshold_increment(void) {
     }
 }
 
+/* ************************************************************************** */
+
+int8_t check_for_RF(void) {
+    // see if any RF is present
+    return 0;
+}
+
 /* -------------------------------------------------------------------------- */
 
 static double RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
