@@ -129,8 +129,7 @@ int8_t wait_for_stable_FWD(void) {
     This function monitors the forward power and waits until the slope is flat.
 */
 int8_t SWR_stable_average(void) {
-    // Measure the frequency
-    currentRF.frequency = get_frequency();
+    get_frequency();
 
     // if the Frequency isn't valid then return early
     if (currentRF.frequency == 0xffff) {

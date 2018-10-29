@@ -25,8 +25,7 @@ void ui_idle_block(void) {
     if (systick_elapsed_time(currentRF.lastFrequencyTime) >
         FREQUENCY_SAMPLE_INTERVAL) {
         LOG_TRACE({ println("updating frequency"); });
-        currentRF.lastFrequencyTime = systick_read();
-        currentRF.frequency = get_frequency();
+        get_frequency();
     }
     if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
         LOG_TRACE({ println("updating RF"); });
@@ -601,14 +600,19 @@ void ant_hold(void) {
 #define POWER_HOLD_DURATION 1500
 void power_hold(void) {
     LOG_TRACE({ println("power_hold"); });
+    system_time_t elapsedTime;
     system_time_t startTime = systick_read();
 
     while (btn_is_down(POWER)) {
-        if (systick_elapsed_time(startTime) >= POWER_HOLD_DURATION) {
+        elapsedTime = systick_elapsed_time(startTime);
+        if (elapsedTime >= POWER_HOLD_DURATION) {
             break;
         }
 
         ui_idle_block();
+    }
+
+    if (elapsedTime >= POWER_HOLD_DURATION) {
     }
     delay_ms(25);
 }
