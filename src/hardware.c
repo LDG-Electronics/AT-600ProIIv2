@@ -70,6 +70,8 @@ void startup(void) {
     play_animation(&right_crawl[0]);
 }
 
+/* -------------------------------------------------------------------------- */
+
 // TODO: rewrite the shutdown sequence
 void shutdown(void) {
     // CPUDOZEbits.IDLEN = 0; // 0 = SLEEP, 1 = IDLE
@@ -82,9 +84,6 @@ void shutdown(void) {
     // IOCANbits.IOCAN3 = 0;
     // IOCAF = 0;
 }
-
-/* -------------------------------------------------------------------------- */
-// ISRs
 
 // Wake-from-shutdown ISR
 void __interrupt(irq(IOC), high_priority) IOC_ISR(void) {
