@@ -3,6 +3,7 @@
 #include "os/system_time.h"
 #include "peripherals/pins.h"
 #include "peripherals/timer.h"
+#include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -169,23 +170,21 @@ uint32_t get_period(void) {
 #define MAGIC_FREQUENCY_NUMBER 1057000000
 #define NUM_OF_PERIOD_SAMPLES 4
 uint16_t get_frequency(void) {
+    currentRF.lastFrequencyTime = systick_read();
     uint32_t result = 0;
     uint32_t tempPeriod = 0;
 
     // Take measurements
     for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++) {
-        // us_stopwatch_begin();
-
         result = get_period();
         if (result == 0) {
             return 0xffff;
         }
         tempPeriod += result;
-
-        // printf("%lu uS\r\n", us_stopwatch_end());
     }
 
     tempPeriod /= NUM_OF_PERIOD_SAMPLES;
 
-    return (MAGIC_FREQUENCY_NUMBER / tempPeriod);
+    currentRF.frequency = (uint16_t)(MAGIC_FREQUENCY_NUMBER / tempPeriod);
+    return currentRF.frequency;
 }
