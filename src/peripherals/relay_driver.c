@@ -6,9 +6,9 @@
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
-/*  packed_relay_bits_t is used to simplify the translation of software representation of
-    relay information into a packed bit representation that's useful for
-    communicating with the hardware.
+/*  packed_relay_bits_t is used to simplify the translation of software
+    representation of relay information into a packed bit representation that's
+    useful for communicating with the hardware.
 */
 typedef union {
     struct {
