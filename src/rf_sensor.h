@@ -1,5 +1,5 @@
-#ifndef RF_SENSOR_H
-#define RF_SENSOR_H
+#ifndef _RF_SENSOR_H_
+#define _RF_SENSOR_H_
 
 #include "os/system_time.h"
 #include "peripherals/adc.h"
@@ -48,9 +48,10 @@ extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */
 
-// SWR measurement functions
-extern void SWR_average(void);
-extern int8_t SWR_stable_average(void);
-extern void RF_sensor_update(void);
+// measures RF and calculates SWR
+extern void measure_RF(void);
 
-#endif
+// wait for stable FWD power, measure RF, calculate SWR, 
+extern int8_t SWR_stable_average(void);
+
+#endif // _RF_SENSOR_H_

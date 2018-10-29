@@ -168,7 +168,7 @@ int8_t test_next_solution(uint8_t testMode) {
         return (-1);
     }
 
-    SWR_average();
+    measure_RF();
     // if (SWR_stable_average() != 0) {
     //     tuning_flags.lostRF = 1;
     //     return (-1);

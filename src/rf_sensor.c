@@ -82,7 +82,7 @@ static double calculate_SWR_by_watts(double forward, double reverse) {
     return ((1.0 + x) / (1.0 - x));
 }
 
-void SWR_average(void) {
+void measure_RF(void) {
     currentRF.lastRFTime = systick_read();
     currentRF.forward = adc_read(0);
     currentRF.reverse = adc_read(1);
@@ -142,7 +142,7 @@ int8_t SWR_stable_average(void) {
         return -1;
     }
 
-    SWR_average();
+    measure_RF();
 
     if (currentRF.forwardADC < 8) {
         clear_currentRF();

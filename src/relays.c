@@ -71,7 +71,7 @@ relays_t unpack_relays(packed_relay_bits_t *relayBits) {
     on the front panel.
 */
 int8_t check_if_safe(void) {
-    SWR_average();
+    measure_RF();
 
     return 0;
 }
