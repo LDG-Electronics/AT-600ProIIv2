@@ -27,6 +27,20 @@
 
 #define NUM_OF_ANTENNA_PORTS 2
 
+/*  packed_relay_bits_t is used to simplify the translation of software
+    representation of relay information into a packed bit representation that's
+    useful for communicating with the hardware.
+*/
+typedef union {
+    struct {
+        unsigned caps : NUM_OF_CAPACITORS;
+        unsigned z : 1;
+        unsigned inds : NUM_OF_INDUCTORS;
+        unsigned ant : 1; // Relay is wired backwards: the off position is ANT2
+    };
+    uint16_t bits;
+} packed_relay_bits_t;
+
 /* ************************************************************************** */
 
 extern void relay_driver_init(void);
