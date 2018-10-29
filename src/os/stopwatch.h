@@ -34,11 +34,13 @@ extern void stopwatch_init(void);
 extern void us_stopwatch_begin(void);
 extern uint32_t us_stopwatch_end(void);
 #define us_stopwatch_print() printf("%lu uS", us_stopwatch_end())
+#define us_stopwatch_println() printf("%lu uS\r\n", us_stopwatch_end())
 
 // Millisecond stopwatch functions, prints elapsed time in ms +/- 1ms
 extern void ms_stopwatch_begin(void);
 extern uint32_t ms_stopwatch_end(void);
 #define ms_stopwatch_print() printf("%lu mS", ms_stopwatch_end())
+#define ms_stopwatch_println() printf("%lu mS\r\n", ms_stopwatch_end())
 
 // Millisecond multiwatch functions, prints elapsed time in ms +/- 1ms
 // Can run multiple, concurrent multiwatches by providing unique ID numbers
@@ -47,6 +49,8 @@ extern void ms_multiwatch_begin(uint8_t stopwatchID);
 extern uint32_t ms_multiwatch_end(uint8_t stopwatchID);
 #define ms_multiwatch_print(stopwatchID)                                       \
     printf("%lu mS", ms_multiwatch_end(stopwatchID))
+#define ms_multiwatch_println(stopwatchID)                                     \
+    printf("%lu mS\r\n", ms_multiwatch_end(stopwatchID))
 
 /* -------------------------------------------------------------------------- */
 
