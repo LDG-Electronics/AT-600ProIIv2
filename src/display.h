@@ -26,11 +26,9 @@ typedef union {
 typedef struct {
     display_frame_t next;    // the frame we're about to push out
     display_frame_t current; // the frame that's currently being displayed
-    unsigned upperMutex : 1;
-    unsigned lowerMutex : 1;
-} locking_float_buffer_s;
+} double_frame_buffer_t;
 
-extern locking_float_buffer_s displayBuffer;
+extern double_frame_buffer_t displayBuffer;
 
 /* ************************************************************************** */
 

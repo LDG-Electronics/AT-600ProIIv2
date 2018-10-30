@@ -11,7 +11,7 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-locking_float_buffer_s displayBuffer;
+double_frame_buffer_t displayBuffer;
 
 /* ************************************************************************** */
 
@@ -22,8 +22,6 @@ void display_init(void) {
 
     displayBuffer.next.frame = 0;
     displayBuffer.current.frame = 0;
-    displayBuffer.upperMutex = 0;
-    displayBuffer.lowerMutex = 0;
 
     log_register();
 }
