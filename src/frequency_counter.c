@@ -169,7 +169,7 @@ uint32_t get_period(void) {
 
 #define MAGIC_FREQUENCY_NUMBER 1057000000
 #define NUM_OF_PERIOD_SAMPLES 4
-uint16_t get_frequency(void) {
+void measure_frequency(void) {
     currentRF.lastFrequencyTime = get_current_time();
     uint32_t result = 0;
     uint32_t tempPeriod = 0;
@@ -178,7 +178,8 @@ uint16_t get_frequency(void) {
     for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++) {
         result = get_period();
         if (result == 0) {
-            return 0xffff;
+            currentRF.frequency = UINT16_MAX;
+            return;
         }
         tempPeriod += result;
     }
@@ -186,5 +187,4 @@ uint16_t get_frequency(void) {
     tempPeriod /= NUM_OF_PERIOD_SAMPLES;
 
     currentRF.frequency = (uint16_t)(MAGIC_FREQUENCY_NUMBER / tempPeriod);
-    return currentRF.frequency;
 }

@@ -9,6 +9,7 @@
 extern void memory_init(void);
 
 // Converts a frequency into an address in memory.
+extern NVM_address_t map_freq_to_addr(uint16_t frequency);
 extern NVM_address_t convert_memory_address(uint16_t frequency);
 
 // Store the current relay settings at the provided address

@@ -6,6 +6,7 @@
 #include "os/buttons.h"
 #include "os/log_macros.h"
 #include "os/shell/shell.h"
+#include "os/stopwatch.h"
 #include "os/system_time.h"
 #include "relays.h"
 #include "rf_sensor.h"
@@ -26,42 +27,37 @@ ui_flags_t uiFlags;
     periodically serviced when the system isn't doing anything else important.
 */
 
-#define FREQUENCY_SAMPLE_INTERVAL 1000
-#define RF_SAMPLE_INTERVAL 50
+#define FREQUENCY_INTERVAL 1000
+#define RF_INTERVAL 50
 #define BARGRAPH_UPDATE_INTERVAL 30
 void ui_idle_block(void) {
-    uiFlags.RFisPresent = check_for_RF();
+    uiFlags.RFisPresent = check_for_RF(); // ~140uS
 
     if (uiFlags.RFisPresent) {
         // measure frequency
-        if (time_since(currentRF.lastFrequencyTime) >
-            FREQUENCY_SAMPLE_INTERVAL) {
-            LOG_TRACE({ println("updating frequency"); });
-            get_frequency();
+        if (time_since(currentRF.lastFrequencyTime) > FREQUENCY_INTERVAL) {
+            measure_frequency(); // ~4200uS
             return;
         }
 
         // then measure RF
-        if (time_since(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
-            LOG_TRACE({ println("updating RF"); });
-            measure_RF();
+        if (time_since(currentRF.lastRFTime) > RF_INTERVAL) {
+            measure_RF(); // ~2500uS
             return;
         }
 
         // TODO: Auto tuning
-        // auto tune, if applicable
+        // auto tune
         // if (systemFlags.autoMode) {
-        //     if (currentRF.swr > swrThreshold) {
+        //     if (currentRF.swr > get_SWR_threshold()) {
         //         request_memory_tune();
-        //         request_full_tune();
         //     }
         // }
 
         // then update bargraphs
         if (uiFlags.updatingBargraphs) {
             static system_time_t lastUpdateTime = 0;
-            if (time_since(lastUpdateTime) >
-                BARGRAPH_UPDATE_INTERVAL) {
+            if (time_since(lastUpdateTime) > BARGRAPH_UPDATE_INTERVAL) {
                 LOG_TRACE({ println("updating bargraphs"); });
                 show_current_power_and_SWR();
             }
@@ -69,7 +65,7 @@ void ui_idle_block(void) {
         }
     }
 
-    shell_update();
+    shell_update(); // ~22uS, most shell commands are ~2000uS
 }
 
 /* ************************************************************************** */

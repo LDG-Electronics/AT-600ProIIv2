@@ -21,9 +21,6 @@ void clear_currentRF(void) {
     currentRF.reverse.value = 0;
     currentRF.reverse.discardedSamples = 0;
     currentRF.matchQuality = 0.0;
-    currentRF.forwardADC = 0;
-    currentRF.reverseADC = 0;
-    currentRF.swrADC = 0.0;
     currentRF.forwardWatts = 0.0;
     currentRF.reverseWatts = 0.0;
     currentRF.swr = 0.0;
@@ -73,21 +70,15 @@ bool check_for_RF(void) {
     if (average >= LOW_POWER_CUTOFF) {
         return true;
     }
+
+    clear_currentRF();
     return false;
 }
 
 /* -------------------------------------------------------------------------- */
 
-static float RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
-    float x = (float)input;
-
-    float result = (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
-
-    if (result < 0) {
-        result = 0;
-    }
-
-    return result;
+static float RF_sensor_compensation(float x, const polynomial_t *poly) {
+    return (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
 }
 
 /*  SWR calculation
@@ -112,11 +103,10 @@ void measure_RF(void) {
 
     currentRF.matchQuality = currentRF.reverse.value / currentRF.forward.value;
     currentRF.swr = currentRF.matchQuality;
-    currentRF.forwardADC = (uint16_t)currentRF.forward.value;
 
     uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
     currentRF.forwardWatts = RF_sensor_compensation(
-        currentRF.forwardADC, &calibrationTable[0][bandIndex]);
+        currentRF.forward.value, &calibrationTable[0][bandIndex]);
 }
 
 // TODO: I don't think this is returning early if SWR is present
@@ -147,7 +137,7 @@ int8_t wait_for_stable_FWD(void) {
     This function monitors the forward power and waits until the slope is flat.
 */
 int8_t SWR_stable_average(void) {
-    get_frequency();
+    measure_frequency();
 
     // if the Frequency isn't valid then return early
     if (currentRF.frequency == 0xffff) {
@@ -161,10 +151,6 @@ int8_t SWR_stable_average(void) {
     }
 
     measure_RF();
-
-    if (currentRF.forwardADC < 8) {
-        clear_currentRF();
-    }
 
     return 0;
 }

@@ -23,9 +23,6 @@ typedef struct {
     adc_result_t forward;
     adc_result_t reverse;
     float matchQuality; // reflection coefficient
-    uint16_t forwardADC;
-    uint16_t reverseADC;
-    float swrADC;
     float forwardWatts;
     float reverseWatts;
     float swr;

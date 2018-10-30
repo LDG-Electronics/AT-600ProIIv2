@@ -11,6 +11,22 @@ static uint8_t LOG_LEVEL = L_SILENT;
 void memory_init(void) {
     nonvolatile_memory_init();
     log_register();
+
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(100));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(1000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(2000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(2500));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(3000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(3500));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(6000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(11000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(18000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(21000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(25000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(28000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(35000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(50000));
+    printf("%lu\r\n", (uint32_t)map_freq_to_addr(55000));
 }
 
 /* ************************************************************************** */
@@ -34,7 +50,7 @@ void memory_init(void) {
 uint16_t freqGroupBoundaries[] = {1, 5500, 10500, 20000, 25000, 30000, 55000};
 uint16_t addressSlotsPerGroup[] = {0, 1000, 1500, 2500, 3000, 3400, 4000};
 // TODO: build test for this
-static NVM_address_t map_freq_to_addr(uint16_t frequency) {
+NVM_address_t map_freq_to_addr(uint16_t frequency) {
     // identify frequency group
     uint8_t group = 0;
     while (freqGroupBoundaries[group] < frequency) {
@@ -49,15 +65,13 @@ static NVM_address_t map_freq_to_addr(uint16_t frequency) {
     uint16_t inputRange = (inputMax - inputMin);
     uint16_t outputRange = (outputMax - outputMin);
 
-    // TODO: math is not right pls fix
-    uint32_t temp = frequency - 1;
-    uint32_t address = ((temp * outputRange) / outputRange) + outputMin;
-
-    return (NVM_address_t)address;
+    return (NVM_address_t)outputMin + (frequency - inputMin) *
+                                          (outputMax - outputMin) /
+                                          (inputMax - inputMin);
 }
 
 // Memory configuration
-#define MEMORY_BASE_ADDRESS 46000
+#define MEMORY_BASE_ADDRESS 55000
 
 NVM_address_t convert_memory_address(uint16_t frequency) {
     NVM_address_t address = map_freq_to_addr(frequency);

@@ -44,13 +44,13 @@ void shell_show_bargraphs(int argc, char **argv) {
     Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
     compensation tables to improve the accuracy of the RF sensor.
 
-    {"forwardADC":"0","forwardWatts":"0.000000","reverseADC":"0","reverseWatts":"0.000000","swr":"0.000000","frequency":"-1"}
+    {"forward":"0","forwardWatts":"0.000000","reverse":"0","reverseWatts":"0.000000","swr":"0.000000","frequency":"-1"}
 */
 
 // json object represented by null-terminated array of "json field" structs
 const json_field_t RF[] = {
-    {"forwardADC", &(currentRF.forward.value), jsonFloat},
-    {"reverseADC", &(currentRF.reverse.value), jsonFloat},
+    {"forward", &(currentRF.forward.value), jsonFloat},
+    {"reverse", &(currentRF.reverse.value), jsonFloat},
     {"matchQuality", &(currentRF.matchQuality), jsonFloat},
     {"forwardWatts", &(currentRF.forwardWatts), jsonFloat},
     {"reverseWatts", &(currentRF.reverseWatts), jsonFloat},

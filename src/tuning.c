@@ -120,7 +120,7 @@ uint8_t get_c_limit_max(void) {
 void save_new_best_solution(void) {
     bestMatch.relays = nextSolution;
     bestMatch.reflectionCoefficient = currentRF.swr;
-    bestMatch.forward = currentRF.forwardADC;
+    bestMatch.forward = currentRF.forward.value;
 
     LOG_INFO({
         print("new best: ");
@@ -147,13 +147,13 @@ int8_t test_next_solution(uint8_t testMode) {
         if (currentRF.swr < bestMatch.reflectionCoefficient) {
             save_new_best_solution();
         } else if (currentRF.swr == bestMatch.reflectionCoefficient) {
-            if (currentRF.forwardADC > bestMatch.forward) {
+            if (currentRF.forward.value > bestMatch.forward) {
                 save_new_best_solution();
             }
         }
     } else if (testMode == 1) {
         if ((currentRF.swr < bestMatch.reflectionCoefficient) ||
-            (currentRF.forwardADC > bestMatch.forward)) {
+            (currentRF.forward.value > bestMatch.forward)) {
             save_new_best_solution();
         }
     }
@@ -547,13 +547,13 @@ void full_tune(void) {
 // Memory tuning utilities
 
 #define MEMORY_GAP 2
-#define NUM_OF_MEMORIES 6
+#define NUM_OF_MEMORIES 3
 
 float bestMemorySWR;
 relays_t bestMemory;
 relays_t memoryBuffer[NUM_OF_MEMORIES];
 
-void prepare_memories(void) {
+static void prepare_memories(void) {
     LOG_TRACE({ println("prepare_memories"); });
 
     uint16_t address = convert_memory_address(currentRF.frequency);
@@ -563,18 +563,16 @@ void prepare_memories(void) {
 
     // Read the memory and its neighbors
     memoryBuffer[0].all = memory_recall(address);
-    memoryBuffer[1].all = memory_recall(address);
-    memoryBuffer[2].all = memory_recall(address - MEMORY_GAP);
-    memoryBuffer[3].all = memory_recall(address - MEMORY_GAP);
-    memoryBuffer[4].all = memory_recall(address + MEMORY_GAP);
-    memoryBuffer[5].all = memory_recall(address + MEMORY_GAP);
+    memoryBuffer[1].all = memory_recall(address - MEMORY_GAP);
+    memoryBuffer[2].all = memory_recall(address + MEMORY_GAP);
 }
 
-void test_memory(relays_t *memory) {
+static void test_memory(relays_t *memory) {
     LOG_TRACE({ println("test_memory"); });
 
     put_relays(memory);
-    SWR_stable_average();
+    // SWR_stable_average();
+    measure_RF();
 
     LOG_INFO({
         printf("SWR: %f\r\n", currentRF.swr);
@@ -588,7 +586,7 @@ void test_memory(relays_t *memory) {
     }
 }
 
-void restore_best_memory(void) {
+static void restore_best_memory(void) {
     LOG_TRACE({ println("restore_best_memory"); });
 
     put_relays(&bestMemory);
@@ -596,18 +594,19 @@ void restore_best_memory(void) {
 
 void memory_tune(void) {
     LOG_TRACE({ println("memory_tune"); });
-    uint8_t i = 0;
 
     clear_tuning_flags();
 
-    if (SWR_stable_average() != 0) {
-        tuning_flags.noRF = 1;
-        return;
-    }
+    // if (SWR_stable_average() != 0) {
+    //     tuning_flags.noRF = 1;
+    //     return;
+    // }
 
     prepare_memories();
 
     test_memory(&currentRelays[systemFlags.antenna]);
+
+    uint8_t i = 0;
     while (i < NUM_OF_MEMORIES) {
         test_memory(&memoryBuffer[i]);
         delay_ms(25);
@@ -615,7 +614,8 @@ void memory_tune(void) {
     }
 
     restore_best_memory();
-    SWR_stable_average();
+    // SWR_stable_average();
+    measure_RF();
 
     // Did we find a valid memory?
     if (bestMemorySWR < SWR1_7) {

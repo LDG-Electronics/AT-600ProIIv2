@@ -9,6 +9,6 @@ extern void frequency_counter_init(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern uint16_t get_frequency(void);
+extern void measure_frequency(void);
 
 #endif
