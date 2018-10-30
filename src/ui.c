@@ -203,41 +203,6 @@ void function_submenu(void) {
     play_animation(&arrow_down[0]);
 }
 
-#define POWER_BUTTON_DURATION 1000
-// TODO: this whole thing needs replaced
-void shutdown_submenu(void) {
-    LOG_TRACE({ println("shutdown_submenu"); });
-    LOG_INFO({ println("shutting down"); });
-
-    // Turn off the whole front panel
-    clear_status_LEDs();
-    display_clear();
-
-    while (btn_is_down(POWER)) {
-        // wait until power button is released
-    }
-    delay_ms(100);
-
-    system_time_t startTime = systick_read(); // stash the current time
-
-    while (1) {
-        if (systick_elapsed_time(startTime) >= POWER_BUTTON_DURATION) {
-            break;
-        }
-
-        ui_idle_block();
-    }
-
-    LOG_INFO({ println("shutting down"); });
-
-    // Put the Status LEDs back how we found them
-    update_status_LEDs();
-
-    while (btn_is_down(POWER)) {
-        // wait until power button is released
-    }
-}
-
 /* ************************************************************************** */
 /*  Top level ui loops
 
