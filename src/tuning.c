@@ -26,8 +26,8 @@ tuning_flags_s tuning_flags;
 
 typedef struct {
     relays_t relays;
-    double reflectionCoefficient; // reflection coefficient
-    double forward;
+    float reflectionCoefficient; // reflection coefficient
+    float forward;
     uint16_t attemptNumber;
 } match_t;
 
@@ -329,7 +329,7 @@ void hiloz_tune(void) {
 void coarse_tune(void) {
     LOG_TRACE({ println("coarse_tune:"); });
     search_index_t current_index;
-    double earlyExitSWR = (bypassMatch.reflectionCoefficient / 2);
+    float earlyExitSWR = (bypassMatch.reflectionCoefficient / 2);
 
     // Do it
     current_index.inds = 0;
@@ -392,7 +392,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
 
     search_area_t bracket_area = define_bracket_area(bracket);
 
-    double earlyExitSWR = (bestMatch.reflectionCoefficient / 2);
+    float earlyExitSWR = (bestMatch.reflectionCoefficient / 2);
 
     // Do it
     tryInd = bracket_area.minInd;
@@ -606,7 +606,7 @@ void full_tune(void) {
 #define MEMORY_GAP 2
 #define NUM_OF_MEMORIES 6
 
-double bestMemorySWR;
+float bestMemorySWR;
 relays_t bestMemory;
 relays_t memoryBuffer[NUM_OF_MEMORIES];
 

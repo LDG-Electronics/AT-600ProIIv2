@@ -22,13 +22,13 @@
 typedef struct {
     adc_result_t forward;
     adc_result_t reverse;
-    double matchQuality; // reflection coefficient
+    float matchQuality; // reflection coefficient
     uint16_t forwardADC;
     uint16_t reverseADC;
-    double swrADC;
-    double forwardWatts;
-    double reverseWatts;
-    double swr;
+    float swrADC;
+    float forwardWatts;
+    float reverseWatts;
+    float swr;
     uint16_t frequency;
     system_time_t lastFrequencyTime;
     system_time_t lastRFTime;
@@ -44,7 +44,7 @@ extern void RF_sensor_init(void);
 
 // SWR Threshold manipulation
 extern volatile uint8_t swrThreshIndex;
-extern double get_SWR_threshold(void);
+extern float get_SWR_threshold(void);
 extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */

@@ -6,7 +6,7 @@
 
 // prints a single key:value pair
 void print_json_field(const json_field_t *field) {
-    double tempFloat;
+    float tempFloat;
     int32_t tempSigned;
     uint32_t tempUnsigned;
 
@@ -16,7 +16,7 @@ void print_json_field(const json_field_t *field) {
         printf("\"%s\":%lu", field->string, tempUnsigned);
         return;
     case jsonDouble:
-        tempFloat = *(double *)field->value;
+        tempFloat = *(float *)field->value;
         printf("\"%s\":%f", field->string, tempFloat);
         return;
     default:

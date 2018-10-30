@@ -28,9 +28,9 @@ typedef struct {
     display_frame_t current; // the frame that's currently being displayed
     unsigned upperMutex : 1;
     unsigned lowerMutex : 1;
-} locking_double_buffer_s;
+} locking_float_buffer_s;
 
-extern locking_double_buffer_s displayBuffer;
+extern locking_float_buffer_s displayBuffer;
 
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ extern void show_thresh(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern void show_power_and_SWR(uint16_t forwardWatts, double swrValue);
+extern void show_power_and_SWR(uint16_t forwardWatts, float swrValue);
 extern void show_current_power_and_SWR(void);
 
 #endif // _DISPLAY_H_

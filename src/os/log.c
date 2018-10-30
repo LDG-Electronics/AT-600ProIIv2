@@ -32,7 +32,7 @@ void log_init(void) {
 }
 
 void log_register__(const char *name, uint8_t *levelPtr) {
-    // make sure we're not double-registering
+    // make sure we're not float-registering
     for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
         if (!strcmp(name, logDatabase.file[i].name)) {
             return; // file is already registered

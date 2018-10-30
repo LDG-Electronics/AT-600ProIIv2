@@ -10,9 +10,9 @@
 
 // Ax^2 + Bx + C
 typedef struct {
-    double A;
-    double B;
-    double C;
+    float A;
+    float B;
+    float C;
 } polynomial_t;
 
 // Two arrays, 0 is Forward, 1 is Reverse

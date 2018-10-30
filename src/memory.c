@@ -19,7 +19,7 @@ void memory_init(void) {
     This recreates the behavior of the following mapRange() function,
     automatically filling in the values of a1, a2, b1, and b2.
 
-    double mapRange(double a1, double a2, double b1, double b2, double s) {
+    float mapRange(float a1, float a2, float b1, float b2, float s) {
         return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
     }
 
@@ -73,8 +73,8 @@ NVM_address_t convert_memory_address(uint16_t frequency) {
 typedef struct {
     packed_relays_t relayBits; // 2 bytes
     uint16_t frequency;        // 2 bytes
-    double bypassSWR;          // 3 bytes
-    double finalSWR;           // 3 bytes
+    float bypassSWR;          // 3 bytes
+    float finalSWR;           // 3 bytes
     uint8_t recallCount;       // 1 byte
     uint8_t unused;            // 1 byte
 } memory_slot_t;               // 12 bytes total

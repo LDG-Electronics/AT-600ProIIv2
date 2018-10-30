@@ -27,7 +27,7 @@ void shell_show_bargraphs(int argc, char **argv) {
 
         print("second arg: ");
         print(argv[2]);
-        double swrValue = atof(argv[2]);
+        float swrValue = atof(argv[2]);
         printf(", swrValue: %u\r\n", swrValue);
 
         show_power_and_SWR(forwardWatts, swrValue);

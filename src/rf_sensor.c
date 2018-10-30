@@ -47,9 +47,9 @@ void RF_sensor_init(void) {
 
 // SWR Threshold Settings
 volatile uint8_t swrThreshIndex = 0;
-const double swrThreshTable[] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
+const float swrThreshTable[] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
 
-double get_SWR_threshold(void) { return swrThreshTable[swrThreshIndex]; }
+float get_SWR_threshold(void) { return swrThreshTable[swrThreshIndex]; }
 
 void SWR_threshold_increment(void) {
     swrThreshIndex++;
@@ -79,10 +79,10 @@ bool check_for_RF(void) {
 
 /* -------------------------------------------------------------------------- */
 
-static double RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
-    double x = (double)input;
+static float RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
+    float x = (float)input;
 
-    double result = (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
+    float result = (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
 
     if (result < 0) {
         result = 0;
@@ -96,8 +96,8 @@ static double RF_sensor_compensation(uint16_t input, const polynomial_t *poly) {
     SWR = (1 + sqrt(Pr/Pf))/(1 - sqrt(Pr/Pf))
 */
 
-static double calculate_SWR_by_watts(double forward, double reverse) {
-    double x = sqrt(reverse / forward);
+static float calculate_SWR_by_watts(float forward, float reverse) {
+    float x = sqrt(reverse / forward);
     return ((1.0 + x) / (1.0 - x));
 }
 

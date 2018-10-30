@@ -231,7 +231,7 @@ static adc_result_t adc_average_of_valid_samples(uint8_t channel) {
 
     result.discardedSamples = totalSamples - NUMBER_OF_SAMPLES;
 
-    double sum = 0;
+    float sum = 0;
     for (uint8_t i = 0; i < NUMBER_OF_SAMPLES; i++) {
         sum += samplebuffer[i];
     }

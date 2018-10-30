@@ -11,7 +11,7 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-locking_double_buffer_s displayBuffer;
+locking_float_buffer_s displayBuffer;
 
 /* ************************************************************************** */
 
@@ -295,15 +295,15 @@ const uint8_t ledBarTable[] = {
     v- all bars off still needs a value
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.0+
 */
-double fwdIndexArray[] = {
+float fwdIndexArray[] = {
     0, 10, 25, 50, 100, 200, 300, 450, 600,
 };
 
-double swrIndexArray[] = {
+float swrIndexArray[] = {
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5,
 };
 
-static uint8_t array_lookup(double data, double *array) {
+static uint8_t array_lookup(float data, float *array) {
     uint8_t i = 0;
 
     while (array[i] < data) {
@@ -313,7 +313,7 @@ static uint8_t array_lookup(double data, double *array) {
     return i;
 }
 
-void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
+void show_power_and_SWR(uint16_t forwardWatts, float swrValue) {
     displayBuffer.next.upper =
         ledBarTable[array_lookup(forwardWatts, fwdIndexArray)];
     displayBuffer.next.lower =
@@ -321,6 +321,8 @@ void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
 
     display_update();
 }
+
+// TODO: implement scale and peak modes
 
 void show_current_power_and_SWR(void) {
     if (currentRF.forwardWatts > 0) {

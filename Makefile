@@ -52,7 +52,7 @@ C89FLAGS += -O$(BUILD_DIR)/$(PROJECT)
 # --ASMLIST tells the compiler to generate the assembly list file
 # CFLAGS += --ASMLIST
 # These set the size of floating point types to the larger 32bit settings
-C89FLAGS += --FLOAT=24 --DOUBLE=32
+# C89FLAGS += --FLOAT=24 --DOUBLE=32
 # Tells the compiler to report compilation times
 C89FLAGS += --TIME
 # Use hybrid-style stack. Additional fields are the desired size of, in order:

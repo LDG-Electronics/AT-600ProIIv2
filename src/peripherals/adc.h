@@ -6,7 +6,7 @@
 /* ************************************************************************** */
 
 typedef struct {
-    double value; // in millivolts
+    float value; // in millivolts
     uint16_t discardedSamples;
 } adc_result_t;
 
