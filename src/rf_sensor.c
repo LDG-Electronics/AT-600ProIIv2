@@ -60,9 +60,18 @@ void SWR_threshold_increment(void) {
 
 /* ************************************************************************** */
 
-int8_t check_for_RF(void) {
-    // see if any RF is present
-    return 0;
+bool check_for_RF(void) {
+    uint16_t sum = 0;
+    for (uint8_t i = 0; i < 8; i++) {
+        sum += adc_single_sample(0);
+    }
+
+    uint16_t average = sum / 8;
+
+    if (average >= 200) {
+        return true;
+    }
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */

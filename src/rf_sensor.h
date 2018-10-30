@@ -3,6 +3,7 @@
 
 #include "os/system_time.h"
 #include "peripherals/adc.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 /* ************************************************************************** */
@@ -49,12 +50,12 @@ extern void SWR_threshold_increment(void);
 /* -------------------------------------------------------------------------- */
 
 // SWR measurement functions
-extern int8_t check_for_RF(void);
+extern bool check_for_RF(void);
 
 // measures RF and calculates SWR
 extern void measure_RF(void);
 
-// wait for stable FWD power, measure RF, calculate SWR, 
+// wait for stable FWD power, measure RF, calculate SWR,
 extern int8_t SWR_stable_average(void);
 
 #endif // _RF_SENSOR_H_
