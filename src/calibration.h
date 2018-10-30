@@ -1,7 +1,6 @@
 #ifndef _CALIBRATION_H_
 #define _CALIBRATION_H_
 
-#include <float.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>

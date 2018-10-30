@@ -7,7 +7,6 @@
 #include "os/system_time.h"
 #include "relays.h"
 #include "rf_sensor.h"
-#include <float.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 /* ************************************************************************** */
 

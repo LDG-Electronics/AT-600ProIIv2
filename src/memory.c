@@ -73,8 +73,8 @@ NVM_address_t convert_memory_address(uint16_t frequency) {
 typedef struct {
     packed_relays_t relayBits; // 2 bytes
     uint16_t frequency;        // 2 bytes
-    float bypassSWR;          // 3 bytes
-    float finalSWR;           // 3 bytes
+    float bypassSWR;           // 3 bytes
+    float finalSWR;            // 3 bytes
     uint8_t recallCount;       // 1 byte
     uint8_t unused;            // 1 byte
 } memory_slot_t;               // 12 bytes total
