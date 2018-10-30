@@ -1,6 +1,6 @@
 #include "log.h"
 #include "serial_port.h"
-#include "shell/shell_command_processor.h"
+#include "shell/shell.h"
 #include "shell/shell_keys.h"
 #include "shell/shell_utils.h"
 #include "system_time.h"
