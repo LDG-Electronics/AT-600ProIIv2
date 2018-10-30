@@ -18,7 +18,7 @@
 
 // from display.c
 
-int shell_show_bargraphs(int argc, char **argv) {
+void shell_show_bargraphs(int argc, char **argv) {
     if (argc == 3) {
         print("first arg: ");
         print(argv[1]);
@@ -32,7 +32,7 @@ int shell_show_bargraphs(int argc, char **argv) {
 
         show_power_and_SWR(forwardWatts, swrValue);
     }
-    return 0;
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -59,15 +59,13 @@ const json_field_t RF[] = {
     {NULL, NULL, jsonObject},
 };
 
-int calibration_packet(int argc, char **argv) {
+void calibration_packet(int argc, char **argv) {
     json_serialize_and_print(&RF[0]);
-
-    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-int8_t decode_array_number(char *string) {
+static int8_t decode_array_number(char *string) {
     if (!strcmp(string, "forward") || !strcmp(string, "fwd") ||
         !strcmp(string, "f")) {
         return 0;
@@ -81,7 +79,7 @@ int8_t decode_array_number(char *string) {
     return atoi(string);
 }
 
-int poly(int argc, char **argv) {
+void poly(int argc, char **argv) {
     int8_t array = 0;
     int8_t slot = 0;
 
@@ -91,14 +89,14 @@ int poly(int argc, char **argv) {
         println("\tpoly write");
         println("\tpoly read <array> <slot>");
         println("\t<A>, <B>, and <C> are IEEE 754 single precision floats.");
-        return 0;
+        return;
     case 2: // poly write
         if (!strcmp(argv[1], "read")) {
         } else {
             break;
         }
 
-        return 0;
+        return;
     case 4: // poly read
         if (!strcmp(argv[1], "read")) {
         } else {
@@ -119,7 +117,7 @@ int poly(int argc, char **argv) {
 
         print_poly(&tempPoly);
 
-        return 0;
+        return;
     case 7: // poly load
         if (!strcmp(argv[1], "load")) {
         } else {
@@ -140,48 +138,39 @@ int poly(int argc, char **argv) {
         calibrationBuffer[array][slot].B = atof(argv[5]);
         calibrationBuffer[array][slot].C = atof(argv[6]);
 
-        return 0;
+        return;
     default:
         break;
     }
     println("invalid arguments");
-    return 0;
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
 
-int fwd(int argc, char **argv) {
-    adc_read(0);
-    return 0;
-}
-int rev(int argc, char **argv) {
-    adc_read(1);
-    return 0;
-}
+void fwd(int argc, char **argv) { adc_read(0); }
+void rev(int argc, char **argv) { adc_read(1); }
 
 /* -------------------------------------------------------------------------- */
 
-int tune(int argc, char **argv) {
-    request_full_tune();
-    return 0;
-}
+void tune(int argc, char **argv) { request_full_tune(); }
 
 /* -------------------------------------------------------------------------- */
 // Diagnostic shell commands for nonvolatile_memory driver
 
-int shell_eeprom(int argc, char **argv) {
+void shell_eeprom(int argc, char **argv) {
     switch (argc) {
     case 1:
         println("usage: \teeprom write <address> <data>");
         println("\teeprom read <address>");
-        return 0;
+        return;
 
     case 3:
         if (!strcmp(argv[1], "read")) {
             uint16_t address = atoi(argv[2]);
 
             printf("%02x\r\n", internal_eeprom_read(address));
-            return 0;
+            return;
         }
         break;
 
@@ -192,7 +181,7 @@ int shell_eeprom(int argc, char **argv) {
 
             internal_eeprom_write(address, data);
             printf("%02x\r\n", internal_eeprom_read(address));
-            return 0;
+            return;
         }
         break;
 
@@ -200,7 +189,7 @@ int shell_eeprom(int argc, char **argv) {
         break;
     }
     println("invalid arguments");
-    return 0;
+    return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -250,7 +239,7 @@ static int16_t decode_data(char *string) {
     return -1;
 }
 
-int shell_flash(int argc, char **argv) {
+void shell_flash(int argc, char **argv) {
     switch (argc) {
     case 1:
         println("usage: \tflash write <address> <data>");
@@ -258,7 +247,7 @@ int shell_flash(int argc, char **argv) {
         println("\tflash bread <address>");
         println("\tValid addresses are between 0 and 65355:");
         println("\tData must be a single byte in decimal or hex format");
-        return 0;
+        return;
 
     case 3:
         if (!strcmp(argv[1], "read")) {
@@ -267,25 +256,25 @@ int shell_flash(int argc, char **argv) {
             NVM_address_t address = decode_address(argv[2]);
             if (address == 0xffffff) {
                 println("invalid address");
-                return 0;
+                return;
             }
 
             printf("%02x\r\n", flash_read_byte(address));
-            return 0;
+            return;
         } else if (!strcmp(argv[1], "bread")) {
 
             // parse address
             NVM_address_t address = decode_address(argv[2]);
             if (address == 0xffffff) {
                 println("invalid address");
-                return 0;
+                return;
             }
 
             // Read existing block into buffer
             uint8_t buffer[FLASH_BUFFER_SIZE];
             flash_read_block(address, buffer);
             print_flash_buffer(address, buffer);
-            return 0;
+            return;
         }
         break;
 
@@ -295,21 +284,21 @@ int shell_flash(int argc, char **argv) {
             NVM_address_t address = decode_address(argv[2]);
             if (address == 0xffffff) {
                 println("invalid address");
-                return 0;
+                return;
             }
 
             // parse data
             int16_t test = decode_data(argv[3]);
             if (test < 0 || test > 255) {
                 println("invalid data");
-                return 0;
+                return;
             }
             uint8_t newData = (uint8_t)test;
 
             // return if the address already contains the data we want
             uint8_t existingData = flash_read_byte(address);
             if (existingData == newData) {
-                return 0;
+                return;
             }
 
             // compare the two datas bit-by-bit, checking for 0->1 transitions
@@ -338,7 +327,7 @@ int shell_flash(int argc, char **argv) {
             // Verify that the write worked
             flash_read_block(address, buffer);
 
-            return 0;
+            return;
         }
         break;
 
@@ -346,5 +335,4 @@ int shell_flash(int argc, char **argv) {
         break;
     }
     println("invalid arguments");
-    return 0;
 }

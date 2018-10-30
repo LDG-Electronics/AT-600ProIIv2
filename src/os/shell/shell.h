@@ -24,17 +24,19 @@ extern shell_line_t shell;
 
 /* -------------------------------------------------------------------------- */
 
-extern line_t shell;
-
 // Type definition for all the programs invoked by the shell (function pointer)
-typedef int (*shell_program_t)(int, char **);
+typedef void (*shell_program_t)(int, char **);
+
+// type definition
+typedef int8_t (*shell_callback_t)(char);
 
 /* ************************************************************************** */
 
 // setup
 extern void shell_init(void);
 
-extern void shell_set_program_callback(shell_program_t callback);
+// Registers a
+extern void shell_register_callback(shell_callback_t callback);
 
 /*	Main Shell processing
 
@@ -44,4 +46,4 @@ extern void shell_set_program_callback(shell_program_t callback);
 */
 extern void shell_update(void);
 
-#endif
+#endif // _SHELL_H_

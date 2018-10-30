@@ -168,16 +168,16 @@ void logedit_keys(key_t key) {
     }
 }
 
-int program_logedit(int argc, char **argv) {
-    char currentChar = *argv[0];
+int8_t logedit_callback(char currentChar) {
     if (iscntrl(currentChar)) {
         key_t key = identify_key(currentChar);
         logedit_keys(key);
     }
+
     return 0;
 }
 
-int program_logedit_begin(int argc, char **argv) {
+void logedit(int argc, char **argv) {
     term_reset_screen();
 
     println("-----------------------------------------------");
@@ -199,6 +199,5 @@ int program_logedit_begin(int argc, char **argv) {
 
     highlight_line();
 
-    shell_set_program_callback(program_logedit);
-    return 1;
+    shell_register_callback(logedit_callback);
 }

@@ -28,8 +28,8 @@ extern log_database_t logDatabase;
 extern void log_init(void);
 
 // shell program to edit registered logging levels
-int program_logedit_begin(int argc, char **argv);
-int program_logedit_continue(int argc, char **argv);
+void logedit(int argc, char **argv);
+int8_t logedit_callback(char currentChar);
 
 /* ************************************************************************** */
 

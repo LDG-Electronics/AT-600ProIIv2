@@ -7,12 +7,13 @@
 // forward declaration
 extern void shell_print_commands(void);
 
-int shell_help(int argc, char **argv) {
+/* ************************************************************************** */
+
+// prints all registered commands
+void shell_help(int argc, char **argv) {
     println("-----------------------------------------------");
     shell_print_commands();
     println("-----------------------------------------------");
-
-    return 0;
 }
 
 const char argTestUsage[] = "\
@@ -30,7 +31,7 @@ Received 4 arguments for test command\r\n\
 4 - \"arg3\" [len:4]\r\n\
 ";
 
-int shell_arg_test(int argc, char **argv) {
+void shell_arg_test(int argc, char **argv) {
     println("-----------------------------------------------");
     println("SHELL ARG PARSING TEST UTILITY");
     if (argc == 1) {
@@ -44,8 +45,6 @@ int shell_arg_test(int argc, char **argv) {
         }
     }
     println("-----------------------------------------------");
-
-    return 0;
 }
 
 #define BUILTIN_SHELL_COMMANDS                                                 \
@@ -115,9 +114,8 @@ void process_shell_command(void) {
     if (command != -1) {
         commandList[command].program(argc, argv_list);
 
-        if (result == 0) {
-            print(SHELL_PROMPT_STRING);
-        }
+        print(SHELL_PROMPT_STRING);
+
         return;
     }
     // if there's no valid command, say something

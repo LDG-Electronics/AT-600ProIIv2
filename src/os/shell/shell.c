@@ -4,6 +4,7 @@
 #include "shell_cursor.h"
 #include "shell_history.h"
 #include "shell_keys.h"
+#include "shell_utils.h"
 #include <ctype.h>
 #include <string.h>
 
@@ -14,14 +15,22 @@ shell_line_t shell;
 
 /* -------------------------------------------------------------------------- */
 
-shell_program_t shellCallback;
+shell_callback_t shellCallback;
 
-void shell_set_program_callback(shell_program_t callback) {
+void shell_register_callback(shell_callback_t callback) {
     shellCallback = callback;
 }
 
+static void terminate_current_program(void) {
+    shell_register_callback(NULL);
+
+    term_reset_screen();
+    println("");
+    print(SHELL_PROMPT_STRING);
+}
 /* ************************************************************************** */
 
+    shell_register_callback(NULL);
 // set up the entire shell subsystem
 void shell_init(void) {
     serial_port_init();
@@ -38,7 +47,7 @@ void shell_init(void) {
 
 void process_escape_sequence(key_t key) {
     switch (key.key) {
-    default:
+    default: // unrecognized keys don't do anything
         return;
     case BACKSPACE: // delete one character to the left of the cursor
         if (shell.cursor != 0) {
@@ -103,6 +112,8 @@ void process_escape_sequence(key_t key) {
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
 void shell_update(void) {
     char currentChar = getch();
 
@@ -113,18 +124,15 @@ void shell_update(void) {
 
     // execute shell callback, if one is registered
     if (shellCallback) {
-        // ctrl+c will terminate a running shell program
         if (currentChar == 3) {
-            shell_set_program_callback(NULL);
-
-            print("\033[2J");
-            println("");
-            print(SHELL_PROMPT_STRING);
+            terminate_current_program();
             return;
         }
-        char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
-        argv_list[0] = &currentChar;
-        shellCallback(1, argv_list);
+        // execute callback
+        int8_t result = shellCallback(currentChar);
+        if (result == -1) {
+            terminate_current_program();
+        }
         return;
     }
 
