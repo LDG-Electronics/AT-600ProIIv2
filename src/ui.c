@@ -38,13 +38,25 @@ void ui_idle_block(void) {
             FREQUENCY_SAMPLE_INTERVAL) {
             LOG_TRACE({ println("updating frequency"); });
             get_frequency();
+            return;
         }
 
         // then measure RF
         if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
             LOG_TRACE({ println("updating RF"); });
             measure_RF();
+            return;
         }
+
+        // TODO: Auto tuning
+        // auto tune, if applicable
+        // if (systemFlags.autoMode) {
+        //     if (currentRF.swr > swrThreshold) {
+        //         request_memory_tune();
+        //         request_full_tune();
+        //     }
+        // }
+
         // then update bargraphs
         if (uiFlags.updatingBargraphs) {
             static system_time_t lastUpdateTime = 0;
@@ -55,8 +67,6 @@ void ui_idle_block(void) {
             }
             lastUpdateTime = systick_read();
         }
-    } else {
-        // display_clear();
     }
 
     shell_update();
@@ -425,7 +435,7 @@ void relay_button_hold(void) {
 
         // animations need to be serviced more often than retriggerDelay allows
         display_frame_t frame = relay_animation_handler(capResult, indResult);
-        
+
         // only draw our update if there's no RF
         if (!uiFlags.RFisPresent) {
             displayBuffer.next = frame;
