@@ -99,48 +99,17 @@ void print_solution_count(void) {
     prevSolutionCount = solutionCount;
 }
 
-/* -------------------------------------------------------------------------- */
-
-/*  Frequency Limits:
-
-    This prevents damage to the tuner by disabling the largest 2 values of Caps
-    or Inds if the current frequency is over a certain threshold.
-
-    L Limit is enabled at 20MHz.
-    C Limit is enabled at 30MHz.
-*/
-
-union {
-    struct {
-        unsigned C : 1;
-        unsigned L : 1;
-    };
-    uint8_t all;
-} freq_limits;
-
 #define L_LIMIT_FREQUENCY 20000 // 20mhz
-#define C_LIMIT_FREQUENCY 30000 // 30mhz
-
-void check_relay_limits(void) {
-    freq_limits.all = 0;
-
-    if (currentRF.frequency > L_LIMIT_FREQUENCY) {
-        freq_limits.L = 1;
-    }
-    if (currentRF.frequency > C_LIMIT_FREQUENCY) {
-        freq_limits.C = 1;
-    }
-}
-
 uint8_t get_l_limit_max(void) {
-    if (freq_limits.L == 1) {
+    if (currentRF.frequency > L_LIMIT_FREQUENCY) {
         return (MAX_INDUCTORS >> 2);
     }
     return MAX_INDUCTORS;
 }
 
+#define C_LIMIT_FREQUENCY 30000 // 30mhz
 uint8_t get_c_limit_max(void) {
-    if (freq_limits.C == 1) {
+    if (currentRF.frequency > C_LIMIT_FREQUENCY) {
         return (MAX_CAPACITORS >> 2);
     }
     return MAX_CAPACITORS;
@@ -424,26 +393,6 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
 
 /* -------------------------------------------------------------------------- */
 
-void line_tune(uint8_t length) {
-    LOG_TRACE({ println("line_tune:"); });
-    uint16_t tryCap = bestMatch.relays.caps - length;
-
-    while (tryCap < bestMatch.relays.caps + length) {
-        nextSolution.caps = tryCap;
-        if (test_next_solution(0) == -1) {
-            return;
-        }
-        tryCap++;
-    }
-
-    LOG_INFO({
-        print_solution_count();
-        println("");
-    });
-}
-
-/* -------------------------------------------------------------------------- */
-
 /*  reset_search_area() clears search_area to it's default, widest values
 
     The starting search area is essentially the entire solution space, starting
@@ -453,7 +402,6 @@ void line_tune(uint8_t length) {
 void reset_search_area(void) {
     search_area.all = 0;
     max_index.all = 0;
-    check_relay_limits();
 
     // Find maximum C
     search_area.maxCap = get_c_limit_max();
@@ -528,12 +476,12 @@ void full_tune(void) {
     clear_tuning_flags();
 
     // If we fail to find FWD power twice, then set an error and exit.
-    if (SWR_stable_average() != 0) {
-        if (SWR_stable_average() != 0) {
-            tuning_flags.noRF = 1;
-            return;
-        }
-    }
+    // if (SWR_stable_average() != 0) {
+    //     if (SWR_stable_average() != 0) {
+    //         tuning_flags.noRF = 1;
+    //         return;
+    //     }
+    // }
 
     reset_tuning_data();
 
@@ -571,11 +519,6 @@ void full_tune(void) {
 
     bracket_tune(5, 2);
     bracket_tune(2, 1);
-    if (tuning_flags.errors != 0) {
-        return;
-    }
-
-    line_tune(8);
     if (tuning_flags.errors != 0) {
         return;
     }
