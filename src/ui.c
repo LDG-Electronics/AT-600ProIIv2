@@ -9,7 +9,7 @@
 #include "os/system_time.h"
 #include "relays.h"
 #include "rf_sensor.h"
-static uint8_t LOG_LEVEL = L_SILENT;
+static uint8_t LOG_LEVEL = L_TRACE;
 
 /* ************************************************************************** */
 
@@ -26,13 +26,12 @@ ui_flags_t uiFlags;
     periodically serviced when the system isn't doing anything else important.
 */
 
-#define FRONT_PANEL_UPDATE_INTERVAL 30
 #define FREQUENCY_SAMPLE_INTERVAL 1000
 #define RF_SAMPLE_INTERVAL 50
+#define BARGRAPH_UPDATE_INTERVAL 30
 void ui_idle_block(void) {
-    // check if RF is present
+    uiFlags.RFisPresent = check_for_RF();
 
-    // if RF is present
     if (uiFlags.RFisPresent) {
         // measure frequency
         if (systick_elapsed_time(currentRF.lastFrequencyTime) >
@@ -46,14 +45,18 @@ void ui_idle_block(void) {
             LOG_TRACE({ println("updating RF"); });
             measure_RF();
         }
-
-        static system_time_t lastUpdateTime = 0;
-        // then update bargrapghs
-        if (systick_elapsed_time(lastUpdateTime) >
-            FRONT_PANEL_UPDATE_INTERVAL) {
-            show_current_power_and_SWR();
+        // then update bargraphs
+        if (uiFlags.updatingBargraphs) {
+            static system_time_t lastUpdateTime = 0;
+            if (systick_elapsed_time(lastUpdateTime) >
+                BARGRAPH_UPDATE_INTERVAL) {
+                LOG_TRACE({ println("updating bargraphs"); });
+                show_current_power_and_SWR();
+            }
+            lastUpdateTime = systick_read();
         }
-        lastUpdateTime = systick_read();
+    } else {
+        // display_clear();
     }
 
     shell_update();
@@ -251,7 +254,8 @@ typedef enum {
 
 // WARNING - Dragons incoming
 #define BLINK_INTERVAL 100
-static void relay_animation_handler(int8_t capResult, int8_t indResult) {
+static display_frame_t relay_animation_handler(int8_t capResult,
+                                               int8_t indResult) {
     static system_time_t previousBlinkTime = 0;
     static uint8_t blinkFrame = 0xff;
     static bool upperBarIsBlinking = false;
@@ -288,16 +292,17 @@ static void relay_animation_handler(int8_t capResult, int8_t indResult) {
 
     // load the appropriate images into the frame buffer
     relays_t relays = read_current_relays();
-    displayBuffer.next.upper = relays.inds;
-    displayBuffer.next.lower = relays.caps;
+    display_frame_t newFrame;
+    newFrame.upper = relays.inds;
+    newFrame.lower = relays.caps;
 
     // is either bar blinking?
     if (upperBarIsBlinking || lowerBarIsBlinking) {
         if (upperBarIsBlinking) {
-            displayBuffer.next.upper = blinkFrame;
+            newFrame.upper = blinkFrame;
         }
         if (lowerBarIsBlinking) {
-            displayBuffer.next.lower = blinkFrame;
+            newFrame.lower = blinkFrame;
         }
 
         // count time between blinks, and count number of blinks
@@ -322,8 +327,7 @@ static void relay_animation_handler(int8_t capResult, int8_t indResult) {
         }
     }
 
-    // publish whatever we decided we needed
-    display_update();
+    return newFrame;
 }
 
 uint8_t process_CUP_or_CDN(uint8_t capacitors, int8_t *capResult) {
@@ -458,7 +462,14 @@ void relay_button_hold(void) {
         }
 
         // animations need to be serviced more often than retriggerDelay allows
-        relay_animation_handler(capResult, indResult);
+        display_frame_t frame = relay_animation_handler(capResult, indResult);
+        // only draw our update if there's no RF
+        if (!uiFlags.RFisPresent) {
+            displayBuffer.next = frame;
+
+            // publish whatever we decided we needed
+            display_update();
+        }
 
         ui_idle_block();
     }
@@ -491,6 +502,7 @@ void relay_button_hold(void) {
 */
 void tune_hold(void) {
     LOG_TRACE({ println("tune_hold"); });
+    uiFlags.updatingBargraphs = 0;
     system_time_t elapsedTime;
     system_time_t startTime = systick_read();
 
@@ -528,6 +540,7 @@ void tune_hold(void) {
     } else if (elapsedTime >= BTN_PRESS_LONG) {
         // button was held for too long, do nothing
     }
+    uiFlags.updatingBargraphs = 1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -649,6 +662,7 @@ void power_hold(void) {
 void ui_mainloop(void) {
     log_register();
     static system_time_t lastFlagSaveTime = 0;
+    uiFlags.updatingBargraphs = 1;
 
     while (1) {
         // Most buttons only work when the system is 'on'
