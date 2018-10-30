@@ -1,6 +1,7 @@
 #include "shell_keys.h"
 #include "../serial_port.h"
 #include "../system_time.h"
+#include "shell_config.h"
 #include <string.h>
 
 /* ************************************************************************** */
@@ -18,22 +19,17 @@ void print_key(key_t *key) {
     println(keyNameString[key->key]);
 }
 
-/* -------------------------------------------------------------------------- */
+/* ************************************************************************** */
+/*  sequence_t is a data type that stores an ASCII control/escape sequence.
 
+    The default value of SEQUENCE_BUFFER_LENGTH is 10, but the longest control
+    sequence I know of is only 6 characters long.
+*/
 typedef struct {
     char buffer[SEQUENCE_BUFFER_LENGTH];
     uint8_t length;
 } sequence_t;
 
-/* ************************************************************************** */
-/*  Control sequences and sequenceIdentifiers
-
-    Control sequences are a series of bytes that represents a single keystroke.
-    Example sequences:
-    up arrow: (ESC, A)
-    pageup: (ESC, 5, ~)
-    F6: (ESC, 1, 7, ~)
-*/
 typedef enum {
     KEY_UP = 65,
     KEY_DOWN = 66,
@@ -61,7 +57,19 @@ typedef enum {
     KEY_F12 = 52,
 } sequenceIdentifiers;
 
-key_t decode_escape_sequence(sequence_t *sequence) {
+/*  decode_escape_sequence()
+
+    Escape sequences can be uniquely identified by knowing the length of the
+    sequence and one or two characters from the sequence. Escape sequences can
+    be very different when using different terminal emulators. This decoder was
+    built with a mix of VT102 and xterm, but there's no guarantees that escape
+    sequences will be identical with other machines or configurations.
+
+    Example sequences:
+    up arrow: (ESC, 65)
+    pageup: (ESC, 53, ~)
+*/
+static key_t decode_escape_sequence(sequence_t *sequence) {
     key_t newKey = {UNKNOWN, NONE};
 
     switch (sequence->length) {
@@ -245,6 +253,32 @@ key_t decode_escape_sequence(sequence_t *sequence) {
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/*  intercept_escape_sequence() should only be called when we're recieved an
+    ESC character and are expecting an unknown number of additional characters.
+
+    Since we don't know how many characters are coming, we just have to call
+    getch() repeatedly for 1-2mS.
+*/
+static sequence_t intercept_escape_sequence(void) {
+    sequence_t sequence;
+    memset(&sequence, 0, sizeof(sequence));
+
+    system_time_t startTime = systick_read();
+    while (systick_elapsed_time(startTime) < 2) {
+        // check for a new character
+        sequence.buffer[sequence.length] = getch();
+        // if valid character, move to next spot in buffer
+        if (sequence.buffer[sequence.length] != 0) {
+            sequence.length++;
+        }
+    }
+
+    return sequence;
+}
+
+/* -------------------------------------------------------------------------- */
+
 typedef enum {
     KEY_ETX = 3,
     KEY_CTRL_D = 4,
@@ -260,7 +294,11 @@ typedef enum {
     KEY_CTRL_BS = 31,
 } controlCharacters;
 
-key_t decode_control_character(char currentChar) {
+/*  decode_control_character() identifies a key from a single control character.
+
+    This only identifies a subset of the non-sequence control characters.
+*/
+static key_t decode_control_character(char currentChar) {
     key_t newKey = {UNKNOWN, NONE};
 
     switch (currentChar) {
@@ -279,23 +317,9 @@ key_t decode_control_character(char currentChar) {
     }
 }
 
-sequence_t intercept_escape_sequence(void) {
-    sequence_t sequence;
-    memset(&sequence, 0, sizeof(sequence));
+/* ************************************************************************** */
 
-    system_time_t startTime = systick_read();
-    while (systick_elapsed_time(startTime) < 2) {
-        // check for a new character
-        sequence.buffer[sequence.length] = getch();
-        // if valid character, move to next spot in buffer
-        if (sequence.buffer[sequence.length] != 0) {
-            sequence.length++;
-        }
-    }
-
-    return sequence;
-}
-
+// returns a key object that identifies the pressed key
 key_t identify_key(char currentChar) {
     key_t key = {UNKNOWN, NONE};
 

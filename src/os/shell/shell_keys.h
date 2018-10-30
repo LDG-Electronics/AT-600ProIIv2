@@ -1,7 +1,6 @@
 #ifndef _SHELL_KEYS_H_
 #define _SHELL_KEYS_H_
 
-#include "shell.h"
 #include <stdint.h>
 
 /* ************************************************************************** */
@@ -51,9 +50,6 @@ typedef enum { KEY_NAME_LIST } key_names_t;
 typedef enum { KEY_MODIFIER_LIST } key_modifiers_t;
 #undef X
 
-extern const char *keyNameString[];
-extern const char *keyModifierString[];
-
 typedef struct {
     key_names_t key;
     key_modifiers_t mod;
@@ -67,4 +63,6 @@ extern void print_key(key_t *key);
 // returns a key object that identifies the pressed key
 extern key_t identify_key(char currentChar);
 
-#endif
+/* ************************************************************************** */
+
+#endif // _SHELL_KEYS_H_
