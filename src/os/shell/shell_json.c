@@ -15,7 +15,7 @@ void print_json_field(const json_field_t *field) {
         tempUnsigned = *(uint16_t *)field->value;
         printf("\"%s\":%lu", field->string, tempUnsigned);
         return;
-    case jsonDouble:
+    case jsonFloat:
         tempFloat = *(float *)field->value;
         printf("\"%s\":%f", field->string, tempFloat);
         return;

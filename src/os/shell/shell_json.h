@@ -5,7 +5,7 @@
 
 typedef enum {
     jsonString,
-    jsonDouble,
+    jsonFloat,
     jsonU8,
     jsonI8,
     jsonU16,
