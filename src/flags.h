@@ -8,8 +8,9 @@
     the power.  The contents are saved to EEPROM whenever a setting is changed,
     and are read from EEPROM during boot.
     
-    If possible, keep this struct under 8 bits in size, because we have to
-    access if from all over the place.
+    If possible, keep this struct under 8 bits in size, because we'll need to
+    store it in EEPROM, and it would be a waste to use 2 bytes of storage for
+    9 or 10 bits of flags.
 */
 typedef struct {
     unsigned ant1Bypass : 1; // Are we in bypass mode?
@@ -21,10 +22,10 @@ typedef struct {
     unsigned powerStatus : 1;
 } system_flags_t;
 
-/* ************************************************************************** */
-
-// Global flags
+// globally accessible system status flags
 extern system_flags_t systemFlags;
+
+/* ************************************************************************** */
 
 /*  This is used to access the current bypass status using the same idiom as
     accessing currentRelays:
