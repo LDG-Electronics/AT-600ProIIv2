@@ -54,14 +54,14 @@ int shell_arg_test(int argc, char **argv) {
 
 /*  shell_command_t
 
-    callback
+    program
     A pointer to the shell command body.
 
     command
     A pointer to string that represents the command that needs to be typed
 */
 typedef struct {
-    shell_program_t callback;
+    shell_program_t program;
     const char *command;
 } shell_command_t;
 
@@ -76,7 +76,7 @@ const shell_command_t commandList[] = {
 // Print all registered shell commands
 void shell_print_commands(void) {
     uint8_t i = 0;
-    while (commandList[i].callback != NULL) {
+    while (commandList[i].program != NULL) {
         println(commandList[i++].command);
     }
 }
@@ -85,7 +85,7 @@ void shell_print_commands(void) {
 
 static int8_t find_matching_command(char *string) {
     for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
-        if (commandList[i].callback == 0)
+        if (commandList[i].program == 0)
             continue;
 
         // If string matches one on the list
@@ -113,8 +113,7 @@ void process_shell_command(void) {
 
     // if we found a valid command, execute it
     if (command != -1) {
-        shell_program_t program = commandList[command].callback;
-        int result = program(argc, argv_list);
+        commandList[command].program(argc, argv_list);
 
         if (result == 0) {
             print(SHELL_PROMPT_STRING);
