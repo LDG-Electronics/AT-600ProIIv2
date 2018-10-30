@@ -6,6 +6,8 @@
 #include "shell_config.h"
 #include <stdint.h>
 
+/* -------------------------------------------------------------------------- */
+
 /*  line_t
 
     A shell line contains a char buffer that is SHELL_MAX_LENGTH long, and two
@@ -22,6 +24,7 @@ typedef struct {
 /* -------------------------------------------------------------------------- */
 
 extern line_t shell;
+
 // Type definition for all the programs invoked by the shell (function pointer)
 typedef int (*shell_program_t)(int, char **);
 
@@ -33,9 +36,10 @@ extern void shell_init(void);
 extern void shell_set_program_callback(shell_program_t callback);
 
 /*	Main Shell processing
-        This function implements the main functionality of the command line
-   interface this function should be called frequently so it can handle the
-   input from the data stream.
+
+    This function implements the main functionality of the command line
+    interface this function should be called frequently so it can handle the
+    input from the data stream.
 */
 extern void shell_update(void);
 

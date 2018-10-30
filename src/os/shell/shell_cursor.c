@@ -1,5 +1,5 @@
 #include "shell_cursor.h"
-#include "../console_io.h"
+#include "../serial_port.h"
 
 /* ************************************************************************** */
 

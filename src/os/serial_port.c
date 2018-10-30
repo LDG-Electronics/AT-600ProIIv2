@@ -1,11 +1,10 @@
+#include "serial_port.h"
 #include "../peripherals/pps.h"
 #include "../peripherals/uart2.h"
 
 /* ************************************************************************** */
 
-// TODO: change name to serial_io.c/h
-
-void console_init(void) {
+void serial_port_init(void) {
     // PPS Setup
     U2RXPPS = (PPS_PORT_D & PPS_PIN_3);
     RD2PPS = PPS_UART2_TX;
@@ -13,7 +12,7 @@ void console_init(void) {
     UART2_init(_115200);
 }
 
-/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- `*/
 
 // Print a single character to the console
 // Also needed for compiler provided printf

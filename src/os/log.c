@@ -1,5 +1,5 @@
 #include "log.h"
-#include "console_io.h"
+#include "serial_port.h"
 #include "shell/shell_command_processor.h"
 #include "shell/shell_keys.h"
 #include "shell/shell_utils.h"

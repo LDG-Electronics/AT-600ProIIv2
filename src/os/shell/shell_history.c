@@ -1,5 +1,5 @@
 #include "shell_history.h"
-#include "../console_io.h"
+#include "../serial_port.h"
 #include "shell.h"
 #include "shell_cursor.h"
 #include <string.h>

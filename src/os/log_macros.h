@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "console_io.h"
+#include "serial_port.h"
 #include "log.h"
 
 /* ************************************************************************** */

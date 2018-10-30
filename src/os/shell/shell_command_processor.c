@@ -1,6 +1,6 @@
 #include "shell_command_processor.h"
 #include "../../shell_commands.h"
-#include "../console_io.h"
+#include "../serial_port.h"
 #include <string.h>
 
 /* ************************************************************************** */

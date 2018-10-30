@@ -1,13 +1,11 @@
-#ifndef _CONSOLE_IO_H_
-#define _CONSOLE_IO_H_
+#ifndef _SERIAL_PORT_H_
+#define _SERIAL_PORT_H_
 
 #include <stdio.h>
 
 /* ************************************************************************** */
 
 /*  Notes on serial speeds:
-
-    TODO: investigate whether switching to 230,400b or 460,800b are possible
 
     This system works best(so far) at 115,200 baud.
 
@@ -38,11 +36,11 @@
 /* ************************************************************************** */
 
 // Setup
-extern void console_init(void);
+extern void serial_port_init(void);
 
 /* -------------------------------------------------------------------------- */
 
-// Print a single character to the console
+// Print a single character to the serial port
 // Also needed for compiler provided printf
 extern void putch(char data);
 
@@ -57,4 +55,4 @@ extern void println(const char *string);
 
 /* ************************************************************************** */
 
-#endif
+#endif // _SERIAL_PORT_H_

@@ -2,7 +2,7 @@
 #include "calibration.h"
 #include "display.h"
 #include "events.h"
-#include "os/console_io.h"
+#include "os/serial_port.h"
 #include "os/shell/shell.h"
 #include "os/shell/shell_command_processor.h"
 #include "os/shell/shell_json.h"

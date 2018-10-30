@@ -1,5 +1,5 @@
 #include "shell.h"
-#include "../console_io.h"
+#include "../serial_port.h"
 #include "shell_command_processor.h"
 #include "shell_cursor.h"
 #include "shell_history.h"
@@ -10,17 +10,24 @@
 /* ************************************************************************** */
 
 line_t shell;
+
+/* -------------------------------------------------------------------------- */
+
 shell_program_t shellCallback;
+
+void shell_set_program_callback(shell_program_t callback) {
+    shellCallback = callback;
+}
 
 /* ************************************************************************** */
 
 // set up the entire shell subsystem
 void shell_init(void) {
-    console_init();
+    serial_port_init();
 
     // initialize shell
     memset(&shell, 0, sizeof(line_t));
-    shellCallback = NULL;
+    shell_set_program_callback(NULL);
 
     // sequence processing
     shell_sequences_init();
@@ -29,9 +36,6 @@ void shell_init(void) {
     shell_history_init();
 }
 
-void shell_set_program_callback(shell_program_t callback) {
-    shellCallback = callback;
-}
 /* ************************************************************************** */
 
 void process_escape_sequence(key_t key) {
@@ -109,7 +113,9 @@ void shell_update(void) {
         return;
     }
 
-    if (shellCallback != NULL) {
+    // execute shell callback, if one is registered
+    if (shellCallback) {
+        // ctrl+c will terminate a running shell program
         if (currentChar == 3) {
             shell_set_program_callback(NULL);
 

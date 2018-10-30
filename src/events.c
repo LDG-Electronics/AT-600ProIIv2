@@ -1,7 +1,7 @@
 #include "events.h"
 #include "flags.h"
 #include "memory.h"
-#include "os/console_io.h"
+#include "os/serial_port.h"
 #include "os/system_time.h"
 #include "peripherals/pic18f46k42.h"
 #include "peripherals/pins.h"
