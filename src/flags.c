@@ -14,9 +14,29 @@ static uint8_t LOG_LEVEL = L_SILENT;
     the state of the unit. Yes, systemFlags is a global variable.
 
     The contents of these flags needs to persist across power loss. The best way
-    to do this is storing flags in EEPROM.
+    to do this is storing flags in EEPROM. While we're at it, there are several
+    other system settings that should also be stored in EEPROM.
 
+    We need to store:
+    SWR Threshold Index, from RF_sensor.h
+    systemFlags, from flags.h
+    currentRelays and preBypassRelays, from relays.h
 
+    The collection of all of these fields is called a 'record'. There's a record
+    data type, flag_record_t, that will assist us in saving/restoring these
+    variables.
+
+    EEPROM has a limited lifespan. The PIC18FXXK42 datasheet lists EEPROM write
+    endurance as 100k erase/write cycles. In order to lengthen product lifespan,
+    we're using a simple rotating wear-leveling technique. There are 20 'slots'
+    allocated in EEPROM, and instead of updating a single record at a single
+    EEPROM location, we iterate through the record slots. This spreads out the
+    erase cycles across a larger number of EEPROM cells, therefore making each
+    cell last longer.
+
+    The current record is marked by the most-significant-bit of the first byte.
+    A 0 in that spot means that it's the most recent, a 1 in that spot means
+    it's... not the most recent.
 */
 //! SERIOUSLY, READ THIS FIRST
 
@@ -157,6 +177,7 @@ flag_record_t read_record(uint16_t address) {
     return record;
 }
 
+// copy record fields back to their homes in the system
 void unpack_record_to_system(flag_record_t *record) {
     // these fields can be read directly
     swrThreshIndex = record->threshIndex;
@@ -201,6 +222,7 @@ void write_record(flag_record_t *record, uint16_t address) {
     }
 }
 
+// assemble a record from various system status variables
 flag_record_t pack_system_to_record(void) {
     pack_bypass_status();
 
