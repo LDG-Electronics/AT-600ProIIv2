@@ -460,6 +460,7 @@ void relay_button_hold(void) {
 
         // animations need to be serviced more often than retriggerDelay allows
         display_frame_t frame = relay_animation_handler(capResult, indResult);
+        
         // only draw our update if there's no RF
         if (!uiFlags.RFisPresent) {
             displayBuffer.next = frame;
@@ -623,6 +624,7 @@ void ant_hold(void) {
 /*  Handler for holding POWER button
 
 */
+// TODO: what do we do with the antenna relay when we power off?
 #define POWER_HOLD_DURATION 1500
 void power_hold(void) {
     LOG_TRACE({ println("power_hold"); });
