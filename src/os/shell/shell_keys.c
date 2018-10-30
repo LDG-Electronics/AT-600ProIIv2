@@ -264,8 +264,8 @@ static sequence_t intercept_escape_sequence(void) {
     sequence_t sequence;
     memset(&sequence, 0, sizeof(sequence));
 
-    system_time_t startTime = systick_read();
-    while (systick_elapsed_time(startTime) < 2) {
+    system_time_t startTime = get_current_time();
+    while (time_since(startTime) < 2) {
         // check for a new character
         sequence.buffer[sequence.length] = getch();
         // if valid character, move to next spot in buffer

@@ -271,7 +271,7 @@ extern void log_header(uint8_t msgLevel, const char *file, int line);
 
     LOG_INFO({
         printf("event is ready, last event was %lu ago\r\n",
-               (uint32_t)systick_elapsed_time(previousTime));
+               (uint32_t)time_since(previousTime));
         previousTime = currentTime;
     });
 

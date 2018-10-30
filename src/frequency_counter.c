@@ -170,7 +170,7 @@ uint32_t get_period(void) {
 #define MAGIC_FREQUENCY_NUMBER 1057000000
 #define NUM_OF_PERIOD_SAMPLES 4
 uint16_t get_frequency(void) {
-    currentRF.lastFrequencyTime = systick_read();
+    currentRF.lastFrequencyTime = get_current_time();
     uint32_t result = 0;
     uint32_t tempPeriod = 0;
 

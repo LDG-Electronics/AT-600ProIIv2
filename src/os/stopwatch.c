@@ -2,6 +2,8 @@
 #include "../peripherals/timer.h"
 #include "system_time.h"
 
+#include "serial_port.h"
+
 /* ************************************************************************** */
 
 void stopwatch_init(void) {
@@ -73,9 +75,9 @@ uint32_t us_stopwatch_end(void) {
 */
 static system_time_t ms_startTime = 0;
 
-void ms_stopwatch_begin(void) { ms_startTime = systick_read(); }
+void ms_stopwatch_begin(void) { ms_startTime = get_current_time(); }
 
-uint32_t ms_stopwatch_end(void) { return systick_elapsed_time(ms_startTime); }
+uint32_t ms_stopwatch_end(void) { return time_since(ms_startTime); }
 
 /* -------------------------------------------------------------------------- */
 /*  Notes on the Millisecond Multiwatch
@@ -90,17 +92,17 @@ static system_time_t ms_multiwatchStartTimes[CONCURRENT_MULTIWATCHES];
 
 void ms_multiwatch_begin(uint8_t stopwatchID) {
     // stash the start_time
-    ms_multiwatchStartTimes[stopwatchID] = systick_read();
+    ms_multiwatchStartTimes[stopwatchID] = get_current_time();
 }
 
 uint32_t ms_multiwatch_end(uint8_t stopwatchID) {
-    return systick_elapsed_time(ms_multiwatchStartTimes[stopwatchID]);
+    return time_since(ms_multiwatchStartTimes[stopwatchID]);
 }
 
 /* ************************************************************************** */
 
-#if 0
-void stopwatch_and_delay_test(void) {
+#ifdef STOPWATCH_SELF_TEST_ENABLED
+void stopwatch_self_test(void) {
     println("");
     println("-----------------------------------------------");
     println("microsecond delays with microsecond stopwatch");
@@ -115,14 +117,39 @@ void stopwatch_and_delay_test(void) {
     delay_us(100);
     printf("%lu uS\r\n", us_stopwatch_end());
 
+    print("200us: ");
+    us_stopwatch_begin();
+    delay_us(200);
+    printf("%lu uS\r\n", us_stopwatch_end());
+
+    print("500us: ");
+    us_stopwatch_begin();
+    delay_us(500);
+    printf("%lu uS\r\n", us_stopwatch_end());
+
     print("1000us: ");
     us_stopwatch_begin();
     delay_us(1000);
+    printf("%lu uS\r\n", us_stopwatch_end());
+    
+    print("5000us: ");
+    us_stopwatch_begin();
+    delay_us(5000);
     printf("%lu uS\r\n", us_stopwatch_end());
 
     print("10000us: ");
     us_stopwatch_begin();
     delay_us(10000);
+    printf("%lu uS\r\n", us_stopwatch_end());
+
+    print("20000us: ");
+    us_stopwatch_begin();
+    delay_us(20000);
+    printf("%lu uS\r\n", us_stopwatch_end());
+
+    print("30000us: ");
+    us_stopwatch_begin();
+    delay_us(30000);
     printf("%lu uS\r\n", us_stopwatch_end());
 
     println("");
@@ -163,9 +190,24 @@ void stopwatch_and_delay_test(void) {
     delay_ms(1000);
     printf("%lu uS\r\n", us_stopwatch_end());
 
+    print("5000ms: ");
+    us_stopwatch_begin();
+    delay_ms(5000);
+    printf("%lu uS\r\n", us_stopwatch_end());
+
     print("10000ms: ");
     us_stopwatch_begin();
     delay_ms(10000);
+    printf("%lu uS\r\n", us_stopwatch_end());
+
+    print("20000ms: ");
+    us_stopwatch_begin();
+    delay_ms(20000);
+    printf("%lu uS\r\n", us_stopwatch_end());
+
+    print("30000ms: ");
+    us_stopwatch_begin();
+    delay_ms(30000);
     printf("%lu uS\r\n", us_stopwatch_end());
 
     println("");

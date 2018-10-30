@@ -34,7 +34,7 @@ void ui_idle_block(void) {
 
     if (uiFlags.RFisPresent) {
         // measure frequency
-        if (systick_elapsed_time(currentRF.lastFrequencyTime) >
+        if (time_since(currentRF.lastFrequencyTime) >
             FREQUENCY_SAMPLE_INTERVAL) {
             LOG_TRACE({ println("updating frequency"); });
             get_frequency();
@@ -42,7 +42,7 @@ void ui_idle_block(void) {
         }
 
         // then measure RF
-        if (systick_elapsed_time(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
+        if (time_since(currentRF.lastRFTime) > RF_SAMPLE_INTERVAL) {
             LOG_TRACE({ println("updating RF"); });
             measure_RF();
             return;
@@ -60,12 +60,12 @@ void ui_idle_block(void) {
         // then update bargraphs
         if (uiFlags.updatingBargraphs) {
             static system_time_t lastUpdateTime = 0;
-            if (systick_elapsed_time(lastUpdateTime) >
+            if (time_since(lastUpdateTime) >
                 BARGRAPH_UPDATE_INTERVAL) {
                 LOG_TRACE({ println("updating bargraphs"); });
                 show_current_power_and_SWR();
             }
-            lastUpdateTime = systick_read();
+            lastUpdateTime = get_current_time();
         }
     }
 
@@ -88,11 +88,11 @@ void threshold_submenu(void) {
     blink_thresh(3); // blink for emphasis
     show_thresh();   // leave it on the screen
 
-    system_time_t startTime = systick_read(); // stash the current time
+    system_time_t startTime = get_current_time(); // stash the current time
 
     while (1) {
         if (btn_is_down(LDN)) {
-            startTime = systick_read(); // reset the start time
+            startTime = get_current_time(); // reset the start time
             SWR_threshold_increment();
 
             blink_thresh(2); // blink for emphasis
@@ -105,7 +105,7 @@ void threshold_submenu(void) {
         }
 
         // Cancel and exit if it's been longer than SUBMENU_DURATION
-        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION) {
+        if (time_since(startTime) >= SUBMENU_DURATION) {
             break;
         }
 
@@ -118,11 +118,11 @@ void scale_submenu(void) {
     blink_scale(3); // blink for emphasis
     show_scale();   // leave it on the screen
 
-    system_time_t startTime = systick_read(); // stash the current time
+    system_time_t startTime = get_current_time(); // stash the current time
 
     while (1) {
         if (btn_is_down(LUP)) {
-            startTime = systick_read(); // reset the start time
+            startTime = get_current_time(); // reset the start time
 
             toggle_scale();
 
@@ -136,7 +136,7 @@ void scale_submenu(void) {
         }
 
         // Cancel and exit if it's been longer than SUBMENU_DURATION
-        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION) {
+        if (time_since(startTime) >= SUBMENU_DURATION) {
             break;
         }
 
@@ -153,7 +153,7 @@ void function_submenu(void) {
     delay_ms(50);
     play_interruptable_animation(&arrow_up[0]);
 
-    system_time_t startTime = systick_read(); // stash the current time
+    system_time_t startTime = get_current_time(); // stash the current time
 
     while (1) {
         if (btn_is_down(CUP)) {
@@ -203,7 +203,7 @@ void function_submenu(void) {
         }
 
         // Cancel and exit if it's been longer than SUBMENU_DURATION
-        if (systick_elapsed_time(startTime) >= SUBMENU_DURATION) {
+        if (time_since(startTime) >= SUBMENU_DURATION) {
             LOG_TRACE({ println("function_submenu timeout"); });
             break;
         }
@@ -247,7 +247,7 @@ static display_frame_t relay_animation_handler(int8_t capResult,
     if ((!lowerBarIsBlinking && !upperBarIsBlinking) &&
         ((capResult == RLY_LIMIT_REACHED) ||
          (indResult == RLY_LIMIT_REACHED))) {
-        previousBlinkTime = systick_read();
+        previousBlinkTime = get_current_time();
         blinkFrame = 0xff;
     }
 
@@ -281,8 +281,8 @@ static display_frame_t relay_animation_handler(int8_t capResult,
         }
 
         // count time between blinks, and count number of blinks
-        if (systick_elapsed_time(previousBlinkTime) >= BLINK_INTERVAL) {
-            previousBlinkTime = systick_read();
+        if (time_since(previousBlinkTime) >= BLINK_INTERVAL) {
+            previousBlinkTime = get_current_time();
 
             if (upperBarIsBlinking) {
                 upperBarBlinkCount++;
@@ -356,7 +356,7 @@ static int8_t timeout_handler(void) {
 
     if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
         btn_is_down(LDN)) {
-        lastTimeButtonWasDown = systick_read();
+        lastTimeButtonWasDown = get_current_time();
     } else {
         // if we ARE NOT holding a relay button, any other button press should
         // kick us out
@@ -365,7 +365,7 @@ static int8_t timeout_handler(void) {
             return 0;
         }
     }
-    if (systick_elapsed_time(lastTimeButtonWasDown) >= TIMEOUT_INTERVAL) {
+    if (time_since(lastTimeButtonWasDown) >= TIMEOUT_INTERVAL) {
         return 0;
     }
 
@@ -397,7 +397,7 @@ uint8_t calculate_retrigger_delay(uint8_t triggerCount) {
 */
 void relay_button_hold(void) {
     LOG_TRACE({ println("relay_button_hold"); });
-    system_time_t lastTriggerTime = systick_read();
+    system_time_t lastTriggerTime = get_current_time();
     uint8_t triggerCount = 0;
     uint8_t retriggerDelay = 0; // trigger immediately the first time
     relays_t relays;
@@ -413,8 +413,8 @@ void relay_button_hold(void) {
     */
     while (timeout_handler()) {
         // only trigger/retrigger if it's been long enough
-        if (systick_elapsed_time(lastTriggerTime) >= retriggerDelay) {
-            lastTriggerTime = systick_read();
+        if (time_since(lastTriggerTime) >= retriggerDelay) {
+            lastTriggerTime = get_current_time();
 
             relays = read_current_relays();
             // increment or decrement as appropriate
@@ -477,11 +477,11 @@ void tune_hold(void) {
     LOG_TRACE({ println("tune_hold"); });
     uiFlags.updatingBargraphs = 0;
     system_time_t elapsedTime;
-    system_time_t startTime = systick_read();
+    system_time_t startTime = get_current_time();
 
     while (btn_is_down(TUNE)) // stay in loop while TUNE is held
     {
-        elapsedTime = systick_elapsed_time(startTime);
+        elapsedTime = time_since(startTime);
 
         if (elapsedTime < BTN_PRESS_DEBOUNCE) {
             // button was not held long enough, do nothing
@@ -612,10 +612,10 @@ void power_hold(void) {
         }
     } else {
         system_time_t elapsedTime;
-        system_time_t startTime = systick_read();
+        system_time_t startTime = get_current_time();
 
         while (btn_is_down(POWER)) {
-            elapsedTime = systick_elapsed_time(startTime);
+            elapsedTime = time_since(startTime);
             if (elapsedTime >= POWER_HOLD_DURATION) {
                 set_power_off();
                 display_clear();
@@ -667,8 +667,8 @@ void ui_mainloop(void) {
         ui_idle_block();
 
         // save flags
-        if (systick_elapsed_time(lastFlagSaveTime) > FLAG_SAVE_INTERVAL) {
-            lastFlagSaveTime = systick_read();
+        if (time_since(lastFlagSaveTime) > FLAG_SAVE_INTERVAL) {
+            lastFlagSaveTime = get_current_time();
             save_flags(); // takes either 80uS or 28mS
         }
     }

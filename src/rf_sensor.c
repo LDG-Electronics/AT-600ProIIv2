@@ -102,7 +102,7 @@ static float calculate_SWR_by_watts(float forward, float reverse) {
 }
 
 void measure_RF(void) {
-    currentRF.lastRFTime = systick_read();
+    currentRF.lastRFTime = get_current_time();
     currentRF.forward = adc_read(0);
     currentRF.reverse = adc_read(1);
 
@@ -129,8 +129,8 @@ int8_t wait_for_stable_FWD(void) {
     int16_t deltaFWD = 0;
     int16_t deltaCompare = 0;
 
-    system_time_t currentTime = systick_read();
-    while (systick_elapsed_time(currentTime) <= STABLE_RF_WINDOW) {
+    system_time_t currentTime = get_current_time();
+    while (time_since(currentTime) <= STABLE_RF_WINDOW) {
         currentFWD = adc_single_sample(0);
 
         deltaFWD = abs((int16_t)currentFWD - (int16_t)previousFWD);

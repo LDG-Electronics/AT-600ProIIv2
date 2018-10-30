@@ -1,7 +1,6 @@
 #ifndef _SYSTEM_TIME_H_
 #define _SYSTEM_TIME_H_
 
-#include "stopwatch.h"
 #include <stdint.h>
 
 /* ************************************************************************** */
@@ -10,22 +9,21 @@
     This module counts the system's uptime in milliseconds. It functions
     similarly to the millis() function from the Arduino platform.
 
-    There are several differences between millis() and systick_read():
+    There are several differences between millis() and get_current_time():
 
     millis() stores its count in a uint32_t, meaning it takes roughly 49 days
-    for millis() to overflow.
-    systick_read() stores its count in a uint24_t, meaning it takes roughly
-    4.6 hours to overflow.
+    for millis() to overflow. get_current_time() stores its count in a uint24_t,
+    meaning it takes roughly 4.6 hours to overflow.
 
     millis() requires an interrupt to fire every millisecond, and an ISR that
     increments a 4-byte-long uint32_t. This is a very quick ISR, but it's less
     than ideal that this ISR will need to be running all the time, behind any
-    other operations you intend to do on your system.
-    systick_read() uses no interrupt, so it still counts time during critical
-    sections of code and will never contribute to interrupt-based timer bugs.
+    other operations you intend to do on your system. get_current_time() uses no
+    interrupt, so it still counts time during critical sections of code and will
+    never contribute to interrupt-based timer bugs.
 
-    This module uses several hardware features of the K42. One hardware timer
-    of any variety needs to be configured to overflow every millisecond.
+    This module uses several hardware features of the K42. One hardware timer of
+    any variety needs to be configured to overflow every millisecond.
 
     This timer is then configured as the clock source of the Signal Measurement
     Timer, a special 24-bit counter. This causes the SMT to increment once every
@@ -54,22 +52,22 @@ typedef __uint24 system_time_t;
 
 /* ************************************************************************** */
 
-extern void systick_init(void);
+// setup
+extern void system_time_init(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern system_time_t systick_read(void);
+// returns the number of milliseconds since boot
+extern system_time_t get_current_time(void);
 
-extern system_time_t systick_elapsed_time(system_time_t startTime);
-
-extern void systick_delay(uint16_t mseconds);
+//  time_since() returns the time 
+#define time_since(startTime) (get_current_time() - startTime)
 
 /* -------------------------------------------------------------------------- */
 
 // delay_us() uses NOPs to wait n microseconds, to an accuracy of +-2%
-extern void delay_us(uint16_t useconds);
+extern void delay_us(uint16_t microSeconds);
 
-//! marked for deprecation
 /*  delay_ms() uses the system tick to wait between n-1 and n milliseconds.
     This error is caused by the 1ms resolution of the systick. delay_ms() can
     start anywhere in the 'current' ms. Calling delay_ms() with arguments less
@@ -78,6 +76,6 @@ extern void delay_us(uint16_t useconds);
 
     If a high-accuracy delay is required, please use delay_us() instead.
 */
-extern void delay_ms(uint16_t mseconds);
+extern void delay_ms(uint16_t milliSeconds);
 
 #endif

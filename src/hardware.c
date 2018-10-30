@@ -5,6 +5,7 @@
 #include "os/buttons.h"
 #include "os/log.h"
 #include "os/shell/shell.h"
+#include "os/stopwatch.h"
 #include "os/system_time.h"
 #include "peripherals/interrupt.h"
 #include "peripherals/nonvolatile_memory.h"
@@ -43,7 +44,7 @@ void startup(void) {
     // OS setup
     shell_init();
     log_init();
-    systick_init();
+    system_time_init();
 
     // Driver setup
     relays_init();

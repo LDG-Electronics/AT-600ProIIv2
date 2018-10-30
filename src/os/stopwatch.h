@@ -2,6 +2,7 @@
 #define _STOPWATCH_H_
 
 #include <stdint.h>
+#include <stdio.h>
 
 /* ************************************************************************** */
 
@@ -30,19 +31,19 @@
 // Setup
 extern void stopwatch_init(void);
 
-// Microsecond stopwatch functions, prints elapsed time in us +/- 1%
+// Microsecond stopwatch functions, counts elapsed time in us +/- 1%
 extern void us_stopwatch_begin(void);
 extern uint32_t us_stopwatch_end(void);
 #define us_stopwatch_print() printf("%lu uS", us_stopwatch_end())
 #define us_stopwatch_println() printf("%lu uS\r\n", us_stopwatch_end())
 
-// Millisecond stopwatch functions, prints elapsed time in ms +/- 1ms
+// Millisecond stopwatch functions, counts elapsed time in ms +/- 1ms
 extern void ms_stopwatch_begin(void);
 extern uint32_t ms_stopwatch_end(void);
 #define ms_stopwatch_print() printf("%lu mS", ms_stopwatch_end())
 #define ms_stopwatch_println() printf("%lu mS\r\n", ms_stopwatch_end())
 
-// Millisecond multiwatch functions, prints elapsed time in ms +/- 1ms
+// Millisecond multiwatch functions, counts elapsed time in ms +/- 1ms
 // Can run multiple, concurrent multiwatches by providing unique ID numbers
 #define CONCURRENT_MULTIWATCHES 16
 extern void ms_multiwatch_begin(uint8_t stopwatchID);
@@ -54,7 +55,12 @@ extern uint32_t ms_multiwatch_end(uint8_t stopwatchID);
 
 /* -------------------------------------------------------------------------- */
 
+// Comment this out to prevent stopwatch_self_test() from compiling
+// #define STOPWATCH_SELF_TEST_ENABLED
+
 // Test function used to calibrate the stopwatch
-extern void stopwatch_and_delay_test(void);
+#ifdef STOPWATCH_SELF_TEST_ENABLED
+extern void stopwatch_self_test(void);
+#endif
 
 #endif // _STOPWATCH_H_

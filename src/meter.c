@@ -74,9 +74,9 @@ void attempt_meter_update(void) {
     check_for_meter_sync();
 
     if (meter.active == 1) {
-        system_time_t currentTime = systick_read();
+        system_time_t currentTime = get_current_time();
 
-        if (systick_elapsed_time(currentTime) >= METER_UPDATE_INTERVAL) {
+        if (time_since(currentTime) >= METER_UPDATE_INTERVAL) {
             send_meter_update();
         }
     }
