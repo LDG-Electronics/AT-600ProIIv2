@@ -59,16 +59,19 @@ void SWR_threshold_increment(void) {
 }
 
 /* ************************************************************************** */
+#define NUMBER_OF_SAMPLES 8
+#define LOW_POWER_CUTOFF 100
 
+// TODO: get a 1W transmitter(FT-817?)
 bool check_for_RF(void) {
     uint16_t sum = 0;
-    for (uint8_t i = 0; i < 8; i++) {
+    for (uint8_t i = 0; i < NUMBER_OF_SAMPLES; i++) {
         sum += adc_single_sample(0);
     }
 
-    uint16_t average = sum / 8;
+    uint16_t average = sum / NUMBER_OF_SAMPLES;
 
-    if (average >= 200) {
+    if (average >= LOW_POWER_CUTOFF) {
         return true;
     }
     return false;
