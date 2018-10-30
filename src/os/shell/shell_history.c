@@ -25,15 +25,15 @@
     X(14)                                                                      \
     X(15)
 
-#define X(NAME) line_t history_##NAME;
+#define X(NAME) shell_line_t history_##NAME;
 HISTORY_LIST
 #undef X
 
 /* -------------------------------------------------------------------------- */
 
 typedef struct {
-    line_t *line[SHELL_HISTORY_LENGTH];
-    line_t tempLine;
+    shell_line_t *line[SHELL_HISTORY_LENGTH];
+    shell_line_t tempLine;
     uint8_t head;
     uint8_t pointer;
     uint8_t length;
@@ -45,7 +45,7 @@ shell_history_t history;
 
 // clear a line in the shell history
 static void clear_history_line(uint8_t line) {
-    memset(history.line[line], 0, sizeof(line_t));
+    memset(history.line[line], 0, sizeof(shell_line_t));
 }
 
 void shell_history_wipe(void) {
@@ -53,7 +53,7 @@ void shell_history_wipe(void) {
         clear_history_line(i);
     }
 
-    memset(&history.tempLine, 0, sizeof(line_t));
+    memset(&history.tempLine, 0, sizeof(shell_line_t));
 
     history.head = 0;
     history.pointer = 0;
@@ -65,7 +65,7 @@ void shell_history_wipe(void) {
 /* ************************************************************************** */
 
 void shell_history_init(void) {
-    // initialize history array with pointers to line_t's
+    // initialize history array with pointers to shell_line_t's
 #define X(NAME) history.line[NAME] = &history_##NAME;
     HISTORY_LIST
 #undef X
@@ -135,7 +135,7 @@ void shell_history_push(void) {
     }
 
     // copy the current line into the next slot in the history queue
-    memcpy(history.line[history.head], &shell.buffer, sizeof(line_t));
+    memcpy(history.line[history.head], &shell.buffer, sizeof(shell_line_t));
 }
 
 // used when we hit the up arrow
@@ -147,7 +147,7 @@ void shell_history_show_older(void) {
 
     // since we weren't already in history mode, stash the current line
     if (history.historyMode == 0) {
-        memcpy(&history.tempLine, &shell.buffer, sizeof(line_t));
+        memcpy(&history.tempLine, &shell.buffer, sizeof(shell_line_t));
         history.historyMode = 1;
     }
 
@@ -159,7 +159,7 @@ void shell_history_show_older(void) {
 
     uint8_t line = (history.head + history.pointer - 1) % SHELL_HISTORY_LENGTH;
 
-    memcpy(&shell.buffer, history.line[line], sizeof(line_t));
+    memcpy(&shell.buffer, history.line[line], sizeof(shell_line_t));
 
     if (history.historyInspectionMode == 1) {
         inspect_shell_history();
@@ -184,7 +184,7 @@ void shell_history_show_newer(void) {
     // once we reach the newest line, restore the stashed line buffer and quit
     if (history.pointer == 0) {
         history.historyMode = 0;
-        memcpy(&shell.buffer, &history.tempLine, sizeof(line_t));
+        memcpy(&shell.buffer, &history.tempLine, sizeof(shell_line_t));
         if (history.historyInspectionMode == 1) {
             inspect_shell_history();
         }
@@ -194,7 +194,7 @@ void shell_history_show_newer(void) {
 
     uint8_t line = (history.head + history.pointer - 1) % SHELL_HISTORY_LENGTH;
 
-    memcpy(&shell.buffer, history.line[line], sizeof(line_t));
+    memcpy(&shell.buffer, history.line[line], sizeof(shell_line_t));
     if (history.historyInspectionMode == 1) {
         inspect_shell_history();
     }

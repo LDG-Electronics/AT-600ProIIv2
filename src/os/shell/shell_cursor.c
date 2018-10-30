@@ -41,7 +41,7 @@ void move_cursor_to(uint8_t position) {
 
 /* -------------------------------------------------------------------------- */
 
-void draw_line(line_t *line) {
+void draw_line(shell_line_t *line) {
     // put cursor at the beginning of the line
     print("\033[100D");
 
@@ -58,7 +58,7 @@ void draw_line(line_t *line) {
     move_cursor_to(line->cursor);
 }
 
-void draw_line_from_cursor(line_t *line) {
+void draw_line_from_cursor(shell_line_t *line) {
     // clear line right of cursor
     print("\033[0K");
 

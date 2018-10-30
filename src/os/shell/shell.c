@@ -9,7 +9,8 @@
 
 /* ************************************************************************** */
 
-line_t shell;
+// stores linebuffer and cursor position
+shell_line_t shell;
 
 /* -------------------------------------------------------------------------- */
 
@@ -26,7 +27,7 @@ void shell_init(void) {
     serial_port_init();
 
     // initialize shell
-    memset(&shell, 0, sizeof(line_t));
+    memset(&shell, 0, sizeof(shell_line_t));
     shell_set_program_callback(NULL);
 
     // shell history
@@ -53,7 +54,7 @@ void process_escape_sequence(key_t key) {
             shell_history_push();
             process_shell_command();
 
-            memset(&shell, 0, sizeof(line_t));
+            memset(&shell, 0, sizeof(shell_line_t));
             return;
         }
         print(SHELL_PROMPT_STRING);

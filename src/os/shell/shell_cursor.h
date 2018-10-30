@@ -15,7 +15,7 @@ extern void move_cursor_to(uint8_t position);
 /* -------------------------------------------------------------------------- */
 
 // clear the current line and reprint it from line
-extern void draw_line(line_t *line);
+extern void draw_line(shell_line_t *line);
 
 //
 extern void insert_char_at_cursor(char currentChar);

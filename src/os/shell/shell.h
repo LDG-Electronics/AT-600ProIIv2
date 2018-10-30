@@ -8,18 +8,19 @@
 
 /* -------------------------------------------------------------------------- */
 
-/*  line_t
+/*  shell_line_t
 
     A shell line contains a char buffer that is SHELL_MAX_LENGTH long, and two
     variables to keep track of the current length of the buffer and the current
     location of the cursor.
 */
-
 typedef struct {
     char buffer[SHELL_MAX_LENGTH];
     uint8_t length;
     uint8_t cursor;
-} line_t;
+} shell_line_t;
+
+extern shell_line_t shell;
 
 /* -------------------------------------------------------------------------- */
 
