@@ -31,27 +31,27 @@ void memory_init(void) {
     Group 6(30 to 55): 25M wide, 600 slots, 41k/slot
 */
 
-uint16_t groupBoundaries[] = {1, 5500, 10500, 20000, 25000, 30000, 55000};
+uint16_t freqGroupBoundaries[] = {1, 5500, 10500, 20000, 25000, 30000, 55000};
 uint16_t addressSlotsPerGroup[] = {0, 1000, 1500, 2500, 3000, 3400, 4000};
-
+// TODO: build test for this
 static NVM_address_t map_freq_to_addr(uint16_t frequency) {
     // identify frequency group
     uint8_t group = 0;
-    while (groupBoundaries[group] < frequency) {
+    while (freqGroupBoundaries[group] < frequency) {
         group++;
     }
+    uint16_t inputMin = freqGroupBoundaries[group - 1];
+    uint16_t inputMax = freqGroupBoundaries[group];
 
-    uint16_t old_min = groupBoundaries[group - 1];
-    uint16_t old_max = groupBoundaries[group];
+    uint16_t outputMin = addressSlotsPerGroup[group - 1] + 1;
+    uint16_t outputMax = addressSlotsPerGroup[group];
 
-    uint16_t new_min = addressSlotsPerGroup[group - 1] + 1;
-    uint16_t new_max = addressSlotsPerGroup[group];
+    uint16_t inputRange = (inputMax - inputMin);
+    uint16_t outputRange = (outputMax - outputMin);
 
-    uint16_t oldRange = (old_max - old_min);
-    uint16_t newRange = (new_max - new_min);
-
+    // TODO: math is not right pls fix
     uint32_t temp = frequency - 1;
-    uint32_t address = ((temp * newRange) / oldRange) + new_min;
+    uint32_t address = ((temp * outputRange) / outputRange) + outputMin;
 
     return (NVM_address_t)address;
 }
@@ -83,9 +83,12 @@ typedef struct {
 #define MEMORIES_PER_FLASH_BLOCK 10
 
 // single block of flash, contains
-typedef struct {
-    memory_slot_t memories[MEMORIES_PER_FLASH_BLOCK]; // 120 bytes
-    uint8_t unused[8];                                // 8 byte
+typedef union {
+    struct {
+        memory_slot_t memories[MEMORIES_PER_FLASH_BLOCK]; // 120 bytes
+        uint8_t unused[8];                                // 8 byte
+    };
+    uint8_t array[128];
 } memory_page_t;
 
 void memory_store(NVM_address_t address) {
@@ -104,7 +107,7 @@ void memory_store(NVM_address_t address) {
     });
 
     // compare the two datas bit-by-bit, checking for 0->1 transitions
-    // bool mustErase = false;
+    bool mustErase = false;
     // for (uint8_t i = 0; i < 8; i++) {
     //     if (!(existingData & (1 << i)) && (newData & (1 << i))) {
     //         mustErase = true;
@@ -115,7 +118,6 @@ void memory_store(NVM_address_t address) {
     uint8_t buffer[FLASH_BUFFER_SIZE];
     flash_read_block(address, buffer);
 
-    // Mask off everything but bottom 6 bits(64 addresses)
     uint8_t i = address & FLASH_ELEMENT_MASK;
 
     // Pack the caps and hiloz into the low byte, load inds into the high byte
