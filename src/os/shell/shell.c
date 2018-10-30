@@ -29,9 +29,6 @@ void shell_init(void) {
     memset(&shell, 0, sizeof(line_t));
     shell_set_program_callback(NULL);
 
-    // sequence processing
-    shell_sequences_init();
-
     // shell history
     shell_history_init();
 }

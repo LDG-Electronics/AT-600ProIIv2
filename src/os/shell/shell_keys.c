@@ -1,8 +1,7 @@
 #include "shell_keys.h"
-#include "../log_macros.h"
+#include "../serial_port.h"
 #include "../system_time.h"
 #include <string.h>
-static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
@@ -10,20 +9,6 @@ static uint8_t LOG_LEVEL = L_SILENT;
 const char *keyNameString[] = {KEY_NAME_LIST};
 const char *keyModifierString[] = {KEY_MODIFIER_LIST};
 #undef X
-
-typedef struct {
-    char buffer[SEQUENCE_BUFFER_LENGTH];
-    uint8_t length;
-} sequence_t;
-
-sequence_t sequence;
-
-void shell_sequences_init(void) {
-    memset(&sequence, 0, sizeof(sequence));
-    log_register();
-}
-
-/* -------------------------------------------------------------------------- */
 
 void print_key(key_t *key) {
     if (key->mod != NONE) {
@@ -35,6 +20,20 @@ void print_key(key_t *key) {
 
 /* -------------------------------------------------------------------------- */
 
+typedef struct {
+    char buffer[SEQUENCE_BUFFER_LENGTH];
+    uint8_t length;
+} sequence_t;
+
+/* ************************************************************************** */
+/*  Control sequences and sequenceIdentifiers
+
+    Control sequences are a series of bytes that represents a single keystroke.
+    Example sequences:
+    up arrow: (ESC, A)
+    pageup: (ESC, 5, ~)
+    F6: (ESC, 1, 7, ~)
+*/
 typedef enum {
     KEY_UP = 65,
     KEY_DOWN = 66,
@@ -62,17 +61,15 @@ typedef enum {
     KEY_F12 = 52,
 } sequenceIdentifiers;
 
-key_t decode_escape_sequence(void) {
-    LOG_TRACE({ println("decode_escape_sequence"); });
-
+key_t decode_escape_sequence(sequence_t *sequence) {
     key_t newKey = {UNKNOWN, NONE};
 
-    switch (sequence.length) {
+    switch (sequence->length) {
     case 0:
         newKey.key = ESCAPE;
         return newKey;
     case 2:
-        switch (sequence.buffer[1]) {
+        switch (sequence->buffer[1]) {
         default:
             return newKey;
         case KEY_UP:
@@ -107,8 +104,8 @@ key_t decode_escape_sequence(void) {
             return newKey;
         }
     case 3:
-        if (sequence.buffer[2] == '~') {
-            switch (sequence.buffer[1]) {
+        if (sequence->buffer[2] == '~') {
+            switch (sequence->buffer[1]) {
             default:
                 return newKey;
             case KEY_HOME2:
@@ -130,8 +127,8 @@ key_t decode_escape_sequence(void) {
         }
         return newKey;
     case 4:
-        if (sequence.buffer[3] == '~') {
-            switch (sequence.buffer[2]) {
+        if (sequence->buffer[3] == '~') {
+            switch (sequence->buffer[2]) {
             default:
                 return newKey;
             case KEY_F5:
@@ -163,7 +160,7 @@ key_t decode_escape_sequence(void) {
         }
         return newKey;
     case 5:
-        switch (sequence.buffer[4]) {
+        switch (sequence->buffer[4]) {
         default:
             return newKey;
         case KEY_F1:
@@ -197,20 +194,20 @@ key_t decode_escape_sequence(void) {
             newKey.key = END;
             break;
         case '~':
-            if (sequence.buffer[1] == KEY_DEL) {
+            if (sequence->buffer[1] == KEY_DEL) {
                 newKey.key = DELETE;
                 break;
             }
-            if (sequence.buffer[1] == KEY_INS) {
+            if (sequence->buffer[1] == KEY_INS) {
                 newKey.key = INSERT;
                 break;
             }
         }
-        newKey.mod = sequence.buffer[3] - '0';
+        newKey.mod = sequence->buffer[3] - '0';
         return newKey;
     case 6:
-        if (sequence.buffer[5] == '~') {
-            switch (sequence.buffer[2]) {
+        if (sequence->buffer[5] == '~') {
+            switch (sequence->buffer[2]) {
             default:
                 return newKey;
             case KEY_F5:
@@ -239,7 +236,7 @@ key_t decode_escape_sequence(void) {
                 newKey.key = F12;
                 break;
             }
-            newKey.mod = sequence.buffer[4] - '0';
+            newKey.mod = sequence->buffer[4] - '0';
             return newKey;
         }
         return newKey;
@@ -264,9 +261,6 @@ typedef enum {
 } controlCharacters;
 
 key_t decode_control_character(char currentChar) {
-    LOG_TRACE({ println("decode_control_character"); });
-    LOG_DEBUG({ printf("currentChar: %d\r\n", currentChar); });
-
     key_t newKey = {UNKNOWN, NONE};
 
     switch (currentChar) {
@@ -285,8 +279,8 @@ key_t decode_control_character(char currentChar) {
     }
 }
 
-void intercept_escape_sequence(void) {
-    LOG_TRACE({ println("intercept_escape_sequence"); });
+sequence_t intercept_escape_sequence(void) {
+    sequence_t sequence;
     memset(&sequence, 0, sizeof(sequence));
 
     system_time_t startTime = systick_read();
@@ -299,22 +293,18 @@ void intercept_escape_sequence(void) {
         }
     }
 
-    LOG_DEBUG({ printf("sequence.buffer: '%s'\r\n", sequence.buffer); });
-    LOG_DEBUG({ printf("sequence.length: %d\r\n", sequence.length); });
+    return sequence;
 }
 
 key_t identify_key(char currentChar) {
-    LOG_TRACE({ println("identify_key"); });
-
     key_t key = {UNKNOWN, NONE};
 
     if (currentChar == KEY_ESC) {
-        intercept_escape_sequence();
-        key = decode_escape_sequence();
+        sequence_t sequence = intercept_escape_sequence();
+        key = decode_escape_sequence(&sequence);
     } else {
         key = decode_control_character(currentChar);
     }
 
-    LOG_DEBUG(print_key(&key););
     return key;
 }

@@ -61,13 +61,10 @@ typedef struct {
 
 /* ************************************************************************** */
 
-// setup
-extern void shell_sequences_init(void);
+// print the name and modifier of the provided key_t object
+extern void print_key(key_t *key);
 
 // returns a key object that identifies the pressed key
 extern key_t identify_key(char currentChar);
-
-// print the name and modifier of the provided key_t object
-extern void print_key(key_t *key);
 
 #endif
