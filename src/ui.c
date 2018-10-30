@@ -330,50 +330,48 @@ static display_frame_t relay_animation_handler(int8_t capResult,
     return newFrame;
 }
 
-uint8_t process_CUP_or_CDN(uint8_t capacitors, int8_t *capResult) {
+void process_CUP_or_CDN(relays_t *relays, int8_t *capResult) {
     *capResult = RLY_INC_NO_CHANGE;
 
     if (btn_is_down(CUP) && btn_is_down(CDN)) {
         // can't go up and down at the same time; do nothing
     } else if (btn_is_down(CUP)) {
-        if (capacitors < MAX_CAPACITORS) {
-            capacitors++;
+        if (relays->caps < MAX_CAPACITORS) {
+            relays->caps++;
             *capResult = RLY_INCREMENT_SUCCESS;
         } else {
             *capResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(CDN)) {
-        if (capacitors > MIN_CAPACITORS) {
-            capacitors--;
+        if (relays->caps > MIN_CAPACITORS) {
+            relays->caps--;
             *capResult = RLY_INCREMENT_SUCCESS;
         } else {
             *capResult = RLY_LIMIT_REACHED;
         }
     }
-    return capacitors;
 }
 
-uint8_t process_LUP_or_LDN(uint8_t inductors, int8_t *indResult) {
+void process_LUP_or_LDN(relays_t *relays, int8_t *indResult) {
     *indResult = RLY_INC_NO_CHANGE;
 
     if (btn_is_down(LUP) && btn_is_down(LDN)) {
         // can't go up and down at the same time; do nothing
     } else if (btn_is_down(LUP)) {
-        if (inductors < MAX_INDUCTORS) {
-            inductors++;
+        if (relays->inds < MAX_INDUCTORS) {
+            relays->inds++;
             *indResult = RLY_INCREMENT_SUCCESS;
         } else {
             *indResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(LDN)) {
-        if (inductors > MIN_INDUCTORS) {
-            inductors--;
+        if (relays->inds > MIN_INDUCTORS) {
+            relays->inds--;
             *indResult = RLY_INCREMENT_SUCCESS;
         } else {
             *indResult = RLY_LIMIT_REACHED;
         }
     }
-    return inductors;
 }
 
 #define TIMEOUT_INTERVAL 500
@@ -443,11 +441,10 @@ void relay_button_hold(void) {
         if (systick_elapsed_time(lastTriggerTime) >= retriggerDelay) {
             lastTriggerTime = systick_read();
 
-            // increment or decrement as appropriate
             relays = read_current_relays();
-            // TODO: remove returns, do it all by reference
-            relays.caps = process_CUP_or_CDN(relays.caps, &capResult);
-            relays.inds = process_LUP_or_LDN(relays.inds, &indResult);
+            // increment or decrement as appropriate
+            process_CUP_or_CDN(&relays, &capResult);
+            process_LUP_or_LDN(&relays, &indResult);
             if ((capResult == RLY_INCREMENT_SUCCESS) ||
                 (indResult == RLY_INCREMENT_SUCCESS)) {
                 put_relays(&relays);
