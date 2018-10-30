@@ -30,14 +30,13 @@ static void terminate_current_program(void) {
 }
 /* ************************************************************************** */
 
-    shell_register_callback(NULL);
 // set up the entire shell subsystem
 void shell_init(void) {
     serial_port_init();
 
     // initialize shell
     memset(&shell, 0, sizeof(shell_line_t));
-    shell_set_program_callback(NULL);
+    shell_register_callback(NULL);
 
     // shell history
     shell_history_init();
@@ -58,12 +57,25 @@ void process_escape_sequence(key_t key) {
     case ENTER:
         println("");
         if (shell.length > 0) {
+            // add terminating null to shell buffer
             shell.buffer[shell.length] = '\0';
+
             // Push the current line to history before it gets mangled
             shell_history_push();
-            process_shell_command();
 
+            // attempt to process the shell buffer
+            if (process_shell_command(&shell.buffer[0]) == -1) {
+                // if there's no valid command, say something
+                printf("%s: command not found\r\n", shell.buffer);
+            }
+
+            // wipe the current shell line
             memset(&shell, 0, sizeof(shell_line_t));
+
+            // only print a new prompt if no callback is registered
+            if (!shellCallback) {
+                print(SHELL_PROMPT_STRING);
+            }
             return;
         }
         print(SHELL_PROMPT_STRING);
@@ -124,13 +136,13 @@ void shell_update(void) {
 
     // execute shell callback, if one is registered
     if (shellCallback) {
+        // ctrl+c forces the program to terminate
         if (currentChar == 3) {
             terminate_current_program();
             return;
         }
         // execute callback
-        int8_t result = shellCallback(currentChar);
-        if (result == -1) {
+        if (shellCallback(currentChar) == -1) {
             terminate_current_program();
         }
         return;

@@ -1,13 +1,11 @@
 #ifndef _SHELL_COMMAND_PROCESSOR_H_
 #define _SHELL_COMMAND_PROCESSOR_H_
 
-#include "shell.h"
+#include <stdint.h>
 
 /* ************************************************************************** */
 
-// setup
-extern void shell_commands_init(void);
-
-extern void process_shell_command(void);
+// Attempt to parse the shell input and excute the matching command
+extern int8_t process_shell_command(char *string);
 
 #endif

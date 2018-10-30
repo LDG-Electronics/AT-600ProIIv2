@@ -1,6 +1,8 @@
 #include "shell_command_processor.h"
 #include "../../shell_commands.h"
 #include "../serial_port.h"
+#include "shell.h"
+#include "shell_config.h"
 #include <string.h>
 
 /* ************************************************************************** */
@@ -49,6 +51,7 @@ void shell_arg_test(int argc, char **argv) {
 
 #define BUILTIN_SHELL_COMMANDS                                                 \
     {shell_help, "help"}, { shell_arg_test, "test" }
+
 /* ************************************************************************** */
 
 /*  shell_command_t
@@ -82,6 +85,7 @@ void shell_print_commands(void) {
 
 /* ************************************************************************** */
 
+// returns the index of the command that matches *string
 static int8_t find_matching_command(char *string) {
     for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
         if (commandList[i].program == 0)
@@ -95,13 +99,13 @@ static int8_t find_matching_command(char *string) {
     return -1;
 }
 
-void process_shell_command(void) {
+int8_t process_shell_command(char *string) {
     int argc = 0;
     char *argv_list[CONFIG_SHELL_MAX_COMMAND_ARGS];
 
     // tokenize the shell buffer
     // argv_list will end up containing a pointer to each token
-    char *token = strtok(&shell.buffer[0], " ");
+    char *token = strtok(string, " ");
     while (token != NULL && argc <= CONFIG_SHELL_MAX_COMMAND_ARGS) {
         argv_list[argc++] = token;
         token = strtok(NULL, " ");
@@ -114,11 +118,7 @@ void process_shell_command(void) {
     if (command != -1) {
         commandList[command].program(argc, argv_list);
 
-        print(SHELL_PROMPT_STRING);
-
-        return;
+        return 0;
     }
-    // if there's no valid command, say something
-    printf("%s: command not found\r\n", shell.buffer);
-    print(SHELL_PROMPT_STRING);
+    return -1;
 }
