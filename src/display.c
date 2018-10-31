@@ -312,10 +312,10 @@ static uint8_t array_lookup(float data, float *array) {
 }
 
 void show_power_and_SWR(uint16_t forwardWatts, float swrValue) {
-    uint8_t fwdIndex = array_lookup(currentRF.forwardWatts, fwdIndexArray);
+    uint8_t fwdIndex = array_lookup(forwardWatts, fwdIndexArray);
     displayBuffer.next.upper = ledBarTable[fwdIndex];
-    
-    uint8_t swrIndex = array_lookup(currentRF.swr, swrIndexArray);
+
+    uint8_t swrIndex = array_lookup(swrValue, swrIndexArray);
     displayBuffer.next.lower = ledBarTable[swrIndex];
 
     display_update();
