@@ -125,13 +125,13 @@ void flags_init(void) {
     nonvolatile_memory_init();
 
     // populate systemFlags with default values
-    systemFlags.ant1Bypass = 1;  // default value is bypass
-    systemFlags.ant2Bypass = 1;  // default value is bypass
-    systemFlags.antenna = 0;     // default value is Ant 2
-    systemFlags.autoMode = 0;    // default value is semi mode
-    systemFlags.peakMode = 0;    // default value is NOT peak mode
-    systemFlags.scaleMode = 0;   // default value is
-    systemFlags.powerStatus = 1; // default value is 1
+    systemFlags.ant1Bypass = 1;  // default is bypass
+    systemFlags.ant2Bypass = 1;  // default is bypass
+    systemFlags.antenna = 0;     // default is Ant 2
+    systemFlags.autoMode = 0;    // default is semi mode
+    systemFlags.peakMode = 0;    // default is NOT peak mode
+    systemFlags.scaleMode = 1;   // default is 1, full scale
+    systemFlags.powerStatus = 1; // default is 1
     swrThreshIndex = 0;
 
     unpack_bypass_status();

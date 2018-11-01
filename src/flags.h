@@ -18,7 +18,7 @@ typedef struct {
     unsigned antenna : 1;    // Which antenna is selected
     unsigned autoMode : 1;   // Are we in semi (0) or full (1) auto mode?
     unsigned peakMode : 1;   //
-    unsigned scaleMode : 1;  //
+    unsigned scaleMode : 1;  // 1 is full scale
     unsigned powerStatus : 1;
 } system_flags_t;
 
