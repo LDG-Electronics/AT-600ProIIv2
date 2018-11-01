@@ -138,10 +138,6 @@ int8_t test_next_solution(uint8_t testMode) {
     }
 
     measure_RF();
-    // if (SWR_stable_average() != 0) {
-    //     tuning_flags.lostRF = 1;
-    //     return (-1);
-    // }
 
     if (testMode == 0) {
         if (currentRF.swr < bestMatch.reflectionCoefficient) {
@@ -474,14 +470,14 @@ void full_tune(void) {
     LOG_TRACE({ println("full_tune"); });
 
     clear_tuning_flags();
-
     // If we fail to find FWD power twice, then set an error and exit.
-    // if (SWR_stable_average() != 0) {
-    //     if (SWR_stable_average() != 0) {
-    //         tuning_flags.noRF = 1;
-    //         return;
-    //     }
-    // }
+    if (!check_for_RF()) {
+        delay_ms(25);
+        if (!check_for_RF()) {
+            tuning_flags.noRF = 1;
+            return;
+        }
+    }
 
     reset_tuning_data();
 
@@ -547,8 +543,8 @@ void full_tune(void) {
 
 // Memory tuning utilities
 
-#define MEMORY_GAP 2
-#define NUM_OF_MEMORIES 3
+#define MEMORY_WIDTH 2
+#define NUM_OF_MEMORIES 5
 
 float bestMemorySWR;
 relays_t bestMemory;
@@ -563,16 +559,17 @@ static void prepare_memories(void) {
     bestMemory.all = 0;
 
     // Read the memory and its neighbors
-    memoryBuffer[0] = memory_recall(address);
-    memoryBuffer[1] = memory_recall(address - MEMORY_GAP);
-    memoryBuffer[2] = memory_recall(address + MEMORY_GAP);
+    memoryBuffer[0] = memory_recall(address - MEMORY_WIDTH * 2);
+    memoryBuffer[1] = memory_recall(address - MEMORY_WIDTH);
+    memoryBuffer[2] = memory_recall(address);
+    memoryBuffer[3] = memory_recall(address + MEMORY_WIDTH);
+    memoryBuffer[4] = memory_recall(address + MEMORY_WIDTH * 2);
 }
 
 static void test_memory(relays_t *memory) {
     LOG_TRACE({ println("test_memory"); });
 
     put_relays(memory);
-    // SWR_stable_average();
     measure_RF();
 
     LOG_INFO({
@@ -587,21 +584,15 @@ static void test_memory(relays_t *memory) {
     }
 }
 
-static void restore_best_memory(void) {
-    LOG_TRACE({ println("restore_best_memory"); });
-
-    put_relays(&bestMemory);
-}
-
 void memory_tune(void) {
     LOG_TRACE({ println("memory_tune"); });
 
     clear_tuning_flags();
 
-    // if (SWR_stable_average() != 0) {
-    //     tuning_flags.noRF = 1;
-    //     return;
-    // }
+    if (!check_for_RF()) {
+        tuning_flags.noRF = 1;
+        return;
+    }
 
     prepare_memories();
 
@@ -614,8 +605,7 @@ void memory_tune(void) {
         i++;
     }
 
-    restore_best_memory();
-    // SWR_stable_average();
+    put_relays(&bestMemory);
     measure_RF();
 
     // Did we find a valid memory?

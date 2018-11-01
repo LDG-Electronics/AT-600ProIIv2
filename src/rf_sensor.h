@@ -52,7 +52,4 @@ extern bool check_for_RF(void);
 // measures RF and calculates SWR
 extern void measure_RF(void);
 
-// wait for stable FWD power, measure RF, calculate SWR,
-extern int8_t SWR_stable_average(void);
-
 #endif // _RF_SENSOR_H_
