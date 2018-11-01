@@ -10,10 +10,12 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 void frequency_counter_init(void) {
     timer3_clock_source(TMR_CLK_FOSC);
-    timer4_clock_source(TMR_CLK_FOSC);
+
+    // timeout timer: overflows in 16.384 mS, according MPLABX
+    timer4_clock_source(TMR_CLK_FOSC4);
     timer4_prescale(TMR_PRE_1_128);
-    timer4_postscale(TMR_POST_1_2);
-    timer4_period_set(0xF9);
+    timer4_postscale(TMR_POST_1_8);
+    timer4_period_set(0xFF);
 
     log_register();
 }
@@ -94,6 +96,7 @@ void __interrupt(irq(TMR3), high_priority) timer3_overflow_ISR(void) {
 }
 
 uint32_t get_period(void) {
+    LOG_TRACE({ println("get_period"); });
     // counting timer
     timer3_clear();
     timer3_IF_clear();
@@ -109,6 +112,7 @@ uint32_t get_period(void) {
     while (FREQ_PIN != 0) {
         if (timer4_IF_read()) {
             timer4_stop();
+            LOG_ERROR({ println("timed out"); });
             return 0;
         }
     }
@@ -118,9 +122,11 @@ uint32_t get_period(void) {
     timer4_IF_clear();
     timer4_start();
 
+    // align ourselves with the falling edge of FREQ_PIN
     while (FREQ_PIN == 0) {
         if (timer4_IF_read()) {
             timer4_stop();
+            LOG_ERROR({ println("timed out"); });
             return 0;
         }
     }
@@ -130,11 +136,12 @@ uint32_t get_period(void) {
     timer4_IF_clear();
     timer4_start();
 
-    // engage
+    // this time it's for real
     timer3_start();
     while (FREQ_PIN != 0) {
         if (timer4_IF_read()) {
             timer4_stop();
+            LOG_ERROR({ println("timed out"); });
             return 0;
         }
     }
@@ -144,6 +151,7 @@ uint32_t get_period(void) {
 
     // calculate total elapsed time
     timer3Count += timer3_read();
+    LOG_DEBUG({ printf("period: %lu\r\n", timer3Count); });
     return timer3Count;
 }
 
@@ -170,6 +178,7 @@ uint32_t get_period(void) {
 #define MAGIC_FREQUENCY_NUMBER 1057000000
 #define NUM_OF_PERIOD_SAMPLES 4
 void measure_frequency(void) {
+    LOG_TRACE({ println("measure_frequency"); });
     currentRF.lastFrequencyTime = get_current_time();
     uint32_t result = 0;
     uint32_t tempPeriod = 0;
@@ -187,4 +196,6 @@ void measure_frequency(void) {
     tempPeriod /= NUM_OF_PERIOD_SAMPLES;
 
     currentRF.frequency = (uint16_t)(MAGIC_FREQUENCY_NUMBER / tempPeriod);
+
+    LOG_INFO({ printf("frequency: %u\r\n", currentRF.frequency); });
 }
