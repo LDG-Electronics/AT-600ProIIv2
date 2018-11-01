@@ -537,7 +537,8 @@ void full_tune(void) {
             println("");
         });
 
-        memory_store(convert_memory_address(currentRF.frequency));
+        memory_store(convert_memory_address(currentRF.frequency),
+                     &bestMatch.relays);
         return;
     }
 }
@@ -562,9 +563,9 @@ static void prepare_memories(void) {
     bestMemory.all = 0;
 
     // Read the memory and its neighbors
-    memoryBuffer[0].all = memory_recall(address);
-    memoryBuffer[1].all = memory_recall(address - MEMORY_GAP);
-    memoryBuffer[2].all = memory_recall(address + MEMORY_GAP);
+    memoryBuffer[0] = memory_recall(address);
+    memoryBuffer[1] = memory_recall(address - MEMORY_GAP);
+    memoryBuffer[2] = memory_recall(address + MEMORY_GAP);
 }
 
 static void test_memory(relays_t *memory) {

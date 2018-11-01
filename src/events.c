@@ -85,9 +85,7 @@ void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
 /* -------------------------------------------------------------------------- */
 
 void manual_store(void) {
-    // NVM_address_t address = convert_memory_address(currentRF.frequency);
-
-    // memory_store(address);
+    // memory_store(convert_memory_address(currentRF.frequency));
 
     // success animation?
     // play_animation(&center_crawl[0]);
