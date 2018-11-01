@@ -7,6 +7,7 @@
 #include "peripherals/spi.h"
 #include "relays.h"
 #include "rf_sensor.h"
+#include <math.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -281,10 +282,6 @@ void show_thresh(void) {
 
 /* -------------------------------------------------------------------------- */
 
-const uint8_t ledBarTable[] = {
-    0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
-};
-
 /*  AT-600ProII bargraph has the following markings:
 
     v- all bars off still needs a value
@@ -293,46 +290,62 @@ const uint8_t ledBarTable[] = {
     v- all bars off still needs a value
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.0+
 */
-float fwdIndexArray[] = {
+float fwdIndexArray[9] = {
     0, 10, 25, 50, 100, 200, 300, 450, 600,
 };
 
-float swrIndexArray[] = {
+float swrIndexArray[9] = {
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5,
 };
 
-static uint8_t array_lookup(float data, float *array) {
-    uint8_t i = 0;
+uint8_t find_nearest(float data, float *array) {
+    uint8_t lowerNeighbor = 0;
+    while (array[lowerNeighbor + 1] < data) {
+        lowerNeighbor++;
+    }
+    uint8_t upperNeighbor = lowerNeighbor + 1;
 
-    while (array[i] < data) {
-        i++;
+    float lowerDistance = fabs(data - array[lowerNeighbor]);
+    float upperDistance = fabs(array[upperNeighbor] - data);
+    uint8_t nearestNeighbor;
+
+    if (lowerDistance < upperDistance) {
+        nearestNeighbor = lowerNeighbor;
+    } else {
+        nearestNeighbor = upperNeighbor;
     }
 
-    return i;
+    return nearestNeighbor;
 }
 
-void show_power_and_SWR(uint16_t forwardWatts, float swrValue) {
-    uint8_t fwdIndex = array_lookup(forwardWatts, fwdIndexArray);
-    displayBuffer.next.upper = ledBarTable[fwdIndex];
+const uint8_t ledBarTable[9] = {
+    0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
+};
 
-    uint8_t swrIndex = array_lookup(swrValue, swrIndexArray);
-    displayBuffer.next.lower = ledBarTable[swrIndex];
+display_frame_t render_RF(float forwardWatts, float swrValue) {
+    display_frame_t frame;
 
-    display_update();
+    uint8_t fwdIndex = find_nearest(forwardWatts, fwdIndexArray);
+    frame.upper = ledBarTable[fwdIndex];
+
+    uint8_t swrIndex = find_nearest(swrValue, swrIndexArray);
+    frame.lower = ledBarTable[swrIndex];
+
+    return frame;
 }
 
-// TODO: implement scale and peak modes
+display_frame_t render_current_RF(void) {
+    display_frame_t frame;
 
-void show_current_power_and_SWR(void) {
     if (currentRF.forwardWatts > 0) {
-        uint8_t fwdIndex = array_lookup(currentRF.forwardWatts, fwdIndexArray);
-        displayBuffer.next.upper = ledBarTable[fwdIndex];
+        uint8_t fwdIndex = find_nearest(currentRF.forwardWatts, fwdIndexArray);
+        frame.upper = ledBarTable[fwdIndex];
     }
 
     if (currentRF.swr != 0) {
-        uint8_t swrIndex = array_lookup(currentRF.swr, swrIndexArray);
-        displayBuffer.next.lower = ledBarTable[swrIndex];
+        uint8_t swrIndex = find_nearest(currentRF.swr, swrIndexArray);
+        frame.lower = ledBarTable[swrIndex];
     }
 
-    display_update();
+    return frame;
 }

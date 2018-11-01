@@ -90,7 +90,10 @@ extern void show_thresh(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern void show_power_and_SWR(uint16_t forwardWatts, float swrValue);
-extern void show_current_power_and_SWR(void);
+// returns a frame that shows the provided FWD and SWR
+extern display_frame_t render_RF(float forwardWatts, float swrValue);
+
+// returns a frame that shows the current FWD and SWR
+extern display_frame_t render_current_RF(void);
 
 #endif // _DISPLAY_H_

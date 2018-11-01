@@ -22,15 +22,16 @@ void shell_show_bargraphs(int argc, char **argv) {
     if (argc == 3) {
         print("first arg: ");
         print(argv[1]);
-        uint16_t forwardWatts = atoi(argv[1]);
-        printf(", forwardWatts: %u\r\n", forwardWatts);
+        float forwardWatts = atof(argv[1]);
+        printf(", forwardWatts: %f\r\n", forwardWatts);
 
         print("second arg: ");
         print(argv[2]);
         float swrValue = atof(argv[2]);
-        printf(", swrValue: %u\r\n", swrValue);
+        printf(", swrValue: %f\r\n", swrValue);
 
-        show_power_and_SWR(forwardWatts, swrValue);
+        displayBuffer.next = render_RF(forwardWatts, swrValue);
+        display_update();
     }
     return;
 }
