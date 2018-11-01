@@ -2,6 +2,7 @@
 #include "calibration.h"
 #include "display.h"
 #include "flags.h"
+#include "frequency_counter.h"
 #include "memory.h"
 #include "os/log_macros.h"
 #include "os/system_time.h"
@@ -461,7 +462,7 @@ void full_tune(void) {
 
     if (bestMatch.relays.inds < 3) {
         relays_t relays = bestMatch.relays;
-        relays.z = ! relays.z;
+        relays.z = !relays.z;
         L_zip(&relays, 1, 0);
         L_zip(&relays, 3, 1);
         bracket_tune(2, 1);
@@ -497,9 +498,10 @@ void full_tune(void) {
             printf(" with SWR: %d", bestMatch.reflectionCoefficient);
             println("");
         });
-
-        memory_store(convert_memory_address(currentRF.frequency),
-                     &bestMatch.relays);
+        NVM_address_t address = convert_memory_address(currentRF.frequency);
+        if (address) {
+            memory_store(address, &bestMatch.relays);
+        }
         return;
     }
 }
@@ -509,7 +511,7 @@ void full_tune(void) {
 // Memory tuning utilities
 
 #define MEMORY_WIDTH 2
-#define NUM_OF_MEMORIES 5
+#define NUM_OF_MEMORIES 9
 
 float bestMemorySWR;
 relays_t bestMemory;
@@ -518,17 +520,22 @@ relays_t memoryBuffer[NUM_OF_MEMORIES];
 static void prepare_memories(void) {
     LOG_TRACE({ println("prepare_memories"); });
 
-    uint16_t address = convert_memory_address(currentRF.frequency);
-
     bestMemorySWR = DBL_MAX;
     bestMemory.all = 0;
 
+    // prepare the address
+    NVM_address_t address = convert_memory_address(currentRF.frequency);
+    if (address) {
+        
+    }
+    address -= ((NUM_OF_MEMORIES - 1) / 2);
+    uint8_t memoryOffset = 0;
+
     // Read the memory and its neighbors
-    memoryBuffer[0] = memory_recall(address - MEMORY_WIDTH * 2);
-    memoryBuffer[1] = memory_recall(address - MEMORY_WIDTH);
-    memoryBuffer[2] = memory_recall(address);
-    memoryBuffer[3] = memory_recall(address + MEMORY_WIDTH);
-    memoryBuffer[4] = memory_recall(address + MEMORY_WIDTH * 2);
+    for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
+        memoryBuffer[i] = memory_recall(address + memoryOffset);
+        memoryOffset += MEMORY_WIDTH;
+    }
 }
 
 static void test_memory(relays_t *memory) {
@@ -559,28 +566,29 @@ void memory_tune(void) {
         return;
     }
 
+    measure_frequency();
+    measure_RF();
+
     prepare_memories();
 
     test_memory(&currentRelays[systemFlags.antenna]);
 
-    uint8_t i = 0;
-    while (i < NUM_OF_MEMORIES) {
+    for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
         test_memory(&memoryBuffer[i]);
         delay_ms(25);
-        i++;
     }
 
     put_relays(&bestMemory);
     measure_RF();
 
     // Did we find a valid memory?
-    if (bestMemorySWR < SWR1_7) {
+    if (currentRF.swr < SWR1_7) {
         LOG_INFO({
             printf("found memory: %f", currentRF.swr);
             print_relays(&currentRelays[systemFlags.antenna]);
             println("");
         });
-
+        // returning with no flags means success
         return;
     }
 
