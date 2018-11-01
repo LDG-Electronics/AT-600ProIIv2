@@ -95,12 +95,16 @@ void manual_store(void) {
 }
 
 /* -------------------------------------------------------------------------- */
+
 void set_power_status(uint8_t value) {
     systemFlags.powerStatus = value;
 
     if (systemFlags.powerStatus == 1) {
         put_relays(&currentRelays[systemFlags.antenna]);
     } else {
+        // put_relays() always publishes its argument to currentRelays
+        // We actually don't want that behavior here, so save currentRelays and
+        // restore it after it gets overwritten.
         relays_t temp = read_current_relays();
         put_relays(&bypassRelays);
         currentRelays[systemFlags.antenna] = temp;
