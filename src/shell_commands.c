@@ -37,31 +37,7 @@ void shell_show_bargraphs(int argc, char **argv) {
 
 /* -------------------------------------------------------------------------- */
 
-/*  calibration_packet()
-
-    This function provides data to a calibration routine that runs on an LDG
-    Servitor. The Servitor uses this data in conjunction with data from a
-    Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
-    compensation tables to improve the accuracy of the RF sensor.
-
-    {"forward":"0","forwardWatts":"0.000000","reverse":"0","reverseWatts":"0.000000","swr":"0.000000","frequency":"-1"}
-*/
-
-// json object represented by null-terminated array of "json field" structs
-const json_field_t RF[] = {
-    {"forward", &(currentRF.forward.value), jsonFloat},
-    {"reverse", &(currentRF.reverse.value), jsonFloat},
-    {"matchQuality", &(currentRF.matchQuality), jsonFloat},
-    {"forwardWatts", &(currentRF.forwardWatts), jsonFloat},
-    {"reverseWatts", &(currentRF.reverseWatts), jsonFloat},
-    {"swr", &(currentRF.swr), jsonFloat},
-    {"frequency", &(currentRF.frequency), jsonU16},
-    {NULL, NULL, jsonObject},
-};
-
-void calibration_packet(int argc, char **argv) {
-    json_serialize_and_print(&RF[0]);
-}
+void calibration_packet(int argc, char **argv) { print_RF_data(); }
 
 /* -------------------------------------------------------------------------- */
 

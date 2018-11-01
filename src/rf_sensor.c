@@ -2,10 +2,12 @@
 #include "calibration.h"
 #include "frequency_counter.h"
 #include "os/log_macros.h"
+#include "os/shell/shell_json.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -13,9 +15,26 @@ static uint8_t LOG_LEVEL = L_SILENT;
 // Global RF Readings
 RF_power_t currentRF;
 
+// json object that matches
+const json_field_t JSONcurrentRF[] = {
+    {"forward", &(currentRF.forward.value), jsonFloat},
+    {"reverse", &(currentRF.reverse.value), jsonFloat},
+    {"matchQuality", &(currentRF.matchQuality), jsonFloat},
+    {"forwardWatts", &(currentRF.forwardWatts), jsonFloat},
+    {"reverseWatts", &(currentRF.reverseWatts), jsonFloat},
+    {"swr", &(currentRF.swr), jsonFloat},
+    {"frequency", &(currentRF.frequency), jsonU16},
+    {NULL, NULL, jsonObject},
+};
+
+void print_RF_data(void) {
+    //
+    json_serialize_and_print(&JSONcurrentRF[0]);
+}
+
 /* ************************************************************************** */
 
-void clear_currentRF(void) {
+static void clear_currentRF(void) {
     currentRF.forward.value = 0;
     currentRF.forward.discardedSamples = 0;
     currentRF.reverse.value = 0;
@@ -26,6 +45,8 @@ void clear_currentRF(void) {
     currentRF.swr = 0.0;
     currentRF.frequency = 0xffff;
 }
+
+/* -------------------------------------------------------------------------- */
 
 void RF_sensor_init(void) {
     adc_init();
@@ -43,7 +64,7 @@ void RF_sensor_init(void) {
 
 // SWR Threshold Settings
 volatile uint8_t swrThreshIndex = 0;
-const float swrThreshTable[] = {SWR1_5, SWR1_7, SWR2_0, SWR2_5, SWR3_0};
+const float swrThreshTable[] = {1.5, 1.7, 2.0, 2.5, 3.0};
 
 float get_SWR_threshold(void) { return swrThreshTable[swrThreshIndex]; }
 

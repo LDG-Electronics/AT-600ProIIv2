@@ -34,6 +34,8 @@ typedef struct {
 // Global RF Readings
 extern RF_power_t currentRF;
 
+extern void print_RF_data(void);
+
 /* ************************************************************************** */
 
 // Setup
