@@ -6,6 +6,7 @@
 #include "peripherals/pic18f46k42.h"
 #include "peripherals/pins.h"
 #include "relays.h"
+#include "rf_sensor.h"
 #include "tuning.h"
 
 /* ************************************************************************** */
@@ -85,7 +86,11 @@ void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
 /* -------------------------------------------------------------------------- */
 
 void manual_store(void) {
-    // memory_store(convert_memory_address(currentRF.frequency));
+    relays_t relays = read_current_relays();
+    NVM_address_t address = convert_memory_address(currentRF.frequency);
+    if (address) {
+        memory_store(address, &relays);
+    }
 
     // success animation?
     // play_animation(&center_crawl[0]);
