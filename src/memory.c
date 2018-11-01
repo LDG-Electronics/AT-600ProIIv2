@@ -169,6 +169,13 @@ int32_t map_range(int32_t x, int32_t a1, int32_t a2, int32_t b1, int32_t b2) {
 #define MEMORY_ANTENNA_OFFSET 4000
 
 NVM_address_t convert_memory_address(uint16_t frequency) {
+    LOG_TRACE({ println("convert_memory_address"); });
+
+    if (frequency == UINT16_MAX) {
+        LOG_ERROR({ println("invalid frequency"); });
+        return 0;
+    }
+
     map_parameters_t map = look_up_map_parameters(frequency);
 
     NVM_address_t address = (NVM_address_t)map_range(
@@ -200,13 +207,19 @@ void address_conversion_test(uint16_t start, uint16_t end, uint16_t step) {
 /* ************************************************************************** */
 
 relays_t memory_recall(NVM_address_t address) {
+    LOG_TRACE({ println("memory_recall"); });
     packed_relays_t relayBits;
+
+    if (address == 0) {
+        LOG_ERROR({ println("invalid address"); });
+        return read_current_relays();
+    }
 
     relayBits.top = flash_read_byte(address);
     relayBits.bot = flash_read_byte(address + 1);
 
     LOG_INFO({
-        printf("memory_recall: %lu", address);
+        printf("address: %lu", address);
         print_relay_bits(&relayBits);
         println("");
     });
@@ -215,8 +228,15 @@ relays_t memory_recall(NVM_address_t address) {
 }
 
 void memory_store(NVM_address_t address, relays_t *relays) {
+    LOG_TRACE({ println("memory_store"); });
+
+    if (address == 0) {
+        LOG_ERROR({ println("invalid address"); });
+        return;
+    }
+
     LOG_INFO({
-        printf("memory_store: %lu", address);
+        printf("address: %lu", address);
         print_relays(relays);
         println("");
     });
@@ -230,7 +250,6 @@ void memory_store(NVM_address_t address, relays_t *relays) {
 
     // Make sure we aren't wasting an erase/write cycle
     if (savedRelayBits.bits == relayBits.bits) {
-
         LOG_INFO({ println("Reading existing block"); });
         return;
     }
@@ -247,7 +266,7 @@ void memory_store(NVM_address_t address, relays_t *relays) {
     uint8_t buffer[FLASH_BUFFER_SIZE];
     flash_read_block(address, buffer);
 
-    // 
+    //
     uint8_t element = address & FLASH_ELEMENT_MASK;
     buffer[element] = relayBits.top;
     buffer[element + 1] = relayBits.bot;
