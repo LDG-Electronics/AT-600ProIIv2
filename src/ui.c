@@ -28,7 +28,7 @@ uint8_t RFhistory;
 #define RF_falling_edge() ((RFhistory & 0b11000111) == 0b11000000)
 
 #define RF_POLL_INTERVAL 10
-void RF_poll(void) {
+void poll_RF(void) {
     static system_time_t lastRFpollTime = 0;
     if (time_since(lastRFpollTime) > RF_POLL_INTERVAL) {
         lastRFpollTime = get_current_time();
@@ -111,11 +111,11 @@ void update_bargraphs(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 
-#define FREQUENCY_INTERVAL 1000
+#define FREQUENCY_INTERVAL 5000
 #define RF_MEASURE_INTERVAL 50
 #define BARGRAPH_UPDATE_INTERVAL 30
 void ui_idle_block(void) {
-    RF_poll();
+    poll_RF();
 
     if (RF_is_present()) {
         if (time_since(currentRF.lastFrequencyTime) > FREQUENCY_INTERVAL) {
@@ -137,9 +137,8 @@ void ui_idle_block(void) {
         // }
 
         if (time_since(lastBargraphUpdateTime) > BARGRAPH_UPDATE_INTERVAL) {
-            us_stopwatch_begin();
             update_bargraphs(); // ~150uS
-            us_stopwatch_println();
+            return;
         }
     }
 
