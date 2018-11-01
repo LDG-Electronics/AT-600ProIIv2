@@ -13,55 +13,133 @@
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
+/*  RFhistory is used to 'debounce' the presence or absence of RF, as if it were
+    a button.
 
-typedef struct {
-    unsigned RFisPresent : 1;
-    unsigned updatingBargraphs : 1;
-} ui_flags_t;
+    These are macro versions of the 4 state-checking functions from the button
+    debouncing subsystem.
+*/
+uint8_t RFhistory;
 
-ui_flags_t uiFlags;
+#define clear_RF_history() RFhistory = 0
+#define RF_is_present() (RFhistory == 0b11111111)
+#define RF_is_absent() (RFhistory == 0b00000000)
+#define RF_rising_edge() ((RFhistory & 0b11000111) == 0b00000111)
+#define RF_falling_edge() ((RFhistory & 0b11000111) == 0b11000000)
+
+#define RF_POLL_INTERVAL 10
+void RF_poll(void) {
+    static system_time_t lastRFpollTime = 0;
+    if (time_since(lastRFpollTime) > RF_POLL_INTERVAL) {
+        lastRFpollTime = get_current_time();
+
+        RFhistory <<= 1;
+        RFhistory |= check_for_RF(); // ~140uS
+    }
+}
 
 /* ************************************************************************** */
+/*  updatingBargraphs controls whether the current RF should be displayed on the
+    front panel.
+
+    This is a bit gross but several different ui sections need to interact based
+    on whether RF is present.
+
+    if RF is present:
+    we need to display it
+    FUNC should be disabled (//? Is this true?)
+    POWER should be disabled
+    ANT should be disabled
+    CUP/CDN/LUP/LDN should execute no matter what, but...
+    CUP/CDN/LUP/LDN should not use the display
+
+    bargraph updates are disabled when:
+    already inside tune_hold(), func_hold(), ant_hold(), or power_hold()
+
+*/
+bool updatingBargraphs;
+
+#define enable_bargraph_updates() updatingBargraphs = true
+#define disable_bargraph_updates() updatingBargraphs = false
+
+static system_time_t lastBargraphUpdateTime = 0;
+void update_bargraphs(void) {
+    lastBargraphUpdateTime = get_current_time();
+    static display_frame_t prevFrame;
+
+    float forwardWatts;
+    // scale mode handler
+    if (systemFlags.scaleMode == 1) {
+        forwardWatts = currentRF.forwardWatts; // full scale
+    } else {
+        forwardWatts = currentRF.forwardWatts / 10; // zoomed scale
+    }
+
+    // render the forward power and SWR into a frame
+    display_frame_t newFrame = render_RF(forwardWatts, currentRF.matchQuality);
+
+    // peak mode handler
+    if (systemFlags.peakMode) {
+        static system_time_t lastPeakFallTime = 0;
+        if (time_since(lastPeakFallTime) > 250) {
+            lastPeakFallTime = get_current_time();
+
+            // shift all the pixels left one space
+            prevFrame.upper << 1;
+            prevFrame.lower << 1;
+
+            // Combine the old frame with the new frame
+            newFrame.upper |= prevFrame.upper;
+            newFrame.lower |= prevFrame.lower;
+        }
+    }
+
+    // copy our frame to the frame buffer and push it to the display
+    if (updatingBargraphs) {
+        displayBuffer.next = newFrame;
+        display_update();
+    }
+
+    // save a copy of the frame for the next iteration
+    prevFrame = newFrame;
+}
+
+/* ************************************************************************** */
+
 /*  Notes on the system idle block
     This function contains various 'background' activities that should be
     periodically serviced when the system isn't doing anything else important.
 */
 
 #define FREQUENCY_INTERVAL 1000
-#define RF_INTERVAL 50
+#define RF_MEASURE_INTERVAL 50
 #define BARGRAPH_UPDATE_INTERVAL 30
 void ui_idle_block(void) {
-    uiFlags.RFisPresent = check_for_RF(); // ~140uS
+    RF_poll();
 
-    if (uiFlags.RFisPresent) {
-        // measure frequency
+    if (RF_is_present()) {
         if (time_since(currentRF.lastFrequencyTime) > FREQUENCY_INTERVAL) {
-            measure_frequency(); // ~4200uS
+            // ~2500uS @ 50MHz, ~9000uS @ 14MHz, ~75000uS @ 1.8MHz
+            measure_frequency();
             return;
         }
 
-        // then measure RF
-        if (time_since(currentRF.lastRFTime) > RF_INTERVAL) {
+        if (time_since(currentRF.lastRFTime) > RF_MEASURE_INTERVAL) {
             measure_RF(); // ~2500uS
             return;
         }
 
         // TODO: Auto tuning
-        // auto tune
         // if (systemFlags.autoMode) {
         //     if (currentRF.swr > get_SWR_threshold()) {
         //         request_memory_tune();
         //     }
         // }
 
-        // then update bargraphs
-        if (uiFlags.updatingBargraphs) {
-            static system_time_t lastUpdateTime = 0;
-            if (time_since(lastUpdateTime) > BARGRAPH_UPDATE_INTERVAL) {
-                LOG_TRACE({ println("updating bargraphs"); });
-                show_current_power_and_SWR();
-            }
-            lastUpdateTime = get_current_time();
+        if (time_since(lastBargraphUpdateTime) > BARGRAPH_UPDATE_INTERVAL) {
+            us_stopwatch_begin();
+            update_bargraphs(); // ~150uS
+            us_stopwatch_println();
         }
     }
 
@@ -433,7 +511,7 @@ void relay_button_hold(void) {
         display_frame_t frame = relay_animation_handler(capResult, indResult);
 
         // only draw our update if there's no RF
-        if (!uiFlags.RFisPresent) {
+        if (RF_is_absent()) {
             displayBuffer.next = frame;
 
             // publish whatever we decided we needed
@@ -471,7 +549,6 @@ void relay_button_hold(void) {
 */
 void tune_hold(void) {
     LOG_TRACE({ println("tune_hold"); });
-    uiFlags.updatingBargraphs = 0;
     system_time_t elapsedTime;
     system_time_t startTime = get_current_time();
 
@@ -509,7 +586,6 @@ void tune_hold(void) {
     } else if (elapsedTime >= BTN_PRESS_LONG) {
         // button was held for too long, do nothing
     }
-    uiFlags.updatingBargraphs = 1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -603,19 +679,18 @@ void power_hold(void) {
     if (systemFlags.powerStatus == 0) {
         set_power_on();
         update_status_LEDs();
+
         while (btn_is_down(POWER)) {
             ui_idle_block();
         }
     } else {
-        system_time_t elapsedTime;
         system_time_t startTime = get_current_time();
-
         while (btn_is_down(POWER)) {
-            elapsedTime = time_since(startTime);
-            if (elapsedTime >= POWER_HOLD_DURATION) {
+            if (time_since(startTime) >= POWER_HOLD_DURATION) {
                 set_power_off();
                 display_clear();
                 clear_status_LEDs();
+
                 while (btn_is_down(POWER)) {
                     // make sure we wait here until POWER is released
                 }
@@ -631,8 +706,8 @@ void power_hold(void) {
 
 void ui_mainloop(void) {
     log_register();
-    static system_time_t lastFlagSaveTime = 0;
-    uiFlags.updatingBargraphs = 1;
+    enable_bargraph_updates();
+    clear_RF_history();
 
     while (1) {
         // Most buttons only work when the system is 'on'
@@ -644,25 +719,43 @@ void ui_mainloop(void) {
             }
 
             // Other buttons
-            if (btn_is_down(FUNC)) {
-                func_hold();
-            }
             if (btn_is_down(TUNE)) {
+                disable_bargraph_updates();
                 tune_hold();
+                enable_bargraph_updates();
+            }
+
+            if (btn_is_down(FUNC)) {
+                if (!RF_is_present()) {
+                    disable_bargraph_updates();
+                    func_hold();
+                    enable_bargraph_updates();
+                }
             }
             if (btn_is_down(ANT)) {
-                ant_hold();
+                if (!RF_is_present()) {
+                    disable_bargraph_updates();
+                    ant_hold();
+                    enable_bargraph_updates();
+                } else {
+                    play_animation(&overpower_warning[0]);
+                }
             }
         }
 
         // POWER works whether the unit is 'on'
         if (btn_is_down(POWER)) {
-            power_hold();
+            if (!RF_is_present()) {
+                disable_bargraph_updates();
+                power_hold();
+                enable_bargraph_updates();
+            }
         }
 
         ui_idle_block();
 
         // save flags
+        static system_time_t lastFlagSaveTime = 0;
         if (time_since(lastFlagSaveTime) > FLAG_SAVE_INTERVAL) {
             lastFlagSaveTime = get_current_time();
             save_flags(); // takes either 80uS or 28mS
