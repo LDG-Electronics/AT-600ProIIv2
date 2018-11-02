@@ -55,8 +55,8 @@ void check_for_meter_sync(void) {
 
 void send_meter_update(void) {
     LOG_TRACE({ println("send_meter_update"); });
-    uint16_t tempFWD = adc_single_sample(0) >> 2;
-    uint16_t tempREV = adc_single_sample(1) >> 2;
+    uint16_t tempFWD = adc_read(0) >> 2;
+    uint16_t tempREV = adc_read(1) >> 2;
     uint16_t tempPeriod = 0xffff;
 
     meter.packetBuffer[0] = (uint8_t)(tempFWD >> 8);
