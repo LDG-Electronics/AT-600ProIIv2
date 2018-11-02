@@ -90,7 +90,7 @@ void print_solution_count(void) {
 void save_new_best_solution(relays_t *relays) {
     bestMatch.relays = *relays;
     bestMatch.reflectionCoefficient = currentRF.swr;
-    bestMatch.forward = currentRF.forward.value;
+    bestMatch.forward = currentRF.forward;
 
     LOG_INFO({
         print("new best: ");
@@ -120,7 +120,7 @@ int8_t test_next_solution(relays_t *relays) {
     if (currentRF.swr < bestMatch.reflectionCoefficient) {
         save_new_best_solution(relays);
     } else if (currentRF.swr == bestMatch.reflectionCoefficient) {
-        if (currentRF.forward.value > bestMatch.forward) {
+        if (currentRF.forward > bestMatch.forward) {
             save_new_best_solution(relays);
         }
     }

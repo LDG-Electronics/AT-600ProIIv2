@@ -20,9 +20,9 @@
 
 // Global RF data format
 typedef struct {
-    adc_result_t forward;
-    adc_result_t reverse;
-    float matchQuality; // reflection coefficient
+    float forward;
+    float reverse;
+    float matchQuality;
     float forwardWatts;
     float reverseWatts;
     float swr;

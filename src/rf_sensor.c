@@ -2,6 +2,7 @@
 #include "calibration.h"
 #include "os/log_macros.h"
 #include "os/shell/shell_json.h"
+#include "os/stopwatch.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
 #include "peripherals/pins.h"
@@ -18,8 +19,8 @@ RF_power_t currentRF;
 
 // json object that matches
 const json_field_t JSONcurrentRF[] = {
-    {"forward", &(currentRF.forward.value), jsonFloat},
-    {"reverse", &(currentRF.reverse.value), jsonFloat},
+    {"forward", &(currentRF.forward), jsonFloat},
+    {"reverse", &(currentRF.reverse), jsonFloat},
     {"matchQuality", &(currentRF.matchQuality), jsonFloat},
     {"forwardWatts", &(currentRF.forwardWatts), jsonFloat},
     {"reverseWatts", &(currentRF.reverseWatts), jsonFloat},
@@ -36,10 +37,8 @@ void print_RF_data(void) {
 /* ************************************************************************** */
 
 static void clear_currentRF(void) {
-    currentRF.forward.value = 0;
-    currentRF.forward.discardedSamples = 0;
-    currentRF.reverse.value = 0;
-    currentRF.reverse.discardedSamples = 0;
+    currentRF.forward = 0;
+    currentRF.reverse = 0;
     currentRF.matchQuality = 0.0;
     currentRF.forwardWatts = 0.0;
     currentRF.reverseWatts = 0.0;
@@ -93,7 +92,7 @@ void SWR_threshold_increment(void) {
 bool check_for_RF(void) {
     uint16_t sum = 0;
     for (uint8_t i = 0; i < NUMBER_OF_SAMPLES; i++) {
-        sum += adc_single_sample(0);
+        sum += adc_read(0);
     }
 
     uint16_t average = sum / NUMBER_OF_SAMPLES;
@@ -116,28 +115,37 @@ static float RF_sensor_compensation(float x, const polynomial_t *poly) {
 
     SWR = (1 + sqrt(Pr/Pf))/(1 - sqrt(Pr/Pf))
 */
-
 static float calculate_SWR_by_watts(float forward, float reverse) {
     float x = sqrt(reverse / forward);
     return ((1.0 + x) / (1.0 - x));
 }
 
+#define NUM_OF_SWR_SAMPLES 32
 void measure_RF(void) {
     currentRF.lastRFTime = get_current_time();
-    currentRF.forward = adc_read(0);
-    currentRF.reverse = adc_read(1);
+    float tempForward = 0;
+    float tempReverse = 0;
 
-    // if (currentRF.forward.discardedSamples > 0) {
-    //     clear_currentRF();
-    //     return;
-    // }
+    // Collect measurements
+    for (uint8_t i = 0; i < NUM_OF_SWR_SAMPLES; i++) {
+        tempForward += adc_read(0);
+        tempReverse += adc_read(1);
+    }
 
-    currentRF.matchQuality = currentRF.reverse.value / currentRF.forward.value;
-    currentRF.swr = currentRF.matchQuality;
+    currentRF.forward = tempForward / NUM_OF_SWR_SAMPLES;
+    currentRF.reverse = tempReverse / NUM_OF_SWR_SAMPLES;
+
+    currentRF.matchQuality = currentRF.reverse / currentRF.forward;
+
+    // printf("(%lu, %lu)\r\n", tempFWD, tempREV);
 
     uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
     currentRF.forwardWatts = RF_sensor_compensation(
-        currentRF.forward.value, &calibrationTable[0][bandIndex]);
+        currentRF.forward, &calibrationTable[0][bandIndex]);
+    currentRF.reverseWatts = RF_sensor_compensation(
+        currentRF.reverse, &calibrationTable[1][bandIndex]);
+    currentRF.swr =
+        calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 }
 
 /* ************************************************************************** */
