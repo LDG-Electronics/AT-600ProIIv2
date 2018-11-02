@@ -6,11 +6,25 @@
 
 /* ************************************************************************** */
 
+// Comment this out to prevent stopwatch_self_test() from compiling
+// #define STOPWATCH_SELF_TEST_ENABLED
+
+// Test function used to calibrate the stopwatch
+#ifdef STOPWATCH_SELF_TEST_ENABLED
+void stopwatch_self_test(void);
+#endif
+
+/* ************************************************************************** */
+
 void stopwatch_init(void) {
     // set timer0 to overflow in exactly 1uS
     T0CON0bits.MD16 = 1; // 16 bit mode
     timer0_clock_source(TMR0_CLK_FOSC4);
     timer0_prescale(TMR_PRE_1_16);
+
+#ifdef STOPWATCH_SELF_TEST_ENABLED
+    stopwatch_self_test();
+#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -102,55 +116,19 @@ uint32_t ms_multiwatch_end(uint8_t stopwatchID) {
 /* ************************************************************************** */
 
 #ifdef STOPWATCH_SELF_TEST_ENABLED
+uint16_t testValues[] = {1, 5, 10, 100, 200, 500, 1000, 5000, 10000, 20000};
+
 void stopwatch_self_test(void) {
     println("");
     println("-----------------------------------------------");
     println("microsecond delays with microsecond stopwatch");
 
-    print("10us: ");
-    us_stopwatch_begin();
-    delay_us(10);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("100us: ");
-    us_stopwatch_begin();
-    delay_us(100);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("200us: ");
-    us_stopwatch_begin();
-    delay_us(200);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("500us: ");
-    us_stopwatch_begin();
-    delay_us(500);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("1000us: ");
-    us_stopwatch_begin();
-    delay_us(1000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-    
-    print("5000us: ");
-    us_stopwatch_begin();
-    delay_us(5000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("10000us: ");
-    us_stopwatch_begin();
-    delay_us(10000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("20000us: ");
-    us_stopwatch_begin();
-    delay_us(20000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("30000us: ");
-    us_stopwatch_begin();
-    delay_us(30000);
-    printf("%lu uS\r\n", us_stopwatch_end());
+    for (uint8_t i = 0; i < 10; i++) {
+        printf("%u uS: ", testValues[i]);
+        us_stopwatch_begin();
+        delay_us(testValues[i]);
+        us_stopwatch_println();
+    }
 
     println("");
     println("-----------------------------------------------");
@@ -158,100 +136,23 @@ void stopwatch_self_test(void) {
     println("reminder: 1ms = 1000us, 10ms = 10000us");
     println("reminder: delay_ms is expected to have +-1ms jitter");
 
-    print("1ms: ");
-    us_stopwatch_begin();
-    delay_ms(1);
-    printf("%lu uS", us_stopwatch_end());
-    println(" <- expected jitter is +-1ms");
-
-    print("10ms: ");
-    us_stopwatch_begin();
-    delay_ms(10);
-    printf("%lu uS", us_stopwatch_end());
-    println(" <- expected jitter is +-1ms");
-
-    print("100ms: ");
-    us_stopwatch_begin();
-    delay_ms(100);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("200ms: ");
-    us_stopwatch_begin();
-    delay_ms(200);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("500ms: ");
-    us_stopwatch_begin();
-    delay_ms(500);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("1000ms: ");
-    us_stopwatch_begin();
-    delay_ms(1000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("5000ms: ");
-    us_stopwatch_begin();
-    delay_ms(5000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("10000ms: ");
-    us_stopwatch_begin();
-    delay_ms(10000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("20000ms: ");
-    us_stopwatch_begin();
-    delay_ms(20000);
-    printf("%lu uS\r\n", us_stopwatch_end());
-
-    print("30000ms: ");
-    us_stopwatch_begin();
-    delay_ms(30000);
-    printf("%lu uS\r\n", us_stopwatch_end());
+    for (uint8_t i = 0; i < 10; i++) {
+        printf("%u uS: ", testValues[i]);
+        us_stopwatch_begin();
+        delay_ms(testValues[i]);
+        us_stopwatch_println();
+    }
 
     println("");
     println("-----------------------------------------------");
     println("millisecond delays with millisecond stopwatch");
 
-    print("1ms: ");
-    ms_stopwatch_begin();
-    delay_ms(1);
-    printf("%lu mS\r\n", ms_stopwatch_end());
-
-    print("10ms: ");
-    ms_stopwatch_begin();
-    delay_ms(10);
-    printf("%lu mS\r\n", ms_stopwatch_end());
-
-    print("100ms: ");
-    ms_stopwatch_begin();
-    delay_ms(100);
-    printf("%lu mS\r\n", ms_stopwatch_end());
-
-    print("1000ms: ");
-    ms_stopwatch_begin();
-    delay_ms(1000);
-    printf("%lu mS\r\n", ms_stopwatch_end());
-
-    print("2000ms: ");
-    ms_stopwatch_begin();
-    delay_ms(2000);
-    printf("%lu mS\r\n", ms_stopwatch_end());
-
-    print("10000ms: ");
-    ms_stopwatch_begin();
-    delay_ms(10000);
-    printf("%lu mS\r\n", ms_stopwatch_end());
-
-    print("20000ms: ");
-    ms_stopwatch_begin();
-    delay_ms(20000);
-    printf("%lu mS\r\n", ms_stopwatch_end());
-
-    print("30000ms: ");
-    ms_stopwatch_begin();
-    delay_ms(30000);
-    printf("%lu mS\r\n", ms_stopwatch_end());
+    for (uint8_t i = 0; i < 10; i++) {
+        printf("%u mS: ", testValues[i]);
+        ms_stopwatch_begin();
+        delay_ms(testValues[i]);
+        ms_stopwatch_println();
+    }
 }
+
 #endif
