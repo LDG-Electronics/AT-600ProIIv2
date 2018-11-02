@@ -490,7 +490,7 @@ void full_tune(void) {
     }
 
     // Save the result, if it's good enough
-    if (bestMatch.reflectionCoefficient < SWR1_7) {
+    if (bestMatch.reflectionCoefficient < 1.7) {
         LOG_INFO({
             print("Saving: ");
             print_relays(&bestMatch.relays);
@@ -581,7 +581,7 @@ void memory_tune(void) {
     measure_RF();
 
     // Did we find a valid memory?
-    if (currentRF.swr < SWR1_7) {
+    if (currentRF.swr < 1.7) {
         LOG_INFO({
             printf("found memory: %f", currentRF.swr);
             print_relays(&currentRelays[systemFlags.antenna]);
@@ -630,17 +630,17 @@ void tuning_followup_animation(void) {
             // relay_error_blink();
         }
     } else {
-        if (bestMatch.reflectionCoefficient < SWR1_7) {
+        if (bestMatch.reflectionCoefficient < 1.7) {
             LOG_INFO({ println("good match"); });
 
             play_animation(&center_crawl[0]);
 
-        } else if (bestMatch.reflectionCoefficient < SWR3_5) {
+        } else if (bestMatch.reflectionCoefficient < 3.5) {
             LOG_INFO({ println("decent match"); });
 
             // led_blink(2, MEDIUM);
 
-        } else if (bestMatch.reflectionCoefficient >= SWR3_5) {
+        } else if (bestMatch.reflectionCoefficient >= 3.5) {
             LOG_INFO({ println("badMatch"); });
 
             // led_blink(3, MEDIUM);

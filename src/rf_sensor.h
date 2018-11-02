@@ -8,16 +8,6 @@
 
 /* ************************************************************************** */
 
-#define SWR1_0 0
-#define SWR1_1 1
-#define SWR1_3 7
-#define SWR1_5 10
-#define SWR1_7 20
-#define SWR2_0 40
-#define SWR2_5 75
-#define SWR3_0 100
-#define SWR3_5 120
-
 // Global RF data format
 typedef struct {
     float forward;

@@ -107,19 +107,6 @@ bool check_for_RF(void) {
 
 /* -------------------------------------------------------------------------- */
 
-static float RF_sensor_compensation(float x, const polynomial_t *poly) {
-    return (poly->A * pow(x, 2)) + (poly->B * x) + poly->C;
-}
-
-/*  SWR calculation
-
-    SWR = (1 + sqrt(Pr/Pf))/(1 - sqrt(Pr/Pf))
-*/
-static float calculate_SWR_by_watts(float forward, float reverse) {
-    float x = sqrt(reverse / forward);
-    return ((1.0 + x) / (1.0 - x));
-}
-
 #define NUM_OF_SWR_SAMPLES 32
 void measure_RF(void) {
     currentRF.lastRFTime = get_current_time();
@@ -134,16 +121,12 @@ void measure_RF(void) {
 
     currentRF.forward = tempForward / NUM_OF_SWR_SAMPLES;
     currentRF.reverse = tempReverse / NUM_OF_SWR_SAMPLES;
-
     currentRF.matchQuality = currentRF.reverse / currentRF.forward;
 
-    // printf("(%lu, %lu)\r\n", tempFWD, tempREV);
-
-    uint8_t bandIndex = decode_frequency_to_band_index(currentRF.frequency);
-    currentRF.forwardWatts = RF_sensor_compensation(
-        currentRF.forward, &calibrationTable[0][bandIndex]);
-    currentRF.reverseWatts = RF_sensor_compensation(
-        currentRF.reverse, &calibrationTable[1][bandIndex]);
+    currentRF.forwardWatts =
+        correct_forward_power(currentRF.forward, currentRF.frequency);
+    currentRF.reverseWatts =
+        correct_reverse_power(currentRF.reverse, currentRF.frequency);
     currentRF.swr =
         calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 }
