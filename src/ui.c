@@ -130,12 +130,11 @@ void ui_idle_block(void) {
             return;
         }
 
-        // TODO: Auto tuning
-        // if (systemFlags.autoMode) {
-        //     if (currentRF.swr > get_SWR_threshold()) {
-        //         request_memory_tune();
-        //     }
-        // }
+        if (systemFlags.autoMode) {
+            if (currentRF.swr > get_SWR_threshold()) {
+                request_memory_tune();
+            }
+        }
 
         if (time_since(lastBargraphUpdateTime) > BARGRAPH_UPDATE_INTERVAL) {
             update_bargraphs(); // ~150uS
