@@ -56,7 +56,7 @@ void log_header(uint8_t msgLevel, const char *file, int line) {
     print("\033[1;37m");
     printf(" %s:%d: ", file, line);
 
-    print("\033[0;37;40m");
+    reset_text_attributes();
 }
 
 /* ************************************************************************** */
