@@ -126,7 +126,7 @@ void ui_idle_block(void) {
         }
 
         if (time_since(currentRF.lastRFTime) > RF_MEASURE_INTERVAL) {
-            measure_RF(); // ~2500uS
+            measure_RF(); // ~6900uS
             return;
         }
 
