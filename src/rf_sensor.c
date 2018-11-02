@@ -228,20 +228,6 @@ uint32_t get_period(void) {
     timer4_IF_clear();
     timer4_start();
 
-    // align ourselves with the rising edge of FREQ_PIN
-    while (FREQ_PIN != 0) {
-        if (timer4_IF_read()) {
-            timer4_stop();
-            LOG_ERROR({ println("timed out"); });
-            return 0;
-        }
-    }
-
-    timer4_stop();
-    timer4_clear();
-    timer4_IF_clear();
-    timer4_start();
-
     // align ourselves with the falling edge of FREQ_PIN
     while (FREQ_PIN == 0) {
         if (timer4_IF_read()) {

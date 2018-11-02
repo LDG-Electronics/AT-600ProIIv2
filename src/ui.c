@@ -120,7 +120,7 @@ void ui_idle_block(void) {
 
     if (RF_is_present()) {
         if (time_since(currentRF.lastFrequencyTime) > FREQUENCY_INTERVAL) {
-            // ~2500uS @ 50MHz, ~9000uS @ 14MHz, ~75000uS @ 1.8MHz
+            // ~2500uS @ 50MHz, ~9000uS @ 14MHz, ~60000uS @ 1.8MHz
             measure_frequency();
             return;
         }
