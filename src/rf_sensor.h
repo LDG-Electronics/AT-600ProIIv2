@@ -54,4 +54,9 @@ extern bool check_for_RF(void);
 // measures RF and calculates SWR
 extern void measure_RF(void);
 
+/* -------------------------------------------------------------------------- */
+
+// measures frequency
+extern void measure_frequency(void);
+
 #endif // _RF_SENSOR_H_

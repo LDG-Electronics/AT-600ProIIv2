@@ -2,7 +2,6 @@
 #include "display.h"
 #include "events.h"
 #include "flags.h"
-#include "frequency_counter.h"
 #include "os/buttons.h"
 #include "os/log_macros.h"
 #include "os/shell/shell.h"

@@ -2,7 +2,6 @@
 #include "calibration.h"
 #include "display.h"
 #include "flags.h"
-#include "frequency_counter.h"
 #include "memory.h"
 #include "os/log_macros.h"
 #include "os/system_time.h"
