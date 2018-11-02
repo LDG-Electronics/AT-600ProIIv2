@@ -89,6 +89,7 @@ void print_frequency_group(const frequency_group_t *group) {
 
 #define NUMBER_OF_GROUPS 21
 const frequency_group_t group_edges[NUMBER_OF_GROUPS] = {
+    // {Top frequency, Bottom Freq, number of slots}
     {FREQ_MIN, _160M_BOT - 1, 200},     // (0 - 1.8 MHz) 1.8 MHz
     {_160M_BOT, _160M_TOP, 100},        // (1.8 - 2.0 MHz) 0.2 MHz
     {_160M_TOP + 1, _80M_BOT - 1, 200}, // (2.0 - 3.5 MHz) 1.5 MHz
@@ -181,8 +182,13 @@ NVM_address_t convert_memory_address(uint16_t frequency) {
     NVM_address_t address = (NVM_address_t)map_range(
         frequency, map.inMin, map.inMax, map.outMin, map.outMax);
 
+    //! WARNING
+    // Read and chant the incantation before proceeding.
+    // Makes address point to two bytes of flash instead of one byte of flash.
     address << 1;
+    // Set the least significant bit to zero.
     address &= ~1;
+    // Pushes address past the address that contains this program.
     address += MEMORY_BASE_ADDRESS;
 
     if (systemFlags.antenna) {
@@ -254,7 +260,7 @@ void memory_store(NVM_address_t address, relays_t *relays) {
         return;
     }
 
-    // compare the two datas bit-by-bit, checking for 0->1 transitions
+    // compare the two variables bit-by-bit, checking for 0->1 transitions
     bool mustErase = false;
     for (uint8_t i = 0; i < 16; i++) {
         if (!(savedRelayBits.bits & (1 << i)) && (relayBits.bits & (1 << i))) {

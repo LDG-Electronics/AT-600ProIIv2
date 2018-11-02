@@ -298,7 +298,7 @@ float swrIndexArray[9] = {
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5,
 };
 
-uint8_t find_nearest(float data, float *array) {
+uint8_t find_closest_value(float data, float *array) {
     uint8_t lowerNeighbor = 0;
     while (array[lowerNeighbor + 1] < data) {
         lowerNeighbor++;
@@ -325,10 +325,10 @@ const uint8_t ledBarTable[9] = {
 display_frame_t render_RF(float forwardWatts, float swrValue) {
     display_frame_t frame;
 
-    uint8_t fwdIndex = find_nearest(forwardWatts, fwdIndexArray);
+    uint8_t fwdIndex = find_closest_value(forwardWatts, fwdIndexArray);
     frame.upper = ledBarTable[fwdIndex];
 
-    uint8_t swrIndex = find_nearest(swrValue, swrIndexArray);
+    uint8_t swrIndex = find_closest_value(swrValue, swrIndexArray);
     frame.lower = ledBarTable[swrIndex];
 
     return frame;
@@ -338,12 +338,12 @@ display_frame_t render_current_RF(void) {
     display_frame_t frame;
 
     if (currentRF.forwardWatts > 0) {
-        uint8_t fwdIndex = find_nearest(currentRF.forwardWatts, fwdIndexArray);
+        uint8_t fwdIndex = find_closest_value(currentRF.forwardWatts, fwdIndexArray);
         frame.upper = ledBarTable[fwdIndex];
     }
 
     if (currentRF.swr != 0) {
-        uint8_t swrIndex = find_nearest(currentRF.swr, swrIndexArray);
+        uint8_t swrIndex = find_closest_value(currentRF.swr, swrIndexArray);
         frame.lower = ledBarTable[swrIndex];
     }
 

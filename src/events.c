@@ -111,7 +111,9 @@ void set_power_status(uint8_t value) {
         // We actually don't want that behavior here, so save currentRelays and
         // restore it after it gets overwritten.
         relays_t temp = read_current_relays();
-        put_relays(&bypassRelays);
+        if (put_relays(&bypassRelays) == -1) {
+            // TODO: what do we do on relayerror?
+        }
         currentRelays[systemFlags.antenna] = temp;
     }
 }

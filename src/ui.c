@@ -81,13 +81,15 @@ void update_bargraphs(void) {
     // peak mode handler
     if (systemFlags.peakMode) {
         static system_time_t lastPeakFallTime = 0;
-        if (time_since(lastPeakFallTime) > 250) {
+        if (time_since(lastPeakFallTime) > 250) { // TODO: Back this numbah with datah
             lastPeakFallTime = get_current_time();
 
             // shift all the pixels left one space
             prevFrame.upper << 1;
             prevFrame.lower << 1;
 
+            //TODO MAKE SURE THAT YOU DOCUMENT HOW THIS FRAME CLOBBERING IS HELPFUL
+            //TODO testit
             // Combine the old frame with the new frame
             newFrame.upper |= prevFrame.upper;
             newFrame.lower |= prevFrame.lower;
@@ -742,9 +744,11 @@ void ui_mainloop(void) {
             }
         }
 
+        // TODO: do it, do it, no do it later
+
         // POWER works whether the unit is 'on'
         if (btn_is_down(POWER)) {
-            if (!RF_is_present()) {
+            if (!RF_is_present()) { // turning off the tuner flips all the relays
                 disable_bargraph_updates();
                 power_hold();
                 enable_bargraph_updates();

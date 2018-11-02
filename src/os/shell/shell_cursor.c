@@ -69,6 +69,7 @@ void draw_line_from_cursor(shell_line_t *line) {
     move_cursor_to(line->cursor);
 }
 
+// TODO: replace magic number with LENGTH_OF_SHELL_PROMPT
 void insert_char_at_cursor(char currentChar) {
     if (shell.length >= SHELL_MAX_LENGTH - 2) {
         return;

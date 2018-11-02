@@ -85,6 +85,8 @@ void shell_print_commands(void) {
 
 /* ************************************************************************** */
 
+// TODO: buffer overflow, pls check for null termination in array
+
 // returns the index of the command that matches *string
 static int8_t find_matching_command(char *string) {
     for (uint8_t i = 0; i < MAXIMUM_NUM_OF_SHELL_COMMANDS; i++) {
