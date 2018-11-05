@@ -8,18 +8,20 @@
 
 /* ************************************************************************** */
 
-// Global RF data format
 typedef struct {
-    float forward;
-    float reverse;
-    float matchQuality;
-    float forwardWatts;
-    float reverseWatts;
-    float swr;
-    uint16_t frequency;
+    float forward;      // forward power in millivolts
+    float reverse;      // reverse power in millivolts
+    float matchQuality; // psuedo-SWR, calcuated from from raw forward/reverse
+    system_time_t lastMeasurementTime;
+    float forwardWatts; // forward power in watts
+    float reverseWatts; // reverse power in watts
+    float swr;          // SWR, calculated from corrected wattages
+    system_time_t lastCalculationTime;
+    uint16_t frequency; // frequency in KHz
+    system_time_t lastFrequencyTime;
 } RF_power_t;
 
-// Global RF Readings
+// read-only: contains the most recent RF measurements
 extern RF_power_t currentRF;
 
 extern void print_RF_data(void);
@@ -31,7 +33,11 @@ extern void RF_sensor_init(void);
 
 // SWR Threshold manipulation
 extern volatile uint8_t swrThreshIndex;
+
+// returns the current SWR threshold, using the swrThreshIndex
 extern float get_SWR_threshold(void);
+
+// increase the threshold by one slot
 extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */
@@ -39,8 +45,11 @@ extern void SWR_threshold_increment(void);
 // SWR measurement functions
 extern bool check_for_RF(void);
 
-// measures RF and calculates SWR
+// measures forward & reverse, and calculates matchQuality
 extern void measure_RF(void);
+
+// calculates forwardWatts & reverseWatts, and uses those to calculate SWR
+extern bool calculate_watts_and_swr(void);
 
 /* -------------------------------------------------------------------------- */
 

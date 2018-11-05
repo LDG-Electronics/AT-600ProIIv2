@@ -53,6 +53,11 @@ void RF_sensor_init(void) {
     // Initialize the Global RF Readings
     clear_currentRF();
 
+    // clear timestamps
+    currentRF.lastMeasurementTime = 0;
+    currentRF.lastCalculationTime = 0;
+    currentRF.lastFrequencyTime = 0;
+
     // Frequency counter uses timer3 and timer4
     // timer3 measures the period length
     timer3_clock_source(TMR_CLK_FOSC);
@@ -106,6 +111,7 @@ bool check_for_RF(void) {
 
 #define NUM_OF_SWR_SAMPLES 32
 void measure_RF(void) {
+    currentRF.lastMeasurementTime = get_current_time();
     uint32_t tempForward = 0;
     uint32_t tempReverse = 0;
 
@@ -115,18 +121,31 @@ void measure_RF(void) {
         tempReverse += adc_read(1);
     }
 
+    // publish the averaged forward and reverse
     currentRF.forward = (float)tempForward / NUM_OF_SWR_SAMPLES;
     currentRF.reverse = (float)tempReverse / NUM_OF_SWR_SAMPLES;
 
+    // this bitshift improves the accuracy of the following integer division
     tempReverse <<= 12;
     currentRF.matchQuality = tempReverse / tempForward;
+}
 
+bool calculate_watts_and_swr(void) {
+    if (time_since(currentRF.lastMeasurementTime) >
+        time_since(currentRF.lastCalculationTime)) {
+        // There no point recalculating if the measurement hasn't changed
+        return false;
+    }
+
+    currentRF.lastCalculationTime = get_current_time();
     currentRF.forwardWatts =
         correct_forward_power(currentRF.forward, currentRF.frequency);
     currentRF.reverseWatts =
         correct_reverse_power(currentRF.reverse, currentRF.frequency);
     currentRF.swr =
         calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
+
+    return true;
 }
 
 /* ************************************************************************** */
@@ -279,6 +298,7 @@ uint32_t get_period(void) {
 #define NUM_OF_PERIOD_SAMPLES 4
 void measure_frequency(void) {
     LOG_TRACE({ println("measure_frequency"); });
+
     uint32_t result = 0;
     uint32_t tempPeriod = 0;
 
@@ -286,6 +306,7 @@ void measure_frequency(void) {
     for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++) {
         result = get_period();
         if (result == 0) {
+            currentRF.lastMeasurementTime = get_current_time();
             currentRF.frequency = UINT16_MAX;
             return;
         }
@@ -294,6 +315,7 @@ void measure_frequency(void) {
 
     tempPeriod /= NUM_OF_PERIOD_SAMPLES;
 
+    currentRF.lastMeasurementTime = get_current_time();
     currentRF.frequency = (uint16_t)(MAGIC_FREQUENCY_NUMBER / tempPeriod);
 
     LOG_INFO({ printf("frequency: %u\r\n", currentRF.frequency); });
