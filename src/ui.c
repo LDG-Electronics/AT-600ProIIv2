@@ -139,11 +139,11 @@ void ui_idle_block(void) {
 
         static system_time_t lastBargraphUpdate = 0;
         if (time_since(lastBargraphUpdate) > BARGRAPH_UPDATE_PERIOD) {
-            lastBargraphUpdate = get_current_time();
-
-            if (calculate_watts_and_swr()) { // ~3100uS
+            // can't draw on the display if we can't calculate watts
+            if (calculate_watts_and_swr()) { // ~3100uS if true, 6uS if false
                 update_bargraphs();          // ~150uS
                 bargraphsUpdated = true;
+                lastBargraphUpdate = get_current_time();
             }
             return;
         }
@@ -161,9 +161,14 @@ void ui_idle_block(void) {
     if (RF_is_absent()) {
         autoTuneAttempted = false;
 
+        // has update_bargraphs() been called?
         if (bargraphsUpdated) {
             bargraphsUpdated = false;
-            display_clear();
+            // if !updatingBargraphs, then something else has claimed the
+            // display, and we don't want to overwrite that something
+            if (updatingBargraphs) {
+                display_clear();
+            }
         }
     }
 
