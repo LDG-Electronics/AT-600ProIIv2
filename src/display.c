@@ -7,6 +7,7 @@
 #include "peripherals/spi.h"
 #include "relays.h"
 #include "rf_sensor.h"
+#include <float.h>
 #include <math.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
@@ -290,12 +291,12 @@ void show_thresh(void) {
     v- all bars off still needs a value
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.0+
 */
-float fwdIndexArray[9] = {
-    0, 10, 25, 50, 100, 200, 300, 450, 600,
+float fwdIndexArray[10] = {
+    0, 10, 25, 50, 100, 200, 300, 450, 600, FLT_MAX,
 };
 
-float swrIndexArray[9] = {
-    1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5,
+float swrIndexArray[10] = {
+    1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5, FLT_MAX,
 };
 
 uint8_t find_closest_value(float data, float *array) {
@@ -341,7 +342,8 @@ display_frame_t render_current_RF(void) {
     display_frame_t frame;
 
     if (currentRF.forwardWatts > 0) {
-        uint8_t fwdIndex = find_closest_value(currentRF.forwardWatts, fwdIndexArray);
+        uint8_t fwdIndex =
+            find_closest_value(currentRF.forwardWatts, fwdIndexArray);
         frame.upper = ledBarTable[fwdIndex];
     }
 
