@@ -43,7 +43,6 @@ static void clear_currentRF(void) {
     currentRF.forwardWatts = 0.0;
     currentRF.reverseWatts = 0.0;
     currentRF.swr = 0.0;
-    currentRF.frequency = 0xffff;
 }
 
 /* -------------------------------------------------------------------------- */
