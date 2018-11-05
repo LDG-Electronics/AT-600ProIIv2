@@ -93,7 +93,4 @@ extern void show_thresh(void);
 // returns a frame that shows the provided FWD and SWR
 extern display_frame_t render_RF(float forwardWatts, float swrValue);
 
-// returns a frame that shows the current FWD and SWR
-extern display_frame_t render_current_RF(void);
-
 #endif // _DISPLAY_H_

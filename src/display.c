@@ -337,20 +337,3 @@ display_frame_t render_RF(float forwardWatts, float swrValue) {
 
     return frame;
 }
-
-display_frame_t render_current_RF(void) {
-    display_frame_t frame;
-
-    if (currentRF.forwardWatts > 0) {
-        uint8_t fwdIndex =
-            find_closest_value(currentRF.forwardWatts, fwdIndexArray);
-        frame.upper = ledBarTable[fwdIndex];
-    }
-
-    if (currentRF.swr != 0) {
-        uint8_t swrIndex = find_closest_value(currentRF.swr, swrIndexArray);
-        frame.lower = ledBarTable[swrIndex];
-    }
-
-    return frame;
-}
