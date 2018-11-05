@@ -23,14 +23,13 @@ uint8_t RFhistory;
 #define clear_RF_history() RFhistory = 0
 #define RF_is_present() (RFhistory == 0b11111111)
 #define RF_is_absent() (RFhistory == 0b00000000)
-#define RF_rising_edge() ((RFhistory & 0b11000111) == 0b00000111)
-#define RF_falling_edge() ((RFhistory & 0b11000111) == 0b11000000)
 
-#define RF_POLL_INTERVAL 10
+#define RF_POLLS_PER_SECOND 100
+#define RF_POLL_PERIOD 1000 / RF_POLLS_PER_SECOND
 void poll_RF(void) {
-    static system_time_t lastRFpollTime = 0;
-    if (time_since(lastRFpollTime) > RF_POLL_INTERVAL) {
-        lastRFpollTime = get_current_time();
+    static system_time_t lastRFpoll = 0;
+    if (time_since(lastRFpoll) > RF_POLL_PERIOD) {
+        lastRFpoll = get_current_time();
 
         RFhistory <<= 1;
         RFhistory |= check_for_RF(); // ~140uS
@@ -108,38 +107,44 @@ void update_bargraphs(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 
-#define FREQUENCY_INTERVAL 1000
-#define RF_MEASURE_INTERVAL 50
-#define BARGRAPH_UPDATE_INTERVAL 30
-#define AUTO_TUNE_MINIMUM_INTERVAL 1000
+#define RF_UPDATES_PER_SECOND 100
+#define RF_UPDATE_PERIOD 1000 / RF_UPDATES_PER_SECOND
+
+#define BARGRAPH_UPDATES_PER_SECOND 30
+#define BARGRAPH_UPDATE_PERIOD 1000 / BARGRAPH_UPDATES_PER_SECOND
+
+#define FREQUENCY_UPDATE_PERIOD 1000
 void ui_idle_block(void) {
     poll_RF();
 
     static bool autoTuneAttempted = false;
+    static bool bargraphsUpdated = false;
 
     if (RF_is_present()) {
-        static system_time_t lastFrequencyUpdateTime = 0;
-        if (time_since(lastFrequencyUpdateTime) > FREQUENCY_INTERVAL) {
-            lastFrequencyUpdateTime = get_current_time();
+        static system_time_t lastFrequencyUpdate = 0;
+        if (time_since(lastFrequencyUpdate) > FREQUENCY_UPDATE_PERIOD) {
+            lastFrequencyUpdate = get_current_time();
 
-            // ~2500uS @ 50MHz, ~9000uS @ 14MHz, ~60000uS @ 1.8MHz
-            measure_frequency();
+            measure_frequency(); // ~2500uS @ 50MHz, ~60000uS @ 1.8MHz
             return;
         }
 
-        static system_time_t lastRFUpdateTime = 0;
-        if (time_since(lastRFUpdateTime) > RF_MEASURE_INTERVAL) {
-            lastRFUpdateTime = get_current_time();
+        static system_time_t lastRFUpdate = 0;
+        if (time_since(lastRFUpdate) > RF_UPDATE_PERIOD) {
+            lastRFUpdate = get_current_time();
 
-            measure_RF(); // ~6900uS
+            measure_RF(); // ~1700uS
             return;
         }
 
-        static system_time_t lastBargraphUpdateTime = 0;
-        if (time_since(lastBargraphUpdateTime) > BARGRAPH_UPDATE_INTERVAL) {
-            lastBargraphUpdateTime = get_current_time();
+        static system_time_t lastBargraphUpdate = 0;
+        if (time_since(lastBargraphUpdate) > BARGRAPH_UPDATE_PERIOD) {
+            lastBargraphUpdate = get_current_time();
 
-            update_bargraphs(); // ~150uS
+            if (calculate_watts_and_swr()) { // ~3100uS
+                update_bargraphs();          // ~150uS
+                bargraphsUpdated = true;
+            }
             return;
         }
 
@@ -152,8 +157,14 @@ void ui_idle_block(void) {
         }
     }
 
+    //! RF_is_absent() is not the same as !RF_is_present()
     if (RF_is_absent()) {
         autoTuneAttempted = false;
+
+        if (bargraphsUpdated) {
+            bargraphsUpdated = false;
+            display_clear();
+        }
     }
 
     shell_update(); // ~22uS, most shell commands are ~2000uS
@@ -565,8 +576,7 @@ void tune_hold(void) {
     system_time_t elapsedTime;
     system_time_t startTime = get_current_time();
 
-    while (btn_is_down(TUNE)) // stay in loop while TUNE is held
-    {
+    while (btn_is_down(TUNE)) {
         elapsedTime = time_since(startTime);
 
         if (elapsedTime < BTN_PRESS_DEBOUNCE) {
@@ -756,8 +766,6 @@ void ui_mainloop(void) {
             }
         }
 
-        // TODO: do it, do it, no do it later
-
         // POWER works whether the unit is 'on'
         if (btn_is_down(POWER)) {
             if (!RF_is_present()) {
@@ -770,9 +778,9 @@ void ui_mainloop(void) {
         ui_idle_block();
 
         // save flags
-        static system_time_t lastFlagSaveTime = 0;
-        if (time_since(lastFlagSaveTime) > FLAG_SAVE_INTERVAL) {
-            lastFlagSaveTime = get_current_time();
+        static system_time_t lastFlagSave = 0;
+        if (time_since(lastFlagSave) > FLAG_SAVE_INTERVAL) {
+            lastFlagSave = get_current_time();
             save_flags(); // takes either 80uS or 28mS
         }
     }
