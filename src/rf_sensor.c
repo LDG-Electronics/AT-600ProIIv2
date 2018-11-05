@@ -107,8 +107,8 @@ bool check_for_RF(void) {
 
 #define NUM_OF_SWR_SAMPLES 32
 void measure_RF(void) {
-    float tempForward = 0;
-    float tempReverse = 0;
+    uint32_t tempForward = 0;
+    uint32_t tempReverse = 0;
 
     // Collect measurements
     for (uint8_t i = 0; i < NUM_OF_SWR_SAMPLES; i++) {
@@ -116,9 +116,11 @@ void measure_RF(void) {
         tempReverse += adc_read(1);
     }
 
-    currentRF.forward = tempForward / NUM_OF_SWR_SAMPLES;
-    currentRF.reverse = tempReverse / NUM_OF_SWR_SAMPLES;
-    currentRF.matchQuality = currentRF.reverse / currentRF.forward;
+    currentRF.forward = (float)tempForward / NUM_OF_SWR_SAMPLES;
+    currentRF.reverse = (float)tempReverse / NUM_OF_SWR_SAMPLES;
+
+    tempReverse <<= 12;
+    currentRF.matchQuality = tempReverse / tempForward;
 
     currentRF.forwardWatts =
         correct_forward_power(currentRF.forward, currentRF.frequency);
