@@ -166,8 +166,8 @@ void ui_idle_block(void) {
             if (currentRF.swr > get_SWR_threshold()) {
                 allowedToAutoTune = false; // only allowed to auto tune once
                 request_memory_tune();
+                return;
             }
-            return;
         }
     }
 
