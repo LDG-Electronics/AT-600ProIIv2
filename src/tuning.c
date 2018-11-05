@@ -213,8 +213,7 @@ match_t test_hiz(void) {
 void restore_best_z(match_t hizMatch, match_t lozMatch) {
     if (hizMatch.matchQuality < lozMatch.matchQuality) {
         bestMatch = hizMatch;
-    } else if (hizMatch.matchQuality ==
-               lozMatch.matchQuality) {
+    } else if (hizMatch.matchQuality == lozMatch.matchQuality) {
         if (hizMatch.forward > lozMatch.forward) {
             bestMatch = hizMatch;
         } else {
@@ -261,7 +260,7 @@ void hiloz_tune(void) {
 */
 void coarse_tune(void) {
     LOG_TRACE({ println("coarse_tune:"); });
-    // float earlyExitSWR = (bypassMatch.matchQuality / 2);
+    float earlyExitSWR = (bypassMatch.matchQuality / 2);
     relays_t relays;
 
     uint8_t inds = 0;
@@ -275,13 +274,13 @@ void coarse_tune(void) {
             if (test_next_solution(&relays) == -1) {
                 return;
             }
-            // if (bestMatch.matchQuality <= earlyExitSWR) {
-            //     LOG_INFO({
-            //         print_solution_count();
-            //         println("");
-            //     });
-            //     return;
-            // }
+            if (bestMatch.matchQuality <= earlyExitSWR) {
+                LOG_INFO({
+                    print_solution_count();
+                    println("");
+                });
+                return;
+            }
         }
     }
     LOG_INFO({
@@ -525,7 +524,6 @@ static void prepare_memories(void) {
     // prepare the address
     NVM_address_t address = convert_memory_address(currentRF.frequency);
     if (address) {
-        
     }
     address -= ((NUM_OF_MEMORIES - 1) / 2);
     uint8_t memoryOffset = 0;
