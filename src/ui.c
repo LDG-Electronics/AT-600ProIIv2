@@ -53,7 +53,6 @@ void poll_RF(void) {
 
     bargraph updates are disabled when:
     already inside tune_hold(), func_hold(), ant_hold(), or power_hold()
-
 */
 bool updatingBargraphs;
 
@@ -61,10 +60,8 @@ bool updatingBargraphs;
 #define disable_bargraph_updates() updatingBargraphs = false
 
 void update_bargraphs(void) {
-    static display_frame_t prevFrame;
-
-    float forwardWatts;
     // scale mode handler
+    float forwardWatts;
     if (systemFlags.scaleMode == 1) {
         forwardWatts = currentRF.forwardWatts; // full scale
     } else {
@@ -75,29 +72,42 @@ void update_bargraphs(void) {
     display_frame_t newFrame = render_RF(forwardWatts, currentRF.swr);
 
     // peak mode handler
+    static display_frame_t prevFrame;
     if (systemFlags.peakMode) {
-        static system_time_t lastPeakFallTime = 0;
-        if (time_since(lastPeakFallTime) > 250) {
-            lastPeakFallTime = get_current_time();
+        static system_time_t lastFrameDecay = 0;
+        if (time_since(lastFrameDecay) > 300) {
+            lastFrameDecay = get_current_time();
 
             // shift all the pixels left one space
-            prevFrame.upper << 1;
-            prevFrame.lower << 1;
+            prevFrame.upper >>= 1;
+            prevFrame.lower >>= 1;
+        }
+        // Combine the old frame with the new frame
+        newFrame.upper |= prevFrame.upper;
+        newFrame.lower |= prevFrame.lower;
+    }
 
-            // Combine the old frame with the new frame
-            newFrame.upper |= prevFrame.upper;
-            newFrame.lower |= prevFrame.lower;
+    static bool needToClearDisplay = false;
+
+    if (RF_is_present() || (newFrame.frame != 0)) {
+        if (updatingBargraphs) {
+            needToClearDisplay = true;
+            // copy our frame to the frame buffer and push it to the display
+            displayBuffer.next = newFrame;
+            // save a copy of the frame for peak mode handler
+            prevFrame = newFrame;
+            display_update();
         }
     }
 
-    // copy our frame to the frame buffer and push it to the display
-    if (updatingBargraphs) {
-        displayBuffer.next = newFrame;
-        display_update();
+    if (RF_is_absent() && (newFrame.frame == 0)) {
+        if (needToClearDisplay) {
+            needToClearDisplay = false;
+            if (updatingBargraphs) {
+                display_clear();
+            }
+        }
     }
-
-    // save a copy of the frame for the next iteration
-    prevFrame = newFrame;
 }
 
 /* ************************************************************************** */
@@ -107,18 +117,17 @@ void update_bargraphs(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 
+#define FREQUENCY_UPDATE_PERIOD 1000
+
 #define RF_UPDATES_PER_SECOND 100
 #define RF_UPDATE_PERIOD 1000 / RF_UPDATES_PER_SECOND
 
 #define BARGRAPH_UPDATES_PER_SECOND 30
 #define BARGRAPH_UPDATE_PERIOD 1000 / BARGRAPH_UPDATES_PER_SECOND
-
-#define FREQUENCY_UPDATE_PERIOD 1000
 void ui_idle_block(void) {
     poll_RF();
 
-    static bool autoTuneAttempted = false;
-    static bool bargraphsUpdated = false;
+    static bool allowedToAutoTune = true;
 
     if (RF_is_present()) {
         static system_time_t lastFrequencyUpdate = 0;
@@ -137,21 +146,9 @@ void ui_idle_block(void) {
             return;
         }
 
-        static system_time_t lastBargraphUpdate = 0;
-        if (time_since(lastBargraphUpdate) > BARGRAPH_UPDATE_PERIOD) {
-            lastBargraphUpdate = get_current_time();
-            
-            // can't draw on the display if we can't calculate watts
-            if (calculate_watts_and_swr()) { // ~3100uS if true, 6uS if false
-                update_bargraphs();          // ~150uS
-                bargraphsUpdated = true;
-            }
-            return;
-        }
-
-        if (systemFlags.autoMode && !autoTuneAttempted) {
+        if (systemFlags.autoMode && allowedToAutoTune) {
             if (currentRF.swr > get_SWR_threshold()) {
-                autoTuneAttempted = true;
+                allowedToAutoTune = false; // only allowed to auto tune once
                 request_memory_tune();
             }
             return;
@@ -160,17 +157,15 @@ void ui_idle_block(void) {
 
     //! RF_is_absent() is not the same as !RF_is_present()
     if (RF_is_absent()) {
-        autoTuneAttempted = false;
+        allowedToAutoTune = true; // reset when radio is unkeyed
+    }
 
-        // has update_bargraphs() been called?
-        if (bargraphsUpdated) {
-            bargraphsUpdated = false;
-            // if !updatingBargraphs, then something else has claimed the
-            // display, and we don't want to overwrite that something
-            if (updatingBargraphs) {
-                display_clear();
-            }
-        }
+    static system_time_t lastBargraphUpdate = 0;
+    if (time_since(lastBargraphUpdate) > BARGRAPH_UPDATE_PERIOD) {
+        lastBargraphUpdate = get_current_time();
+
+        calculate_watts_and_swr();
+        update_bargraphs();
     }
 
     shell_update(); // ~22uS, most shell commands are ~2000uS
