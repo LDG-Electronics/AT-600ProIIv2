@@ -75,7 +75,7 @@ void update_bargraphs(void) {
     if (systemFlags.scaleMode == 1) {
         forwardWatts = currentRF.forwardWatts; // full scale
     } else {
-        forwardWatts = currentRF.forwardWatts / 10; // zoomed scale
+        forwardWatts = currentRF.forwardWatts * 10; // zoomed scale
     }
 
     // render the forward power and SWR into a frame
