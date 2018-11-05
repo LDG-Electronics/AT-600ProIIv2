@@ -25,7 +25,7 @@ tuning_flags_s tuning_flags;
 
 typedef struct {
     relays_t relays;
-    float reflectionCoefficient;
+    float matchQuality;
     float forward;
     uint16_t attemptNumber;
 } match_t;
@@ -35,7 +35,7 @@ match_t bypassMatch;
 
 void reset_match_data(match_t *match) {
     match->relays.all = 0;
-    match->reflectionCoefficient = DBL_MAX;
+    match->matchQuality = FLT_MAX;
     match->forward = 0;
 }
 
@@ -89,7 +89,7 @@ void print_solution_count(void) {
 
 void save_new_best_solution(relays_t *relays) {
     bestMatch.relays = *relays;
-    bestMatch.reflectionCoefficient = currentRF.matchQuality;
+    bestMatch.matchQuality = currentRF.matchQuality;
     bestMatch.forward = currentRF.forward;
 
     LOG_INFO({
@@ -117,9 +117,9 @@ int8_t test_next_solution(relays_t *relays) {
     }
     measure_RF();
 
-    if (currentRF.matchQuality < bestMatch.reflectionCoefficient) {
+    if (currentRF.matchQuality < bestMatch.matchQuality) {
         save_new_best_solution(relays);
-    } else if (currentRF.matchQuality == bestMatch.reflectionCoefficient) {
+    } else if (currentRF.matchQuality == bestMatch.matchQuality) {
         if (currentRF.forward > bestMatch.forward) {
             save_new_best_solution(relays);
         }
@@ -165,7 +165,7 @@ match_t test_bypass(void) {
 
     LOG_DEBUG({
         print_relays(&bypassRelays);
-        printf(" SWR: %f FWD: %d\r\n", bypassMatch.reflectionCoefficient,
+        printf(" SWR: %f FWD: %d\r\n", bypassMatch.matchQuality,
                bypassMatch.forward);
     });
 
@@ -184,7 +184,7 @@ match_t test_loz(void) {
 
     LOG_DEBUG({
         print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.reflectionCoefficient,
+        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
                bestMatch.forward);
     });
 
@@ -203,7 +203,7 @@ match_t test_hiz(void) {
 
     LOG_DEBUG({
         print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.reflectionCoefficient,
+        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
                bestMatch.forward);
     });
 
@@ -211,10 +211,10 @@ match_t test_hiz(void) {
 }
 
 void restore_best_z(match_t hizMatch, match_t lozMatch) {
-    if (hizMatch.reflectionCoefficient < lozMatch.reflectionCoefficient) {
+    if (hizMatch.matchQuality < lozMatch.matchQuality) {
         bestMatch = hizMatch;
-    } else if (hizMatch.reflectionCoefficient ==
-               lozMatch.reflectionCoefficient) {
+    } else if (hizMatch.matchQuality ==
+               lozMatch.matchQuality) {
         if (hizMatch.forward > lozMatch.forward) {
             bestMatch = hizMatch;
         } else {
@@ -227,7 +227,7 @@ void restore_best_z(match_t hizMatch, match_t lozMatch) {
     LOG_INFO({
         print("best z: ");
         print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.reflectionCoefficient,
+        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
                bestMatch.forward);
     });
 }
@@ -261,7 +261,7 @@ void hiloz_tune(void) {
 */
 void coarse_tune(void) {
     LOG_TRACE({ println("coarse_tune:"); });
-    // float earlyExitSWR = (bypassMatch.reflectionCoefficient / 2);
+    // float earlyExitSWR = (bypassMatch.matchQuality / 2);
     relays_t relays;
 
     uint8_t inds = 0;
@@ -275,7 +275,7 @@ void coarse_tune(void) {
             if (test_next_solution(&relays) == -1) {
                 return;
             }
-            // if (bestMatch.reflectionCoefficient <= earlyExitSWR) {
+            // if (bestMatch.matchQuality <= earlyExitSWR) {
             //     LOG_INFO({
             //         print_solution_count();
             //         println("");
@@ -324,7 +324,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
     search_area_t bracket_area = define_bracket_area(bracket);
     LOG_DEBUG({ print_search_area(&bracket_area); });
 
-    float earlyExitSWR = (bestMatch.reflectionCoefficient / 2);
+    float earlyExitSWR = (bestMatch.matchQuality / 2);
 
     // Do it
     tryInd = bracket_area.minInd;
@@ -337,7 +337,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
             if (test_next_solution(&relays) == -1) {
                 return;
             }
-            if (bestMatch.reflectionCoefficient < earlyExitSWR) {
+            if (bestMatch.matchQuality < earlyExitSWR) {
                 LOG_INFO({
                     print_solution_count();
                     println("");
@@ -490,11 +490,11 @@ void full_tune(void) {
     }
 
     // Save the result, if it's good enough
-    if (bestMatch.reflectionCoefficient < 1.7) {
+    if (bestMatch.matchQuality < 1.7) {
         LOG_INFO({
             print("Saving: ");
             print_relays(&bestMatch.relays);
-            printf(" with SWR: %d", bestMatch.reflectionCoefficient);
+            printf(" with SWR: %d", bestMatch.matchQuality);
             println("");
         });
         NVM_address_t address = convert_memory_address(currentRF.frequency);
@@ -519,7 +519,7 @@ relays_t memoryBuffer[NUM_OF_MEMORIES];
 static void prepare_memories(void) {
     LOG_TRACE({ println("prepare_memories"); });
 
-    bestMemorySWR = DBL_MAX;
+    bestMemorySWR = FLT_MAX;
     bestMemory.all = 0;
 
     // prepare the address
@@ -630,17 +630,17 @@ void tuning_followup_animation(void) {
             // relay_error_blink();
         }
     } else {
-        if (bestMatch.reflectionCoefficient < 1.7) {
+        if (bestMatch.matchQuality < 1.7) {
             LOG_INFO({ println("good match"); });
 
             play_animation(&center_crawl[0]);
 
-        } else if (bestMatch.reflectionCoefficient < 3.5) {
+        } else if (bestMatch.matchQuality < 3.5) {
             LOG_INFO({ println("decent match"); });
 
             // led_blink(2, MEDIUM);
 
-        } else if (bestMatch.reflectionCoefficient >= 3.5) {
+        } else if (bestMatch.matchQuality >= 3.5) {
             LOG_INFO({ println("badMatch"); });
 
             // led_blink(3, MEDIUM);
