@@ -17,8 +17,6 @@ typedef struct {
     float reverseWatts;
     float swr;
     uint16_t frequency;
-    system_time_t lastFrequencyTime;
-    system_time_t lastRFTime;
 } RF_power_t;
 
 // Global RF Readings

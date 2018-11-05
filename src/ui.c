@@ -61,9 +61,7 @@ bool updatingBargraphs;
 #define enable_bargraph_updates() updatingBargraphs = true
 #define disable_bargraph_updates() updatingBargraphs = false
 
-static system_time_t lastBargraphUpdateTime = 0;
 void update_bargraphs(void) {
-    lastBargraphUpdateTime = get_current_time();
     static display_frame_t prevFrame;
 
     float forwardWatts;
@@ -75,20 +73,18 @@ void update_bargraphs(void) {
     }
 
     // render the forward power and SWR into a frame
-    display_frame_t newFrame = render_RF(forwardWatts, currentRF.matchQuality);
+    display_frame_t newFrame = render_RF(forwardWatts, currentRF.swr);
 
     // peak mode handler
     if (systemFlags.peakMode) {
         static system_time_t lastPeakFallTime = 0;
-        if (time_since(lastPeakFallTime) > 250) { // TODO: Back this numbah with datah
+        if (time_since(lastPeakFallTime) > 250) {
             lastPeakFallTime = get_current_time();
 
             // shift all the pixels left one space
             prevFrame.upper << 1;
             prevFrame.lower << 1;
 
-            //TODO MAKE SURE THAT YOU DOCUMENT HOW THIS FRAME CLOBBERING IS HELPFUL
-            //TODO testit
             // Combine the old frame with the new frame
             newFrame.upper |= prevFrame.upper;
             newFrame.lower |= prevFrame.lower;
@@ -112,33 +108,46 @@ void update_bargraphs(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 
-#define FREQUENCY_INTERVAL 5000
+#define FREQUENCY_INTERVAL 1000
 #define RF_MEASURE_INTERVAL 50
 #define BARGRAPH_UPDATE_INTERVAL 30
 void ui_idle_block(void) {
     poll_RF();
 
     if (RF_is_present()) {
-        if (time_since(currentRF.lastFrequencyTime) > FREQUENCY_INTERVAL) {
+        static system_time_t lastFrequencyUpdateTime = 0;
+        if (time_since(lastFrequencyUpdateTime) > FREQUENCY_INTERVAL) {
+            lastFrequencyUpdateTime = get_current_time();
+
             // ~2500uS @ 50MHz, ~9000uS @ 14MHz, ~60000uS @ 1.8MHz
             measure_frequency();
             return;
         }
+        
+        static system_time_t lastRFUpdateTime = 0;
+        if (time_since(lastRFUpdateTime) > RF_MEASURE_INTERVAL) {
+            lastRFUpdateTime = get_current_time();
 
-        if (time_since(currentRF.lastRFTime) > RF_MEASURE_INTERVAL) {
             measure_RF(); // ~6900uS
             return;
         }
 
-        if (systemFlags.autoMode) {
-            if (currentRF.swr > get_SWR_threshold()) {
-                request_memory_tune();
-            }
-        }
-
+        static system_time_t lastBargraphUpdateTime = 0;
         if (time_since(lastBargraphUpdateTime) > BARGRAPH_UPDATE_INTERVAL) {
+            lastBargraphUpdateTime = get_current_time();
+
             update_bargraphs(); // ~150uS
             return;
+        }
+
+        if (systemFlags.autoMode) {
+            static uint16_t lastAutoTuneFrequency = 0;
+            if (currentRF.swr > get_SWR_threshold()) {
+                if (currentRF.frequency != lastAutoTuneFrequency) {
+                    lastAutoTuneFrequency = currentRF.frequency;
+                    request_memory_tune();
+                }
+            }
         }
     }
 
@@ -746,7 +755,7 @@ void ui_mainloop(void) {
 
         // POWER works whether the unit is 'on'
         if (btn_is_down(POWER)) {
-            if (!RF_is_present()) { // turning off the tuner flips all the relays
+            if (!RF_is_present()) {
                 disable_bargraph_updates();
                 power_hold();
                 enable_bargraph_updates();

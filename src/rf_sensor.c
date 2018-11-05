@@ -53,8 +53,6 @@ void RF_sensor_init(void) {
 
     // Initialize the Global RF Readings
     clear_currentRF();
-    currentRF.lastFrequencyTime = 0;
-    currentRF.lastRFTime = 0;
 
     // Frequency counter uses timer3 and timer4
     // timer3 measures the period length
@@ -109,7 +107,6 @@ bool check_for_RF(void) {
 
 #define NUM_OF_SWR_SAMPLES 32
 void measure_RF(void) {
-    currentRF.lastRFTime = get_current_time();
     float tempForward = 0;
     float tempReverse = 0;
 
@@ -281,7 +278,6 @@ uint32_t get_period(void) {
 #define NUM_OF_PERIOD_SAMPLES 4
 void measure_frequency(void) {
     LOG_TRACE({ println("measure_frequency"); });
-    currentRF.lastFrequencyTime = get_current_time();
     uint32_t result = 0;
     uint32_t tempPeriod = 0;
 
