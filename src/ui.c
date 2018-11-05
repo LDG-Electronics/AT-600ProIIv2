@@ -111,8 +111,11 @@ void update_bargraphs(void) {
 #define FREQUENCY_INTERVAL 1000
 #define RF_MEASURE_INTERVAL 50
 #define BARGRAPH_UPDATE_INTERVAL 30
+#define AUTO_TUNE_MINIMUM_INTERVAL 1000
 void ui_idle_block(void) {
     poll_RF();
+
+    static bool autoTuneAttempted = false;
 
     if (RF_is_present()) {
         static system_time_t lastFrequencyUpdateTime = 0;
@@ -123,7 +126,7 @@ void ui_idle_block(void) {
             measure_frequency();
             return;
         }
-        
+
         static system_time_t lastRFUpdateTime = 0;
         if (time_since(lastRFUpdateTime) > RF_MEASURE_INTERVAL) {
             lastRFUpdateTime = get_current_time();
@@ -140,15 +143,17 @@ void ui_idle_block(void) {
             return;
         }
 
-        if (systemFlags.autoMode) {
-            static uint16_t lastAutoTuneFrequency = 0;
+        if (systemFlags.autoMode && !autoTuneAttempted) {
             if (currentRF.swr > get_SWR_threshold()) {
-                if (currentRF.frequency != lastAutoTuneFrequency) {
-                    lastAutoTuneFrequency = currentRF.frequency;
-                    request_memory_tune();
-                }
+                autoTuneAttempted = true;
+                request_memory_tune();
             }
+            return;
         }
+    }
+
+    if (RF_is_absent()) {
+        autoTuneAttempted = false;
     }
 
     shell_update(); // ~22uS, most shell commands are ~2000uS
