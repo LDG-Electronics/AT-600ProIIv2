@@ -299,6 +299,7 @@ float swrIndexArray[10] = {
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5, FLT_MAX,
 };
 
+// returns the index of the array element whose value is closest to data
 uint8_t find_closest_value(float data, float *array) {
     uint8_t lowerNeighbor = 0;
     while (array[lowerNeighbor + 1] < data) {
@@ -336,4 +337,26 @@ display_frame_t render_RF(float forwardWatts, float swrValue) {
     frame.lower = ledBarTable[swrIndex];
 
     return frame;
+}
+
+/* ************************************************************************** */
+
+void print_frame(display_frame_t *frame) {
+    print("|");
+    for (uint8_t i = 0; i < 8; i++) {
+        if (frame->upper & (1 << i)) {
+            print("*");
+        } else {
+            print("-");
+        }
+    }
+    print("|\r\n|");
+    for (uint8_t i = 0; i < 8; i++) {
+        if (frame->lower & (1 << i)) {
+            print("*");
+        } else {
+            print("-");
+        }
+    }
+    println("|");
 }

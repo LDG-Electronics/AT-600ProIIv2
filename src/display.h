@@ -93,4 +93,9 @@ extern void show_thresh(void);
 // returns a frame that shows the provided FWD and SWR
 extern display_frame_t render_RF(float forwardWatts, float swrValue);
 
+/* ************************************************************************** */
+
+// prints a frame to the serial port
+extern void print_frame(display_frame_t *frame);
+
 #endif // _DISPLAY_H_

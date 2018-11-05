@@ -30,7 +30,13 @@ void shell_show_bargraphs(int argc, char **argv) {
         float swrValue = atof(argv[2]);
         printf(", swrValue: %f\r\n", swrValue);
 
-        displayBuffer.next = render_RF(forwardWatts, swrValue);
+        display_frame_t frame = render_RF(forwardWatts, swrValue);
+
+        println("");
+        println("Rendered frame:");
+        print_frame(&frame);
+
+        displayBuffer.next = frame;
         display_update();
     }
     return;
