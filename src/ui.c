@@ -59,6 +59,16 @@ bool updatingBargraphs;
 #define enable_bargraph_updates() updatingBargraphs = true
 #define disable_bargraph_updates() updatingBargraphs = false
 
+uint16_t calculate_decay_period(uint8_t decayCount) {
+    if (decayCount < 2) {
+        return 300;
+    } else if (decayCount < 4) {
+        return 150;
+    } else {
+        return 50;
+    }
+}
+
 void update_bargraphs(void) {
     // scale mode handler
     float forwardWatts;
@@ -73,10 +83,13 @@ void update_bargraphs(void) {
 
     // peak mode handler
     static display_frame_t prevFrame;
+    static uint8_t decayCount = 0;
     if (systemFlags.peakMode) {
         static system_time_t lastFrameDecay = 0;
-        if (time_since(lastFrameDecay) > 300) {
+        if (time_since(lastFrameDecay) > calculate_decay_period(decayCount)) {
             lastFrameDecay = get_current_time();
+
+            decayCount++;
 
             // shift all the pixels left one space
             prevFrame.upper >>= 1;
@@ -87,8 +100,11 @@ void update_bargraphs(void) {
         newFrame.lower |= prevFrame.lower;
     }
 
-    static bool needToClearDisplay = false;
+    if (RF_is_present()) {
+        decayCount = 0;
+    }
 
+    static bool needToClearDisplay = false;
     if (RF_is_present() || (newFrame.frame != 0)) {
         if (updatingBargraphs) {
             needToClearDisplay = true;
