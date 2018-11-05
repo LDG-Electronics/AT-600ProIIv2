@@ -89,7 +89,7 @@ void print_solution_count(void) {
 
 void save_new_best_solution(relays_t *relays) {
     bestMatch.relays = *relays;
-    bestMatch.reflectionCoefficient = currentRF.swr;
+    bestMatch.reflectionCoefficient = currentRF.matchQuality;
     bestMatch.forward = currentRF.forward;
 
     LOG_INFO({
@@ -117,9 +117,9 @@ int8_t test_next_solution(relays_t *relays) {
     }
     measure_RF();
 
-    if (currentRF.swr < bestMatch.reflectionCoefficient) {
+    if (currentRF.matchQuality < bestMatch.reflectionCoefficient) {
         save_new_best_solution(relays);
-    } else if (currentRF.swr == bestMatch.reflectionCoefficient) {
+    } else if (currentRF.matchQuality == bestMatch.reflectionCoefficient) {
         if (currentRF.forward > bestMatch.forward) {
             save_new_best_solution(relays);
         }
@@ -544,13 +544,13 @@ static void test_memory(relays_t *memory) {
     measure_RF();
 
     LOG_INFO({
-        printf("SWR: %f\r\n", currentRF.swr);
+        printf("SWR: %f\r\n", currentRF.matchQuality);
         print_relays(memory);
         println("");
     });
 
-    if (currentRF.swr < bestMemorySWR) {
-        bestMemorySWR = currentRF.swr;
+    if (currentRF.matchQuality < bestMemorySWR) {
+        bestMemorySWR = currentRF.matchQuality;
         bestMemory = *memory;
     }
 }
@@ -581,9 +581,9 @@ void memory_tune(void) {
     measure_RF();
 
     // Did we find a valid memory?
-    if (currentRF.swr < 1.7) {
+    if (currentRF.matchQuality < 1.7) {
         LOG_INFO({
-            printf("found memory: %f", currentRF.swr);
+            printf("found memory: %f", currentRF.matchQuality);
             print_relays(&currentRelays[systemFlags.antenna]);
             println("");
         });
