@@ -183,7 +183,7 @@ void ui_idle_block(void) {
         lastBargraphUpdate = get_current_time();
 
         calculate_watts_and_swr(); // ~3800uS
-        update_bargraphs(); // ~180uS
+        update_bargraphs();        // ~180uS
     }
 
     shell_update(); // ~22uS, most shell commands are ~2000uS
@@ -226,8 +226,15 @@ void threshold_submenu(void) {
             break;
         }
 
+        // Immediately exit if RF is detected
+        if (RF_is_present()) {
+            return;
+        }
+
         ui_idle_block();
     }
+
+    blink_thresh(4);
 }
 
 void scale_submenu(void) {
@@ -257,8 +264,15 @@ void scale_submenu(void) {
             break;
         }
 
+        // Immediately exit if RF is detected
+        if (RF_is_present()) {
+            return;
+        }
+
         ui_idle_block();
     }
+    
+    blink_scale(4);
 }
 
 void function_submenu(void) {
@@ -282,7 +296,6 @@ void function_submenu(void) {
         if (btn_is_down(LUP)) {
             LOG_TRACE({ println("LUP"); });
             scale_submenu();
-            blink_scale(4);
             return;
         }
         if (btn_is_down(CDN)) {
@@ -294,7 +307,6 @@ void function_submenu(void) {
         if (btn_is_down(LDN)) {
             LOG_TRACE({ println("LDN"); });
             threshold_submenu();
-            blink_thresh(4);
             return;
         }
         if (btn_is_down(ANT)) {
@@ -323,6 +335,11 @@ void function_submenu(void) {
         if (time_since(startTime) >= SUBMENU_DURATION) {
             LOG_TRACE({ println("function_submenu timeout"); });
             break;
+        }
+
+        // Immediately exit if RF is detected
+        if (RF_is_present()) {
+            return;
         }
 
         ui_idle_block();
@@ -685,6 +702,12 @@ void func_hold(void) {
             show_HiLoZ();
         }
 
+        // Immediately exit if RF is detected
+        if (RF_is_present()) {
+            display_clear();
+            return;
+        }
+
         ui_idle_block();
     }
     if (!pressedOtherButton) {
@@ -705,6 +728,11 @@ void ant_hold(void) {
     update_status_LEDs();
 
     while (btn_is_down(ANT)) {
+        // Immediately exit if RF is detected
+        if (RF_is_present()) {
+            return;
+        }
+
         ui_idle_block();
     }
 }
