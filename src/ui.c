@@ -24,16 +24,9 @@ uint8_t RFhistory;
 #define RF_is_present() (RFhistory == 0b11111111)
 #define RF_is_absent() (RFhistory == 0b00000000)
 
-#define RF_POLLS_PER_SECOND 100
-#define RF_POLL_PERIOD 1000 / RF_POLLS_PER_SECOND
 void poll_RF(void) {
-    static system_time_t lastRFpoll = 0;
-    if (time_since(lastRFpoll) > RF_POLL_PERIOD) {
-        lastRFpoll = get_current_time();
-
-        RFhistory <<= 1;
-        RFhistory |= check_for_RF(); // ~140uS
-    }
+    RFhistory <<= 1;
+    RFhistory |= check_for_RF();
 }
 
 /* ************************************************************************** */
@@ -133,6 +126,9 @@ void update_bargraphs(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 
+#define RF_POLLS_PER_SECOND 100
+#define RF_POLL_PERIOD 1000 / RF_POLLS_PER_SECOND
+
 #define FREQUENCY_UPDATE_PERIOD 1000
 
 #define RF_UPDATES_PER_SECOND 100
@@ -141,7 +137,13 @@ void update_bargraphs(void) {
 #define BARGRAPH_UPDATES_PER_SECOND 30
 #define BARGRAPH_UPDATE_PERIOD 1000 / BARGRAPH_UPDATES_PER_SECOND
 void ui_idle_block(void) {
-    poll_RF();
+    static system_time_t lastRFpoll = 0;
+    if (time_since(lastRFpoll) > RF_POLL_PERIOD) {
+        lastRFpoll = get_current_time();
+
+        poll_RF(); // ~140uS
+        return;
+    }
 
     static bool allowedToAutoTune = true;
 
@@ -180,8 +182,8 @@ void ui_idle_block(void) {
     if (time_since(lastBargraphUpdate) > BARGRAPH_UPDATE_PERIOD) {
         lastBargraphUpdate = get_current_time();
 
-        calculate_watts_and_swr();
-        update_bargraphs();
+        calculate_watts_and_swr(); // ~3800uS
+        update_bargraphs(); // ~180uS
     }
 
     shell_update(); // ~22uS, most shell commands are ~2000uS
