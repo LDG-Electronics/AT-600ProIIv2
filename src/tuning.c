@@ -26,6 +26,7 @@ tuning_flags_s tuning_flags;
 typedef struct {
     relays_t relays;
     float matchQuality;
+    float swr;
     float forward;
     uint16_t attemptNumber;
 } match_t;
@@ -90,6 +91,7 @@ void print_solution_count(void) {
 void save_new_best_solution(relays_t *relays) {
     bestMatch.relays = *relays;
     bestMatch.matchQuality = currentRF.matchQuality;
+    bestMatch.swr = currentRF.swr;
     bestMatch.forward = currentRF.forward;
 
     LOG_INFO({
@@ -162,6 +164,8 @@ match_t test_bypass(void) {
     reset_match_data(&bestMatch);
 
     test_next_solution(&bypassRelays);
+
+    bypassMatch = bestMatch;
 
     LOG_DEBUG({
         print_relays(&bypassRelays);
@@ -260,7 +264,7 @@ void hiloz_tune(void) {
 */
 void coarse_tune(void) {
     LOG_TRACE({ println("coarse_tune:"); });
-    float earlyExitSWR = (bypassMatch.matchQuality / 2);
+    float earlyExitMatchQuality = (bypassMatch.matchQuality / 2);
     relays_t relays;
 
     uint8_t inds = 0;
@@ -274,7 +278,7 @@ void coarse_tune(void) {
             if (test_next_solution(&relays) == -1) {
                 return;
             }
-            if (bestMatch.matchQuality <= earlyExitSWR) {
+            if (bestMatch.matchQuality <= earlyExitMatchQuality) {
                 LOG_INFO({
                     print_solution_count();
                     println("");
@@ -323,7 +327,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
     search_area_t bracket_area = define_bracket_area(bracket);
     LOG_DEBUG({ print_search_area(&bracket_area); });
 
-    float earlyExitSWR = (bestMatch.matchQuality / 2);
+    float earlyExitMatchQuality = (bestMatch.matchQuality / 2);
 
     // Do it
     tryInd = bracket_area.minInd;
@@ -336,7 +340,7 @@ void bracket_tune(uint8_t bracket, uint8_t step) {
             if (test_next_solution(&relays) == -1) {
                 return;
             }
-            if (bestMatch.matchQuality < earlyExitSWR) {
+            if (bestMatch.matchQuality < earlyExitMatchQuality) {
                 LOG_INFO({
                     print_solution_count();
                     println("");
@@ -489,11 +493,11 @@ void full_tune(void) {
     }
 
     // Save the result, if it's good enough
-    if (bestMatch.matchQuality < 1.7) {
+    if (bestMatch.swr < 1.7) {
         LOG_INFO({
             print("Saving: ");
             print_relays(&bestMatch.relays);
-            printf(" with SWR: %d", bestMatch.matchQuality);
+            printf(" with SWR: %d", bestMatch.swr);
             println("");
         });
         NVM_address_t address = convert_memory_address(currentRF.frequency);
@@ -579,9 +583,9 @@ void memory_tune(void) {
     measure_RF();
 
     // Did we find a valid memory?
-    if (currentRF.matchQuality < 1.7) {
+    if (currentRF.swr < 1.7) {
         LOG_INFO({
-            printf("found memory: %f", currentRF.matchQuality);
+            printf("found memory: %f ", currentRF.swr);
             print_relays(&currentRelays[systemFlags.antenna]);
             println("");
         });
@@ -628,17 +632,18 @@ void tuning_followup_animation(void) {
             // relay_error_blink();
         }
     } else {
-        if (bestMatch.matchQuality < 1.7) {
+        LOG_INFO({ printf("bestMatch.swr: %f\r\n", bestMatch.swr); });
+        if (bestMatch.swr < 1.7) {
             LOG_INFO({ println("good match"); });
 
             play_animation(&center_crawl[0]);
 
-        } else if (bestMatch.matchQuality < 3.5) {
+        } else if (bestMatch.swr < 3.5) {
             LOG_INFO({ println("decent match"); });
 
             // led_blink(2, MEDIUM);
 
-        } else if (bestMatch.matchQuality >= 3.5) {
+        } else if (bestMatch.swr >= 3.5) {
             LOG_INFO({ println("badMatch"); });
 
             // led_blink(3, MEDIUM);
