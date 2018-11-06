@@ -89,6 +89,8 @@ void print_solution_count(void) {
 /* -------------------------------------------------------------------------- */
 
 void save_new_best_solution(relays_t *relays) {
+    calculate_watts_and_swr();
+
     bestMatch.relays = *relays;
     bestMatch.matchQuality = currentRF.matchQuality;
     bestMatch.swr = currentRF.swr;
@@ -492,8 +494,11 @@ void full_tune(void) {
         return;
     }
 
+    measure_RF();
+    calculate_watts_and_swr();
+
     // Save the result, if it's good enough
-    if (bestMatch.swr < 1.7) {
+    if (currentRF.swr < 1.7) {
         LOG_INFO({
             print("Saving: ");
             print_relays(&bestMatch.relays);
@@ -581,6 +586,7 @@ void memory_tune(void) {
 
     put_relays(&bestMemory);
     measure_RF();
+    calculate_watts_and_swr();
 
     // Did we find a valid memory?
     if (currentRF.swr < 1.7) {
