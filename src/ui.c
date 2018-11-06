@@ -103,9 +103,9 @@ void update_bargraphs(void) {
             needToClearDisplay = true;
             // copy our frame to the frame buffer and push it to the display
             displayBuffer.next = newFrame;
+            display_update();
             // save a copy of the frame for peak mode handler
             prevFrame = newFrame;
-            display_update();
         }
     }
 
@@ -131,7 +131,7 @@ void update_bargraphs(void) {
 
 #define FREQUENCY_UPDATE_PERIOD 1000
 
-#define RF_UPDATES_PER_SECOND 100
+#define RF_UPDATES_PER_SECOND 50
 #define RF_UPDATE_PERIOD 1000 / RF_UPDATES_PER_SECOND
 
 #define BARGRAPH_UPDATES_PER_SECOND 30
@@ -173,7 +173,7 @@ void ui_idle_block(void) {
         }
     }
 
-    //! RF_is_absent() is not the same as !RF_is_present()
+    //* RF_is_absent() is not the same as !RF_is_present()
     if (RF_is_absent()) {
         allowedToAutoTune = true; // reset when radio is unkeyed
     }
@@ -728,11 +728,6 @@ void ant_hold(void) {
     update_status_LEDs();
 
     while (btn_is_down(ANT)) {
-        // Immediately exit if RF is detected
-        if (RF_is_present()) {
-            return;
-        }
-
         ui_idle_block();
     }
 }

@@ -61,7 +61,7 @@ uint16_t adc_read(uint8_t channel) {
 
     uint16_t measurement = 0;
 
-    for (uint8_t i = 0; i < 3; i++) {
+    while (1) {
         adc_select_scale(maxVoltage[channel]);
         measurement = adc_convert(channel, maxVoltage[channel]);
 
