@@ -119,13 +119,13 @@ void measure_RF(void) {
     for (uint8_t i = 0; i < NUM_OF_SWR_SAMPLES; i++) {
         tempForward += adc_read(0);
         tempReverse += adc_read(1);
-    }
+    }    
 
     // publish the averaged forward and reverse
     currentRF.forward = (float)tempForward / NUM_OF_SWR_SAMPLES;
     currentRF.reverse = (float)tempReverse / NUM_OF_SWR_SAMPLES;
 
-    // this bitshift improves the accuracy of the following integer division
+    // this bitshift improves the precision of the following integer division
     tempReverse <<= 12;
     currentRF.matchQuality = tempReverse / tempForward;
 }
@@ -232,6 +232,20 @@ uint32_t get_period(void) {
     timer3_interrupt_enable();
 
     // timeout timer
+    timer4_clear();
+    timer4_IF_clear();
+    timer4_start();
+
+    // align ourselves with the rising edge of FREQ_PIN
+    while (FREQ_PIN == 1) {
+        if (timer4_IF_read()) {
+            timer4_stop();
+            LOG_ERROR({ println("timed out"); });
+            return 0;
+        }
+    }
+
+    timer4_stop();
     timer4_clear();
     timer4_IF_clear();
     timer4_start();
