@@ -67,6 +67,11 @@ relays_t unpack_relays(packed_relays_t *relayBits) {
 */
 int8_t check_if_safe(void) {
     measure_RF();
+    calculate_watts_and_swr();
+
+    if (currentRF.forwardWatts > 125) {
+        return -1;
+    }
 
     return 0;
 }

@@ -92,6 +92,9 @@ void pins_init(void) {
     TRISCbits.TRISC1 = 0; // RELAY_DATA_PIN
     TRISCbits.TRISC2 = 0; // RELAY_STROBE_PIN
 
+    // Radio Command Pin
+    TRISAbits.TRISA7 = 0; // RADIO_CMD_PIN
+    
     // Meter port pins
     TRISCbits.TRISC6 = 0; // Meter TX
     TRISCbits.TRISC7 = 1; // Meter RX
