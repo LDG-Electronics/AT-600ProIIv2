@@ -14,7 +14,7 @@ static uint8_t LOG_LEVEL = L_SILENT;
 /* ************************************************************************** */
 
 // simple wrapper that allows easy use of multiple button state checks
-#define BUTTON(name) (btn_is_pressed(name) && btn_is_down(name))
+#define BUTTON(name) (btn_is_pressed(name) || btn_is_down(name))
 
 /* ************************************************************************** */
 /*  RFhistory is used to 'debounce' the presence or absence of RF, as if it were
