@@ -127,7 +127,7 @@ bool poll_for_RF_until2(uint16_t timeoutDuration) {
         int16_t deltaFWD = abs(currentFWD - previousFWD);
         int16_t deltaCompare = currentFWD >> 4;
 
-        if (currentFWD > LOW_POWER) {
+        if (currentFWD > LOW_POWER_CUTOFF) {
             if (deltaFWD < deltaCompare) {
                 break;
             }
@@ -136,7 +136,7 @@ bool poll_for_RF_until2(uint16_t timeoutDuration) {
         previousFWD = currentFWD;
     }
 
-    if (ADcount != 0) {
+    if (time_since(startTime) > 1) {
         LOG_ERROR({ printf("spent %lu mS polling", time_since(startTime)); });
     }
 
