@@ -283,6 +283,7 @@ void function_submenu(void) {
 
     delay_ms(50);
     play_interruptable_animation(&arrow_up[0]);
+    display_single_frame(&arrow_up[0], 1);
 
     system_time_t startTime = get_current_time(); // stash the current time
 
