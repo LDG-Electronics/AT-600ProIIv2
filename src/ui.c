@@ -321,11 +321,7 @@ void function_submenu(void) {
             return;
         }
 
-        // Pressing POWER or FUNC cancels and exits
-        if (btn_is_down(POWER)) {
-            LOG_TRACE({ println("POWER"); });
-            break;
-        }
+        // Pressing FUNC cancels and exits
         if (btn_is_down(FUNC)) {
             LOG_TRACE({ println("FUNC"); });
             break;
