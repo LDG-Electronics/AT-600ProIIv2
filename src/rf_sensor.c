@@ -107,6 +107,42 @@ bool check_for_RF(void) {
     return false;
 }
 
+bool poll_for_RF_until(uint16_t timeoutDuration) {
+    system_time_t startTime = get_current_time();
+
+    while (time_since(startTime) > timeoutDuration) {
+        if (check_for_RF()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool poll_for_RF_until2(uint16_t timeoutDuration) {
+    system_time_t startTime = get_current_time();
+
+    int16_t previousFWD = adc_read(0);
+    while (time_since(startTime) > timeoutDuration) {
+        int16_t currentFWD = adc_read(0);
+        int16_t deltaFWD = abs(currentFWD - previousFWD);
+        int16_t deltaCompare = currentFWD >> 4;
+
+        if (currentFWD > LOW_POWER) {
+            if (deltaFWD < deltaCompare) {
+                break;
+            }
+        }
+
+        previousFWD = currentFWD;
+    }
+
+    if (ADcount != 0) {
+        LOG_ERROR({ printf("spent %lu mS polling", time_since(startTime)); });
+    }
+
+    return true;
+}
+
 /* -------------------------------------------------------------------------- */
 
 #define NUM_OF_SWR_SAMPLES 32
@@ -119,7 +155,7 @@ void measure_RF(void) {
     for (uint8_t i = 0; i < NUM_OF_SWR_SAMPLES; i++) {
         tempForward += adc_read(0);
         tempReverse += adc_read(1);
-    }    
+    }
 
     // publish the averaged forward and reverse
     currentRF.forward = (float)tempForward / NUM_OF_SWR_SAMPLES;
