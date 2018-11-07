@@ -12,6 +12,11 @@
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
+
+// simple wrapper that allows easy use of multiple button state checks
+#define BUTTON(name) (btn_is_pressed(name) && btn_is_down(name))
+
+/* ************************************************************************** */
 /*  RFhistory is used to 'debounce' the presence or absence of RF, as if it were
     a button.
 
@@ -208,7 +213,7 @@ void threshold_submenu(void) {
     system_time_t startTime = get_current_time(); // stash the current time
 
     while (1) {
-        if (btn_is_down(LDN)) {
+        if (BUTTON(LDN)) {
             startTime = get_current_time(); // reset the start time
             SWR_threshold_increment();
 
@@ -217,7 +222,7 @@ void threshold_submenu(void) {
         }
 
         // Pressing FUNC again cancels and exits
-        if (btn_is_down(FUNC)) {
+        if (BUTTON(FUNC)) {
             break;
         }
 
@@ -245,7 +250,7 @@ void scale_submenu(void) {
     system_time_t startTime = get_current_time(); // stash the current time
 
     while (1) {
-        if (btn_is_down(LUP)) {
+        if (BUTTON(LUP)) {
             startTime = get_current_time(); // reset the start time
 
             toggle_scale();
@@ -255,7 +260,7 @@ void scale_submenu(void) {
         }
 
         // Pressing FUNC again cancels and exits
-        if (btn_is_down(FUNC)) {
+        if (BUTTON(FUNC)) {
             break;
         }
 
@@ -277,7 +282,7 @@ void scale_submenu(void) {
 
 void function_submenu(void) {
     LOG_TRACE({ println("function_submenu"); });
-    while (btn_is_down(FUNC)) {
+    while (BUTTON(FUNC)) {
         // make sure FUNC is released before we continue
     }
 
@@ -287,46 +292,46 @@ void function_submenu(void) {
     system_time_t startTime = get_current_time(); // stash the current time
 
     while (1) {
-        if (btn_is_down(CUP)) {
+        if (BUTTON(CUP)) {
             LOG_TRACE({ println("CUP"); });
             toggle_peak();
             show_peak();
             return;
         }
-        if (btn_is_down(LUP)) {
+        if (BUTTON(LUP)) {
             LOG_TRACE({ println("LUP"); });
             scale_submenu();
             return;
         }
-        if (btn_is_down(CDN)) {
+        if (BUTTON(CDN)) {
             LOG_TRACE({ println("CDN"); });
             toggle_auto();
             blink_auto(4);
             return;
         }
-        if (btn_is_down(LDN)) {
+        if (BUTTON(LDN)) {
             LOG_TRACE({ println("LDN"); });
             threshold_submenu();
             return;
         }
-        if (btn_is_down(ANT)) {
+        if (BUTTON(ANT)) {
             LOG_TRACE({ println("ANT"); });
             toggle_hiloz();
             blink_HiLoZ(4);
             return;
         }
-        if (btn_is_down(TUNE)) {
+        if (BUTTON(TUNE)) {
             LOG_TRACE({ println("TUNE"); });
             manual_store();
             return;
         }
 
         // Pressing POWER or FUNC cancels and exits
-        if (btn_is_down(POWER)) {
+        if (BUTTON(POWER)) {
             LOG_TRACE({ println("POWER"); });
             break;
         }
-        if (btn_is_down(FUNC)) {
+        if (BUTTON(FUNC)) {
             LOG_TRACE({ println("FUNC"); });
             break;
         }
@@ -442,16 +447,16 @@ static display_frame_t relay_animation_handler(int8_t capResult,
 void process_CUP_or_CDN(relays_t *relays, int8_t *capResult) {
     *capResult = RLY_INC_NO_CHANGE;
 
-    if (btn_is_down(CUP) && btn_is_down(CDN)) {
+    if (BUTTON(CUP) && BUTTON(CDN)) {
         // can't go up and down at the same time; do nothing
-    } else if (btn_is_down(CUP)) {
+    } else if (BUTTON(CUP)) {
         if (relays->caps < MAX_CAPACITORS) {
             relays->caps++;
             *capResult = RLY_INCREMENT_SUCCESS;
         } else {
             *capResult = RLY_LIMIT_REACHED;
         }
-    } else if (btn_is_down(CDN)) {
+    } else if (BUTTON(CDN)) {
         if (relays->caps > MIN_CAPACITORS) {
             relays->caps--;
             *capResult = RLY_INCREMENT_SUCCESS;
@@ -464,16 +469,16 @@ void process_CUP_or_CDN(relays_t *relays, int8_t *capResult) {
 void process_LUP_or_LDN(relays_t *relays, int8_t *indResult) {
     *indResult = RLY_INC_NO_CHANGE;
 
-    if (btn_is_down(LUP) && btn_is_down(LDN)) {
+    if (BUTTON(LUP) && BUTTON(LDN)) {
         // can't go up and down at the same time; do nothing
-    } else if (btn_is_down(LUP)) {
+    } else if (BUTTON(LUP)) {
         if (relays->inds < MAX_INDUCTORS) {
             relays->inds++;
             *indResult = RLY_INCREMENT_SUCCESS;
         } else {
             *indResult = RLY_LIMIT_REACHED;
         }
-    } else if (btn_is_down(LDN)) {
+    } else if (BUTTON(LDN)) {
         if (relays->inds > MIN_INDUCTORS) {
             relays->inds--;
             *indResult = RLY_INCREMENT_SUCCESS;
@@ -488,14 +493,14 @@ static int8_t timeout_handler(void) {
     // this keeps track of the last time a relay button was down
     static system_time_t lastTimeButtonWasDown;
 
-    if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
-        btn_is_down(LDN)) {
+    if (BUTTON(CUP) || BUTTON(CDN) || BUTTON(LUP) ||
+        BUTTON(LDN)) {
         lastTimeButtonWasDown = get_current_time();
     } else {
         // if we ARE NOT holding a relay button, any other button press should
         // kick us out
-        if (btn_is_down(POWER) || btn_is_down(ANT) || btn_is_down(FUNC) ||
-            btn_is_down(TUNE)) {
+        if (BUTTON(POWER) || BUTTON(ANT) || BUTTON(FUNC) ||
+            BUTTON(TUNE)) {
             return 0;
         }
     }
@@ -612,7 +617,7 @@ void tune_hold(void) {
     system_time_t elapsedTime;
     system_time_t startTime = get_current_time();
 
-    while (btn_is_down(TUNE)) {
+    while (BUTTON(TUNE)) {
         elapsedTime = time_since(startTime);
 
         if (elapsedTime < BTN_PRESS_DEBOUNCE) {
@@ -676,27 +681,27 @@ void func_hold(void) {
     LOG_TRACE({ println("func_hold"); });
     bool pressedOtherButton = false;
 
-    while (btn_is_down(FUNC)) {
-        if (btn_is_down(CUP)) {
+    while (BUTTON(FUNC)) {
+        if (BUTTON(CUP)) {
             pressedOtherButton = true;
             show_peak();
         }
-        if (btn_is_down(CDN)) {
+        if (BUTTON(CDN)) {
             pressedOtherButton = true;
             blink_auto(3);
             show_auto();
         }
-        if (btn_is_down(LDN)) {
+        if (BUTTON(LDN)) {
             pressedOtherButton = true;
             blink_thresh(3);
             show_thresh();
         }
-        if (btn_is_down(LUP)) {
+        if (BUTTON(LUP)) {
             pressedOtherButton = true;
             blink_scale(3);
             show_scale();
         }
-        if (btn_is_down(ANT)) {
+        if (BUTTON(ANT)) {
             pressedOtherButton = true;
             blink_HiLoZ(2);
             show_HiLoZ();
@@ -727,7 +732,7 @@ void ant_hold(void) {
     blink_antenna();
     update_status_LEDs();
 
-    while (btn_is_down(ANT)) {
+    while (BUTTON(ANT)) {
         ui_idle_block();
     }
 }
@@ -745,18 +750,18 @@ void power_hold(void) {
         set_power_on();
         update_status_LEDs();
 
-        while (btn_is_down(POWER)) {
+        while (BUTTON(POWER)) {
             ui_idle_block();
         }
     } else {
         system_time_t startTime = get_current_time();
-        while (btn_is_down(POWER)) {
+        while (BUTTON(POWER)) {
             if (time_since(startTime) >= POWER_HOLD_DURATION) {
                 set_power_off();
                 display_clear();
                 clear_status_LEDs();
 
-                while (btn_is_down(POWER)) {
+                while (BUTTON(POWER)) {
                     // make sure we wait here until POWER is released
                 }
             }
@@ -778,26 +783,26 @@ void ui_mainloop(void) {
         // Most buttons only work when the system is 'on'
         if (systemFlags.powerStatus == 1) {
             // Relay buttons
-            if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
-                btn_is_down(LDN)) {
+            if (BUTTON(CUP) || BUTTON(CDN) || BUTTON(LUP) ||
+                BUTTON(LDN)) {
                 relay_button_hold();
             }
 
             // Other buttons
-            if (btn_is_down(TUNE)) {
+            if (BUTTON(TUNE)) {
                 disable_bargraph_updates();
                 tune_hold();
                 enable_bargraph_updates();
             }
 
-            if (btn_is_down(FUNC)) {
+            if (BUTTON(FUNC)) {
                 if (!RF_is_present()) {
                     disable_bargraph_updates();
                     func_hold();
                     enable_bargraph_updates();
                 }
             }
-            if (btn_is_down(ANT)) {
+            if (BUTTON(ANT)) {
                 if (!RF_is_present()) {
                     disable_bargraph_updates();
                     ant_hold();
@@ -809,7 +814,7 @@ void ui_mainloop(void) {
         }
 
         // POWER works whether the unit is 'on'
-        if (btn_is_down(POWER)) {
+        if (BUTTON(POWER)) {
             if (!RF_is_present()) {
                 disable_bargraph_updates();
                 power_hold();
