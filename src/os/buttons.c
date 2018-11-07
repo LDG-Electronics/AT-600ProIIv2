@@ -80,24 +80,24 @@ void __interrupt(irq(TMR6), high_priority) button_subsystem_ISR(void) {
 /* -------------------------------------------------------------------------- */
 
 // Returns 1 if any button is currently down
-uint8_t get_buttons(void) {
+bool get_buttons(void) {
     for (uint8_t i = 0; i < NUMBER_OF_BUTTONS; i++) {
         if (btn_is_down(i))
-            return 1;
+            return true;
     }
 
-    return 0;
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */
 
 // Returns 1 if buttons entire history is 'down', aka button is being held.
-uint8_t btn_is_down(buttonName_t buttonName) {
+bool btn_is_down(buttonName_t buttonName) {
     return (buttonHistory[buttonName] == 0b11111111);
 }
 
 // Returns 1 if buttons entire history is 'up', aka button is NOT held.
-uint8_t btn_is_up(buttonName_t buttonName) {
+bool btn_is_up(buttonName_t buttonName) {
     return (buttonHistory[buttonName] == 0b00000000);
 }
 
@@ -113,12 +113,12 @@ uint8_t btn_is_up(buttonName_t buttonName) {
     If the conditions aren't met, return 0 for false. (Duh.)
 */
 // Returns 1 if rising edge is detected
-uint8_t btn_is_pressed(buttonName_t buttonName) {
+bool btn_is_pressed(buttonName_t buttonName) {
     if ((buttonHistory[buttonName] & DEBOUNCE_MASK) == 0b00000111) {
         buttonHistory[buttonName] = 0b11111111;
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 /*  Mask out the middle three 'bouncy' bits, and compare the result with the
@@ -133,10 +133,10 @@ uint8_t btn_is_pressed(buttonName_t buttonName) {
     If the conditions aren't met, return 0 for false. (Duh.)
 */
 // Returns 1 if falling edge is detected
-uint8_t btn_is_released(buttonName_t buttonName) {
+bool btn_is_released(buttonName_t buttonName) {
     if ((buttonHistory[buttonName] & DEBOUNCE_MASK) == 0b11000000) {
         buttonHistory[buttonName] = 0b00000000;
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
