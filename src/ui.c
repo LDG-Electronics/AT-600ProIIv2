@@ -278,7 +278,7 @@ void scale_submenu(void) {
 void function_submenu(void) {
     LOG_TRACE({ println("function_submenu"); });
     while (btn_is_down(FUNC)) {
-        // make sure FUNC is released before we continue
+        ui_idle_block();
     }
 
     delay_ms(50);
@@ -339,6 +339,9 @@ void function_submenu(void) {
             return;
         }
 
+        ui_idle_block();
+    }
+    while (btn_is_down(FUNC)) {
         ui_idle_block();
     }
     play_animation(&arrow_down[0]);
@@ -724,12 +727,13 @@ void func_hold(void) {
 void ant_hold(void) {
     LOG_TRACE({ println("ant_hold"); });
     toggle_antenna();
-    blink_antenna();
+    show_antenna();
     update_status_LEDs();
 
     while (btn_is_down(ANT)) {
         ui_idle_block();
     }
+    blink_antenna();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -778,26 +782,26 @@ void ui_mainloop(void) {
         // Most buttons only work when the system is 'on'
         if (systemFlags.powerStatus == 1) {
             // Relay buttons
-            if (btn_is_pressed(CUP) || btn_is_pressed(CDN) ||
-                btn_is_pressed(LUP) || btn_is_pressed(LDN)) {
+            if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
+                btn_is_down(LDN)) {
                 relay_button_hold();
             }
 
             // Other buttons
-            if (btn_is_pressed(TUNE)) {
+            if (btn_is_down(TUNE)) {
                 disable_bargraph_updates();
                 tune_hold();
                 enable_bargraph_updates();
             }
 
-            if (btn_is_pressed(FUNC)) {
+            if (btn_is_down(FUNC)) {
                 if (!RF_is_present()) {
                     disable_bargraph_updates();
                     func_hold();
                     enable_bargraph_updates();
                 }
             }
-            if (btn_is_pressed(ANT)) {
+            if (btn_is_down(ANT)) {
                 if (!RF_is_present()) {
                     disable_bargraph_updates();
                     ant_hold();
@@ -809,7 +813,7 @@ void ui_mainloop(void) {
         }
 
         // POWER works whether the unit is 'on'
-        if (btn_is_pressed(POWER)) {
+        if (btn_is_down(POWER)) {
             if (!RF_is_present()) {
                 disable_bargraph_updates();
                 power_hold();
