@@ -271,7 +271,7 @@ void scale_submenu(void) {
 
         ui_idle_block();
     }
-    
+
     blink_scale(4);
 }
 
@@ -778,26 +778,26 @@ void ui_mainloop(void) {
         // Most buttons only work when the system is 'on'
         if (systemFlags.powerStatus == 1) {
             // Relay buttons
-            if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
-                btn_is_down(LDN)) {
+            if (btn_is_pressed(CUP) || btn_is_pressed(CDN) ||
+                btn_is_pressed(LUP) || btn_is_pressed(LDN)) {
                 relay_button_hold();
             }
 
             // Other buttons
-            if (btn_is_down(TUNE)) {
+            if (btn_is_pressed(TUNE)) {
                 disable_bargraph_updates();
                 tune_hold();
                 enable_bargraph_updates();
             }
 
-            if (btn_is_down(FUNC)) {
+            if (btn_is_pressed(FUNC)) {
                 if (!RF_is_present()) {
                     disable_bargraph_updates();
                     func_hold();
                     enable_bargraph_updates();
                 }
             }
-            if (btn_is_down(ANT)) {
+            if (btn_is_pressed(ANT)) {
                 if (!RF_is_present()) {
                     disable_bargraph_updates();
                     ant_hold();
@@ -809,7 +809,7 @@ void ui_mainloop(void) {
         }
 
         // POWER works whether the unit is 'on'
-        if (btn_is_down(POWER)) {
+        if (btn_is_pressed(POWER)) {
             if (!RF_is_present()) {
                 disable_bargraph_updates();
                 power_hold();
