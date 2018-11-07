@@ -672,6 +672,9 @@ void func_hold(void) {
     LOG_TRACE({ println("func_hold"); });
     bool pressedOtherButton = false;
 
+    // display SOMETHING to acknowledge the button press
+    display_single_frame(&arrow_up[0], 0);
+
     while (btn_is_down(FUNC)) {
         if (btn_is_down(CUP)) {
             pressedOtherButton = true;
