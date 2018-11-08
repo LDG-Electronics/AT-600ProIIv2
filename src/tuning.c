@@ -111,14 +111,12 @@ int8_t test_next_solution(relays_t *relays) {
         return (-1);
     }
 
-    // If we fail to find FWD power twice, then set an error and exit.
-    if (!check_for_RF()) {
-        delay_ms(25);
-        if (!check_for_RF()) {
-            tuning_flags.noRF = 1;
-            return -1;
-        }
+    // If we fail to find RF, then set an error and exit.
+    if (!poll_for_RF_until2(200)) {
+        tuning_flags.lostRF = 1;
+        return -1;
     }
+
     measure_RF();
 
     if (currentRF.matchQuality < bestMatch.matchQuality) {
@@ -171,7 +169,7 @@ match_t test_bypass(void) {
 
     LOG_DEBUG({
         print_relays(&bypassRelays);
-        printf(" SWR: %f FWD: %d\r\n", bypassMatch.matchQuality,
+        printf(" SWR: %f FWD: %f\r\n", bypassMatch.matchQuality,
                bypassMatch.forward);
     });
 
@@ -190,7 +188,7 @@ match_t test_loz(void) {
 
     LOG_DEBUG({
         print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
+        printf(" SWR: %f FWD: %f\r\n", bestMatch.matchQuality,
                bestMatch.forward);
     });
 
@@ -209,7 +207,7 @@ match_t test_hiz(void) {
 
     LOG_DEBUG({
         print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
+        printf(" SWR: %f FWD: %f\r\n", bestMatch.matchQuality,
                bestMatch.forward);
     });
 
@@ -232,7 +230,7 @@ void restore_best_z(match_t hizMatch, match_t lozMatch) {
     LOG_INFO({
         print("best z: ");
         print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
+        printf(" SWR: %f FWD: %f\r\n", bestMatch.matchQuality,
                bestMatch.forward);
     });
 }
@@ -442,13 +440,10 @@ void full_tune(void) {
 
     clear_tuning_flags();
 
-    // If we fail to find FWD power twice, then set an error and exit.
-    if (!check_for_RF()) {
-        delay_ms(25);
-        if (!check_for_RF()) {
-            tuning_flags.noRF = 1;
-            return;
-        }
+    // If we fail to find RF, then set an error and exit.
+    if (!poll_for_RF_until2(200)) {
+        tuning_flags.noRF = 1;
+        return;
     }
 
     reset_tuning_data();
@@ -502,7 +497,7 @@ void full_tune(void) {
         LOG_INFO({
             print("Saving: ");
             print_relays(&bestMatch.relays);
-            printf(" with SWR: %d", bestMatch.swr);
+            printf(" with SWR: %f", bestMatch.swr);
             println("");
         });
         NVM_address_t address = convert_memory_address(currentRF.frequency);
@@ -549,6 +544,7 @@ static void test_memory(relays_t *memory) {
 
     put_relays(memory);
     measure_RF();
+    calculate_watts_and_swr();
 
     LOG_INFO({
         printf("SWR: %f\r\n", currentRF.matchQuality);
@@ -567,7 +563,8 @@ void memory_tune(void) {
 
     clear_tuning_flags();
 
-    if (!check_for_RF()) {
+    // If we fail to find RF, then set an error and exit.
+    if (!poll_for_RF_until2(200)) {
         tuning_flags.noRF = 1;
         return;
     }
