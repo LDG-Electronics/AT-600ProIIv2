@@ -8,7 +8,7 @@
 #include "relays.h"
 #include "rf_sensor.h"
 #include <float.h>
-static uint8_t LOG_LEVEL = L_SILENT;
+static uint8_t LOG_LEVEL = L_TRACE;
 
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ const uint8_t tuneStep[] = {0,  1,  2,  4,  6,  9,  12,  16,  21,  27, 34,
 
 /* ************************************************************************** */
 
-tuning_flags_s tuning_flags;
+tuning_flags_t tuning_flags;
 
 #define clear_tuning_flags() tuning_flags.errors = 0
 
@@ -34,10 +34,34 @@ typedef struct {
 match_t bestMatch;
 match_t bypassMatch;
 
+/*
+
+    output:
+    "(C22, L11, Z0, A0) Q: 1896.000000, SWR: 1.886656, FWD: 1810.062500, #: 213"
+*/
+void print_match(match_t *match) {
+    print_relays(&match->relays);
+    printf(" Q: %f, SWR: %f, FWD: %f, #: %u", match->matchQuality, match->swr,
+           match->forward, match->attemptNumber);
+}
+
+match_t reset_match(void) {
+    match_t match;
+    match.relays.all = 0;
+    match.matchQuality = FLT_MAX;
+    match.swr = FLT_MAX;
+    match.forward = 0;
+    match.attemptNumber = 0;
+
+    return match;
+}
+
 void reset_match_data(match_t *match) {
     match->relays.all = 0;
     match->matchQuality = FLT_MAX;
+    match->swr = FLT_MAX;
     match->forward = 0;
+    match->attemptNumber = 0;
 }
 
 /* ************************************************************************** */
@@ -57,26 +81,31 @@ typedef union {
 } search_area_t;
 
 // Indexes used by coarse_tune()
-search_area_t search_area;
+search_area_t searchArea;
 
 /*  print_search_area() prints the current search_area
 
-    Output is: "area: (maxCap , minCap) (maxInd , minInd)"
+    Output: "area: (maxCap , minCap) (maxInd , minInd)"
 */
-void print_search_area(search_area_t *print_area) {
-    printf("area: C(%d,%d), L(%d,%d)\r\n", print_area->maxCap,
-           print_area->minCap, print_area->maxInd, print_area->minInd);
+void print_search_area(search_area_t *area) {
+    printf("area: C(%d,%d), L(%d,%d)\r\n", area->maxCap, area->minCap,
+           area->maxInd, area->minInd);
 }
 
 /* ************************************************************************** */
 
-// File scope variables storing the number of solutions tried
+// File scope: stores the number of solutions tried
 uint16_t solutionCount;
 uint16_t prevSolutionCount;
 
+void reset_solution_count(void) {
+    solutionCount = 0;
+    prevSolutionCount = 0;
+}
+
 /*  print_solution_count() shows the number of tested tuning solutions
 
-    Output is: "solutionCount: iii new: jjj"
+    Output: "solutionCount: iii new: jjj"
 */
 void print_solution_count(void) {
     uint16_t difference = solutionCount - prevSolutionCount;
@@ -88,17 +117,16 @@ void print_solution_count(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void save_new_best_solution(relays_t *relays) {
-    calculate_watts_and_swr();
-
+void save_new_best_match(relays_t *relays) {
     bestMatch.relays = *relays;
     bestMatch.matchQuality = currentRF.matchQuality;
     bestMatch.swr = currentRF.swr;
     bestMatch.forward = currentRF.forward;
+    bestMatch.attemptNumber = solutionCount;
 
-    LOG_INFO({
-        print("new best: ");
-        print_relays(&bestMatch.relays);
+    LOG_DEBUG({
+        print("saving: ");
+        print_match(&bestMatch);
         println("");
     });
 }
@@ -108,26 +136,22 @@ int8_t test_next_solution(relays_t *relays) {
 
     if (put_relays(relays) == -1) {
         tuning_flags.relayError = 1;
-        return (-1);
+        return -1;
     }
 
-    // If we fail to find FWD power twice, then set an error and exit.
-    if (!check_for_RF()) {
-        delay_ms(25);
-        if (!check_for_RF()) {
-            tuning_flags.noRF = 1;
-            return -1;
-        }
+    if (!wait_for_stable_RF(50)) {
+        tuning_flags.lostRF = 1;
+        return -1;
     }
+
     measure_RF();
+    calculate_watts_and_swr();
 
     if (currentRF.matchQuality < bestMatch.matchQuality) {
-        save_new_best_solution(relays);
-    } else if (currentRF.matchQuality == bestMatch.matchQuality) {
-        if (currentRF.forward > bestMatch.forward) {
-            save_new_best_solution(relays);
-        }
+        save_new_best_match(relays);
+        return 1;
     }
+
     return 0;
 }
 
@@ -137,7 +161,7 @@ void L_zip(relays_t *relays, uint8_t caps, uint8_t startingIndex) {
     uint8_t tryIndex = startingIndex;
 
     relays->caps = caps;
-    while (tuneStep[tryIndex] < search_area.maxInd) {
+    while (tuneStep[tryIndex] < searchArea.maxInd) {
         relays->inds = tuneStep[tryIndex];
         if (test_next_solution(relays) == -1) {
             break;
@@ -150,7 +174,7 @@ void L_zip(relays_t *relays, uint8_t caps, uint8_t startingIndex) {
 void LC_zip(relays_t *relays) {
     uint8_t tryIndex = 0;
 
-    while (tuneStep[tryIndex] < search_area.maxCap) {
+    while (tuneStep[tryIndex] < searchArea.maxCap) {
         relays->caps = tuneStep[tryIndex];
         relays->inds = tuneStep[tryIndex];
         if (test_next_solution(relays) == -1) {
@@ -161,95 +185,59 @@ void LC_zip(relays_t *relays) {
     }
 }
 
-match_t test_bypass(void) {
-    LOG_TRACE({ println("test_bypass:"); });
-    reset_match_data(&bestMatch);
-
-    test_next_solution(&bypassRelays);
-
-    bypassMatch = bestMatch;
-
-    LOG_DEBUG({
-        print_relays(&bypassRelays);
-        printf(" SWR: %f FWD: %d\r\n", bypassMatch.matchQuality,
-               bypassMatch.forward);
-    });
-
-    return bestMatch;
-}
-
-match_t test_loz(void) {
-    LOG_TRACE({ println("test_loz:"); });
-    reset_match_data(&bestMatch);
-
+match_t test_z(uint8_t z) {
+    LOG_TRACE({ println("test_z"); });
+    // prepare the relay
     relays_t relays;
-    relays.z = 0;
+    relays.all = 0;
+    relays.z = z;
+
+    // draw some lines
     LC_zip(&relays);
+    if (tuning_flags.errors != 0) {
+        return bestMatch;
+    }
     L_zip(&relays, 3, 0);
+    if (tuning_flags.errors != 0) {
+        return bestMatch;
+    }
     L_zip(&relays, 7, 1);
-
-    LOG_DEBUG({
-        print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
-               bestMatch.forward);
-    });
-
-    return bestMatch;
-}
-
-match_t test_hiz(void) {
-    LOG_TRACE({ println("test_hiz:"); });
-    reset_match_data(&bestMatch);
-
-    relays_t relays;
-    relays.z = 1;
-    LC_zip(&relays);
-    L_zip(&relays, 3, 0);
-    L_zip(&relays, 7, 1);
-
-    LOG_DEBUG({
-        print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
-               bestMatch.forward);
-    });
-
-    return bestMatch;
-}
-
-void restore_best_z(match_t hizMatch, match_t lozMatch) {
-    if (hizMatch.matchQuality < lozMatch.matchQuality) {
-        bestMatch = hizMatch;
-    } else if (hizMatch.matchQuality == lozMatch.matchQuality) {
-        if (hizMatch.forward > lozMatch.forward) {
-            bestMatch = hizMatch;
-        } else {
-            bestMatch = lozMatch;
-        }
-    } else {
-        bestMatch = lozMatch;
+    if (tuning_flags.errors != 0) {
+        return bestMatch;
     }
 
-    LOG_INFO({
-        print("best z: ");
-        print_relays(&bestMatch.relays);
-        printf(" SWR: %f FWD: %d\r\n", bestMatch.matchQuality,
-               bestMatch.forward);
-    });
+    return bestMatch;
 }
 
-void hiloz_tune(void) {
-    LOG_TRACE({ println("hiloz_tune:"); });
+match_t restore_best_z(match_t hizMatch, match_t lozMatch) {
+    if (hizMatch.matchQuality < lozMatch.matchQuality) {
+        return hizMatch;
+    } else if (hizMatch.matchQuality == lozMatch.matchQuality) {
+        if (hizMatch.forward > lozMatch.forward) {
+            return hizMatch;
+        } else {
+            return lozMatch;
+        }
+    } else {
+        return lozMatch;
+    }
+}
 
-    test_bypass();
-    match_t lozMatch = test_loz();
-    match_t hizMatch = test_hiz();
+match_t hiloz_tune(void) {
+    LOG_TRACE({ println("hiloz_tune"); });
 
-    restore_best_z(hizMatch, lozMatch);
+    reset_match_data(&bestMatch);
+    match_t lozMatch = test_z(0);
+    if (tuning_flags.errors != 0) {
+        return bestMatch;
+    }
+    reset_match_data(&bestMatch);
+    match_t hizMatch = test_z(1);
+    if (tuning_flags.errors != 0) {
+        return bestMatch;
+    }
 
-    LOG_INFO({
-        print_solution_count();
-        println("");
-    });
+    return restore_best_z(hizMatch, lozMatch);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -265,30 +253,31 @@ void hiloz_tune(void) {
     input and output.
 */
 void coarse_tune(void) {
-    LOG_TRACE({ println("coarse_tune:"); });
+    LOG_TRACE({ println("coarse_tune"); });
     float earlyExitMatchQuality = (bypassMatch.matchQuality / 2);
     relays_t relays;
 
-    uint8_t inds = 0;
-    while (tuneStep[inds] < search_area.maxInd) {
-        relays.inds = tuneStep[inds++];
+    uint8_t inductorIndex = 0;
+    while (tuneStep[inductorIndex] < searchArea.maxInd) {
+        relays.inds = tuneStep[inductorIndex++];
 
-        uint8_t caps = 0;
-        while (tuneStep[caps] < search_area.maxCap) {
-            relays.caps = tuneStep[caps++];
+        uint8_t capacitorIndex = 0;
+        while (tuneStep[capacitorIndex] < searchArea.maxCap) {
+            relays.caps = tuneStep[capacitorIndex++];
 
-            if (test_next_solution(&relays) == -1) {
+            int8_t result = test_next_solution(&relays);
+            if (result == -1) {
+                LOG_WARN({ println("solution failed!"); });
                 return;
             }
+
             if (bestMatch.matchQuality <= earlyExitMatchQuality) {
-                LOG_INFO({
-                    print_solution_count();
-                    println("");
-                });
-                return;
+                LOG_INFO({ println("early exit!"); });
+                goto EXIT;
             }
         }
     }
+EXIT:
     LOG_INFO({
         print_solution_count();
         println("");
@@ -297,97 +286,62 @@ void coarse_tune(void) {
 
 /* -------------------------------------------------------------------------- */
 
-search_area_t define_bracket_area(uint8_t bracket) {
-    search_area_t bracket_area = search_area;
-    if (bestMatch.relays.caps < bracket_area.maxCap - bracket) {
-        bracket_area.maxCap = bestMatch.relays.caps + bracket;
-    }
-    if (bestMatch.relays.inds < bracket_area.maxInd - bracket) {
-        bracket_area.maxInd = bestMatch.relays.inds + bracket;
-    }
-    if (bestMatch.relays.caps > bracket) {
-        bracket_area.minCap = bestMatch.relays.caps - bracket;
-    }
-    if (bestMatch.relays.inds > bracket) {
-        bracket_area.minInd = bestMatch.relays.inds - bracket;
+void inductor_sweep(uint8_t width) {
+    LOG_TRACE({ println("inductor_sweep"); });
+
+    relays_t relays = bestMatch.relays;
+
+    uint8_t maxInd = searchArea.maxInd;
+    if (relays.inds < maxInd - width) {
+        maxInd = relays.inds + width;
     }
 
-    return bracket_area;
-}
+    uint8_t minInd = 0;
+    if (relays.inds > width) {
+        minInd = relays.inds - width;
+    }
 
-void bracket_tune(uint8_t bracket, uint8_t step) {
-    LOG_TRACE({
-        printf("bracket_tune: (%d,%d) bestMatch.relays: ", bracket, step);
-        print_relays(&bestMatch.relays);
-        println("");
-    });
-    relays_t relays;
+    relays.inds = minInd;
+    while (relays.inds < maxInd) {
+        relays.inds++;
 
-    uint16_t tryCap;
-    uint16_t tryInd;
-
-    search_area_t bracket_area = define_bracket_area(bracket);
-    LOG_DEBUG({ print_search_area(&bracket_area); });
-
-    float earlyExitMatchQuality = (bestMatch.matchQuality / 2);
-
-    // Do it
-    tryInd = bracket_area.minInd;
-    while (tryInd < bracket_area.maxInd) {
-        relays.inds = tryInd;
-
-        tryCap = bracket_area.minCap;
-        while (tryCap < bracket_area.maxCap) {
-            relays.caps = tryCap;
-            if (test_next_solution(&relays) == -1) {
-                return;
-            }
-            if (bestMatch.matchQuality < earlyExitMatchQuality) {
-                LOG_INFO({
-                    print_solution_count();
-                    println("");
-                });
-                return;
-            }
-            tryCap += step;
+        int8_t result = test_next_solution(&relays);
+        if (result == -1) {
+            LOG_WARN({ println("solution failed!"); });
+            return;
         }
-        tryInd += step;
     }
+
     LOG_INFO({
         print_solution_count();
         println("");
     });
 }
 
-/* -------------------------------------------------------------------------- */
+void capacitor_sweep(uint8_t width) {
+    LOG_TRACE({ println("capacitor_sweep"); });
 
-void vertical_scan(void) {
-    uint8_t tryIndex = 0;
-    relays_t relays;
+    relays_t relays = bestMatch.relays;
 
-    relays.caps = bestMatch.relays.caps;
-    while (tuneStep[tryIndex] < search_area.maxInd) {
-        relays.inds = tuneStep[tryIndex];
-        if (test_next_solution(&relays) == -1) {
-            break;
-        }
-
-        tryIndex++;
+    uint8_t maxCap = searchArea.maxCap;
+    if (relays.caps < maxCap - width) {
+        maxCap = relays.caps + width;
     }
-}
 
-void horizontal_scan(void) {
-    uint8_t tryIndex = 0;
-    relays_t relays;
+    uint8_t minCap = 0;
+    if (relays.caps > width) {
+        minCap = relays.caps - width;
+    }
 
-    relays.inds = bestMatch.relays.inds;
-    while (tuneStep[tryIndex] < search_area.maxCap) {
-        relays.caps = tuneStep[tryIndex];
-        if (test_next_solution(&relays) == -1) {
-            break;
+    relays.caps = minCap;
+    while (relays.caps < maxCap) {
+        relays.caps++;
+
+        int8_t result = test_next_solution(&relays);
+        if (result == -1) {
+            LOG_WARN({ println("solution failed!"); });
+            return;
         }
-
-        tryIndex++;
     }
 }
 
@@ -401,94 +355,88 @@ void horizontal_scan(void) {
 */
 #define L_LIMIT_FREQUENCY 20000 // 20mhz
 #define C_LIMIT_FREQUENCY 30000 // 30mhz
-void reset_search_area(void) {
-    search_area.all = 0;
+void reset_search_area(search_area_t *area) {
+    area->all = 0;
+    // minCap and minInd are already set
 
     // Find maximum C
     if (currentRF.frequency < C_LIMIT_FREQUENCY) {
-        search_area.maxCap = MAX_CAPACITORS;
+        area->maxCap = MAX_CAPACITORS;
     } else {
-        search_area.maxCap = (MAX_CAPACITORS >> 2);
+        area->maxCap = (MAX_CAPACITORS >> 2);
     }
 
     // Find maximum L
     if (currentRF.frequency < L_LIMIT_FREQUENCY) {
-        search_area.maxInd = MAX_INDUCTORS;
+        area->maxInd = MAX_INDUCTORS;
     } else {
-        search_area.maxInd = (MAX_INDUCTORS >> 2);
+        area->maxInd = (MAX_INDUCTORS >> 2);
     }
 
-    // Find minimum C
-    search_area.minCap = 0;
-
-    // Find minimum L
-    search_area.minInd = 0;
-
-    LOG_INFO({ print_search_area(&search_area); });
-}
-
-void reset_tuning_data(void) {
-    reset_match_data(&bestMatch);
-    reset_match_data(&bypassMatch);
-
-    solutionCount = 0;
-    prevSolutionCount = 0;
-
-    reset_search_area();
+    LOG_INFO({ print_search_area(area); });
 }
 
 void full_tune(void) {
     LOG_TRACE({ println("full_tune"); });
 
+    // clean up and reset stuff before we start tuning
     clear_tuning_flags();
+    reset_solution_count();
+    reset_match_data(&bestMatch);
+    reset_match_data(&bypassMatch);
+    reset_search_area(&searchArea);
 
-    // If we fail to find FWD power twice, then set an error and exit.
-    if (!check_for_RF()) {
-        delay_ms(25);
-        if (!check_for_RF()) {
-            tuning_flags.noRF = 1;
-            return;
-        }
-    }
+    // make a note of the bypass conditions
+    test_next_solution(&bypassRelays);
+    bypassMatch = bestMatch;
+    reset_match_data(&bestMatch);
 
-    reset_tuning_data();
-
-    hiloz_tune();
+    // identify the correct hi/lo z setting
+    bestMatch = hiloz_tune();
     if (tuning_flags.errors != 0) {
         return;
     }
 
+    //
     coarse_tune();
-    bracket_tune(5, 2);
+    if (tuning_flags.errors != 0) {
+        return;
+    }
+
+    inductor_sweep(10);
+    if (tuning_flags.errors != 0) {
+        return;
+    }
+    capacitor_sweep(10);
     if (tuning_flags.errors != 0) {
         return;
     }
 
     if (bestMatch.relays.inds < 3) {
-        relays_t relays = bestMatch.relays;
-        relays.z = !relays.z;
-        L_zip(&relays, 1, 0);
-        L_zip(&relays, 3, 1);
-        bracket_tune(2, 1);
+        test_z(!bestMatch.relays.z);
+        if (tuning_flags.errors != 0) {
+            return;
+        }
     }
 
-    bracket_tune(30, 4);
-    bracket_tune(5, 2);
+    inductor_sweep(10);
+    if (tuning_flags.errors != 0) {
+        return;
+    }
+    capacitor_sweep(10);
+    if (tuning_flags.errors != 0) {
+        return;
+    }
+    inductor_sweep(10);
+    if (tuning_flags.errors != 0) {
+        return;
+    }
+    capacitor_sweep(10);
     if (tuning_flags.errors != 0) {
         return;
     }
 
-    bracket_tune(15, 3);
-    if (tuning_flags.errors != 0) {
-        return;
-    }
-
-    bracket_tune(5, 2);
-    bracket_tune(2, 1);
-    if (tuning_flags.errors != 0) {
-        return;
-    }
-
+    // re-publish the final results
     if (put_relays(&bestMatch.relays) == -1) {
         tuning_flags.relayError = 1;
         return;
@@ -498,13 +446,8 @@ void full_tune(void) {
     calculate_watts_and_swr();
 
     // Save the result, if it's good enough
+    LOG_INFO({ printf("final SWR: %f\r\n", currentRF.swr); });
     if (currentRF.swr < 1.7) {
-        LOG_INFO({
-            print("Saving: ");
-            print_relays(&bestMatch.relays);
-            printf(" with SWR: %d", bestMatch.swr);
-            println("");
-        });
         NVM_address_t address = convert_memory_address(currentRF.frequency);
         if (address) {
             memory_store(address, &bestMatch.relays);

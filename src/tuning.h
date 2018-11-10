@@ -22,9 +22,9 @@ typedef union {
         unsigned noMemory : 1;
     };
     uint8_t errors;
-} tuning_flags_s;
+} tuning_flags_t;
 
-extern tuning_flags_s tuning_flags;
+extern tuning_flags_t tuning_flags;
 
 /* ************************************************************************** */
 

@@ -107,29 +107,16 @@ bool check_for_RF(void) {
     return false;
 }
 
-bool poll_for_RF_until(uint16_t timeoutDuration) {
-    system_time_t startTime = get_current_time();
-
-    while (time_since(startTime) > timeoutDuration) {
-        if (check_for_RF()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool poll_for_RF_until2(uint16_t timeoutDuration) {
+bool wait_for_stable_RF(uint16_t timeoutDuration) {
     system_time_t startTime = get_current_time();
 
     int16_t previousFWD = adc_read(0);
-    while (time_since(startTime) > timeoutDuration) {
+    while (time_since(startTime) < timeoutDuration) {
         int16_t currentFWD = adc_read(0);
-        int16_t deltaFWD = abs(currentFWD - previousFWD);
-        int16_t deltaCompare = currentFWD >> 4;
 
         if (currentFWD > LOW_POWER_CUTOFF) {
-            if (deltaFWD < deltaCompare) {
-                break;
+            if (abs(currentFWD - previousFWD) < currentFWD / 10) {
+                return true;
             }
         }
 
@@ -140,7 +127,7 @@ bool poll_for_RF_until2(uint16_t timeoutDuration) {
         LOG_ERROR({ printf("spent %lu mS polling", time_since(startTime)); });
     }
 
-    return true;
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */

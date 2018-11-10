@@ -46,10 +46,7 @@ extern void SWR_threshold_increment(void);
 extern bool check_for_RF(void);
 
 // tries to detect RF for timeoutDuration mS
-extern bool poll_for_RF_until(uint16_t timeoutDuration);
-
-// tries to detect RF for timeoutDuration mS
-extern bool poll_for_RF_until2(uint16_t timeoutDuration);
+extern bool wait_for_stable_RF(uint16_t timeoutDuration);
 
 // measures forward & reverse, and calculates matchQuality
 extern void measure_RF(void);
