@@ -123,11 +123,11 @@ const animation_s blink_bottom_bar_3[] = {
 };
 
 const animation_s left_wave[] = {
-    {0x30, 0x30, 100},
     {0x30, 0x30, 200},
     {0xc0, 0xc0, 100},
     {0x00, 0x00, 100},
     {0xc0, 0xc0, 100},
+    {0x00, 0x00, END_FRAME},
 };
 
 const animation_s left_blink[] = {
