@@ -192,22 +192,28 @@ void blink_bypass(void) {
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
 void blink_antenna(void) {
     if (systemFlags.antenna == 1) {
-        play_animation(&right_wave[0]);
+        play_animation(&right_blink[0]);
     } else {
-        play_animation(&left_wave[0]);
+        play_animation(&left_blink[0]);
+    }
+}
+
+void show_antenna(void) {
+    if (systemFlags.antenna == 1) {
+        display_single_frame(&right_wave[0], 0);
+    } else {
+        display_single_frame(&left_wave[0], 0);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 
 void blink_auto(uint8_t blinks) {
-    if (systemFlags.autoMode == 0) {
-        repeat_animation(&auto_off[0], blinks);
-    } else {
-        repeat_animation(&auto_on[0], blinks);
-    }
+    repeat_animation(&auto_mode[systemFlags.autoMode][0], blinks);
 }
 
 void show_auto(void) {

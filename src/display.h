@@ -70,6 +70,7 @@ extern void play_interruptable_animation(const animation_s *animation);
 
 extern void blink_bypass(void);
 extern void blink_antenna(void);
+extern void show_antenna(void);
 extern void show_peak(void);
 
 // Shows current autoMode

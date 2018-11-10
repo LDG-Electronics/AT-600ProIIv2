@@ -124,12 +124,30 @@ const animation_s blink_bottom_bar_3[] = {
 
 const animation_s left_wave[] = {
     {0x30, 0x30, 100},
+    {0x30, 0x30, 200},
+    {0xc0, 0xc0, 100},
+    {0x00, 0x00, 100},
+    {0xc0, 0xc0, 100},
+};
+
+const animation_s left_blink[] = {
+    {0xc0, 0xc0, 100},
+    {0x00, 0x00, 100},
     {0xc0, 0xc0, 100},
     {0x00, 0x00, END_FRAME},
 };
 
 const animation_s right_wave[] = {
-    {0x0c, 0x0c, 100},
+    {0x0c, 0x0c, 200},
+    {0x03, 0x03, 100},
+    {0x00, 0x00, 100},
+    {0x03, 0x03, 100},
+    {0x00, 0x00, END_FRAME},
+};
+
+const animation_s right_blink[] = {
+    {0x03, 0x03, 100},
+    {0x00, 0x00, 100},
     {0x03, 0x03, 100},
     {0x00, 0x00, END_FRAME},
 };
@@ -147,16 +165,17 @@ const animation_s overpower_warning[] = {
 /* -------------------------------------------------------------------------- */
 // modes
 
-const animation_s auto_on[] = {
-    {0x18, 0x18, 100},
-    {0x00, 0x00, 100},
-    {0x00, 0x00, END_FRAME},
-};
-
-const animation_s auto_off[] = {
-    {0x81, 0x81, 100},
-    {0x00, 0x00, 100},
-    {0x00, 0x00, END_FRAME},
+const animation_s auto_mode[][3] = {
+    {
+        {0x81, 0x81, 100},
+        {0x00, 0x00, 100},
+        {0x00, 0x00, END_FRAME},
+    },
+    {
+        {0x18, 0x18, 100},
+        {0x00, 0x00, 100},
+        {0x00, 0x00, END_FRAME},
+    }
 };
 
 const animation_s hiz_wave[] = {

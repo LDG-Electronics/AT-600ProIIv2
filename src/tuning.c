@@ -492,6 +492,7 @@ static void test_memory(relays_t *memory) {
 
     put_relays(memory);
     measure_RF();
+    calculate_watts_and_swr();
 
     LOG_INFO({
         printf("SWR: %f\r\n", currentRF.matchQuality);
@@ -510,7 +511,8 @@ void memory_tune(void) {
 
     clear_tuning_flags();
 
-    if (!check_for_RF()) {
+    // If we fail to find RF, then set an error and exit.
+    if (!poll_for_RF_until2(200)) {
         tuning_flags.noRF = 1;
         return;
     }
