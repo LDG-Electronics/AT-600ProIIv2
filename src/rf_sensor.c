@@ -150,7 +150,7 @@ void measure_RF(void) {
 
     // this bitshift improves the precision of the following integer division
     tempReverse <<= 12;
-    currentRF.matchQuality = tempReverse / tempForward;
+    currentRF.matchQuality = (float)tempReverse / (float)tempForward;
 }
 
 bool calculate_watts_and_swr(void) {
