@@ -2,7 +2,6 @@
 #include "calibration.h"
 #include "os/log_macros.h"
 #include "os/shell/shell_json.h"
-#include "os/stopwatch.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
 #include "peripherals/pins.h"
