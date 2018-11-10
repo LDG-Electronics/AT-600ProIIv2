@@ -8,7 +8,7 @@
 #include "relays.h"
 #include "rf_sensor.h"
 #include <float.h>
-static uint8_t LOG_LEVEL = L_TRACE;
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
@@ -278,7 +278,7 @@ void coarse_tune(void) {
         }
     }
 EXIT:
-    LOG_INFO({
+    LOG_DEBUG({
         print_solution_count();
         println("");
     });
@@ -312,7 +312,7 @@ void inductor_sweep(uint8_t width) {
         }
     }
 
-    LOG_INFO({
+    LOG_DEBUG({
         print_solution_count();
         println("");
     });
@@ -343,6 +343,11 @@ void capacitor_sweep(uint8_t width) {
             return;
         }
     }
+
+    LOG_DEBUG({
+        print_solution_count();
+        println("");
+    });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -385,6 +390,11 @@ void full_tune(void) {
     reset_match_data(&bestMatch);
     reset_match_data(&bypassMatch);
     reset_search_area(&searchArea);
+
+    if (!wait_for_stable_RF(50)) {
+        tuning_flags.noRF = 1;
+        return;
+    }
 
     // make a note of the bypass conditions
     test_next_solution(&bypassRelays);
@@ -512,7 +522,7 @@ void memory_tune(void) {
     clear_tuning_flags();
 
     // If we fail to find RF, then set an error and exit.
-    if (!poll_for_RF_until2(200)) {
+    if (!wait_for_stable_RF(50)) {
         tuning_flags.noRF = 1;
         return;
     }
@@ -566,7 +576,6 @@ void tuning_followup_animation(void) {
     // delay_ms(1000);
 
     if (tuning_flags.errors != 0) {
-        LOG_ERROR({ print("Error: "); });
         if (tuning_flags.lostRF == 1) {
             LOG_ERROR({ println("lostRF"); });
 
