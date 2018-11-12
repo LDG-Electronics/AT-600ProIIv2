@@ -23,7 +23,7 @@ typedef struct {
     char contents[FAST_RING_BUFFER_SIZE];
     uint8_t head;
     uint8_t tail;
-} uart_buffer_s;
+} fast_ring_buffer_t;
 
 #if FAST_RING_BUFFER_SIZE == 256
 #define buffer_is_empty(buffer) (buffer.head == buffer.tail)

@@ -6,8 +6,8 @@
 
 /* ************************************************************************** */
 
-volatile uart_buffer_s UART1_tx_buffer;
-volatile uart_buffer_s UART1_rx_buffer;
+volatile fast_ring_buffer_t UART1_tx_buffer;
+volatile fast_ring_buffer_t UART1_rx_buffer;
 
 void UART1_baud_select(UART_baud_rates baudRate) {
     U1BRG = baudTable[baudRate];

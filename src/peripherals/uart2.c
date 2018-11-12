@@ -6,8 +6,8 @@
 
 /* ************************************************************************** */
 
-volatile uart_buffer_s UART2_tx_buffer;
-volatile uart_buffer_s UART2_rx_buffer;
+volatile fast_ring_buffer_t UART2_tx_buffer;
+volatile fast_ring_buffer_t UART2_rx_buffer;
 
 void UART2_baud_select(UART_baud_rates baudRate) {
     U2BRG = baudTable[baudRate];
