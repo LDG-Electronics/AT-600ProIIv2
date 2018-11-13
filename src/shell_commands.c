@@ -54,6 +54,7 @@ void rev(int argc, char **argv) { adc_read(1); }
 /* -------------------------------------------------------------------------- */
 
 void tune(int argc, char **argv) { request_full_tune(); }
+void mem(int argc, char **argv) { request_memory_tune(); }
 
 /* -------------------------------------------------------------------------- */
 // Diagnostic shell commands for nonvolatile_memory driver
