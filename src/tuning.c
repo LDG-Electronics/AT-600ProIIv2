@@ -151,6 +151,7 @@ match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
             println("");
         });
     }
+
     return winner;
 }
 
@@ -496,7 +497,12 @@ tuning_errors_t full_tune(void) {
 
     // prepare match objects
     match_t bestMatch = new_match();
-    match_t bypassMatch = compare_matches(&errors, &bypassRelays, bestMatch);
+    match_t bypassMatch = compare_matches(&errors, &bypassRelays, new_match());
+    LOG_DEBUG({
+        print("bypassMatch: ");
+        print_match(&bypassMatch);
+        println("");
+    });
 
     // identify the correct hi/lo z setting
     bestMatch = hiloz_tune(&errors);
@@ -537,7 +543,7 @@ tuning_errors_t full_tune(void) {
 
     // Save the result, if it's good enough
     LOG_INFO({ printf("final SWR: %f\r\n", currentRF.swr); });
-    if (currentRF.swr < 1.7) {
+    if (currentRF.swr < 1.8) {
         NVM_address_t address = convert_memory_address(currentRF.frequency);
         if (address) {
             memory_store(address, &bestMatch.relays);
