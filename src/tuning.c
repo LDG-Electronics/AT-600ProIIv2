@@ -70,30 +70,6 @@ void tuning_init(void) { log_register(); }
 
 /* ************************************************************************** */
 
-typedef union {
-    struct {
-        uint8_t maxCap;
-        uint8_t maxInd;
-        uint8_t minCap;
-        uint8_t minInd;
-    };
-    uint32_t all;
-} search_area_t;
-
-// Indexes used by coarse_tune()
-search_area_t searchArea;
-
-/*  print_search_area() prints the current search_area
-
-    Output: "area: (maxCap , minCap) (maxInd , minInd)"
-*/
-void print_search_area(search_area_t *area) {
-    printf("area: C(%d,%d), L(%d,%d)\r\n", area->maxCap, area->minCap,
-           area->maxInd, area->minInd);
-}
-
-/* ************************************************************************** */
-
 // File scope: stores the number of solutions tried
 uint16_t solutionCount;
 uint16_t prevSolutionCount;
@@ -157,11 +133,32 @@ int8_t test_next_solution(relays_t *relays) {
 
 /* -------------------------------------------------------------------------- */
 
+#define C_LIMIT_FREQUENCY 30000 // 30mhz
+uint8_t calculate_max_capacitor(void) {
+    if (currentRF.frequency < C_LIMIT_FREQUENCY) {
+        return MAX_CAPACITORS;
+    } else {
+        return (MAX_CAPACITORS >> 2);
+    }
+}
+
+#define L_LIMIT_FREQUENCY 20000 // 20mhz
+uint8_t calculate_max_inductor(void) {
+    if (currentRF.frequency < L_LIMIT_FREQUENCY) {
+        return MAX_INDUCTORS;
+    } else {
+        return (MAX_INDUCTORS >> 2);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 void L_zip(relays_t *relays, uint8_t caps, uint8_t startingIndex) {
     uint8_t tryIndex = startingIndex;
+    uint8_t maxInd = calculate_max_inductor();
 
     relays->caps = caps;
-    while (tuneStep[tryIndex] < searchArea.maxInd) {
+    while (tuneStep[tryIndex] < maxInd) {
         relays->inds = tuneStep[tryIndex];
         if (test_next_solution(relays) == -1) {
             break;
@@ -172,9 +169,10 @@ void L_zip(relays_t *relays, uint8_t caps, uint8_t startingIndex) {
 }
 
 void LC_zip(relays_t *relays) {
-    uint8_t tryIndex = 0;
+    uint8_t tryIndex = 0;  
+    uint8_t maxCap = calculate_max_capacitor();
 
-    while (tuneStep[tryIndex] < searchArea.maxCap) {
+    while (tuneStep[tryIndex] < maxCap) {
         relays->caps = tuneStep[tryIndex];
         relays->inds = tuneStep[tryIndex];
         if (test_next_solution(relays) == -1) {
@@ -257,12 +255,15 @@ void coarse_tune(void) {
     float earlyExitMatchQuality = (bypassMatch.matchQuality / 2);
     relays_t relays;
 
+    uint8_t maxInd = calculate_max_inductor();
+    uint8_t maxCap = calculate_max_capacitor();
+
     uint8_t inductorIndex = 0;
-    while (tuneStep[inductorIndex] < searchArea.maxInd) {
+    while (tuneStep[inductorIndex] < maxInd) {
         relays.inds = tuneStep[inductorIndex++];
 
         uint8_t capacitorIndex = 0;
-        while (tuneStep[capacitorIndex] < searchArea.maxCap) {
+        while (tuneStep[capacitorIndex] < maxCap) {
             relays.caps = tuneStep[capacitorIndex++];
 
             int8_t result = test_next_solution(&relays);
@@ -291,7 +292,7 @@ void inductor_sweep(uint8_t width) {
 
     relays_t relays = bestMatch.relays;
 
-    uint8_t maxInd = searchArea.maxInd;
+    uint8_t maxInd = calculate_max_inductor();
     if (relays.inds < maxInd - width) {
         maxInd = relays.inds + width;
     }
@@ -323,7 +324,7 @@ void capacitor_sweep(uint8_t width) {
 
     relays_t relays = bestMatch.relays;
 
-    uint8_t maxCap = searchArea.maxCap;
+    uint8_t maxCap = calculate_max_capacitor();
     if (relays.caps < maxCap - width) {
         maxCap = relays.caps + width;
     }
@@ -352,35 +353,6 @@ void capacitor_sweep(uint8_t width) {
 
 /* -------------------------------------------------------------------------- */
 
-/*  reset_search_area() clears search_area to it's default, widest values
-
-    The starting search area is essentially the entire solution space, starting
-    at (0,0) and ending at either the full maximum(255 or 127), or by the L or
-    C limited value (top two relays disabled).
-*/
-#define L_LIMIT_FREQUENCY 20000 // 20mhz
-#define C_LIMIT_FREQUENCY 30000 // 30mhz
-void reset_search_area(search_area_t *area) {
-    area->all = 0;
-    // minCap and minInd are already set
-
-    // Find maximum C
-    if (currentRF.frequency < C_LIMIT_FREQUENCY) {
-        area->maxCap = MAX_CAPACITORS;
-    } else {
-        area->maxCap = (MAX_CAPACITORS >> 2);
-    }
-
-    // Find maximum L
-    if (currentRF.frequency < L_LIMIT_FREQUENCY) {
-        area->maxInd = MAX_INDUCTORS;
-    } else {
-        area->maxInd = (MAX_INDUCTORS >> 2);
-    }
-
-    LOG_INFO({ print_search_area(area); });
-}
-
 void full_tune(void) {
     LOG_TRACE({ println("full_tune"); });
 
@@ -389,7 +361,6 @@ void full_tune(void) {
     reset_solution_count();
     reset_match_data(&bestMatch);
     reset_match_data(&bypassMatch);
-    reset_search_area(&searchArea);
 
     if (!wait_for_stable_RF(50)) {
         tuning_flags.noRF = 1;
