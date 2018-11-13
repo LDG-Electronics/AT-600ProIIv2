@@ -25,11 +25,11 @@ void reset_solution_count(void) {
     prevcomparisonCount = 0;
 }
 
-/*  print_solution_count() shows the number of tested tuning solutions
+/*  print_comparison_count() shows the number of tested tuning solutions
 
     Output: "comparisonCount: iii new: jjj"
 */
-void print_solution_count(void) {
+void print_comparison_count(void) {
     uint16_t difference = comparisonCount - prevcomparisonCount;
 
     printf("comparisonCount: %d new: %d", comparisonCount, difference);
@@ -127,12 +127,14 @@ match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
                         match_t bestMatch) {
     comparisonCount++;
 
+    // publish our relays
     if (put_relays(relays) == -1) {
         errors->relayError = 1;
         return bestMatch;
     }
 
-    if (!wait_for_stable_RF(50)) {
+    // make sure the RF isn't going crazy
+    if (!wait_for_stable_RF(250)) {
         errors->lostRF = 1;
         return bestMatch;
     }
@@ -141,7 +143,15 @@ match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
     calculate_watts_and_swr();
 
     match_t newMatch = create_match_from_current_conditions(relays);
-    return select_best_match(newMatch, bestMatch);
+    match_t winner = select_best_match(newMatch, bestMatch);
+    if (winner.relays.all == newMatch.relays.all) {
+        LOG_DEBUG({
+            print("new best: ");
+            print_match(&winner);
+            println("");
+        });
+    }
+    return winner;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -254,11 +264,11 @@ match_t test_z(tuning_errors_t *errors, match_t bestMatch, uint8_t z) {
     match_t match = bestMatch;
 
     // draw a diagonal line
-    match = LC_zip(errors, &relays, bestMatch);
+    match = LC_zip(errors, &relays, match);
 
     // draw some vertical lines
-    match = L_zip(errors, &relays, bestMatch, 3);
-    match = L_zip(errors, &relays, bestMatch, 7);
+    match = L_zip(errors, &relays, match, 3);
+    match = L_zip(errors, &relays, match, 7);
 
     return match;
 }
@@ -279,7 +289,15 @@ match_t hiloz_tune(tuning_errors_t *errors) {
         return new_match();
     }
 
-    return select_best_match(hizMatch, lozMatch);
+    match_t bestMatch = select_best_match(hizMatch, lozMatch);
+
+    LOG_DEBUG({ printf("z found: %d\r\n", bestMatch.relays.z); });
+    LOG_INFO({
+        print_comparison_count();
+        println("");
+    });
+
+    return bestMatch;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -293,11 +311,6 @@ const uint8_t coarseSteps[] = {0,  1,  2,  4,  6,  9,  12,  16,  21,  27, 34,
     inductor, then cycle through capacitors, repeating this pattern across the
     entire solution set.
 
-    It is important to have the inner loop pick capacitors and the outer loop
-    pick inductors. The LDG switched L design places the capacitor bank between
-    the RF path and ground, while the inductors are in series between the RF
-    input and output.
-
     L   |
         |
     a   |
@@ -307,8 +320,8 @@ const uint8_t coarseSteps[] = {0,  1,  2,  4,  6,  9,  12,  16,  21,  27, 34,
         |_________________
             C axis
 */
-// TODO: reimplement early-exit threshold
-match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch) {
+match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch,
+                    float earlyExitThreshold) {
     LOG_TRACE({ println("coarse_tune"); });
 
     // return early if there's already an error
@@ -334,9 +347,22 @@ match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch) {
             if (errors->any) {
                 return match;
             }
+
+            if (match.matchQuality <= earlyExitThreshold) {
+                LOG_DEBUG({ println("early exit!"); });
+                LOG_INFO({
+                    print_comparison_count();
+                    println("");
+                });
+                return match;
+            }
         }
     }
 
+    LOG_INFO({
+        print_comparison_count();
+        println("");
+    });
     return match;
 }
 
@@ -371,12 +397,12 @@ match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
     if (relays.inds < maxInd - width) {
         maxInd = relays.inds + width;
     }
-
     uint8_t minInd = 0;
     if (relays.inds > width) {
         minInd = relays.inds - width;
     }
 
+    // draw the line
     relays.inds = minInd;
     while (relays.inds < maxInd) {
         relays.inds++;
@@ -387,6 +413,10 @@ match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
         }
     }
 
+    LOG_INFO({
+        print_comparison_count();
+        println("");
+    });
     return match;
 }
 
@@ -419,12 +449,12 @@ match_t capacitor_sweep(tuning_errors_t *errors, match_t bestMatch,
     if (relays.caps < maxCap - width) {
         maxCap = relays.caps + width;
     }
-
     uint8_t minCap = 0;
     if (relays.caps > width) {
         minCap = relays.caps - width;
     }
 
+    // draw the line
     relays.caps = minCap;
     while (relays.caps < maxCap) {
         relays.caps++;
@@ -435,6 +465,10 @@ match_t capacitor_sweep(tuning_errors_t *errors, match_t bestMatch,
         }
     }
 
+    LOG_INFO({
+        print_comparison_count();
+        println("");
+    });
     return match;
 }
 
@@ -455,7 +489,7 @@ tuning_errors_t full_tune(void) {
     reset_solution_count();
 
     // early exit if there's no RF
-    if (!wait_for_stable_RF(50)) {
+    if (!wait_for_stable_RF(250)) {
         errors.noRF = 1;
         return errors;
     }
@@ -468,7 +502,7 @@ tuning_errors_t full_tune(void) {
     bestMatch = hiloz_tune(&errors);
 
     // wide grid search
-    bestMatch = coarse_tune(&errors, bestMatch);
+    bestMatch = coarse_tune(&errors, bestMatch, (bypassMatch.matchQuality / 2));
 
     //
     bestMatch = inductor_sweep(&errors, bestMatch, 10);
@@ -568,7 +602,7 @@ tuning_errors_t memory_tune(void) {
     tuning_errors_t errors = no_errors();
 
     // If we fail to find RF, then set an error and exit.
-    if (!wait_for_stable_RF(50)) {
+    if (!wait_for_stable_RF(250)) {
         errors.noRF = 1;
         return errors;
     }
