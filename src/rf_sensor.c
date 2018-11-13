@@ -106,24 +106,41 @@ bool check_for_RF(void) {
     return false;
 }
 
+// #define BETA 0.025
+#define BETA 0.2
+
 bool wait_for_stable_RF(uint16_t timeoutDuration) {
     system_time_t startTime = get_current_time();
+    int16_t rawFWD = 0;
+    float smoothFWD = 0;
+    float prevSmoothFWD = 0;
+    uint16_t iterations = 0;
+    uint16_t goodSlopeCount = 0;
 
-    int16_t previousFWD = adc_read(0);
-    while (time_since(startTime) < timeoutDuration) {
-        int16_t currentFWD = adc_read(0);
+    while (1) {
+        iterations++;
+        rawFWD = adc_read(0);
+        smoothFWD = smoothFWD - (BETA * (smoothFWD - rawFWD));
 
-        if (currentFWD > LOW_POWER_CUTOFF) {
-            if (abs(currentFWD - previousFWD) < currentFWD / 10) {
-                return true;
-            }
+        if (fabs(prevSmoothFWD - smoothFWD) < (smoothFWD * .01)) {
+            goodSlopeCount++;
+        } else {
+            goodSlopeCount = 0;
+            prevSmoothFWD = smoothFWD;
         }
 
-        previousFWD = currentFWD;
-    }
+        if (goodSlopeCount >= 10) {
+            // printf("found good slope in %u iterations\r\n", iterations);
+            // if (time_since(startTime) > 1) {
+                // printf("spent %lu mS polling\r\n", (uint32_t)time_since(startTime));
+            // }
+            return true;
+        }
 
-    if (time_since(startTime) > 1) {
-        LOG_ERROR({ printf("spent %lu mS polling", time_since(startTime)); });
+        if (time_since(startTime) > timeoutDuration) {
+            // println("timeout");
+            return false;
+        }
     }
 
     return false;
