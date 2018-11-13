@@ -17,12 +17,6 @@ const uint8_t tuneStep[] = {0,  1,  2,  4,  6,  9,  12,  16,  21,  27, 34,
 
 /* ************************************************************************** */
 
-tuning_flags_t tuning_flags;
-
-#define clear_tuning_flags() tuning_flags.errors = 0
-
-/* -------------------------------------------------------------------------- */
-
 typedef struct {
     relays_t relays;
     float matchQuality;
@@ -107,16 +101,16 @@ void save_new_best_match(relays_t *relays) {
     });
 }
 
-int8_t test_next_solution(relays_t *relays) {
+int8_t test_next_solution(tuning_errors_t *tuning_errors, relays_t *relays) {
     solutionCount++;
 
     if (put_relays(relays) == -1) {
-        tuning_flags.relayError = 1;
+        tuning_errors->relayError = 1;
         return -1;
     }
 
     if (!wait_for_stable_RF(50)) {
-        tuning_flags.lostRF = 1;
+        tuning_errors->lostRF = 1;
         return -1;
     }
 
@@ -153,37 +147,42 @@ uint8_t calculate_max_inductor(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void L_zip(relays_t *relays, uint8_t caps, uint8_t startingIndex) {
-    uint8_t tryIndex = startingIndex;
+void LC_zip(tuning_errors_t *tuning_errors, relays_t *relays) {
+    uint8_t maxCap = calculate_max_capacitor();
+    uint8_t maxInd = calculate_max_inductor();
+
+    uint8_t tryIndex = 0;
+    while ((tuneStep[tryIndex] < maxCap) && (tuneStep[tryIndex] < maxInd)) {
+        relays->caps = tuneStep[tryIndex];
+        relays->inds = tuneStep[tryIndex];
+
+        test_next_solution(tuning_errors, relays);
+        if (tuning_errors->any) {
+            return;
+        }
+
+        tryIndex += 2;
+    }
+}
+
+void L_zip(tuning_errors_t *tuning_errors, relays_t *relays, uint8_t caps) {
+    uint8_t tryIndex = 0;
     uint8_t maxInd = calculate_max_inductor();
 
     relays->caps = caps;
     while (tuneStep[tryIndex] < maxInd) {
         relays->inds = tuneStep[tryIndex];
-        if (test_next_solution(relays) == -1) {
-            break;
+
+        test_next_solution(tuning_errors, relays);
+        if (tuning_errors->any) {
+            return;
         }
 
         tryIndex += 2;
     }
 }
 
-void LC_zip(relays_t *relays) {
-    uint8_t tryIndex = 0;  
-    uint8_t maxCap = calculate_max_capacitor();
-
-    while (tuneStep[tryIndex] < maxCap) {
-        relays->caps = tuneStep[tryIndex];
-        relays->inds = tuneStep[tryIndex];
-        if (test_next_solution(relays) == -1) {
-            break;
-        }
-
-        tryIndex += 2;
-    }
-}
-
-match_t test_z(uint8_t z) {
+match_t test_z(tuning_errors_t *errors, uint8_t z) {
     LOG_TRACE({ println("test_z"); });
     // prepare the relay
     relays_t relays;
@@ -191,16 +190,16 @@ match_t test_z(uint8_t z) {
     relays.z = z;
 
     // draw some lines
-    LC_zip(&relays);
-    if (tuning_flags.errors != 0) {
+    LC_zip(errors, &relays);
+    if (errors->any) {
         return bestMatch;
     }
-    L_zip(&relays, 3, 0);
-    if (tuning_flags.errors != 0) {
+    L_zip(errors, &relays, 3);
+    if (errors->any) {
         return bestMatch;
     }
-    L_zip(&relays, 7, 1);
-    if (tuning_flags.errors != 0) {
+    L_zip(errors, &relays, 7);
+    if (errors->any) {
         return bestMatch;
     }
 
@@ -221,17 +220,17 @@ match_t restore_best_z(match_t hizMatch, match_t lozMatch) {
     }
 }
 
-match_t hiloz_tune(void) {
+match_t hiloz_tune(tuning_errors_t *errors) {
     LOG_TRACE({ println("hiloz_tune"); });
 
     reset_match_data(&bestMatch);
-    match_t lozMatch = test_z(0);
-    if (tuning_flags.errors != 0) {
+    match_t lozMatch = test_z(errors, 0);
+    if (errors->any) {
         return bestMatch;
     }
     reset_match_data(&bestMatch);
-    match_t hizMatch = test_z(1);
-    if (tuning_flags.errors != 0) {
+    match_t hizMatch = test_z(errors, 1);
+    if (errors->any) {
         return bestMatch;
     }
 
@@ -250,7 +249,7 @@ match_t hiloz_tune(void) {
     the RF path and ground, while the inductors are in series between the RF
     input and output.
 */
-void coarse_tune(void) {
+void coarse_tune(tuning_errors_t *tuning_errors) {
     LOG_TRACE({ println("coarse_tune"); });
     float earlyExitMatchQuality = (bypassMatch.matchQuality / 2);
     relays_t relays;
@@ -266,9 +265,8 @@ void coarse_tune(void) {
         while (tuneStep[capacitorIndex] < maxCap) {
             relays.caps = tuneStep[capacitorIndex++];
 
-            int8_t result = test_next_solution(&relays);
-            if (result == -1) {
-                LOG_WARN({ println("solution failed!"); });
+            test_next_solution(tuning_errors, &relays);
+            if (tuning_errors->any) {
                 return;
             }
 
@@ -287,7 +285,7 @@ EXIT:
 
 /* -------------------------------------------------------------------------- */
 
-void inductor_sweep(uint8_t width) {
+void inductor_sweep(tuning_errors_t *tuning_errors, uint8_t width) {
     LOG_TRACE({ println("inductor_sweep"); });
 
     relays_t relays = bestMatch.relays;
@@ -306,9 +304,8 @@ void inductor_sweep(uint8_t width) {
     while (relays.inds < maxInd) {
         relays.inds++;
 
-        int8_t result = test_next_solution(&relays);
-        if (result == -1) {
-            LOG_WARN({ println("solution failed!"); });
+        test_next_solution(tuning_errors, &relays);
+        if (tuning_errors->any) {
             return;
         }
     }
@@ -319,7 +316,7 @@ void inductor_sweep(uint8_t width) {
     });
 }
 
-void capacitor_sweep(uint8_t width) {
+void capacitor_sweep(tuning_errors_t *tuning_errors, uint8_t width) {
     LOG_TRACE({ println("capacitor_sweep"); });
 
     relays_t relays = bestMatch.relays;
@@ -338,9 +335,8 @@ void capacitor_sweep(uint8_t width) {
     while (relays.caps < maxCap) {
         relays.caps++;
 
-        int8_t result = test_next_solution(&relays);
-        if (result == -1) {
-            LOG_WARN({ println("solution failed!"); });
+        test_next_solution(tuning_errors, &relays);
+        if (tuning_errors->any) {
             return;
         }
     }
@@ -353,74 +349,76 @@ void capacitor_sweep(uint8_t width) {
 
 /* -------------------------------------------------------------------------- */
 
-void full_tune(void) {
+tuning_errors_t full_tune(void) {
     LOG_TRACE({ println("full_tune"); });
 
     // clean up and reset stuff before we start tuning
-    clear_tuning_flags();
+    tuning_errors_t errors;
+    errors.any = 0;
+
     reset_solution_count();
     reset_match_data(&bestMatch);
     reset_match_data(&bypassMatch);
 
     if (!wait_for_stable_RF(50)) {
-        tuning_flags.noRF = 1;
-        return;
+        errors.noRF = 1;
+        return errors;
     }
 
     // make a note of the bypass conditions
-    test_next_solution(&bypassRelays);
+    test_next_solution(&errors, &bypassRelays);
     bypassMatch = bestMatch;
     reset_match_data(&bestMatch);
 
     // identify the correct hi/lo z setting
-    bestMatch = hiloz_tune();
-    if (tuning_flags.errors != 0) {
-        return;
+    bestMatch = hiloz_tune(&errors);
+    if (errors.any) {
+        return errors;
     }
 
     //
-    coarse_tune();
-    if (tuning_flags.errors != 0) {
-        return;
+    coarse_tune(&errors);
+    if (errors.any) {
+        return errors;
     }
 
-    inductor_sweep(10);
-    if (tuning_flags.errors != 0) {
-        return;
+    inductor_sweep(&errors, 10);
+    if (errors.any) {
+        return errors;
     }
-    capacitor_sweep(10);
-    if (tuning_flags.errors != 0) {
-        return;
+    capacitor_sweep(&errors, 10);
+    if (errors.any) {
+        return errors;
     }
 
     if (bestMatch.relays.inds < 3) {
-        test_z(!bestMatch.relays.z);
-        if (tuning_flags.errors != 0) {
-            return;
+        test_z(&errors, !bestMatch.relays.z);
+        if (errors.any) {
+            return errors;
         }
     }
 
-    inductor_sweep(10);
-    if (tuning_flags.errors != 0) {
-        return;
+    inductor_sweep(&errors, 10);
+    if (errors.any) {
+        return errors;
     }
-    capacitor_sweep(10);
-    if (tuning_flags.errors != 0) {
-        return;
+    capacitor_sweep(&errors, 10);
+    if (errors.any) {
+        return errors;
     }
-    inductor_sweep(10);
-    if (tuning_flags.errors != 0) {
-        return;
+    inductor_sweep(&errors, 10);
+    if (errors.any) {
+        return errors;
     }
-    capacitor_sweep(10);
-    if (tuning_flags.errors != 0) {
-        return;
+    capacitor_sweep(&errors, 10);
+    if (errors.any) {
+        return errors;
     }
 
     // re-publish the final results
     if (put_relays(&bestMatch.relays) == -1) {
-        tuning_flags.relayError = 1;
-        return;
+        errors.relayError = 1;
+        return errors;
     }
 
     measure_RF();
@@ -433,8 +431,8 @@ void full_tune(void) {
         if (address) {
             memory_store(address, &bestMatch.relays);
         }
-        return;
     }
+    return errors;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -487,15 +485,16 @@ static void test_memory(relays_t *memory) {
     }
 }
 
-void memory_tune(void) {
+tuning_errors_t memory_tune(void) {
     LOG_TRACE({ println("memory_tune"); });
 
-    clear_tuning_flags();
+    tuning_errors_t errors;
+    errors.any = 0;
 
     // If we fail to find RF, then set an error and exit.
     if (!wait_for_stable_RF(50)) {
-        tuning_flags.noRF = 1;
-        return;
+        errors.noRF = 1;
+        return errors;
     }
 
     measure_frequency();
@@ -521,13 +520,13 @@ void memory_tune(void) {
             print_relays(&currentRelays[systemFlags.antenna]);
             println("");
         });
-        // returning with no flags means success
-        return;
+        // returning with no errors means success
+        return errors;
     }
 
     // We must not have found a valid memory
-    tuning_flags.noMemory = 1;
-    return;
+    errors.noMemory = 1;
+    return errors;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -542,22 +541,22 @@ void memory_tune(void) {
     This decision was made in part to avoid the awful possibility of everything
     going wrong and then the tuner displaying 8 seconds of random blinks.
 */
-void tuning_followup_animation(void) {
+void tuning_followup_animation(tuning_errors_t tuning_errors) {
     display_clear();
     // delay_ms(1000);
 
-    if (tuning_flags.errors != 0) {
-        if (tuning_flags.lostRF == 1) {
+    if (tuning_errors.any != 0) {
+        if (tuning_errors.lostRF == 1) {
             LOG_ERROR({ println("lostRF"); });
 
             repeat_animation(&blink_both_bars[0], 2);
 
-        } else if (tuning_flags.noRF == 1) {
+        } else if (tuning_errors.noRF == 1) {
             LOG_ERROR({ println("noRF"); });
 
             repeat_animation(&blink_both_bars[0], 1);
 
-        } else if (tuning_flags.relayError == 1) {
+        } else if (tuning_errors.relayError == 1) {
             LOG_ERROR({ println("relayError"); });
 
             // relay_error_blink();

@@ -126,23 +126,31 @@ void toggle_power_status(void) { set_power_status(!systemFlags.powerStatus); }
 /* -------------------------------------------------------------------------- */
 
 void request_memory_tune(void) {
+    // key the radio
     RADIO_CMD_PIN = 1;
 
-    memory_tune();
+    // first, attempt to recall an appropriate memory from storage
+    tuning_errors_t errors = memory_tune();
 
-    if (tuning_flags.noMemory == 1) {
-        full_tune();
+    // if we didn't find a good memory, but nothing else went wrong, then start
+    // from scratch with a full tune
+    if (errors.noMemory == 1) {
+        errors = full_tune();
     }
 
+    // unkey the radio
     RADIO_CMD_PIN = 0;
-    tuning_followup_animation();
+    tuning_followup_animation(errors);
 }
 
 void request_full_tune(void) {
+    // key the radio
     RADIO_CMD_PIN = 1;
 
-    full_tune();
+    // do the thing
+    tuning_errors_t errors = full_tune();
 
+    // unkey the radio
     RADIO_CMD_PIN = 0;
-    tuning_followup_animation();
+    tuning_followup_animation(errors);
 }

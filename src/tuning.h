@@ -5,14 +5,6 @@
 
 /* ************************************************************************** */
 
-/*  tuning_flags is a collection of read-only global status flags
-
-    ! Read-only status is not compiler enforced: do not change these values from
-    ! outside tuning.c
-
-    These flags represent the various ways that a tuning cycle can fail.
-*/
-
 typedef union {
     struct {
         unsigned noRF : 1;
@@ -21,18 +13,28 @@ typedef union {
         unsigned relayError : 1;
         unsigned noMemory : 1;
     };
-    uint8_t errors;
-} tuning_flags_t;
-
-extern tuning_flags_t tuning_flags;
+    uint8_t any;
+} tuning_errors_t;
 
 /* ************************************************************************** */
 
+// setup
 extern void tuning_init(void);
 
-extern void full_tune(void);
-extern void memory_tune(void);
+/* -------------------------------------------------------------------------- */
+/*  Tuning
 
-extern void tuning_followup_animation(void);
+*/
+
+// attempts to tune, without using memories
+extern tuning_errors_t full_tune(void);
+
+// attempts to look up a stored memory that matches the current frequency
+extern tuning_errors_t memory_tune(void);
+
+/* -------------------------------------------------------------------------- */
+
+// 
+extern void tuning_followup_animation(tuning_errors_t errors);
 
 #endif
