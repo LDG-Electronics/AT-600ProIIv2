@@ -130,15 +130,14 @@ bool wait_for_stable_RF(uint16_t timeoutDuration) {
         }
 
         if (goodSlopeCount >= 10) {
-            // printf("found good slope in %u iterations\r\n", iterations);
-            // if (time_since(startTime) > 1) {
-                // printf("spent %lu mS polling\r\n", (uint32_t)time_since(startTime));
-            // }
+            LOG_INFO({
+                printf("found good slope in %u iterations\r\n", iterations);
+            });
             return true;
         }
 
         if (time_since(startTime) > timeoutDuration) {
-            // println("timeout");
+            LOG_WARN({ println("timeout"); });
             return false;
         }
     }
