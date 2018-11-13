@@ -494,6 +494,7 @@ tuning_errors_t full_tune(void) {
         errors.noRF = 1;
         return errors;
     }
+    measure_frequency();
 
     // prepare match objects
     match_t bestMatch = new_match();
@@ -523,10 +524,14 @@ tuning_errors_t full_tune(void) {
     //
     bestMatch = inductor_sweep(&errors, bestMatch, 10);
     bestMatch = capacitor_sweep(&errors, bestMatch, 10);
-    bestMatch = inductor_sweep(&errors, bestMatch, 10);
-    bestMatch = capacitor_sweep(&errors, bestMatch, 10);
 
-    // any errors
+    //
+    bestMatch = inductor_sweep(&errors, bestMatch, 5);
+    bestMatch = capacitor_sweep(&errors, bestMatch, 5);
+    bestMatch = inductor_sweep(&errors, bestMatch, 5);
+    bestMatch = capacitor_sweep(&errors, bestMatch, 5);
+
+    // errors during tuning will fall through to this point
     if (errors.any) {
         return errors;
     }
@@ -554,82 +559,60 @@ tuning_errors_t full_tune(void) {
 
 /* -------------------------------------------------------------------------- */
 
-// Memory tuning utilities
-
 #define MEMORY_WIDTH 2
 #define NUM_OF_MEMORIES 9
-
-float bestMemorySWR;
-relays_t bestMemory;
-relays_t memoryBuffer[NUM_OF_MEMORIES];
-
-static void prepare_memories(void) {
-    LOG_TRACE({ println("prepare_memories"); });
-
-    bestMemorySWR = FLT_MAX;
-    bestMemory.all = 0;
-
-    // prepare the address
-    NVM_address_t address = convert_memory_address(currentRF.frequency);
-    if (address) {
-    }
-    address -= ((NUM_OF_MEMORIES - 1) / 2);
-    uint8_t memoryOffset = 0;
-
-    // Read the memory and its neighbors
-    for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
-        memoryBuffer[i] = memory_recall(address + memoryOffset);
-        memoryOffset += MEMORY_WIDTH;
-    }
-}
-
-static void test_memory(relays_t *memory) {
-    LOG_TRACE({ println("test_memory"); });
-
-    put_relays(memory);
-    measure_RF();
-    calculate_watts_and_swr();
-
-    LOG_INFO({
-        printf("SWR: %f\r\n", currentRF.matchQuality);
-        print_relays(memory);
-        println("");
-    });
-
-    if (currentRF.matchQuality < bestMemorySWR) {
-        bestMemorySWR = currentRF.matchQuality;
-        bestMemory = *memory;
-    }
-}
 
 tuning_errors_t memory_tune(void) {
     LOG_TRACE({ println("memory_tune"); });
 
     tuning_errors_t errors = no_errors();
+    reset_solution_count();
 
     // If we fail to find RF, then set an error and exit.
     if (!wait_for_stable_RF(250)) {
         errors.noRF = 1;
         return errors;
     }
-
     measure_frequency();
-    measure_RF();
 
-    prepare_memories();
+    // prepare the address
+    NVM_address_t address = convert_memory_address(currentRF.frequency);
+    if (!address) {
+        errors.noMemory = 1;
+        return errors;
+    }
+    address -= ((NUM_OF_MEMORIES - 1) / 2);
+    uint8_t memoryOffset = 0;
 
-    test_memory(&currentRelays[systemFlags.antenna]);
-
+    // Pull memories out into the memoryBuffer
+    relays_t memoryBuffer[NUM_OF_MEMORIES];
     for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
-        test_memory(&memoryBuffer[i]);
-        delay_ms(25);
+        memoryBuffer[i] = memory_recall(address + memoryOffset);
+        memoryOffset += MEMORY_WIDTH;
     }
 
-    put_relays(&bestMemory);
+    relays_t relays = read_current_relays();
+    match_t bestMatch = compare_matches(&errors, &relays, new_match());
+
+    for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
+        bestMatch = compare_matches(&errors, &memoryBuffer[i], bestMatch);
+        if (errors.any) {
+            return errors;
+        }
+    }
+
+    // re-publish the final results
+    if (put_relays(&bestMatch.relays) == -1) {
+        errors.relayError = 1;
+        return errors;
+    }
+
+    // measure the RF one last time
     measure_RF();
     calculate_watts_and_swr();
 
     // Did we find a valid memory?
+    LOG_INFO({ printf("final SWR: %f\r\n", currentRF.swr); });
     if (currentRF.swr < 1.7) {
         LOG_INFO({
             printf("found memory: %f ", currentRF.swr);
