@@ -329,7 +329,7 @@ match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch,
         return bestMatch;
     }
 
-    relays_t relays;
+    relays_t relays = bestMatch.relays;
     match_t match = bestMatch;
 
     uint8_t maxInd = calculate_max_inductor();
