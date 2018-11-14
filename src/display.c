@@ -326,9 +326,6 @@ uint8_t find_closest_value(float data, float *array) {
     if (nearestNeighbor > 9) {
         nearestNeighbor = 9;
     }
-    if (nearestNeighbor < 1){
-        nearestNeighbor = 1;
-    }
     return nearestNeighbor;
 }
 
