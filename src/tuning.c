@@ -384,12 +384,12 @@ match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch,
 */
 match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
                        uint8_t width) {
-    LOG_TRACE({ println("inductor_sweep"); });
-
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+
+    LOG_TRACE({ println("inductor_sweep"); });
 
     relays_t relays = bestMatch.relays;
     match_t match = bestMatch;
@@ -436,12 +436,12 @@ match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
 */
 match_t capacitor_sweep(tuning_errors_t *errors, match_t bestMatch,
                         uint8_t width) {
-    LOG_TRACE({ println("capacitor_sweep"); });
-
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+
+    LOG_TRACE({ println("capacitor_sweep"); });
 
     relays_t relays = bestMatch.relays;
     match_t match = bestMatch;
@@ -495,6 +495,7 @@ tuning_errors_t full_tune(void) {
         return errors;
     }
     measure_frequency();
+    LOG_DEBUG({ printf("frequency: %u KHz\r\n", currentRF.frequency); });
 
     // prepare match objects
     match_t bestMatch = new_match();
@@ -551,6 +552,7 @@ tuning_errors_t full_tune(void) {
     if (currentRF.swr < 1.8) {
         NVM_address_t address = convert_memory_address(currentRF.frequency);
         if (address) {
+            LOG_DEBUG({ printf("saving memory @ %u\r\n", address); });
             memory_store(address, &bestMatch.relays);
         }
     }
@@ -574,6 +576,7 @@ tuning_errors_t memory_tune(void) {
         return errors;
     }
     measure_frequency();
+    LOG_DEBUG({ printf("frequency: %u KHz\r\n", currentRF.frequency); });
 
     // prepare the address
     NVM_address_t address = convert_memory_address(currentRF.frequency);
@@ -592,7 +595,8 @@ tuning_errors_t memory_tune(void) {
     }
 
     relays_t relays = read_current_relays();
-    match_t bestMatch = compare_matches(&errors, &relays, new_match());
+    // match_t bestMatch = compare_matches(&errors, &relays, new_match());
+    match_t bestMatch = new_match();
 
     for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
         bestMatch = compare_matches(&errors, &memoryBuffer[i], bestMatch);
