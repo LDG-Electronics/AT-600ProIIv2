@@ -21,7 +21,7 @@ PROJECT = AT-600ProII
 PROJECT_HEX = $(BUILD_DIR)/$(PROJECT).hex
 
 # The PIC microcontroller used for this project
-TARGET_DEVICE = 18f46k42
+TARGET_DEVICE = 18f47k42
 
 # ---------------------------------------------------------------------------- #
 # Commands and command variables
@@ -83,7 +83,7 @@ PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
 CCSLOAD = ccsload
 CCSLOADFLAGS = -AREAS=ALL 
 CCSLOADFLAGS += -VERBOSE 
-CCSLOADFLAGS += -DEVICE=PIC18F46K42 
+CCSLOADFLAGS += -DEVICE=PIC18F47K42 
 CCSLOADFLAGS += -POWER=TARGET
 CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
 

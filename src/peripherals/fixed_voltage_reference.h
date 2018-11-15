@@ -1,7 +1,7 @@
 #ifndef _FIXED_VOLTAGE_REFERENCE_H_
 #define _FIXED_VOLTAGE_REFERENCE_H_
 
-#include "pic18f46k42.h"
+#include "pic18f47k42.h"
 
 /* ************************************************************************** */
 /*  Temperature Indicator Module

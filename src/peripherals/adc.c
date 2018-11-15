@@ -1,7 +1,7 @@
 #include "adc.h"
 #include "../os/log_macros.h"
 #include "fixed_voltage_reference.h"
-#include "pic18f46k42.h"
+#include "pic18f47k42.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */

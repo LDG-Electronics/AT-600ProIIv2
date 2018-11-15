@@ -10,7 +10,7 @@
 #include "peripherals/interrupt.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
-#include "peripherals/pic18f46k42.h"
+#include "peripherals/pic18f47k42.h"
 #include "peripherals/pins.h"
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"

@@ -1,7 +1,7 @@
 #include "relay_driver.h"
 #include "../os/log_macros.h"
 #include "../os/system_time.h"
-#include "pic18f46k42.h"
+#include "pic18f47k42.h"
 #include "pins.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 

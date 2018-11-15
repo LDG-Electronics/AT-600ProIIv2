@@ -1,7 +1,7 @@
 #ifndef _INTERRUPT_H_
 #define _INTERRUPT_H_
 
-#include "pic18f46k42.h"
+#include "pic18f47k42.h"
 
 /* ************************************************************************** */
 
