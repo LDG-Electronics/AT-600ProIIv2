@@ -48,11 +48,6 @@ void calibration_packet(int argc, char **argv) { print_RF_data(); }
 
 /* -------------------------------------------------------------------------- */
 
-void fwd(int argc, char **argv) { adc_read(0); }
-void rev(int argc, char **argv) { adc_read(1); }
-
-/* -------------------------------------------------------------------------- */
-
 void tune(int argc, char **argv) { request_full_tune(); }
 void mem(int argc, char **argv) { request_memory_tune(); }
 
