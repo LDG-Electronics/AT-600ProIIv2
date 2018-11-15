@@ -80,7 +80,7 @@ void print_match(match_t *match) {
     difficulties calibrating the sensor, and math limitations mean that SWR is
     not a very reliable measurement.
 
-    matchQuality is, essentially, a primitive analogue for SWR. It's calculated
+    matchQuality is, essentially, reflection coefficient. It's calculated
     from the raw forward and reverse values, meaning that it is NOT subject to
     the same calibration or math limitations that SWR is.
 
@@ -103,17 +103,12 @@ match_t select_best_match(match_t matchA, match_t matchB) {
 
 /* ************************************************************************** */
 
-match_t create_match_from_current_conditions(relays_t *relays) {
-    match_t match = new_match();
-
-    match.attemptNumber = comparisonCount;
-    match.relays = *relays;
-    match.forward = currentRF.forward;
-    match.reverse = currentRF.reverse;
-    match.matchQuality = currentRF.matchQuality;
-    match.swr = currentRF.swr;
-
-    return match;
+void populate_match_from_current_conditions(match_t *match) {
+    match->attemptNumber = comparisonCount;
+    match->forward = currentRF.forward;
+    match->reverse = currentRF.reverse;
+    match->matchQuality = currentRF.matchQuality;
+    match->swr = currentRF.swr;
 }
 
 /*  compare_matches()
@@ -123,12 +118,12 @@ match_t create_match_from_current_conditions(relays_t *relays) {
 
     Returns the better of the two matches.
 */
-match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
+match_t compare_matches(tuning_errors_t *errors, match_t newMatch,
                         match_t bestMatch) {
     comparisonCount++;
 
     // publish our relays
-    if (put_relays(relays) == -1) {
+    if (put_relays(&newMatch.relays) == -1) {
         errors->relayError = 1;
         return bestMatch;
     }
@@ -142,7 +137,7 @@ match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
     measure_RF();
     calculate_watts_and_swr();
 
-    match_t newMatch = create_match_from_current_conditions(relays);
+    populate_match_from_current_conditions(&newMatch);
     match_t winner = select_best_match(newMatch, bestMatch);
     if (winner.relays.all == newMatch.relays.all) {
         LOG_DEBUG({
@@ -190,29 +185,30 @@ const uint8_t zSteps[] = {0,  1,  2,  4,  6,  9,  12,  16,  21,  27, 34,
     s   |___________
             C axis
 */
-match_t LC_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch) {
+match_t LC_zip(tuning_errors_t *errors, match_t newMatch, match_t bestMatch) {
+    // --------------------------------------------------
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+    // --------------------------------------------------
 
     uint8_t maxCap = calculate_max_capacitor();
     uint8_t maxInd = calculate_max_inductor();
-    match_t match = bestMatch;
 
     uint8_t tryIndex = 0;
     while ((zSteps[tryIndex] < maxCap) && (zSteps[tryIndex] < maxInd)) {
-        relays->caps = zSteps[tryIndex];
-        relays->inds = zSteps[tryIndex];
+        newMatch.relays.caps = zSteps[tryIndex];
+        newMatch.relays.inds = zSteps[tryIndex];
 
-        match = compare_matches(errors, relays, match);
+        bestMatch = compare_matches(errors, newMatch, bestMatch);
         if (errors->any) {
-            return match;
+            return bestMatch;
         }
 
         tryIndex += 2;
     }
-    return match;
+    return bestMatch;
 }
 
 /*  L_zip() draws a vertical line starting from <caps>
@@ -225,53 +221,55 @@ match_t LC_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch) {
     s   |___________
             C axis
 */
-match_t L_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch,
+match_t L_zip(tuning_errors_t *errors, match_t newMatch, match_t bestMatch,
               uint8_t caps) {
+    // --------------------------------------------------
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+    // --------------------------------------------------
 
     uint8_t tryIndex = 0;
     uint8_t maxInd = calculate_max_inductor();
-    match_t match = bestMatch;
 
-    relays->caps = caps;
+    newMatch.relays.caps = caps;
     while (zSteps[tryIndex] < maxInd) {
-        relays->inds = zSteps[tryIndex];
+        newMatch.relays.inds = zSteps[tryIndex];
 
-        match = compare_matches(errors, relays, match);
+        bestMatch = compare_matches(errors, newMatch, bestMatch);
         if (errors->any) {
-            return match;
+            return bestMatch;
         }
 
         tryIndex += 2;
     }
-    return match;
+    return bestMatch;
 }
 
 match_t test_z(tuning_errors_t *errors, match_t bestMatch, uint8_t z) {
-    LOG_TRACE({ println("test_z"); });
-
+    // --------------------------------------------------
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+    // --------------------------------------------------
 
-    // prepare a new relay object
-    relays_t relays;
-    relays.all = 0;
-    relays.z = z;
-    match_t match = bestMatch;
+    LOG_TRACE({ println("test_z"); });
+
+    // prepare a new match object
+    match_t newMatch = new_match();
+    newMatch.relays.all = 0;
+    newMatch.relays.z = z;
 
     // draw a diagonal line
-    match = LC_zip(errors, &relays, match);
+    bestMatch = LC_zip(errors, newMatch, bestMatch);
 
     // draw some vertical lines
-    match = L_zip(errors, &relays, match, 3);
-    match = L_zip(errors, &relays, match, 7);
+    bestMatch = L_zip(errors, newMatch, bestMatch, 3);
+    bestMatch = L_zip(errors, newMatch, bestMatch, 7);
 
-    return match;
+    return bestMatch;
 }
 
 /*  Do some stuff on the hi-z side and some stuff on the lo-z side and see if
@@ -323,39 +321,41 @@ const uint8_t coarseSteps[] = {0,  1,  2,  4,  6,  9,  12,  16,  21,  27, 34,
 */
 match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch,
                     float earlyExitThreshold) {
-    LOG_TRACE({ println("coarse_tune"); });
-
+    // --------------------------------------------------
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+    // --------------------------------------------------
 
-    relays_t relays = bestMatch.relays;
-    match_t match = bestMatch;
+    LOG_TRACE({ println("coarse_tune"); });
+
+    match_t match = new_match();
+    match.relays = bestMatch.relays;
 
     uint8_t maxInd = calculate_max_inductor();
     uint8_t maxCap = calculate_max_capacitor();
 
     uint8_t inductorIndex = 0;
     while (coarseSteps[inductorIndex] < maxInd) {
-        relays.inds = coarseSteps[inductorIndex++];
+        match.relays.inds = coarseSteps[inductorIndex++];
 
         uint8_t capacitorIndex = 0;
         while (coarseSteps[capacitorIndex] < maxCap) {
-            relays.caps = coarseSteps[capacitorIndex++];
+            match.relays.caps = coarseSteps[capacitorIndex++];
 
-            match = compare_matches(errors, &relays, match);
+            bestMatch = compare_matches(errors, match, bestMatch);
             if (errors->any) {
-                return match;
+                return bestMatch;
             }
 
-            if (match.matchQuality <= earlyExitThreshold) {
+            if (bestMatch.matchQuality <= earlyExitThreshold) {
                 LOG_DEBUG({ println("early exit!"); });
                 LOG_INFO({
                     print_comparison_count();
                     println("");
                 });
-                return match;
+                return bestMatch;
             }
         }
     }
@@ -364,7 +364,7 @@ match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch,
         print_comparison_count();
         println("");
     });
-    return match;
+    return bestMatch;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -384,33 +384,35 @@ match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch,
 */
 match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
                        uint8_t width) {
+    // --------------------------------------------------
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+    // --------------------------------------------------
 
     LOG_TRACE({ println("inductor_sweep"); });
 
-    relays_t relays = bestMatch.relays;
-    match_t match = bestMatch;
+    match_t match = new_match();
+    match.relays = bestMatch.relays;
 
     uint8_t maxInd = calculate_max_inductor();
-    if (relays.inds < maxInd - width) {
-        maxInd = relays.inds + width;
+    if (match.relays.inds < maxInd - width) {
+        maxInd = match.relays.inds + width;
     }
     uint8_t minInd = 0;
-    if (relays.inds > width) {
-        minInd = relays.inds - width;
+    if (match.relays.inds > width) {
+        minInd = match.relays.inds - width;
     }
 
     // draw the line
-    relays.inds = minInd;
-    while (relays.inds < maxInd) {
-        relays.inds++;
+    match.relays.inds = minInd;
+    while (match.relays.inds < maxInd) {
+        match.relays.inds++;
 
-        match = compare_matches(errors, &relays, match);
+        bestMatch = compare_matches(errors, match, bestMatch);
         if (errors->any) {
-            return match;
+            return bestMatch;
         }
     }
 
@@ -418,7 +420,7 @@ match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
         print_comparison_count();
         println("");
     });
-    return match;
+    return bestMatch;
 }
 
 /*  capacitor_sweep() draws a line (2 * width) + 1, centered on bestMatch
@@ -436,31 +438,33 @@ match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
 */
 match_t capacitor_sweep(tuning_errors_t *errors, match_t bestMatch,
                         uint8_t width) {
+    // --------------------------------------------------
     // return early if there's already an error
     if (errors->any) {
         return bestMatch;
     }
+    // --------------------------------------------------
 
     LOG_TRACE({ println("capacitor_sweep"); });
 
-    relays_t relays = bestMatch.relays;
-    match_t match = bestMatch;
+    match_t match = new_match();
+    match.relays = bestMatch.relays;
 
     uint8_t maxCap = calculate_max_capacitor();
-    if (relays.caps < maxCap - width) {
-        maxCap = relays.caps + width;
+    if (match.relays.caps < maxCap - width) {
+        maxCap = match.relays.caps + width;
     }
     uint8_t minCap = 0;
-    if (relays.caps > width) {
-        minCap = relays.caps - width;
+    if (match.relays.caps > width) {
+        minCap = match.relays.caps - width;
     }
 
     // draw the line
-    relays.caps = minCap;
-    while (relays.caps < maxCap) {
-        relays.caps++;
+    match.relays.caps = minCap;
+    while (match.relays.caps < maxCap) {
+        match.relays.caps++;
 
-        match = compare_matches(errors, &relays, match);
+        bestMatch = compare_matches(errors, match, bestMatch);
         if (errors->any) {
             return match;
         }
@@ -470,12 +474,12 @@ match_t capacitor_sweep(tuning_errors_t *errors, match_t bestMatch,
         print_comparison_count();
         println("");
     });
-    return match;
+    return bestMatch;
 }
 
 /* -------------------------------------------------------------------------- */
 
-tuning_errors_t no_errors(void) {
+tuning_errors_t new_errors(void) {
     tuning_errors_t errors;
     errors.any = 0;
     return errors;
@@ -486,7 +490,7 @@ tuning_errors_t no_errors(void) {
 tuning_errors_t full_tune(void) {
     LOG_TRACE({ println("full_tune"); });
 
-    tuning_errors_t errors = no_errors();
+    tuning_errors_t errors = new_errors();
     reset_solution_count();
 
     // early exit if there's no RF
@@ -499,7 +503,10 @@ tuning_errors_t full_tune(void) {
 
     // prepare match objects
     match_t bestMatch = new_match();
-    match_t bypassMatch = compare_matches(&errors, &bypassRelays, new_match());
+    match_t bypassMatch = new_match();
+    bypassMatch.relays.all = 0;
+    bypassMatch = compare_matches(&errors, bypassMatch, new_match());
+
     LOG_DEBUG({
         print("bypassMatch: ");
         print_match(&bypassMatch);
@@ -543,6 +550,12 @@ tuning_errors_t full_tune(void) {
         return errors;
     }
 
+    // exit if there's no RF
+    if (!wait_for_stable_RF(250)) {
+        errors.lostRF = 1;
+        return errors;
+    }
+
     // measure the RF one last time
     measure_RF();
     calculate_watts_and_swr();
@@ -567,7 +580,7 @@ tuning_errors_t full_tune(void) {
 tuning_errors_t memory_tune(void) {
     LOG_TRACE({ println("memory_tune"); });
 
-    tuning_errors_t errors = no_errors();
+    tuning_errors_t errors = new_errors();
     reset_solution_count();
 
     // If we fail to find RF, then set an error and exit.
@@ -584,22 +597,21 @@ tuning_errors_t memory_tune(void) {
         errors.noMemory = 1;
         return errors;
     }
+    // todo commentme or make obsolete with memorymagic(TM)
     address -= ((NUM_OF_MEMORIES - 1) / 2);
     uint8_t memoryOffset = 0;
 
     // Pull memories out into the memoryBuffer
-    relays_t memoryBuffer[NUM_OF_MEMORIES];
+    match_t memoryBuffer[NUM_OF_MEMORIES];
     for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
-        memoryBuffer[i] = memory_recall(address + memoryOffset);
+        memoryBuffer[i].relays = memory_recall(address + memoryOffset);
         memoryOffset += MEMORY_WIDTH;
     }
 
-    relays_t relays = read_current_relays();
-    // match_t bestMatch = compare_matches(&errors, &relays, new_match());
     match_t bestMatch = new_match();
 
     for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
-        bestMatch = compare_matches(&errors, &memoryBuffer[i], bestMatch);
+        bestMatch = compare_matches(&errors, memoryBuffer[i], bestMatch);
         if (errors.any) {
             return errors;
         }
@@ -611,13 +623,19 @@ tuning_errors_t memory_tune(void) {
         return errors;
     }
 
+    // exit if there's no RF
+    if (!wait_for_stable_RF(250)) {
+        errors.lostRF = 1;
+        return errors;
+    }
+
     // measure the RF one last time
     measure_RF();
     calculate_watts_and_swr();
 
     // Did we find a valid memory?
     LOG_INFO({ printf("final SWR: %f\r\n", currentRF.swr); });
-    if (currentRF.swr < 1.7) {
+    if (currentRF.swr < 1.8) {
         LOG_INFO({
             printf("found memory: %f ", currentRF.swr);
             print_relays(&currentRelays[systemFlags.antenna]);
