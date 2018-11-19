@@ -38,14 +38,6 @@
 /* ************************************************************************** */
 /*  PPS Input Registers
 
-    Example PPS Input assignments:
-
-    T3CKIPPS = (PPS_PORT_B & PPS_PIN_0);
-    Connect the Timer 3 Clock input to pin RB0
-
-    U1RXPPS = (PPS_PORT_C & PPS_PIN_7);
-    Connect the UART 1 Recieve input to pin RC7
-
     TODO: Write notes here in native english - not Microchipese
 
     Peripheral              Register    Default  Port Availability
@@ -92,7 +84,18 @@
     UART1 Clear To Send     U1CTSPPS    RC6      — B C | — B C — — | — — C — — F
     UART2 Receive           U2RXPPS     RB7      — B C | — B — D — | — B — D — —
     UART2 Clear To Send     U2CTSPPS    RB6      — B C | — B — D — | — B — D — —
+
+    Example PPS Input assignments:
+
+    T3CKIPPS = (PPS_PORT_B & PPS_PIN_0);
+    Connect the Timer 3 Clock input to pin RB0
+
+    U1RXPPS = (PPS_PORT_C & PPS_PIN_7);
+    Connect the UART 1 Recieve input to pin RC7
 */
+
+//
+typedef unsigned char pps_input_t;
 
 // Input pin assignment macros
 #define PPS_PORT_A 0b11000111
@@ -121,6 +124,9 @@
 
     TODO: Write notes here in native english - not Microchipese
 */
+
+//
+typedef volatile unsigned char pps_output_t;
 
 // Output macros
 // ADC Guard Ring Outputs
