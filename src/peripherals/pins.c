@@ -62,8 +62,11 @@ void pins_init(void) {
     // RF Sensor
     TRISAbits.TRISA0 = 1; // FWD_PIN
     TRISAbits.TRISA1 = 1; // REV_PIN
-    TRISBbits.TRISB0 = 1; // FREQ_PIN <- temporary pin for development purposes
-    // TRISEbits.TRISE0 = 1; // FREQ_PIN
+#ifndef DEVELOPMENT
+    TRISEbits.TRISE0 = 1; // FREQ_PIN
+#else
+    TRISBbits.TRISB0 = 1; // FREQ_PIN
+#endif
 
     // Front panel buttons
     TRISAbits.TRISA3 = 1; // POWER_BUTTON
@@ -72,10 +75,13 @@ void pins_init(void) {
     TRISBbits.TRISB2 = 1; // CUP_BUTTON
     TRISBbits.TRISB4 = 1; // FUNC_BUTTON
     TRISBbits.TRISB5 = 1; // LDN_BUTTON
-    // TRISBbits.TRISB6 = 1; // ANT_BUTTON
+#ifndef DEVELOPMENT
+    TRISBbits.TRISB6 = 1; // ANT_BUTTON
+    TRISBbits.TRISB7 = 1; // TUNE_BUTTON
+#else
     TRISEbits.TRISE2 = 1; // ANT_BUTTON
-    // TRISBbits.TRISB7 = 1; // TUNE_BUTTON
     TRISEbits.TRISE1 = 1; // TUNE_BUTTON
+#endif
 
     // Front Panel bitbang SPI
     TRISAbits.TRISA6 = 0; // FP_CLOCK_PIN
@@ -94,7 +100,7 @@ void pins_init(void) {
 
     // Radio Command Pin
     TRISAbits.TRISA7 = 0; // RADIO_CMD_PIN
-    
+
     // Meter port pins
     TRISCbits.TRISC6 = 0; // Meter TX
     TRISCbits.TRISC7 = 1; // Meter RX
@@ -114,8 +120,11 @@ void pins_init(void) {
     WPUBbits.WPUB2 = 1; // CUP_BUTTON
     WPUBbits.WPUB4 = 1; // FUNC_BUTTON
     WPUBbits.WPUB5 = 1; // LDN_BUTTON
-    // WPUBbits.WPUB6 = 1; // ANT_BUTTON
-    WPUEbits.WPUE2 = 1; // ANT_BUTTON
-    // WPUBbits.WPUB7 = 1; // TUNE_BUTTON
-    WPUEbits.WPUE1 = 1; // TUNE_BUTTON
+#ifndef DEVELOPMENT
+    WPUBbits.WPUB6 = 1; // ANT_BUTTON
+    WPUBbits.WPUB7 = 1; // TUNE_BUTTON
+#else
+    WPUEbits.WPUE2 = 1;   // ANT_BUTTON
+    WPUEbits.WPUE1 = 1;   // TUNE_BUTTON
+#endif
 }

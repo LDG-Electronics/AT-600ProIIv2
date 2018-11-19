@@ -3,6 +3,10 @@
 
 /* ************************************************************************** */
 
+#define DEVELOPMENT
+
+/* ************************************************************************** */
+
 #define PORT(port, pin) PORT##port##bits.R##port##pin
 #define LATCH(port, pin) LAT##port##bits.LAT##port##pin
 
@@ -14,10 +18,14 @@
 #define CUP_BUTTON_PIN !PORT(B, 2)
 #define FUNC_BUTTON_PIN !PORT(B, 4)
 #define LDN_BUTTON_PIN !PORT(B, 5)
-// #define ANT_BUTTON_PIN !PORT(B, 6)
+
+#ifndef DEVELOPMENT
+#define ANT_BUTTON_PIN !PORT(B, 6)
+#define TUNE_BUTTON_PIN !PORT(B, 7)
+#else
 #define ANT_BUTTON_PIN !PORT(E, 2)
-// #define TUNE_BUTTON_PIN !PORT(B, 7)
 #define TUNE_BUTTON_PIN !PORT(E, 1)
+#endif
 
 /* -------------------------------------------------------------------------- */
 // Front Panel LEDs
@@ -33,10 +41,13 @@
 
 /* -------------------------------------------------------------------------- */
 // RF Sensor
-// #define FREQ_PIN PORT(E, 3) // frequency counter
+#ifndef DEVELOPMENT
+#define FREQ_PIN PORT(E, 3) // frequency counter
+#else
 #define FREQ_PIN PORT(E, 0) // frequency counter
-#define FWD_PIN PORT(A, 0)  // forward power
-#define REV_PIN PORT(A, 1)  // reverse power
+#endif
+#define FWD_PIN PORT(A, 0) // forward power
+#define REV_PIN PORT(A, 1) // reverse power
 
 // External Interrupts
 #define RF_INT_PIN PORT(B, 3)    // rf interrupt - unused
