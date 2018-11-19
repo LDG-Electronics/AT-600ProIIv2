@@ -185,7 +185,7 @@ NVM_address_t convert_memory_address(uint16_t frequency) {
     //! WARNING
     // Read and chant the incantation before proceeding.
     // Makes address point to two bytes of flash instead of one byte of flash.
-    address << 1;
+    address <<= 1;
     // Set the least significant bit to zero.
     address &= ~1;
     // Pushes address past the address that contains this program.
