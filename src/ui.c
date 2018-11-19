@@ -320,7 +320,7 @@ void function_submenu(void) {
             LOG_TRACE({ println("TUNE"); });
             manual_store();
             while (btn_is_down(TUNE)) {
-                ui_idle_block;
+                ui_idle_block();
             }
             return;
         }
