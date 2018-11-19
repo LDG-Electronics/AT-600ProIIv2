@@ -74,7 +74,7 @@ typedef struct {
 */
 #define FLAG_RECORD_SIZE (uint8_t)sizeof(flag_record_fields_t)
 typedef union {
-    flag_record_fields_t;
+    flag_record_fields_t fields;
     uint8_t array[FLAG_RECORD_SIZE];
 } flag_record_t;
 
@@ -180,14 +180,14 @@ flag_record_t read_record(uint16_t address) {
 // copy record fields back to their homes in the system
 void unpack_record_to_system(flag_record_t *record) {
     // these fields can be read directly
-    swrThreshIndex = record->threshIndex;
-    systemFlags = record->flags;
+    swrThreshIndex = record->fields.threshIndex;
+    systemFlags = record->fields.flags;
 
     // these fields need to be unpacked
-    currentRelays[0] = unpack_relays(&record->relayBits[0]);
-    currentRelays[1] = unpack_relays(&record->relayBits[1]);
-    preBypassRelays[0] = unpack_relays(&record->relayBits[2]);
-    preBypassRelays[1] = unpack_relays(&record->relayBits[3]);
+    currentRelays[0] = unpack_relays(&record->fields.relayBits[0]);
+    currentRelays[1] = unpack_relays(&record->fields.relayBits[1]);
+    preBypassRelays[0] = unpack_relays(&record->fields.relayBits[2]);
+    preBypassRelays[1] = unpack_relays(&record->fields.relayBits[3]);
 
     unpack_bypass_status();
 }
@@ -229,14 +229,14 @@ flag_record_t pack_system_to_record(void) {
     flag_record_t record;
 
     // these fields can be stored directly in the record
-    record.threshIndex = swrThreshIndex;
-    record.flags = systemFlags;
+    record.fields.threshIndex = swrThreshIndex;
+    record.fields.flags = systemFlags;
 
     // these fields need to be packed
-    record.relayBits[0] = pack_relays(&currentRelays[0]);
-    record.relayBits[1] = pack_relays(&currentRelays[1]);
-    record.relayBits[2] = pack_relays(&preBypassRelays[0]);
-    record.relayBits[3] = pack_relays(&preBypassRelays[1]);
+    record.fields.relayBits[0] = pack_relays(&currentRelays[0]);
+    record.fields.relayBits[1] = pack_relays(&currentRelays[1]);
+    record.fields.relayBits[2] = pack_relays(&preBypassRelays[0]);
+    record.fields.relayBits[3] = pack_relays(&preBypassRelays[1]);
 
     return record;
 }
