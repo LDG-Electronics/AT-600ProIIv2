@@ -32,7 +32,7 @@ static void terminate_current_program(void) {
 
 // set up the entire shell subsystem
 void shell_init(void) {
-    serial_port_init();
+    serial_port_init((PPS_PORT_D & PPS_PIN_3), &RD2PPS);
 
     // initialize shell
     memset(&shell, 0, sizeof(shell_line_t));

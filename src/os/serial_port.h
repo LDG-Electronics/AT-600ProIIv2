@@ -1,6 +1,7 @@
 #ifndef _SERIAL_PORT_H_
 #define _SERIAL_PORT_H_
 
+#include "../peripherals/pps.h"
 #include <stdio.h>
 
 /* ************************************************************************** */
@@ -36,7 +37,7 @@
 /* ************************************************************************** */
 
 // Setup
-extern void serial_port_init(void);
+extern void serial_port_init(pps_input_t rxPin, pps_output_t *txPin);
 
 /* -------------------------------------------------------------------------- */
 

@@ -4,10 +4,10 @@
 
 /* ************************************************************************** */
 
-void serial_port_init(void) {
+void serial_port_init(pps_input_t rxPin, pps_output_t *txPin) {
     // PPS Setup
-    U2RXPPS = (PPS_PORT_D & PPS_PIN_3);
-    RD2PPS = PPS_UART2_TX;
+    U2RXPPS = rxPin;
+    *txPin = PPS_UART2_TX;
 
     UART2_init(_115200);
 }
