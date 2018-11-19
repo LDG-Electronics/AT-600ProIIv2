@@ -44,12 +44,13 @@ void clc_init(void) {
     CLC2CONbits.EN = 1; // turn it on
 }
 
-void spi_init(void) {
+void spi_init( pps_output_t *clockOutPin,  pps_output_t *dataOutPin) {
     clc_init();
 
     // PPS setup
-    RA6PPS = PPS_CLC1OUT; // SCK via CLC1OUT
-    RC5PPS = PPS_CLC2OUT; // SDO via CLC2OUT
+    *clockOutPin = PPS_CLC1OUT;
+    *dataOutPin = PPS_CLC2OUT;
+    
     // TODO: investigate use of hardware slave select
     // RC4PPS = PPS_SPI1_SS; // SS
 

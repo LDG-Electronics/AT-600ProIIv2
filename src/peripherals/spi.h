@@ -1,12 +1,13 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
+#include "pps.h"
 #include <stdint.h>
 
 /* ************************************************************************** */
 
 // setup
-extern void spi_init(void);
+extern void spi_init(pps_output_t *clockOutPin, pps_output_t *dataOutPin);
 
 /* -------------------------------------------------------------------------- */
 

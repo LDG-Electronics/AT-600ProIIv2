@@ -18,7 +18,7 @@ double_frame_buffer_t displayBuffer;
 /* ************************************************************************** */
 
 void display_init(void) {
-    spi_init();
+    spi_init(&RA6PPS, &RC5PPS);
 
     clear_status_LEDs();
 
