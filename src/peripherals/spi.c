@@ -44,17 +44,14 @@ void clc_init(void) {
     CLC2CONbits.EN = 1; // turn it on
 }
 
-void spi_init( pps_output_t *clockOutPin,  pps_output_t *dataOutPin) {
+void spi_init(pps_output_t *clockOutPin, pps_output_t *dataOutPin) {
     clc_init();
 
     // PPS setup
     *clockOutPin = PPS_CLC1OUT;
     *dataOutPin = PPS_CLC2OUT;
-    
-    // TODO: investigate use of hardware slave select
-    // RC4PPS = PPS_SPI1_SS; // SS
 
-    SPI1CON0bits.BMODE = 1;
+    SPI1CON0bits.BMODE = 1; // Bit-Longth Mode Select
 
     SPI1CON1bits.CKE = 0;  // Output data changes on transition from
                            // idle to active clock state
