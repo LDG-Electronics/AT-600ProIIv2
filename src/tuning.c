@@ -134,7 +134,7 @@ match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
     }
 
     // make sure the RF isn't going crazy
-    if (!wait_for_stable_RF(250)) {
+    if (!wait_for_stable_RF(1000)) {
         errors->lostRF = 1;
         return bestMatch;
     }
@@ -502,7 +502,7 @@ tuning_errors_t full_tune(void) {
     reset_solution_count();
 
     // early exit if there's no RF
-    if (!wait_for_stable_RF(250)) {
+    if (!wait_for_stable_RF(2500)) {
         errors.noRF = 1;
         return errors;
     }
@@ -556,7 +556,7 @@ tuning_errors_t full_tune(void) {
     }
 
     // exit if there's no RF
-    if (!wait_for_stable_RF(250)) {
+    if (!wait_for_stable_RF(500)) {
         errors.lostRF = 1;
         return errors;
     }
@@ -589,7 +589,7 @@ tuning_errors_t memory_tune(void) {
     reset_solution_count();
 
     // If we fail to find RF, then set an error and exit.
-    if (!wait_for_stable_RF(250)) {
+    if (!wait_for_stable_RF(2500)) {
         errors.noRF = 1;
         return errors;
     }
