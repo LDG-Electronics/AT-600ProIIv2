@@ -12,6 +12,7 @@
 
 /* ************************************************************************** */
 // Button stuff
+// todo comment about active low
 #define POWER_BUTTON_PIN !PORT(A, 3)
 #define CDN_BUTTON_PIN !PORT(A, 4)
 #define LUP_BUTTON_PIN !PORT(A, 5)
@@ -19,12 +20,12 @@
 #define FUNC_BUTTON_PIN !PORT(B, 4)
 #define LDN_BUTTON_PIN !PORT(B, 5)
 
-#ifndef DEVELOPMENT
-#define ANT_BUTTON_PIN !PORT(B, 6)
-#define TUNE_BUTTON_PIN !PORT(B, 7)
-#else
+#ifdef DEVELOPMENT
 #define ANT_BUTTON_PIN !PORT(E, 2)
 #define TUNE_BUTTON_PIN !PORT(E, 1)
+#else
+#define ANT_BUTTON_PIN !PORT(B, 6)
+#define TUNE_BUTTON_PIN !PORT(B, 7)
 #endif
 
 /* -------------------------------------------------------------------------- */
@@ -41,11 +42,12 @@
 
 /* -------------------------------------------------------------------------- */
 // RF Sensor
-#ifndef DEVELOPMENT
-#define FREQ_PIN PORT(E, 3) // frequency counter
-#else
+#ifdef DEVELOPMENT
 #define FREQ_PIN PORT(E, 0) // frequency counter
+#else
+#define FREQ_PIN PORT(E, 3) // frequency counter
 #endif
+
 #define FWD_PIN PORT(A, 0) // forward power
 #define REV_PIN PORT(A, 1) // reverse power
 
