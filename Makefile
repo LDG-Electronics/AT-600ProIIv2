@@ -134,7 +134,7 @@ C89FLAGS += -DDEVELOPMENT
 # Tell xc8 to report compilation times
 C89FLAGS += --TIME
 # Tell xc8 to generate the map file
-# C89FLAGS += -M$(BUILD_DIR)/$(PROJECT)
+C89FLAGS += -M$(BUILD_DIR)/$(PROJECT).map
 # Tell xc8 to generate the assembly list file
 # C89FLAGS += --ASMLIST
 
