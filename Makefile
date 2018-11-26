@@ -240,7 +240,7 @@ PK3FLAGS += -L
 # PK3FLAGS += -Y
 
 # Target for uploading with Microchip Pickit3
-upload_pk3: $(PROJECT_HEX)
+upload_pk3:
 	$(PK3) $(PK3FLAGS)
 	clean-pk3
 
@@ -265,7 +265,7 @@ CCSLOADFLAGS += -POWER=TARGET
 CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
 
 # Target for uploading with CCS ICD-U80
-upload_ccs: $(PROJECT_HEX)
+upload_ccs:
 	$(CCSLOAD) $(CCSLOADFLAGS)
 
 # ---------------------------------------------------------------------------- #
@@ -277,7 +277,7 @@ MELABS = meprog
 MELABSFLAGS = empty
 
 # Target for uploading with MeLabs U2
-upload_melabs: $(PROJECT_HEX)
+upload_melabs:
 	$(MELABS) $(MELABSFLAGS)
 
 # DO NOT DELETE
