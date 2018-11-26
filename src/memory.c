@@ -198,6 +198,8 @@ NVM_address_t convert_memory_address(uint16_t frequency) {
     return address;
 }
 
+/* -------------------------------------------------------------------------- */
+
 void address_conversion_test(uint16_t start, uint16_t end, uint16_t step) {
     println("");
     println("-----------------------------------------------");
@@ -233,9 +235,22 @@ relays_t memory_recall(NVM_address_t address) {
     return unpack_relays(&relayBits);
 }
 
+/* -------------------------------------------------------------------------- */
+
+// compare the two variables bit-by-bit, checking for 0->1 transitions
+bool must_erase(uint16_t newBits, uint16_t savedBits) {
+    for (uint8_t i = 0; i < 16; i++) {
+        if (!(savedBits & (1 << i)) && (newBits & (1 << i))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void memory_store(NVM_address_t address, relays_t *relays) {
     LOG_TRACE({ println("memory_store"); });
 
+    // return early if we're given a bad address
     if (address == 0) {
         LOG_ERROR({ println("invalid address"); });
         return;
@@ -260,27 +275,25 @@ void memory_store(NVM_address_t address, relays_t *relays) {
         return;
     }
 
-    // compare the two variables bit-by-bit, checking for 0->1 transitions
-    bool mustErase = false;
-    for (uint8_t i = 0; i < 16; i++) {
-        if (!(savedRelayBits.bits & (1 << i)) && (relayBits.bits & (1 << i))) {
-            mustErase = true;
-        }
-    }
-
+    // Fill the buffer with the current flash contents
     LOG_INFO({ println("Reading existing block"); });
     uint8_t buffer[FLASH_BUFFER_SIZE];
     flash_read_block(address, buffer);
 
-    //
+    // identify which element in the array corresponds to our address
     uint8_t element = address & FLASH_ELEMENT_MASK;
+
+    // update the buffer with our new data
     buffer[element] = relayBits.top;
     buffer[element + 1] = relayBits.bot;
 
-    if (mustErase) {
+    // erase, but only if necessary
+    if (must_erase(relayBits.bits, savedRelayBits.bits)) {
         LOG_INFO({ println("Erasing block"); });
         flash_block_erase(address);
     }
+
+    // finally, we can write our modified block back into flash
     LOG_INFO({ println("Writing new block"); });
     flash_block_write(address, buffer);
 }
