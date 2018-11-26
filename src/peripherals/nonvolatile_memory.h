@@ -34,7 +34,7 @@ extern void internal_eeprom_write(uint16_t address, uint8_t data);
 
 /* ************************************************************************** */
 
-#define FLASH_SIZE 65536
+#define FLASH_SIZE 131072
 
 #define FLASH_BUFFER_SIZE 128
 #define ERASE_FLASH_BLOCKSIZE 128
