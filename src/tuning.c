@@ -613,36 +613,34 @@ tuning_errors_t memory_tune(void) {
     }
 
     relays_t tempRelays;
-    uint8_t i = 0;
+    uint8_t memoriesFound = 0;
     uint8_t recallAttempts = 0;
 
     tempRelays = memory_recall(address);
     if (tempRelays.ant == 0) {
 
         LOG_DEBUG({ println("successfully recalled memory"); });
-        memoryBuffer[i++] = tempRelays;
+        memoryBuffer[memoriesFound++] = tempRelays;
     }
 
-    while (i < NUM_OF_MEMORIES) {
+    while (1) {
         tempRelays = memory_recall(address + memoryOffset);
         if (tempRelays.ant == 0) {
-
             LOG_DEBUG({ println("successfully recalled memory"); });
-            memoryBuffer[i++] = tempRelays;
+            memoryBuffer[memoriesFound++] = tempRelays;
         }
 
-        if (i == NUM_OF_MEMORIES) {
+        if (memoriesFound == NUM_OF_MEMORIES) {
             break;
         }
 
         tempRelays = memory_recall(address - memoryOffset);
         if (tempRelays.ant == 0) {
-
             LOG_DEBUG({ println("successfully recalled memory"); });
-            memoryBuffer[i++] = tempRelays;
+            memoryBuffer[memoriesFound++] = tempRelays;
         }
 
-        if (i == NUM_OF_MEMORIES) {
+        if (memoriesFound == NUM_OF_MEMORIES) {
             break;
         }
 
@@ -652,6 +650,11 @@ tuning_errors_t memory_tune(void) {
         if (recallAttempts == 20) {
             break;
         }
+    }
+
+    if (!memoriesFound) {
+        errors.noMemory = 1;
+        return errors;
     }
 
     LOG_DEBUG({
