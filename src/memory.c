@@ -227,7 +227,7 @@ relays_t memory_recall(NVM_address_t address) {
     relayBits.bot = flash_read_byte(address + 1);
 
     LOG_INFO({
-        printf("address: %lu", address);
+        printf("address: %lu ", address);
         print_relay_bits(&relayBits);
         println("");
     });
@@ -262,8 +262,11 @@ void memory_store(NVM_address_t address, relays_t *relays) {
         println("");
     });
 
-    // Grab the current relays
+    // Pack the relays we want to save
     packed_relays_t relayBits = pack_relays(relays);
+
+    // Use the ant bit as an 'has been written' flag
+    relayBits.ant = 0;
 
     // Pull out what's already at the specified address
     relays_t savedRelays = memory_recall(address);
