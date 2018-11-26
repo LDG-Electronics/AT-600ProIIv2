@@ -688,11 +688,17 @@ void tuning_followup_animation(tuning_errors_t errors) {
         }
     } else {
         if (currentRF.swr < 1.7) {
+            LOG_INFO({ println("good SWR"); });
+
             play_animation(&center_crawl[0]);
         } else if (currentRF.swr < 3.0) {
+            LOG_INFO({ println("fair SWR"); });
+
             // TODO: pick the right animation
             play_animation(&center_crawl[0]);
         } else if (currentRF.swr >= 3.0) {
+            LOG_INFO({ println("bad SWR"); });
+
             // TODO: pick the right animation
             play_animation(&center_crawl[0]);
         }
