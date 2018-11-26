@@ -111,7 +111,6 @@ bool check_for_RF(void) {
 
 bool wait_for_stable_RF(uint16_t timeoutDuration) {
     system_time_t startTime = get_current_time();
-    int16_t rawFWD = 0;
     float smoothFWD = 0;
     float prevSmoothFWD = 0;
     uint16_t iterations = 0;
@@ -119,7 +118,7 @@ bool wait_for_stable_RF(uint16_t timeoutDuration) {
 
     while (1) {
         iterations++;
-        rawFWD = adc_read(0);
+        int16_t rawFWD = adc_read(0);
         smoothFWD = smoothFWD - (BETA * (smoothFWD - rawFWD));
 
         if (fabs(prevSmoothFWD - smoothFWD) < (smoothFWD * .01)) {
@@ -351,12 +350,11 @@ uint32_t get_period(void) {
 void measure_frequency(void) {
     LOG_TRACE({ println("measure_frequency"); });
 
-    uint32_t result = 0;
     uint32_t tempPeriod = 0;
 
     // collect period measurements
     for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++) {
-        result = get_period();
+        uint32_t result = get_period();
         if (result == 0) {
             currentRF.lastMeasurementTime = get_current_time();
             currentRF.frequency = UINT16_MAX;
