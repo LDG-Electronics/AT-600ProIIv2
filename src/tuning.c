@@ -277,6 +277,11 @@ match_t test_z(tuning_errors_t *errors, match_t bestMatch, uint8_t z) {
     match = L_zip(errors, &relays, match, 3);
     match = L_zip(errors, &relays, match, 7);
 
+    LOG_INFO({
+        print_comparison_count();
+        println("");
+    });
+
     return match;
 }
 
@@ -299,10 +304,6 @@ match_t hiloz_tune(tuning_errors_t *errors) {
     match_t bestMatch = select_best_match(hizMatch, lozMatch);
 
     LOG_DEBUG({ printf("z found: %d\r\n", bestMatch.relays.z); });
-    LOG_INFO({
-        print_comparison_count();
-        println("");
-    });
 
     return bestMatch;
 }
