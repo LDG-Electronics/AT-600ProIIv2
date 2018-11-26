@@ -7,7 +7,6 @@
 // prints a single key:value pair
 void print_json_field(const json_field_t *field) {
     float tempFloat;
-    int32_t tempSigned;
     uint32_t tempUnsigned;
 
     switch (field->type) {
