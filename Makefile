@@ -117,6 +117,8 @@ C89FLAGS += -O$(BUILD_DIR)/$(PROJECT)
 # Use hybrid-style stack. Additional fields are the desired size of, in order:
 # stack size of (main code : low priority ISRs : high priority ISRs)
 C89FLAGS += --STACK=hybrid:auto:auto:auto
+# fill empty ROM with a repeating pattern
+C89FLAGS += --FILL=0xffff
 # Suppress most of xc8's command echos
 C89FLAGS += -q
 # Set the size of floating point types
