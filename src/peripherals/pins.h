@@ -3,10 +3,6 @@
 
 /* ************************************************************************** */
 
-#define DEVELOPMENT
-
-/* ************************************************************************** */
-
 #define PORT(port, pin) PORT##port##bits.R##port##pin
 #define LATCH(port, pin) LAT##port##bits.LAT##port##pin
 
