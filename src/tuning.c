@@ -669,19 +669,19 @@ tuning_errors_t memory_tune(void) {
     This decision was made in part to avoid the awful possibility of everything
     going wrong and then the tuner displaying 8 seconds of random blinks.
 */
-void tuning_followup_animation(tuning_errors_t tuning_errors) {
+void tuning_followup_animation(tuning_errors_t errors) {
     display_clear();
 
-    if (tuning_errors.any != 0) {
-        if (tuning_errors.lostRF == 1) {
+    if (errors.any != 0) {
+        if (errors.lostRF == 1) {
             LOG_ERROR({ println("lostRF"); });
 
             repeat_animation(&blink_both_bars[0], 2);
-        } else if (tuning_errors.noRF == 1) {
+        } else if (errors.noRF == 1) {
             LOG_ERROR({ println("noRF"); });
 
             repeat_animation(&blink_both_bars[0], 1);
-        } else if (tuning_errors.relayError == 1) {
+        } else if (errors.relayError == 1) {
             LOG_ERROR({ println("relayError"); });
 
             play_animation(&overpower_warning[0]);
