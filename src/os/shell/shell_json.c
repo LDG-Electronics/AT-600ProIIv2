@@ -6,19 +6,22 @@
 
 // prints a single key:value pair
 void print_json_field(const json_field_t *field) {
-    float tempFloat;
-    uint32_t tempUnsigned;
+    // print the key
+    printf("\"%s\":", field->string);
 
+    // print the value
     switch (field->type) {
     case jsonU16:
-        tempUnsigned = *(uint16_t *)field->value;
-        printf("\"%s\":%lu", field->string, tempUnsigned);
+        uint16_t tempU16 = *(uint16_t *)field->value;
+        printf("%u", tempU16);
         return;
     case jsonFloat:
-        tempFloat = *(float *)field->value;
-        printf("\"%s\":%f", field->string, tempFloat);
+        float tempFloat = *(float *)field->value;
+        printf("%f", tempFloat);
         return;
     default:
+        // type not supported
+        print("NULL");
         return;
     }
 }
