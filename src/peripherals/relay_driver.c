@@ -54,6 +54,6 @@ void publish_relays(packed_relays_t *relayBits) {
     Format: "(<caps>, <inds>, <z>, <ant>)"
 */
 void print_relay_bits(packed_relays_t *relayBits) {
-    printf("(C%d, L%d, Z%d, A%d)", relayBits->caps, relayBits->inds,
+    printf("(C%u, L%u, Z%u, A%u)", relayBits->caps, relayBits->inds,
            relayBits->z, relayBits->ant);
 }

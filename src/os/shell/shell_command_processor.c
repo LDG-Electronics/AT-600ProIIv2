@@ -43,7 +43,7 @@ void shell_arg_test(int argc, char **argv) {
 
         // Prints: <argNum> - "<string>" [len:<length>]
         for (uint8_t i = 1; i < argc; i++) {
-            printf("%d - \"%s\" [len:%d]\r\n", i, argv[i], strlen(argv[i]));
+            printf("%u - \"%s\" [len:%u]\r\n", i, argv[i], strlen(argv[i]));
         }
     }
     println("-----------------------------------------------");

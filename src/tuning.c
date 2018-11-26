@@ -32,7 +32,7 @@ void reset_solution_count(void) {
 void print_comparison_count(void) {
     uint16_t difference = comparisonCount - prevcomparisonCount;
 
-    printf("comparisonCount: %d new: %d", comparisonCount, difference);
+    printf("comparisonCount: %u new: %u", comparisonCount, difference);
 
     prevcomparisonCount = comparisonCount;
 }
