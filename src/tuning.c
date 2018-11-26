@@ -595,6 +595,7 @@ tuning_errors_t memory_tune(void) {
         return errors;
     }
     measure_frequency();
+
     LOG_DEBUG({ printf("frequency: %u KHz\r\n", currentRF.frequency); });
 
     // prepare the address
@@ -603,18 +604,64 @@ tuning_errors_t memory_tune(void) {
         errors.noMemory = 1;
         return errors;
     }
-    address -= ((NUM_OF_MEMORIES - 1) / 2);
-    uint8_t memoryOffset = 0;
 
-    // Pull memories out into the memoryBuffer
+    uint8_t memoryOffset = MEMORY_WIDTH;
+
     relays_t memoryBuffer[NUM_OF_MEMORIES];
     for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
-        memoryBuffer[i] = memory_recall(address + memoryOffset);
-        memoryOffset += MEMORY_WIDTH;
+        memoryBuffer[i].all = 0;
     }
 
-    // relays_t relays = read_current_relays();
-    // match_t bestMatch = compare_matches(&errors, &relays, new_match());
+    relays_t tempRelays;
+    uint8_t i = 0;
+    uint8_t recallAttempts = 0;
+
+    tempRelays = memory_recall(address);
+    if (tempRelays.ant == 0) {
+
+        LOG_DEBUG({ println("successfully recalled memory"); });
+        memoryBuffer[i++] = tempRelays;
+    }
+
+    while (i < NUM_OF_MEMORIES) {
+        tempRelays = memory_recall(address + memoryOffset);
+        if (tempRelays.ant == 0) {
+
+            LOG_DEBUG({ println("successfully recalled memory"); });
+            memoryBuffer[i++] = tempRelays;
+        }
+
+        if (i == NUM_OF_MEMORIES) {
+            break;
+        }
+
+        tempRelays = memory_recall(address - memoryOffset);
+        if (tempRelays.ant == 0) {
+
+            LOG_DEBUG({ println("successfully recalled memory"); });
+            memoryBuffer[i++] = tempRelays;
+        }
+
+        if (i == NUM_OF_MEMORIES) {
+            break;
+        }
+
+        memoryOffset += MEMORY_WIDTH;
+
+        recallAttempts++;
+        if (recallAttempts == 20) {
+            break;
+        }
+    }
+
+    LOG_DEBUG({
+        println("Printing memoryBuffer:");
+        for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
+            printf("Slot #%u: ", i);
+            print_relays(&memoryBuffer[i]);
+            println("");
+        }
+    });
     match_t bestMatch = new_match();
 
     for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
