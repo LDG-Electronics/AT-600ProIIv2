@@ -89,9 +89,9 @@ void inspect_shell_history(void) {
     println("Printing shell history:");
     printf("History currently has %d entries.\r\n", history.length);
     printf("temp slot: %s\r\n", &history.tempLine);
-    uint8_t line = 0;
+
     for (int8_t i = history.length; i >= 0; i--) {
-        line = (history.head + i - 1) % SHELL_HISTORY_LENGTH;
+        uint8_t line = (history.head + i - 1) % SHELL_HISTORY_LENGTH;
 
         printf("slot #%d: %s", i, history.line[line]);
         if (i == history.pointer) {
@@ -99,6 +99,7 @@ void inspect_shell_history(void) {
         }
         println("");
     }
+    
     printf("current line: %s\r\n", &shell.buffer);
     println("-----------------------------------------------");
     println("");
