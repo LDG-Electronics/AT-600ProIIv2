@@ -1,142 +1,283 @@
+# **************************************************************************** #
+# General Make configuration
+
 # This suppresses make's command echoing. This suppression produces a cleaner output. 
 # If you need to see the full commands being issued by make, comment this out.
 MAKEFLAGS += -s
 
-.DEFAULT: all
-all: create_directories build
-
-# Clear the default suffix list, the XC8 Compiler does not use a .o file type
+# Clear the default suffix list
 .SUFFIXES:
+# xc8 uses wierd intermediate files, NOT the standard .o file
 .SUFFIXES: .c .h .p1 .as .obj .hex
 
-# ---------------------------------------------------------------------------- #
+# **************************************************************************** #
+# Project stuff
 
-# Directories revelant to the build process
-BUILD_DIR = build
-SRC_DIR = src
-OBJ_DIR = obj
-
-# The name of the project
+# Project name 
 PROJECT = AT-600ProII
-PROJECT_HEX = $(BUILD_DIR)/$(PROJECT).hex
 
 # The PIC microcontroller used for this project
 TARGET_DEVICE = 18f47k42
 
-# ---------------------------------------------------------------------------- #
-# Commands and command variables
+# **************************************************************************** #
+# Primary targets
 
-# Compiler - This project uses Microchip XC8
-CC99 = xc8-cc
-# --CHIP= is always required
-C99FLAGS = -mcpu=$(TARGET_DEVICE)
-# Tell the compiler to put all the output in the /build directory
-C99FLAGS += -o $(BUILD_DIR)/$(PROJECT).hex
-# Set the compiler in C99 mode
-C99FLAGS += -std=C99
-# Use the hybrid stack
-C99FLAGS += -mstack=hybrid:auto:30:50
-
-# Compiler - This project uses Microchip XC8
-CC89 = xc8
-# --CHIP= is always required
-C89FLAGS = --CHIP=$(TARGET_DEVICE)
-# -q suppresses most of xc8's command echos
-C89FLAGS += -q
-# --OBJDIR tells xc8 where to put intermediate files(.pre, .p1, .d)
-C89FLAGS += --OBJDIR=$(OBJ_DIR) 
-# -O tells xc8 where to put output files(.hex, .map, .cof, .as, etc)
-C89FLAGS += -O$(BUILD_DIR)/$(PROJECT)
-# -M tells the compiler to generate the map file
-# CFLAGS += -M$(BUILD_DIR)/$(PROJECT)
-# --ASMLIST tells the compiler to generate the assembly list file
-# CFLAGS += --ASMLIST
-# These set the size of floating point types to the larger 32bit settings
-# C89FLAGS += --FLOAT=24 --DOUBLE=32
-# Tells the compiler to report compilation times
-C89FLAGS += --TIME
-# Use hybrid-style stack. Additional fields are the desired size of, in order:
-# stack size of (main code : low priority ISRs : high priority ISRs)
-C89FLAGS += --STACK=hybrid:auto:auto:auto
-
-# Linter(s)
-# LINT1 is cppcheck, a free C/C++ static analysis tool.
-LINT1 = cppcheck
-#LINT1FLAGS = -q
-LINT1FLAGS = --check-config
-LINT1FLAGS += --enable=all
-LINT1FLAGS += --inline-suppr
-LINT1FLAGS += --language=c
-LINT1FLAGS += --platform=avr8
-
-# Microchip Pickit3 USB programmer
-# chip -P<Part name>
-# -M Erase and program the entire device
-PK3 = pk3cmd
-PK3FLAGS = -P$(TARGET_DEVICE) 
-PK3FLAGS += -M 
-PK3FLAGS += -L 
-# PK3FLAGS += -V5
-PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
-
-# CCS ICD-U80 USB programmer
-CCSLOAD = ccsloader
-CCSLOADFLAGS = -AREAS=ALL 
-CCSLOADFLAGS += -DEVICE=PIC18F47K42 
-CCSLOADFLAGS += -POWER=TARGET
-CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
-
-# MeLabs U2 USB programmer
-# TODO: add melabs command line driver here
-MELABS = meprog
-
-# ---------------------------------------------------------------------------- #
-# Puttin' stuff together
-
-# Get a space separated string of .c and .h files from the SRC_DIR, including subdirs
-SRC_FILES := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c) $(wildcard $(SRC_DIR)/**/**/*.c)
-
-# ---------------------------------------------------------------------------- #
-# Rules
-
-# .c -> .hex
-$(PROJECT_HEX): $(SRC_FILES)
-	$(CC89) $(C89FLAGS) $(SRC_FILES)
-
-# ---------------------------------------------------------------------------- #
-# Targets
-
-# Declare all targets as phony, 
 .PHONY: build create_directories lint program clean
 
-build: $(PROJECT_HEX)
+# Running "make" should simply build the project
+.DEFAULT: build
 
-# Creates /(BUILD_DIR), if it doesn't already exist
-create_directories:
+# Makefiles traditionally have an "all" target
+all: build
+
+# Target that actually builds the hex file
+build: build_C89
+
+# Target to clean up out files and directories
+clean: clean_output_directories
+
+# Target to make sure the hex is current, and then upload it to the target
+upload:	upload_ccs
+
+# **************************************************************************** #
+# Directory stuff
+
+# Source file directory
+SRC_DIR = src
+
+# Output directories
+BUILD_DIR = build
+OBJ_DIR = obj
+
+# Target to make sure output directories exist
+create_output_directories:
 	mkdir -p ./$(BUILD_DIR)
 	mkdir -p ./$(OBJ_DIR)
 
-lint:
-	$(LINT1) $(LINT1FLAGS) $(SRC_FILES)
-
-upload-pk3: $(PROJECT_HEX)
-	$(PK3) $(PK3FLAGS) -F$(PROJECT_HEX)
-	# pk3cmd.exe sometimes produces a bunch of files that I don't want.
-	# There's no flag to control this output, so we're just going to 
-	# remove them automatically.
-	-rm $(PK3_GARBAGE)
-
-upload-ccs: create_directories $(PROJECT_HEX)
-	$(CCSLOAD) $(CCSLOADFLAGS)
-
-upload-melabs:
-
-upload:	upload-ccs
-
-clean:
+# Target to clean the output directories
+clean_output_directories:
 	-rm -r -f $(BUILD_DIR)/*
 	-rm -r -f $(OBJ_DIR)/*
-	-rm -f $(PROGRAM_GARBAGE)
-	-rm -f $(PK3_GARBAGE)
+
+# **************************************************************************** #
+# Hex file rules
+
+# Get a space separated string of source files from the SRC_DIR, including subdirs
+SRC_FILES := $(wildcard $(SRC_DIR)/*.c) \
+			 $(wildcard $(SRC_DIR)/**/*.c) \
+			 $(wildcard $(SRC_DIR)/**/**/*.c)
+
+# Get a space separated string of header files from the SRC_DIR, including subdirs
+HEADER_FILES := $(wildcard $(SRC_DIR)/*.h) \
+				$(wildcard $(SRC_DIR)/**/*.h) \
+				$(wildcard $(SRC_DIR)/**/**/*.h)
+
+# Create a list of intermediate .p1 files by taking SRC_FILES, stripping the
+# path off, replacing the file extension, and prepending OBJ_DIR.
+OBJ_FILES := $(foreach file, $(SRC_FILES), \
+			 $(patsubst %.c,$(OBJ_DIR)/%.p1,$(notdir $(file))))
+
+# Full file name of the resulting hex file
+PROJECT_HEX := $(BUILD_DIR)/$(PROJECT).hex
+
+# ---------------------------------------------------------------------------- #
+# Rules?
+# I think this is the right path to get differential builds going in XC8.
+
+#
+partial: $(OBJ_FILES) 
+
+# .p1 -> .hex
+$(PROJECT_HEX): $(OBJ_FILES) 
+	$(CC89) $(C89FLAGS) $(OBJ_FILES)
+
+# .c -> .p1
+$(OBJ_DIR)/%.p1: $(SRC_FILES)
+	$(CC89) $(C89FLAGS) --PASS1 $(SRC_FILES)
+
+# **************************************************************************** #
+# Commands and command variables
+
+# This section contains drivers for both C89 and the new C99 versions of xc8.
+# The C99 mode is too new to be used in production, but it produces different
+# warnings than the C89 mode, and should be run occasionally as a kind of
+# pseudo-linter.
+
+# ---------------------------------------------------------------------------- #
+# XC8 C89 mode
+# This is the mode we want to use for production.
+
+CC89 = xc8
+# Specify what PIC we're using; is always required
+C89FLAGS = --CHIP=$(TARGET_DEVICE)
+# Tell xc8 where to put intermediate files(.pre, .p1, .d)
+C89FLAGS += --OBJDIR=$(OBJ_DIR) 
+# Tell xc8 where to put output files(.hex, .map, .cof, .as, etc)
+C89FLAGS += -O$(BUILD_DIR)/$(PROJECT)
+# Use hybrid-style stack. Additional fields are the desired size of, in order:
+# stack size of (main code : low priority ISRs : high priority ISRs)
+C89FLAGS += --STACK=hybrid:auto:auto:auto
+# Suppress most of xc8's command echos
+C89FLAGS += -q
+# Set the size of floating point types
+C89FLAGS += --FLOAT=24 --DOUBLE=24
+
+# There are several differences between the development hardware and the final
+# product hardware. The code wraps these differences in #ifdefs so we don't
+# accidentally forget to revert the changes.
+C89FLAGS += -DDEVELOPMENT
+
+# Optional compiler outputs and metrics
+
+# Tell xc8 to report compilation times
+C89FLAGS += --TIME
+# Tell xc8 to generate the map file
+# C89FLAGS += -M$(BUILD_DIR)/$(PROJECT)
+# Tell xc8 to generate the assembly list file
+# C89FLAGS += --ASMLIST
+
+# Construct the final C89 XC8 command
+C89_COMMAND = $(CC89) $(C89FLAGS) $(SRC_FILES)
+
+# Target to compile in C89 mode
+build_C89: 
+	$(C89_COMMAND)
+
+# ---------------------------------------------------------------------------- #
+# XC8 C99 mode
+# This mode is new as of XC8 v2.00, and is not mature yet. This mode is NOT
+# ready for production work, but it features a new clang-based frontend that is
+# useful an analysis tool.
+
+CC99 = xc8-cc
+# Specify what PIC we're using; is always required
+C99FLAGS = -mcpu=$(TARGET_DEVICE)
+# Set xc8 in C99 mode
+C99FLAGS += -std=C99
+# Tell xc8 to put all the output in the /build directory
+C99FLAGS += -o $(BUILD_DIR)/$(PROJECT).hex
+# Use the hybrid stack
+C99FLAGS += -mstack=hybrid:auto:auto:auto
+
+# There are several differences between the development hardware and the final
+# product hardware. The code wraps these differences in #ifdefs so we don't
+# accidentally forget to revert the changes.
+C99FLAGS += -DDEVELOPMENT
+
+# Construct the final C99 XC8 command
+C99_COMMAND := $(CC99) $(C99FLAGS) $(SRC_FILES)
+
+# Target to compile in C99 mode
+build_C99:
+	$(C99_COMMAND)
+
+# **************************************************************************** #
+# Linter(s)
+# Linting and static analysis are very important tools for maintaining code
+# quality. If we have access to any of these tools that work on our target code,
+# we should run them automatically on every build.
+
+# ---------------------------------------------------------------------------- #
+# Cppcheck is a free C/C++ static analysis tool.
+# http://cppcheck.sourceforge.net/
+
+CPPC = cppcheck
+# Tell cppcheck which C standard to check against
+CPPCFLAGS = --std=c89
+# Tell cppcheck to run all test categories 
+CPPCFLAGS += --enable=all
+# Tell cppcheck where xc8 headers live
+CPPCFLAGS += -I C:\Microchip\xc8\v2.00\pic\include
+CPPCFLAGS += -I C:\Microchip\xc8\v2.00\pic\include\c90
+# Allow that Cppcheck reports even though the analysis is inconclusive.
+CPPCFLAGS += --inconclusive
+# Force checking of all #ifdef configurations. This takes significantly longer!
+CPPCFLAGS += --force
+# Enable inline suppressions in the source 
+CPPCFLAGS += --inline-suppr
+# 8bit AVR is the most similar platform to PIC18
+CPPCFLAGS += --platform=avr8
+# Do not show progress reports
+CPPCFLAGS += -q
+
+# Specify the number of threads to use
+# Enabling multithreading disables unusedFunction check.
+CPPCFLAGS += -j 6
+
+# Check cppcheck configuration. The normal code analysis is disabled.
+# This option can be used to confirm that cppcheck sees every header file.
+# CPPCFLAGS += --check-config
+
+# Run all linters 
+lint:
+	$(CPPC) $(CPPCFLAGS) $(SRC_FILES)
+
+# **************************************************************************** #
+# Automated programming targets
+
+# These targets are used by the "make upload" command to build the project and
+# automatically upload the hex file to the destination device
+
+# ---------------------------------------------------------------------------- #
+# Microchip Pickit3 USB programmer
+# Manual can be found at:
+# C:/Microchip/MPLABX/v5.00/docs/Readme for PK3CMD.htm
+# or the equivalent directory on your system.
+
+PK3 = pk3cmd
+# Specify what PIC we're using; is always required
+PK3FLAGS = -P$(TARGET_DEVICE) 
+# Specify the hex file to be programmed
+PK3FLAGS += -F$(PROJECT_HEX)
+# Specify the memory regions to be programmed ("-M<region>")
+# No <region> argument means to program the entire device
+PK3FLAGS += -M 
+# Release the device from RESET after programming
+PK3FLAGS += -L 
+# Power the device from the PICkit3 using the specified voltage
+# PK3FLAGS += -V5
+# Verify the device against the hex file
+# PK3FLAGS += -Y
+
+# Target for uploading with Microchip Pickit3
+upload_pk3: $(PROJECT_HEX)
+	$(PK3) $(PK3FLAGS)
+	clean-pk3
+
+# pk3cmd sometimes creates a bunch of files we don't want
+PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
+
+# Clean pk3cmd's stupid sometimes-output
+clean_pk3:
+	-rm $(PK3_GARBAGE)
+
+# ---------------------------------------------------------------------------- #
+# CCS ICD-U80 USB programmer
+
+CCSLOAD = ccsloader
+# Specify what PIC we're using; is always required
+CCSLOADFLAGS = -DEVICE=PIC$(TARGET_DEVICE)
+# Program all the device's memory regions
+CCSLOADFLAGS += -AREAS=ALL 
+# Don't supply power to the target
+CCSLOADFLAGS += -POWER=TARGET
+# Specify the hex file to be programmed
+CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
+
+# Target for uploading with CCS ICD-U80
+upload_ccs: $(PROJECT_HEX)
+	$(CCSLOAD) $(CCSLOADFLAGS)
+
+# ---------------------------------------------------------------------------- #
+# MeLabs U2 USB programmer
+
+# TODO: add melabs command line driver here
+MELABS = meprog
+# TODO: add melabs command line flags here
+MELABSFLAGS = empty
+
+# Target for uploading with MeLabs U2
+upload_melabs: $(PROJECT_HEX)
+	$(MELABS) $(MELABSFLAGS)
 
 # DO NOT DELETE
