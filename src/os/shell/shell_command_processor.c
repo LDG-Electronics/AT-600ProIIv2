@@ -111,7 +111,7 @@ int8_t process_shell_command(char *string) {
     // tokenize the shell buffer
     // argv_list will end up containing a pointer to each token
     char *token = strtok(string, " ");
-    while (token != NULL && argc <= CONFIG_SHELL_MAX_COMMAND_ARGS) {
+    while (token != NULL && argc < CONFIG_SHELL_MAX_COMMAND_ARGS) {
         argv_list[argc++] = token;
         token = strtok(NULL, " ");
     }
