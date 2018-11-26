@@ -613,7 +613,7 @@ tuning_errors_t memory_tune(void) {
         memoryOffset += MEMORY_WIDTH;
     }
 
-    relays_t relays = read_current_relays();
+    // relays_t relays = read_current_relays();
     // match_t bestMatch = compare_matches(&errors, &relays, new_match());
     match_t bestMatch = new_match();
 
