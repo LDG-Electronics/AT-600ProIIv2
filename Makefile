@@ -37,7 +37,7 @@ build: build_C89
 clean: clean_output_directories
 
 # Target to make sure the hex is current, and then upload it to the target
-upload:	upload_ccs
+upload:	build upload_ccs
 
 # **************************************************************************** #
 # Directory stuff
