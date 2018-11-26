@@ -173,8 +173,7 @@ void ui_idle_block(void) {
         }
     }
 
-    //* RF_is_absent() is not the same as !RF_is_present()
-    if (RF_is_absent()) {
+    if (!RF_is_present()) {
         allowedToAutoTune = true; // reset when radio is unkeyed
     }
 
