@@ -166,7 +166,7 @@ int32_t map_range(int32_t x, int32_t a1, int32_t a2, int32_t b1, int32_t b2) {
 
 // Memory configuration
 // This MUST be at a higher address than the size of the hex file
-#define MEMORY_BASE_ADDRESS 56000
+#define MEMORY_BASE_ADDRESS 80000
 #define MEMORY_ANTENNA_OFFSET 4000
 
 NVM_address_t convert_memory_address(uint16_t frequency) {
