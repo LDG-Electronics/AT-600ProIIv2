@@ -12,12 +12,10 @@ void print_json_field(const json_field_t *field) {
     // print the value
     switch (field->type) {
     case jsonU16:
-        uint16_t tempU16 = *(uint16_t *)field->value;
-        printf("%u", tempU16);
+        printf("%u", *(uint16_t *)field->value);
         return;
     case jsonFloat:
-        float tempFloat = *(float *)field->value;
-        printf("%f", tempFloat);
+        printf("%f", *(float *)field->value);
         return;
     default:
         // type not supported
