@@ -183,28 +183,29 @@ build_C99:
 # Cppcheck is a free C/C++ static analysis tool.
 # http://cppcheck.sourceforge.net/
 
-CPPC = cppcheck
+LINT = cppcheck
 # Tell cppcheck which C standard to check against
-CPPCFLAGS = --std=c89
+LINTFLAGS = --std=c89
 # Tell cppcheck to run all test categories 
-CPPCFLAGS += --enable=all
+LINTFLAGS += --enable=all
 # Tell cppcheck where xc8 headers live
-CPPCFLAGS += -I C:\Microchip\xc8\v2.00\pic\include
-CPPCFLAGS += -I C:\Microchip\xc8\v2.00\pic\include\c90
+# TODO: file paths are not portable
+LINTFLAGS += -I C:\Microchip\xc8\v2.00\pic\include
+LINTFLAGS += -I C:\Microchip\xc8\v2.00\pic\include\c90
 # Allow that Cppcheck reports even though the analysis is inconclusive.
-CPPCFLAGS += --inconclusive
+LINTFLAGS += --inconclusive
 # Force checking of all #ifdef configurations. This takes significantly longer!
-CPPCFLAGS += --force
+LINTFLAGS += --force
 # Enable inline suppressions in the source 
-CPPCFLAGS += --inline-suppr
+LINTFLAGS += --inline-suppr
 # 8bit AVR is the most similar platform to PIC18
-CPPCFLAGS += --platform=avr8
+LINTFLAGS += --platform=avr8
 # Do not show progress reports
-CPPCFLAGS += -q
+LINTFLAGS += -q
 
 # Specify the number of threads to use
 # Enabling multithreading disables unusedFunction check.
-CPPCFLAGS += -j 6
+LINTFLAGS += -j 6
 
 # Check cppcheck configuration. The normal code analysis is disabled.
 # This option can be used to confirm that cppcheck sees every header file.
@@ -212,7 +213,7 @@ CPPCFLAGS += -j 6
 
 # Run all linters 
 lint:
-	$(CPPC) $(CPPCFLAGS) $(SRC_FILES)
+	$(LINT) $(LINTFLAGS) $(SRC_FILES)
 
 # **************************************************************************** #
 # Automated programming targets
