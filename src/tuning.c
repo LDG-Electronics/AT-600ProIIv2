@@ -582,6 +582,7 @@ tuning_errors_t full_tune(void) {
 
 #define MEMORY_WIDTH 2
 #define NUM_OF_MEMORIES 9
+#define MAXIMUM_RECALL_ATTEMPTS 20
 
 tuning_errors_t memory_tune(void) {
     LOG_TRACE({ println("memory_tune"); });
@@ -605,31 +606,45 @@ tuning_errors_t memory_tune(void) {
         return errors;
     }
 
-    uint8_t memoryOffset = MEMORY_WIDTH;
-
+    // Create and initialize local storage for recalled memories
     relays_t memoryBuffer[NUM_OF_MEMORIES];
     for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
         memoryBuffer[i].all = 0;
     }
 
-    relays_t tempRelays;
+    // Use this to count how many memories are recalled
     uint8_t memoriesFound = 0;
-    uint8_t recallAttempts = 0;
 
-    tempRelays = memory_recall(address);
+    // --------------------------------------------------
+    /*  memory recall section, theory of operation
+
+        memory_recall() returns the relay object found at the provided address.
+        The 'ant' field of a stored memory is hijacked into a flag that
+        represents whether a memory has ever been written. 
+        
+        1 means no memory, 0 means yes memory.
+
+        The hypothesis is that over the life of the tuner, most memory slots
+        will probably never be written to. When we read a memory out into
+        tempRelays
+        
+
+    */
+
+    relays_t tempRelays = memory_recall(address);
     if (tempRelays.ant == 0) {
-
         LOG_DEBUG({ println("successfully recalled memory"); });
         memoryBuffer[memoriesFound++] = tempRelays;
     }
 
+    uint8_t memoryOffset = MEMORY_WIDTH;
+    uint8_t recallAttempts = 0;
     while (1) {
         tempRelays = memory_recall(address + memoryOffset);
         if (tempRelays.ant == 0) {
             LOG_DEBUG({ println("successfully recalled memory"); });
             memoryBuffer[memoriesFound++] = tempRelays;
         }
-
         if (memoriesFound == NUM_OF_MEMORIES) {
             break;
         }
@@ -639,19 +654,23 @@ tuning_errors_t memory_tune(void) {
             LOG_DEBUG({ println("successfully recalled memory"); });
             memoryBuffer[memoriesFound++] = tempRelays;
         }
-
         if (memoriesFound == NUM_OF_MEMORIES) {
             break;
         }
 
+        // increase the memoryOffset for the next time through the loop
         memoryOffset += MEMORY_WIDTH;
 
+        // make sure we don't recall memories forever
         recallAttempts++;
-        if (recallAttempts == 20) {
+        if (recallAttempts == MAXIMUM_RECALL_ATTEMPTS) {
             break;
         }
     }
 
+    // --------------------------------------------------
+
+    // if we didn't successfully recall a memory, set an error and exit
     if (!memoriesFound) {
         errors.noMemory = 1;
         return errors;
@@ -659,14 +678,16 @@ tuning_errors_t memory_tune(void) {
 
     LOG_DEBUG({
         println("Printing memoryBuffer:");
-        for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
-            printf("Slot #%u: ", i);
+        printf("Recalled %u memories", memoriesFound);
+        for (uint8_t i = 0; i < memoriesFound; i++) {
+            printf("# %u: ", i);
             print_relays(&memoryBuffer[i]);
             println("");
         }
     });
-    match_t bestMatch = new_match();
 
+    // Let's test all the memories we recalled
+    match_t bestMatch = new_match();
     for (uint8_t i = 0; i < memoriesFound; i++) {
         bestMatch = compare_matches(&errors, &memoryBuffer[i], bestMatch);
         if (errors.any) {
