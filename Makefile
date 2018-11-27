@@ -37,7 +37,7 @@ build: build_C89
 clean: clean_output_directories
 
 # Target to make sure the hex is current, and then upload it to the target
-upload:	build upload_ccs
+upload: upload_ccs
 
 # **************************************************************************** #
 # Directory stuff
@@ -72,28 +72,12 @@ HEADER_FILES := $(wildcard $(SRC_DIR)/*.h) \
 				$(wildcard $(SRC_DIR)/**/*.h) \
 				$(wildcard $(SRC_DIR)/**/**/*.h)
 
-# Create a list of intermediate .p1 files by taking SRC_FILES, stripping the
-# path off, replacing the file extension, and prepending OBJ_DIR.
-OBJ_FILES := $(foreach file, $(SRC_FILES), \
-			 $(patsubst %.c,$(OBJ_DIR)/%.p1,$(notdir $(file))))
-
 # Full file name of the resulting hex file
 PROJECT_HEX := $(BUILD_DIR)/$(PROJECT).hex
 
-# ---------------------------------------------------------------------------- #
-# Rules?
-# I think this is the right path to get differential builds going in XC8.
-
-#
-partial: $(OBJ_FILES) 
-
-# .p1 -> .hex
-$(PROJECT_HEX): $(OBJ_FILES) 
-	$(CC89) $(C89FLAGS) $(OBJ_FILES)
-
-# .c -> .p1
-$(OBJ_DIR)/%.p1: $(SRC_FILES)
-	$(CC89) $(C89FLAGS) --PASS1 $(SRC_FILES)
+# .c -> .hex
+$(PROJECT_HEX): $(SRC_FILES) $(HEADER_FILES)
+	$(C89_COMMAND)
 
 # **************************************************************************** #
 # Commands and command variables
@@ -139,11 +123,11 @@ C89FLAGS += -M$(BUILD_DIR)/$(PROJECT).map
 # C89FLAGS += --ASMLIST
 
 # Construct the final C89 XC8 command
-C89_COMMAND = $(CC89) $(C89FLAGS) $(SRC_FILES)
+C89_COMMAND := $(CC89) $(C89FLAGS) $(SRC_FILES)
 
 # Target to compile in C89 mode
-build_C89: 
-	$(C89_COMMAND)
+build_C89: $(PROJECT_HEX)
+
 
 # ---------------------------------------------------------------------------- #
 # XC8 C99 mode
@@ -243,7 +227,7 @@ PK3FLAGS += -L
 # PK3FLAGS += -Y
 
 # Target for uploading with Microchip Pickit3
-upload_pk3:
+upload_pk3: build
 	$(PK3) $(PK3FLAGS)
 	clean-pk3
 
@@ -268,7 +252,7 @@ CCSLOADFLAGS += -POWER=TARGET
 CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
 
 # Target for uploading with CCS ICD-U80
-upload_ccs:
+upload_ccs: build
 	$(CCSLOAD) $(CCSLOADFLAGS)
 
 # ---------------------------------------------------------------------------- #
@@ -280,7 +264,7 @@ MELABS = meprog
 MELABSFLAGS = empty
 
 # Target for uploading with MeLabs U2
-upload_melabs:
+upload_melabs: build
 	$(MELABS) $(MELABSFLAGS)
 
 # DO NOT DELETE
