@@ -667,7 +667,7 @@ tuning_errors_t memory_tune(void) {
     });
     match_t bestMatch = new_match();
 
-    for (uint8_t i = 0; i < NUM_OF_MEMORIES; i++) {
+    for (uint8_t i = 0; i < memoriesFound; i++) {
         bestMatch = compare_matches(&errors, &memoryBuffer[i], bestMatch);
         if (errors.any) {
             return errors;
