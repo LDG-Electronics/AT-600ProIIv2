@@ -229,7 +229,6 @@ PK3FLAGS += -L
 # Target for uploading with Microchip Pickit3
 upload_pk3: build
 	$(PK3) $(PK3FLAGS)
-	clean-pk3
 
 # pk3cmd sometimes creates a bunch of files we don't want
 PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
@@ -237,6 +236,38 @@ PK3_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
 # Clean pk3cmd's stupid sometimes-output
 clean_pk3:
 	-rm $(PK3_GARBAGE)
+
+# ---------------------------------------------------------------------------- #
+# Microchip Pickit4 USB programmer, controlled by ipecmd.exe
+# Manual can be found at:
+# C:/Microchip/MPLABX/v5.00/docs/Readme for MPLAB IPE.htm
+# or the equivalent directory on your system.
+
+# chip -P<Part name>
+PK4 = ipecmd
+# specify Pickit4
+PK4FLAGS = -TPPK4
+# select the project PIC
+PK4FLAGS += -P$(TARGET_DEVICE)
+# Specify the hex file to be programmed
+PK4FLAGS += -F$(PROJECT_HEX)
+# -M program the entire device
+PK4FLAGS += -M
+# -Y verify the entire device
+# PK4FLAGS += -Y
+# command flag used to specify input hex file
+PK4HEXFLAG = -F
+
+# Target for uploading with Microchip Pickit3
+upload_pk4: build
+	$(PK4) $(PK4FLAGS)
+
+# pk4cmd sometimes creates a bunch of files we don't want
+PK4_GARBAGE = log.0 log.1 log.2 MPLABXLog.xml MPLABXLog.xml.lck
+
+# Clean pk4cmd's stupid sometimes-output
+clean_pk4:
+	-rm $(PK4_GARBAGE)
 
 # ---------------------------------------------------------------------------- #
 # CCS ICD-U80 USB programmer
