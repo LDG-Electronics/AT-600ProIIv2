@@ -356,7 +356,7 @@ void measure_frequency(void) {
     for (uint8_t i = 0; i < NUM_OF_PERIOD_SAMPLES; i++) {
         uint32_t result = get_period();
         if (result == 0) {
-            currentRF.lastMeasurementTime = get_current_time();
+            currentRF.lastFrequencyTime = get_current_time();
             currentRF.frequency = UINT16_MAX;
             return;
         }
@@ -365,7 +365,7 @@ void measure_frequency(void) {
 
     tempPeriod /= NUM_OF_PERIOD_SAMPLES;
 
-    currentRF.lastMeasurementTime = get_current_time();
+    currentRF.lastFrequencyTime = get_current_time();
     currentRF.frequency = (uint16_t)(MAGIC_FREQUENCY_NUMBER / tempPeriod);
 
     LOG_INFO({ printf("frequency: %u\r\n", currentRF.frequency); });
