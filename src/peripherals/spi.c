@@ -1,6 +1,7 @@
 #include "spi.h"
 #include "../os/log_macros.h"
 #include "../os/system_time.h"
+#include "clc.h"
 #include "pic18f47k42.h"
 #include "pins.h"
 #include "pps.h"
@@ -8,44 +9,10 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-void clc_init(void) {
-    // CLC Setup
-    CLC1GLS0 = 0b00000010;
-    CLC1GLS1 = 0b00001000;
-    CLC1GLS2 = 0b00100000;
-    CLC1GLS3 = 0b10000000;
-
-    CLC1SEL0 = 0b101100; // CLC1 data 0, input is SPI Clock
-    CLC1SEL1 = 0b101100; // CLC1 data 1,
-    CLC1SEL2 = 0b101100; // CLC1 data 2,
-    CLC1SEL3 = 0b101100; // CLC1 data 3,
-
-    CLC1POL = 0b00000000; // don't invert anything
-
-    CLC1CONbits.MODE = 0b010; // 4-input AND mode
-
-    CLC1CONbits.EN = 1; // turn it on
-
-    // CLC Setup
-    CLC2GLS0 = 0b00000010;
-    CLC2GLS1 = 0b00001000;
-    CLC2GLS2 = 0b00100000;
-    CLC2GLS3 = 0b10000000;
-
-    CLC2SEL0 = 0b101011; // CLC1 data 0, input is SPI Data
-    CLC2SEL1 = 0b101011; // CLC1 data 1,
-    CLC2SEL2 = 0b101011; // CLC1 data 2,
-    CLC2SEL3 = 0b101011; // CLC1 data 3,
-
-    CLC2POL = 0b00000000; // don't invert anything
-
-    CLC2CONbits.MODE = 0b010; // 4-input AND mode
-
-    CLC2CONbits.EN = 1; // turn it on
-}
-
 void spi_init(pps_output_t *clockOutPin, pps_output_t *dataOutPin) {
-    clc_init();
+    // CLC setup
+    clc1_passthrough_init(CLC_SCK1);
+    clc2_passthrough_init(CLC_SDO1);
 
     // PPS setup
     *clockOutPin = PPS_CLC1OUT;
