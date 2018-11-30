@@ -1,5 +1,5 @@
 #include "pins.h"
-#include "pic18f47k42.h"
+#include "device_header.h"
 
 /* ************************************************************************** */
 
@@ -121,12 +121,12 @@ void pins_init(void) {
     WPUBbits.WPUB2 = 1; // CUP_BUTTON
     WPUBbits.WPUB4 = 1; // FUNC_BUTTON
     WPUBbits.WPUB5 = 1; // LDN_BUTTON
-    
+
 #ifdef DEVELOPMENT
-    WPUEbits.WPUE2 = 1;   // ANT_BUTTON
-    WPUEbits.WPUE1 = 1;   // TUNE_BUTTON
+    WPUEbits.WPUE2 = 1; // ANT_BUTTON
+    WPUEbits.WPUE1 = 1; // TUNE_BUTTON
 #else
-    WPUBbits.WPUB6 = 1; // ANT_BUTTON
-    WPUBbits.WPUB7 = 1; // TUNE_BUTTON
+    WPUBbits.WPUB6 = 1;   // ANT_BUTTON
+    WPUBbits.WPUB7 = 1;   // TUNE_BUTTON
 #endif
 }

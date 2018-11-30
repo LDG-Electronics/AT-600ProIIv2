@@ -1,7 +1,7 @@
 #ifndef _PPS_H_
 #define _PPS_H_
 
-#include "pic18f47k42.h"
+#include "device_header.h"
 
 /* ************************************************************************** */
 

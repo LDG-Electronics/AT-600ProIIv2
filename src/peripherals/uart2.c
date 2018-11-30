@@ -1,8 +1,8 @@
 #include "uart2.h"
 #include "../libraries/fast_ring_buffer.h"
 #include "../os/system_time.h"
+#include "device_header.h"
 #include "interrupt.h"
-#include "pic18f47k42.h"
 
 /* ************************************************************************** */
 

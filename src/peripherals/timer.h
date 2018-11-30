@@ -1,7 +1,7 @@
 #ifndef _TIMER_H_
 #define _TIMER_H_
 
-#include "pic18f47k42.h"
+#include "device_header.h"
 #include <stdint.h>
 
 /* ************************************************************************** */

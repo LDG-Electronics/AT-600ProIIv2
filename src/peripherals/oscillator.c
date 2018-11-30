@@ -1,5 +1,5 @@
 #include "oscillator.h"
-#include "pic18f47k42.h"
+#include "device_header.h"
 
 /* ************************************************************************** */
 

@@ -1,7 +1,7 @@
 #include "nonvolatile_memory.h"
 #include "../os/log_macros.h"
+#include "device_header.h"
 #include "interrupt.h"
-#include "pic18f47k42.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
