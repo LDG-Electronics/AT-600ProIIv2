@@ -3,6 +3,7 @@
 
 /* ************************************************************************** */
 
+#include "../../peripherals/pps.h"
 #include "shell_config.h"
 #include <stdint.h>
 
@@ -33,7 +34,7 @@ typedef int8_t (*shell_callback_t)(char);
 /* ************************************************************************** */
 
 // setup
-extern void shell_init(void);
+extern void shell_init(pps_input_t rxPin, pps_output_t *txPin);
 
 // Registers a
 extern void shell_register_callback(shell_callback_t callback);

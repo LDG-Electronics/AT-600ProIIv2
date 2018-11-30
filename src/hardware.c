@@ -42,7 +42,7 @@ void startup(void) {
     interrupt_init();
 
     // OS setup
-    shell_init();
+    shell_init((PPS_PORT_D & PPS_PIN_3), &RD2PPS));
     log_init();
     system_time_init();
 

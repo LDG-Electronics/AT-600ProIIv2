@@ -31,9 +31,9 @@ static void terminate_current_program(void) {
 /* ************************************************************************** */
 
 // set up the entire shell subsystem
-void shell_init(void) {
-    serial_port_init((PPS_PORT_D & PPS_PIN_3), &RD2PPS);
-
+void shell_init(pps_input_t rxPin, pps_output_t *txPin) {
+    serial_port_init(rxPin, txPin);
+    
     // initialize shell
     memset(&shell, 0, sizeof(shell_line_t));
     shell_register_callback(NULL);
