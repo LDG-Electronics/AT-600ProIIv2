@@ -1,8 +1,7 @@
 #include "stopwatch.h"
 #include "../peripherals/timer.h"
-#include "system_time.h"
-
 #include "serial_port.h"
+#include "system_time.h"
 
 /* ************************************************************************** */
 
@@ -133,11 +132,10 @@ void stopwatch_self_test(void) {
     println("");
     println("-----------------------------------------------");
     println("millisecond delays with microsecond stopwatch");
-    println("reminder: 1ms = 1000us, 10ms = 10000us");
-    println("reminder: delay_ms is expected to have +-1ms jitter");
 
     for (uint8_t i = 0; i < 10; i++) {
-        printf("%u uS: ", testValues[i]);
+        printf("%u mS: ", testValues[i]);
+        delay_ms(2); // jitter compensation
         us_stopwatch_begin();
         delay_ms(testValues[i]);
         us_stopwatch_println();
