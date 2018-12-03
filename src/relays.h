@@ -1,7 +1,7 @@
 #ifndef _RELAYS_H_
 #define _RELAYS_H_
 
-#include "peripherals/relay_driver.h"
+#include "relay_driver.h"
 #include <stdint.h>
 
 /* ************************************************************************** */

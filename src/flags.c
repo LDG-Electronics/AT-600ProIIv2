@@ -1,7 +1,7 @@
 #include "flags.h"
 #include "os/log_macros.h"
 #include "peripherals/nonvolatile_memory.h"
-#include "peripherals/relay_driver.h"
+#include "relay_driver.h"
 #include "relays.h"
 #include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
