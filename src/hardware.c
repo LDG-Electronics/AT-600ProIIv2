@@ -37,7 +37,7 @@
 */
 void startup(void) {
     // System setup
-    oscillator_init();
+    internal_oscillator_init();
     pins_init();
     interrupt_init();
 

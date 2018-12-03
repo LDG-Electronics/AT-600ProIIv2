@@ -10,6 +10,7 @@
 
 /* ************************************************************************** */
 
-extern void oscillator_init(void);
+extern void external_oscillator_init(void);
+extern void internal_oscillator_init(void);
 
 #endif
