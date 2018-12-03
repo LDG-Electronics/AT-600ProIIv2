@@ -10,6 +10,8 @@
 #define timer0_clock_source(value) T0CON1bits.CS = value
 #define timer0_prescale(value) T0CON1bits.CKPS = value
 #define timer0_postscale(value) T0CON0bits.OUTPS = value
+#define timer0_clock_sync_enable() T0CON1bits.ASYNC = 1
+#define timer0_clock_sync_disable() T0CON1bits.ASYNC = 0
 
 // General manipulation
 #define timer0_start() TIMER0_ON = 1
@@ -35,6 +37,8 @@
 // Setup
 #define timer1_clock_source(value) T1CLK = value
 #define timer1_prescale(value) T1CONbits.CKPS = value
+#define timer1_clock_sync_enable() T1CONbits.NOT_SYNC = 0
+#define timer1_clock_sync_disable() T1CONbits.NOT_SYNC = 1
 
 // General manipulation
 #define timer1_start() TIMER1_ON = 1
@@ -83,6 +87,8 @@
 // Setup
 #define timer3_clock_source(value) T3CLK = value
 #define timer3_prescale(value) T3CONbits.CKPS = value
+#define timer3_clock_sync_enable() T3CONbits.NOT_SYNC = 0
+#define timer3_clock_sync_disable() T3CONbits.NOT_SYNC = 1
 
 // General manipulation
 #define timer3_start() TIMER3_ON = 1
@@ -131,6 +137,8 @@
 // Setup
 #define timer5_clock_source(value) T5CLK = value
 #define timer5_prescale(value) T5CONbits.CKPS = value
+#define timer5_clock_sync_enable() T5CONbits.NOT_SYNC = 0
+#define timer5_clock_sync_disable() T5CONbits.NOT_SYNC = 1
 
 // General manipulation
 #define timer5_start() TIMER5_ON = 1
@@ -219,7 +227,11 @@
 #define TMR_CLK_MFINTOSC_500_K 5
 #define TMR_CLK_MFINTOSC_32_K 6
 #define TMR_CLK_SOSC 7
-#define TMR_CLK_CLKREF_OUT 8
+#define TMR_CLK_CLKREF 8
+#define TMR_CLK_CLC1 13
+#define TMR_CLK_CLC2 14
+#define TMR_CLK_CLC3 15
+#define TMR_CLK_CLC4 16
 
 // Timer 0 clock sources
 #define TMR0_CLK_PPS 0
