@@ -4,7 +4,7 @@
 #include "os/serial_port.h"
 #include "os/system_time.h"
 #include "peripherals/device_header.h"
-#include "peripherals/pins.h"
+#include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
 #include "tuning.h"

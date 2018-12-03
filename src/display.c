@@ -3,8 +3,8 @@
 #include "os/buttons.h"
 #include "os/log_macros.h"
 #include "peripherals/device_header.h"
-#include "peripherals/pins.h"
 #include "peripherals/spi.h"
+#include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
 #include <float.h>

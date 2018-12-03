@@ -4,7 +4,7 @@
 #include "os/shell/shell_json.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
-#include "peripherals/pins.h"
+#include "pins.h"
 #include "peripherals/timer.h"
 #include <math.h>
 #include <stdlib.h>

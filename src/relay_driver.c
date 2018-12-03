@@ -2,7 +2,7 @@
 #include "os/log_macros.h"
 #include "os/system_time.h"
 #include "peripherals/device_header.h"
-#include "peripherals/pins.h"
+#include "pins.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */

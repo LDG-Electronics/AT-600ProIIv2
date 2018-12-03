@@ -11,9 +11,10 @@
 #include "peripherals/interrupt.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
-#include "peripherals/pins.h"
+#include "peripherals/ports.h"
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"
+#include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
 #include "shell_commands.h"
@@ -38,6 +39,7 @@
 void startup(void) {
     // System setup
     internal_oscillator_init();
+    port_init();
     pins_init();
     interrupt_init();
 

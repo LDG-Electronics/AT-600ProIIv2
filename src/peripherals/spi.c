@@ -1,9 +1,9 @@
 #include "spi.h"
 #include "../os/log_macros.h"
 #include "../os/system_time.h"
+#include "../pins.h"
 #include "clc.h"
 #include "device_header.h"
-#include "pins.h"
 #include "pps.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
@@ -59,4 +59,26 @@ void spi_tx_word(uint16_t data) {
     FP_STROBE_PIN = 0;
     delay_us(10);
     FP_STROBE_PIN = 1;
+}
+
+void spi_tx_char(const char data) {
+    LOG_TRACE({ println("spi_tx_char"); });
+    LOG_DEBUG({ printf("byte: %d", data); });
+
+    // TODO: change this to use the hardware SPI FIFO buffer
+    // TODO: consider using a fast_ring_buffer for SPI output, like the UARTs
+    while (SPI1STATUSbits.TXBE == 0) {
+        // Wait until SPI1TXB is empty
+    }
+
+    SPI1TCNTL = 1;
+    SPI1TXB = data;
+}
+
+void spi_tx_string(const char *string, uint16_t length) {
+    LOG_TRACE({ println("spi_tx_string"); });
+
+    for (uint16_t i = 0; i < length; i++) {
+        spi_tx_char(string[i]);
+    }
 }
