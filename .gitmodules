@@ -1,3 +1,6 @@
 [submodule "src/os"]
 	path = src/os
 	url = https://github.com/LDG-Electronics/PIC18FXXK42-SDK-OS.git
+[submodule "src/peripherals"]
+	path = src/peripherals
+	url = https://github.com/LDG-Electronics/PIC18FXXK42-SDK-PERIPHERALS
