@@ -24,8 +24,8 @@ struct {
 
 void meter_init(void) {
     // PPS Setup
-    U1RXPPS = (PPS_PORT_C & PPS_PIN_7);
-    RC6PPS = PPS_UART1_TX;
+    PPS_IN_UART1_RX(PPS_PORT_C & PPS_PIN_7);
+    PPS_OUT_UART1_TX(RC6PPS);
 
     UART1_init(_38400);
 

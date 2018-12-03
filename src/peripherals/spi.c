@@ -15,8 +15,8 @@ void spi_init(pps_output_t *clockOutPin, pps_output_t *dataOutPin) {
     clc2_passthrough_init(CLC_SDO1);
 
     // PPS setup
-    *clockOutPin = PPS_CLC1OUT;
-    *dataOutPin = PPS_CLC2OUT;
+    PPS_OUT_CLC1_OUTPUT(*clockOutPin);
+    PPS_OUT_CLC2_OUTPUT(*dataOutPin);
 
     SPI1CON0bits.BMODE = 1; // Bit-Longth Mode Select
 
