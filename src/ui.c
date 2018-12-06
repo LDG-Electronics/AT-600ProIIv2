@@ -444,24 +444,25 @@ static display_frame_t relay_animation_handler(int8_t capResult,
 
 /* -------------------------------------------------------------------------- */
 
-bool check_relay_buttons(relays_t *relays, int8_t *capResult,
+// checks CUP/CDN/LUP/LDN, returns true if any is down, false if not
+// also updates calResult/indResult with the state of CUP/CDN or LUP/LDN
+bool check_relay_buttons(relays_t relays, int8_t *capResult,
                          int8_t *indResult) {
     bool buttons = false;
 
     *capResult = RLY_NO_CHANGE;
     if (btn_is_down(CUP) && btn_is_down(CDN)) {
         buttons = true;
-        *capResult = RLY_NO_CHANGE;
     } else if (btn_is_down(CUP)) {
         buttons = true;
-        if (relays->caps < MAX_CAPACITORS) {
+        if (relays.caps < MAX_CAPACITORS) {
             *capResult = RLY_INCREMENT;
         } else {
             *capResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(CDN)) {
         buttons = true;
-        if (relays->caps > MIN_CAPACITORS) {
+        if (relays.caps > MIN_CAPACITORS) {
             *capResult = RLY_DECREMENT;
         } else {
             *capResult = RLY_LIMIT_REACHED;
@@ -471,17 +472,16 @@ bool check_relay_buttons(relays_t *relays, int8_t *capResult,
     *indResult = RLY_NO_CHANGE;
     if (btn_is_down(LUP) && btn_is_down(LDN)) {
         buttons = true;
-        *indResult = RLY_NO_CHANGE;
     } else if (btn_is_down(LUP)) {
         buttons = true;
-        if (relays->inds < MAX_INDUCTORS) {
+        if (relays.inds < MAX_INDUCTORS) {
             *indResult = RLY_INCREMENT;
         } else {
             *indResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(LDN)) {
         buttons = true;
-        if (relays->inds > MIN_INDUCTORS) {
+        if (relays.inds > MIN_INDUCTORS) {
             *indResult = RLY_DECREMENT;
         } else {
             *indResult = RLY_LIMIT_REACHED;
@@ -491,6 +491,7 @@ bool check_relay_buttons(relays_t *relays, int8_t *capResult,
     return buttons;
 }
 
+// actually do the increment/decrement, if required
 void process_results(relays_t *relays, int8_t *capResult, int8_t *indResult) {
     if (*capResult == RLY_INCREMENT) {
         if (relays->caps < MAX_CAPACITORS) {
@@ -515,7 +516,7 @@ void process_results(relays_t *relays, int8_t *capResult, int8_t *indResult) {
 
 /* -------------------------------------------------------------------------- */
 
-#define TIMEOUT_INTERVAL 500
+#define TIMEOUT_INTERVAL 750
 static int8_t timeout_handler(void) {
     // this keeps track of the last time a relay button was down
     static system_time_t lastTimeButtonWasDown;
@@ -549,24 +550,36 @@ uint8_t calculate_retrigger_delay(uint8_t triggerCount) {
     }
 }
 
+#define RETRIGGER_RESET_PERIOD 500
+
 void relay_button_hold(void) {
     LOG_TRACE({ println("relay_button_hold"); });
+
+    // used to track button timing
     system_time_t lastTriggerTime = get_current_time();
+    system_time_t retriggerResetTime = get_current_time();
     uint8_t triggerCount = 0;
     uint8_t retriggerDelay = 0;
 
+    // used to track button state
     int8_t capResult = 0;
     int8_t indResult = 0;
 
     while (timeout_handler()) {
+        // grab the most recently published relays
         relays_t relays = read_current_relays();
 
-        //
-        if (check_relay_buttons(&relays, &capResult, &indResult)) {
+        // we need to check buttons more often than retriggerDelay allows
+        if (check_relay_buttons(relays, &capResult, &indResult)) {
+            // make sure we don't update the relays too ofter
             if (time_since(lastTriggerTime) >= retriggerDelay) {
                 lastTriggerTime = get_current_time();
+                retriggerResetTime = get_current_time();
 
+                // increment or decrement relays as necessary
                 process_results(&relays, &capResult, &indResult);
+
+                // push our relays out to the hardware
                 put_relays(relays); // TODO: relay error handling???
 
                 if (triggerCount < UINT8_MAX) {
@@ -575,7 +588,15 @@ void relay_button_hold(void) {
                 retriggerDelay = calculate_retrigger_delay(triggerCount);
             }
         } else {
+            // retrigger immediately if button is released
             retriggerDelay = 0;
+
+            // reset the retrigger acceleration
+            if (time_since(retriggerResetTime) >= RETRIGGER_RESET_PERIOD) {
+                retriggerResetTime = get_current_time();
+
+                triggerCount = 0;
+            }
         }
 
         // animations need to be serviced more often than retriggerDelay allows
