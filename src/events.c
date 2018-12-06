@@ -3,7 +3,7 @@
 #include "memory.h"
 #include "os/serial_port.h"
 #include "os/system_time.h"
-#include "peripherals/device_header.h"
+#include "peripherals/pic_header.h"
 #include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"

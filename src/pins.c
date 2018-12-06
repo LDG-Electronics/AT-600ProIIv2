@@ -1,5 +1,5 @@
 #include "pins.h"
-#include "peripherals/device_header.h"
+#include "peripherals/pic_header.h"
 
 /* ************************************************************************** */
 

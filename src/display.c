@@ -2,7 +2,7 @@
 #include "flags.h"
 #include "os/buttons.h"
 #include "os/log_macros.h"
-#include "peripherals/device_header.h"
+#include "peripherals/pic_header.h"
 #include "peripherals/spi.h"
 #include "pins.h"
 #include "relays.h"

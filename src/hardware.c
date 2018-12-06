@@ -7,7 +7,7 @@
 #include "os/shell/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_time.h"
-#include "peripherals/device_header.h"
+#include "peripherals/pic_header.h"
 #include "peripherals/interrupt.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
