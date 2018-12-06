@@ -358,9 +358,10 @@ void function_submenu(void) {
 
 */
 typedef enum {
-    RLY_INC_NO_CHANGE = 0,     // continue previous blink or do nothing
-    RLY_INCREMENT_SUCCESS = 1, // show current relays
-    RLY_LIMIT_REACHED = -1,    // begin/continue blinking
+    RLY_NO_CHANGE = 0,      // continue previous blink or do nothing
+    RLY_INCREMENT = 1,      // show current relays
+    RLY_DECREMENT = 2,      // show current relays
+    RLY_LIMIT_REACHED = -1, // begin/continue blinking
 } relayIncrementResult_t;
 
 // WARNING - Dragons incoming
@@ -388,13 +389,13 @@ static display_frame_t relay_animation_handler(int8_t capResult,
     }
 
     // to blink or not to blink
-    if (capResult == RLY_INCREMENT_SUCCESS) {
+    if ((capResult == RLY_INCREMENT) || (capResult == RLY_DECREMENT)) {
         lowerBarIsBlinking = false;
     } else if (capResult == RLY_LIMIT_REACHED) {
         lowerBarIsBlinking = true;
         lowerBarBlinkCount = 0;
     }
-    if (indResult == RLY_INCREMENT_SUCCESS) {
+    if ((indResult == RLY_INCREMENT) || (indResult == RLY_DECREMENT)) {
         upperBarIsBlinking = false;
     } else if (indResult == RLY_LIMIT_REACHED) {
         upperBarIsBlinking = true;
@@ -441,49 +442,78 @@ static display_frame_t relay_animation_handler(int8_t capResult,
     return newFrame;
 }
 
-void process_CUP_or_CDN(relays_t *relays, int8_t *capResult) {
-    *capResult = RLY_INC_NO_CHANGE;
+/* -------------------------------------------------------------------------- */
 
+bool check_relay_buttons(relays_t *relays, int8_t *capResult,
+                         int8_t *indResult) {
+    bool buttons = false;
+
+    *capResult = RLY_NO_CHANGE;
     if (btn_is_down(CUP) && btn_is_down(CDN)) {
-        // can't go up and down at the same time; do nothing
+        buttons = true;
+        *capResult = RLY_NO_CHANGE;
     } else if (btn_is_down(CUP)) {
+        buttons = true;
         if (relays->caps < MAX_CAPACITORS) {
-            relays->caps++;
-            *capResult = RLY_INCREMENT_SUCCESS;
+            *capResult = RLY_INCREMENT;
         } else {
             *capResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(CDN)) {
+        buttons = true;
         if (relays->caps > MIN_CAPACITORS) {
-            relays->caps--;
-            *capResult = RLY_INCREMENT_SUCCESS;
+            *capResult = RLY_DECREMENT;
         } else {
             *capResult = RLY_LIMIT_REACHED;
         }
     }
-}
 
-void process_LUP_or_LDN(relays_t *relays, int8_t *indResult) {
-    *indResult = RLY_INC_NO_CHANGE;
-
+    *indResult = RLY_NO_CHANGE;
     if (btn_is_down(LUP) && btn_is_down(LDN)) {
-        // can't go up and down at the same time; do nothing
+        buttons = true;
+        *indResult = RLY_NO_CHANGE;
     } else if (btn_is_down(LUP)) {
+        buttons = true;
         if (relays->inds < MAX_INDUCTORS) {
-            relays->inds++;
-            *indResult = RLY_INCREMENT_SUCCESS;
+            *indResult = RLY_INCREMENT;
         } else {
             *indResult = RLY_LIMIT_REACHED;
         }
     } else if (btn_is_down(LDN)) {
+        buttons = true;
         if (relays->inds > MIN_INDUCTORS) {
-            relays->inds--;
-            *indResult = RLY_INCREMENT_SUCCESS;
+            *indResult = RLY_DECREMENT;
         } else {
             *indResult = RLY_LIMIT_REACHED;
         }
     }
+
+    return buttons;
 }
+
+void process_results(relays_t *relays, int8_t *capResult, int8_t *indResult) {
+    if (*capResult == RLY_INCREMENT) {
+        if (relays->caps < MAX_CAPACITORS) {
+            relays->caps++;
+        }
+    } else if (*capResult == RLY_DECREMENT) {
+        if (relays->caps > MIN_CAPACITORS) {
+            relays->caps--;
+        }
+    }
+
+    if (*indResult == RLY_INCREMENT) {
+        if (relays->inds < MAX_INDUCTORS) {
+            relays->inds++;
+        }
+    } else if (*indResult == RLY_DECREMENT) {
+        if (relays->inds > MIN_INDUCTORS) {
+            relays->inds--;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 
 #define TIMEOUT_INTERVAL 500
 static int8_t timeout_handler(void) {
@@ -519,54 +549,33 @@ uint8_t calculate_retrigger_delay(uint8_t triggerCount) {
     }
 }
 
-/*  relay_button_hold() is an absolute clusterfuck
-
-    This function can be greatly simplified by using the TuneOS event scheduler.
-    Unfortunately, the event scheduler needs more work, and it's not worth it to
-    finish it since nothing else in the tuner needs it.
-
-    The reason this is a clusterfuck is because we need multiple, coexisting,
-    non-blocking animations that also respond to new user input. This... thing
-    relies VERY heavily on the system timer and a bunch of crappy static
-    variables to manage animation state through time.
-
-*/
 void relay_button_hold(void) {
     LOG_TRACE({ println("relay_button_hold"); });
     system_time_t lastTriggerTime = get_current_time();
     uint8_t triggerCount = 0;
-    uint8_t retriggerDelay = 0; // trigger immediately the first time
-    relays_t relays;
+    uint8_t retriggerDelay = 0;
 
     int8_t capResult = 0;
     int8_t indResult = 0;
 
-    /*  I know the ui loop idiom is not supposed to be while(1), but this is a
-        wierd situation. We actually do not want to leave this loop immediately
-        when the relay buttons are released. Instead, we need to stay here for
-        an extra half second, so that the currently selected relays can linger
-        on the display.
-    */
     while (timeout_handler()) {
-        // only trigger/retrigger if it's been long enough
-        if (time_since(lastTriggerTime) >= retriggerDelay) {
-            lastTriggerTime = get_current_time();
+        relays_t relays = read_current_relays();
 
-            relays = read_current_relays();
-            // increment or decrement as appropriate
-            process_CUP_or_CDN(&relays, &capResult);
-            process_LUP_or_LDN(&relays, &indResult);
-            if ((capResult == RLY_INCREMENT_SUCCESS) ||
-                (indResult == RLY_INCREMENT_SUCCESS)) {
-                put_relays(&relays);
-                // TODO: relay error handling???
-            }
+        //
+        if (check_relay_buttons(&relays, &capResult, &indResult)) {
+            if (time_since(lastTriggerTime) >= retriggerDelay) {
+                lastTriggerTime = get_current_time();
 
-            //
-            if (triggerCount < UINT8_MAX) {
-                triggerCount++;
+                process_results(&relays, &capResult, &indResult);
+                put_relays(relays); // TODO: relay error handling???
+
+                if (triggerCount < UINT8_MAX) {
+                    triggerCount++;
+                }
+                retriggerDelay = calculate_retrigger_delay(triggerCount);
             }
-            retriggerDelay = calculate_retrigger_delay(triggerCount);
+        } else {
+            retriggerDelay = 0;
         }
 
         // animations need to be serviced more often than retriggerDelay allows
