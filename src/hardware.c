@@ -60,7 +60,7 @@ void startup(void) {
 
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
 
-    reset_vector_handler();
+    check_hardware_reset_flags();
 
     // Attempt to load previously saved flags
     load_flags();
