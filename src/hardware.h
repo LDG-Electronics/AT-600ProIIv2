@@ -2,11 +2,6 @@
 #define _HARDWARE_H_
 
 /* ************************************************************************** */
-
-// Define which PIC we're using, for device_header.h
-#define PIC18F47K42
-
-/* ************************************************************************** */
 //! There's no way to prove that this list is up-to-date.
 //! Search the entire project for "timer" or "timer.h" before claiming a timer.
 
