@@ -12,7 +12,7 @@
 /* ************************************************************************** */
 
 void set_bypass_off(void) {
-    if (put_relays(&preBypassRelays[systemFlags.antenna]) == -1) {
+    if (put_relays(preBypassRelays[systemFlags.antenna]) == -1) {
         // TODO: what do we do on relayerror?
     }
 }
@@ -21,7 +21,7 @@ void set_bypass_on(void) {
     // save current relays into preBypassRelays
     preBypassRelays[systemFlags.antenna] = read_current_relays();
 
-    if (put_relays(&bypassRelays) == -1) {
+    if (put_relays(bypassRelays) == -1) {
         // TODO: what do we do on relayerror?
     }
 }
@@ -59,7 +59,7 @@ void set_hiloz(uint8_t value) {
 
     relays.z = value;
 
-    if (put_relays(&relays) == -1) {
+    if (put_relays(relays) == -1) {
         // TODO: what do we do on relayerror?
     }
 }
@@ -74,7 +74,7 @@ void set_antenna(uint8_t value) {
     systemFlags.antenna = value;
     relays_t relays = read_current_relays();
 
-    if (put_relays(&relays) == -1) {
+    if (put_relays(relays) == -1) {
         // TODO: what do we do on relayerror?
     }
 }
@@ -89,7 +89,7 @@ void manual_store(void) {
     relays_t relays = read_current_relays();
     NVM_address_t address = convert_memory_address(currentRF.frequency);
     if (address) {
-        memory_store(address, &relays);
+        memory_store(address, relays);
     }
 
     // success animation?
@@ -105,13 +105,13 @@ void set_power_status(uint8_t value) {
     systemFlags.powerStatus = value;
 
     if (systemFlags.powerStatus == 1) {
-        put_relays(&currentRelays[systemFlags.antenna]);
+        put_relays(currentRelays[systemFlags.antenna]);
     } else {
         // put_relays() always publishes its argument to currentRelays
         // We actually don't want that behavior here, so save currentRelays and
         // restore it after it gets overwritten.
         relays_t temp = read_current_relays();
-        if (put_relays(&bypassRelays) == -1) {
+        if (put_relays(bypassRelays) == -1) {
             // TODO: what do we do on relayerror?
         }
         currentRelays[systemFlags.antenna] = temp;

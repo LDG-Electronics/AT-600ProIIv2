@@ -34,24 +34,24 @@ void relays_init(void) {
 
 /* -------------------------------------------------------------------------- */
 
-packed_relays_t pack_relays(relays_t *relays) {
+packed_relays_t pack_relays(relays_t relays) {
     packed_relays_t relayBits;
 
-    relayBits.caps = relays->caps;
-    relayBits.inds = relays->inds;
-    relayBits.z = relays->z;
-    relayBits.ant = relays->ant;
+    relayBits.caps = relays.caps;
+    relayBits.inds = relays.inds;
+    relayBits.z = relays.z;
+    relayBits.ant = relays.ant;
 
     return relayBits;
 }
 
-relays_t unpack_relays(packed_relays_t *relayBits) {
+relays_t unpack_relays(packed_relays_t relayBits) {
     relays_t relays;
 
-    relays.caps = relayBits->caps;
-    relays.inds = relayBits->inds;
-    relays.z = relayBits->z;
-    relays.ant = relayBits->ant;
+    relays.caps = relayBits.caps;
+    relays.inds = relayBits.inds;
+    relays.z = relayBits.z;
+    relays.ant = relayBits.ant;
 
     return relays;
 }
@@ -75,9 +75,9 @@ int8_t check_if_safe(void) {
     return 0;
 }
 
-void update_bypass_status(relays_t *relays) {
+void update_bypass_status(relays_t relays) {
     bypassStatus[systemFlags.antenna] = 0;
-    if ((relays->caps == 0) && (relays->inds == 0)) {
+    if ((relays.caps == 0) && (relays.inds == 0)) {
         bypassStatus[systemFlags.antenna] = 1;
     }
 
@@ -88,17 +88,17 @@ void update_bypass_status(relays_t *relays) {
     struct to the physical relays.
 
 */
-int8_t put_relays(relays_t *relays) {
+int8_t put_relays(relays_t relays) {
     LOG_TRACE({ println("put_relays"); });
 
     // overwrite the antenna setting just in case it got clobbered by something
-    relays->ant = systemFlags.antenna;
+    relays.ant = systemFlags.antenna;
 
     LOG_INFO({
         print("new relays: ");
         print_relays(relays);
         print(", old relays: ");
-        print_relays(&currentRelays[systemFlags.antenna]);
+        print_relays(currentRelays[systemFlags.antenna]);
         println("");
     });
 
@@ -114,10 +114,10 @@ int8_t put_relays(relays_t *relays) {
 
     // pass off the new relays to the relay driver
     packed_relays_t relayBits = pack_relays(relays);
-    publish_relays(&relayBits);
+    publish_relays(relayBits);
 
     // Update the global bulletin board
-    currentRelays[systemFlags.antenna] = *relays;
+    currentRelays[systemFlags.antenna] = relays;
 
     return 0;
 }
@@ -128,7 +128,7 @@ int8_t put_relays(relays_t *relays) {
 
     Format: "(<caps>, <inds>, <z>, <ant>)"
 */
-void print_relays(relays_t *relays) {
-    printf("(C%d, L%d, Z%d, A%d)", relays->caps, relays->inds, relays->z,
-           relays->ant);
+void print_relays(relays_t relays) {
+    printf("(C%d, L%d, Z%d, A%d)", relays.caps, relays.inds, relays.z,
+           relays.ant);
 }

@@ -184,10 +184,10 @@ void unpack_record_to_system(flag_record_t *record) {
     systemFlags = record->fields.flags;
 
     // these fields need to be unpacked
-    currentRelays[0] = unpack_relays(&record->fields.relayBits[0]);
-    currentRelays[1] = unpack_relays(&record->fields.relayBits[1]);
-    preBypassRelays[0] = unpack_relays(&record->fields.relayBits[2]);
-    preBypassRelays[1] = unpack_relays(&record->fields.relayBits[3]);
+    currentRelays[0] = unpack_relays(record->fields.relayBits[0]);
+    currentRelays[1] = unpack_relays(record->fields.relayBits[1]);
+    preBypassRelays[0] = unpack_relays(record->fields.relayBits[2]);
+    preBypassRelays[1] = unpack_relays(record->fields.relayBits[3]);
 
     unpack_bypass_status();
 }
@@ -233,10 +233,10 @@ flag_record_t pack_system_to_record(void) {
     record.fields.flags = systemFlags;
 
     // these fields need to be packed
-    record.fields.relayBits[0] = pack_relays(&currentRelays[0]);
-    record.fields.relayBits[1] = pack_relays(&currentRelays[1]);
-    record.fields.relayBits[2] = pack_relays(&preBypassRelays[0]);
-    record.fields.relayBits[3] = pack_relays(&preBypassRelays[1]);
+    record.fields.relayBits[0] = pack_relays(currentRelays[0]);
+    record.fields.relayBits[1] = pack_relays(currentRelays[1]);
+    record.fields.relayBits[2] = pack_relays(preBypassRelays[0]);
+    record.fields.relayBits[3] = pack_relays(preBypassRelays[1]);
 
     return record;
 }

@@ -67,7 +67,7 @@ match_t new_match(void) {
     output: "(C<A>, L<B>, Z<C>, A<D>) Q: <E>, SWR: <F>, FWD: <G>, #: <H>"
 */
 void print_match(match_t *match) {
-    print_relays(&match->relays);
+    print_relays(match->relays);
     printf(" Q: %f, SWR: %f, FWD: %f, #: %u", match->matchQuality, match->swr,
            match->forward, match->attemptNumber);
 }
@@ -128,7 +128,7 @@ match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
     comparisonCount++;
 
     // publish our relays
-    if (put_relays(relays) == -1) {
+    if (put_relays(*relays) == -1) {
         errors->relayError = 1;
         return bestMatch;
     }
@@ -551,7 +551,7 @@ tuning_errors_t full_tune(void) {
     }
 
     // re-publish the final results
-    if (put_relays(&bestMatch.relays) == -1) {
+    if (put_relays(bestMatch.relays) == -1) {
         errors.relayError = 1;
         return errors;
     }
@@ -572,7 +572,7 @@ tuning_errors_t full_tune(void) {
         NVM_address_t address = convert_memory_address(currentRF.frequency);
         if (address) {
             LOG_DEBUG({ printf("saving memory @ %u\r\n", address); });
-            memory_store(address, &bestMatch.relays);
+            memory_store(address, bestMatch.relays);
         }
     }
     return errors;
@@ -681,7 +681,7 @@ tuning_errors_t memory_tune(void) {
         printf("Recalled %u memories", memoriesFound);
         for (uint8_t i = 0; i < memoriesFound; i++) {
             printf("# %u: ", i);
-            print_relays(&memoryBuffer[i]);
+            print_relays(memoryBuffer[i]);
             println("");
         }
     });
@@ -696,7 +696,7 @@ tuning_errors_t memory_tune(void) {
     }
 
     // re-publish the final results
-    if (put_relays(&bestMatch.relays) == -1) {
+    if (put_relays(bestMatch.relays) == -1) {
         errors.relayError = 1;
         return errors;
     }
@@ -716,7 +716,7 @@ tuning_errors_t memory_tune(void) {
     if (currentRF.swr < 1.7) {
         LOG_INFO({
             printf("found memory: %f ", currentRF.swr);
-            print_relays(&currentRelays[systemFlags.antenna]);
+            print_relays(currentRelays[systemFlags.antenna]);
             println("");
         });
         // returning with no errors means success

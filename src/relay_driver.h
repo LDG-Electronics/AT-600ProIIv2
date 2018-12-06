@@ -59,11 +59,11 @@ extern void relay_driver_init(void);
     a blocking delay that prevents the rest of the system from doing things
     during that debounce time.
 */
-extern void publish_relays(packed_relays_t *relayBits);
+extern void publish_relays(packed_relays_t relayBits);
 
 /* ************************************************************************** */
 
 // Prints the contents of a packed_relays_t as "(<caps>, <inds>, <z>, <ant>)"
-extern void print_relay_bits(packed_relays_t *relayBits);
+extern void print_relay_bits(packed_relays_t relayBits);
 
 #endif // _RELAY_DRIVER_H_

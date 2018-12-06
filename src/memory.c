@@ -228,11 +228,11 @@ relays_t memory_recall(NVM_address_t address) {
 
     LOG_INFO({
         printf("address: %lu ", address);
-        print_relay_bits(&relayBits);
+        print_relay_bits(relayBits);
         println("");
     });
 
-    return unpack_relays(&relayBits);
+    return unpack_relays(relayBits);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -247,7 +247,7 @@ bool must_erase(uint16_t newBits, uint16_t savedBits) {
     return false;
 }
 
-void memory_store(NVM_address_t address, relays_t *relays) {
+void memory_store(NVM_address_t address, relays_t relays) {
     LOG_TRACE({ println("memory_store"); });
 
     // return early if we're given a bad address
@@ -270,7 +270,7 @@ void memory_store(NVM_address_t address, relays_t *relays) {
 
     // Pull out what's already at the specified address
     relays_t savedRelays = memory_recall(address);
-    packed_relays_t savedRelayBits = pack_relays(&savedRelays);
+    packed_relays_t savedRelayBits = pack_relays(savedRelays);
 
     // Make sure we aren't wasting an erase/write cycle
     if (savedRelayBits.bits == relayBits.bits) {

@@ -45,15 +45,15 @@ extern relays_t preBypassRelays[NUM_OF_ANTENNA_PORTS];
 // setup
 extern void relays_init(void);
 
-extern packed_relays_t pack_relays(relays_t *relays);
-extern relays_t unpack_relays(packed_relays_t *relayBits);
+extern packed_relays_t pack_relays(relays_t relays);
+extern relays_t unpack_relays(packed_relays_t relayBits);
 
 // publish new relays
-extern int8_t put_relays(relays_t *relays);
+extern int8_t put_relays(relays_t relays);
 
 /* ************************************************************************** */
 
 // Prints the contents of a relays_t as "(<caps>, <inds>, <z>, <ant>)"
-extern void print_relays(relays_t *relays);
+extern void print_relays(relays_t relays);
 
 #endif // _RELAYS_H_

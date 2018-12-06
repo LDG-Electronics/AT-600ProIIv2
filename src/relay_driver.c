@@ -40,8 +40,8 @@ static void relay_spi_bitbang_tx_word(uint16_t word) {
     delay_us(10);
 }
 
-void publish_relays(packed_relays_t *relayBits) {
-    relay_spi_bitbang_tx_word(relayBits->bits);
+void publish_relays(packed_relays_t relayBits) {
+    relay_spi_bitbang_tx_word(relayBits.bits);
 
     // wait for the relay to stop bouncing
     delay_ms(RELAY_COIL_DELAY);
@@ -53,7 +53,7 @@ void publish_relays(packed_relays_t *relayBits) {
 
     Format: "(<caps>, <inds>, <z>, <ant>)"
 */
-void print_relay_bits(packed_relays_t *relayBits) {
-    printf("(C%u, L%u, Z%u, A%u)", relayBits->caps, relayBits->inds,
-           relayBits->z, relayBits->ant);
+void print_relay_bits(packed_relays_t relayBits) {
+    printf("(C%u, L%u, Z%u, A%u)", relayBits.caps, relayBits.inds, relayBits.z,
+           relayBits.ant);
 }

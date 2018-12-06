@@ -16,6 +16,6 @@ extern NVM_address_t convert_memory_address(uint16_t frequency);
 extern relays_t memory_recall(NVM_address_t address);
 
 // Store the current relay settings at the provided address
-extern void memory_store(NVM_address_t address, relays_t *relays);
+extern void memory_store(NVM_address_t address, relays_t relays);
 
 #endif
