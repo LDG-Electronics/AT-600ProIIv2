@@ -199,80 +199,91 @@ void ui_idle_block(void) {
 /* ************************************************************************** */
 #define SUBMENU_DURATION 2200
 
-void threshold_submenu(void) {
-    LOG_TRACE({ println("threshold_submenu"); });
-    blink_thresh(3); // blink for emphasis
-    show_thresh();   // leave it on the screen
-
-    system_time_t startTime = get_current_time(); // stash the current time
-
-    while (1) {
-        if (btn_is_down(LDN)) {
-            startTime = get_current_time(); // reset the start time
-            SWR_threshold_increment();
-
-            blink_thresh(2); // blink for emphasis
-            show_thresh();   // leave it on the screen
-        }
-
-        // Pressing FUNC again cancels and exits
-        if (btn_is_down(FUNC)) {
-            break;
-        }
-
-        // Cancel and exit if it's been longer than SUBMENU_DURATION
-        if (time_since(startTime) >= SUBMENU_DURATION) {
-            break;
-        }
-
-        // Immediately exit if RF is detected
-        if (RF_is_present()) {
-            return;
-        }
-
-        ui_idle_block();
-    }
-
-    blink_thresh(4);
-}
-
 void scale_submenu(void) {
     LOG_TRACE({ println("scale_submenu"); });
     blink_scale(3); // blink for emphasis
     show_scale();   // leave it on the screen
 
     system_time_t startTime = get_current_time(); // stash the current time
-
     while (1) {
         if (btn_is_down(LUP)) {
             startTime = get_current_time(); // reset the start time
-
             toggle_scale();
-
             blink_scale(2); // blink for emphasis
             show_scale();   // leave it on the screen
         }
 
-        // Pressing FUNC again cancels and exits
         if (btn_is_down(FUNC)) {
-            break;
+            break; // Pressing FUNC again cancels and exits
         }
-
-        // Cancel and exit if it's been longer than SUBMENU_DURATION
         if (time_since(startTime) >= SUBMENU_DURATION) {
-            break;
+            break; // Cancel and exit if it's been longer than SUBMENU_DURATION
         }
-
-        // Immediately exit if RF is detected
         if (RF_is_present()) {
-            return;
+            return; // Immediately exit if RF is detected
         }
-
         ui_idle_block();
     }
-
     blink_scale(4);
 }
+
+void auto_submenu(void) {
+    LOG_TRACE({ println("auto_submenu"); });
+    blink_auto(3); // blink for emphasis
+    show_auto();   // leave it on the screen
+
+    system_time_t startTime = get_current_time(); // stash the current time
+    while (1) {
+        if (btn_is_down(CDN)) {
+            startTime = get_current_time(); // reset the start time
+            toggle_auto();
+            blink_auto(2); // blink for emphasis
+            show_auto();   // leave it on the screen
+        }
+
+        if (btn_is_down(FUNC)) {
+            break; // Pressing FUNC again cancels and exits
+        }
+        if (time_since(startTime) >= SUBMENU_DURATION) {
+            break; // Cancel and exit if it's been longer than SUBMENU_DURATION
+        }
+        if (RF_is_present()) {
+            return; // Immediately exit if RF is detected
+        }
+        ui_idle_block();
+    }
+    blink_auto(4);
+}
+
+void threshold_submenu(void) {
+    LOG_TRACE({ println("threshold_submenu"); });
+    blink_thresh(3); // blink for emphasis
+    show_thresh();   // leave it on the screen
+
+    system_time_t startTime = get_current_time(); // stash the current time
+    while (1) {
+        if (btn_is_down(LDN)) {
+            startTime = get_current_time(); // reset the start time
+            SWR_threshold_increment();
+            blink_thresh(2); // blink for emphasis
+            show_thresh();   // leave it on the screen
+        }
+
+        if (btn_is_down(FUNC)) {
+            break; // Pressing FUNC again cancels and exits
+        }
+        if (time_since(startTime) >= SUBMENU_DURATION) {
+            break; // Cancel and exit if it's been longer than SUBMENU_DURATION
+        }
+        if (RF_is_present()) {
+            return; // Immediately exit if RF is detected
+        }
+        ui_idle_block();
+    }
+    blink_thresh(4);
+}
+
+/* -------------------------------------------------------------------------- */
 
 void function_submenu(void) {
     LOG_TRACE({ println("function_submenu"); });
@@ -300,8 +311,7 @@ void function_submenu(void) {
         }
         if (btn_is_down(CDN)) {
             LOG_TRACE({ println("CDN"); });
-            toggle_auto();
-            blink_auto(4);
+            auto_submenu();
             return;
         }
         if (btn_is_down(LDN)) {
@@ -591,7 +601,12 @@ void relay_button_hold(void) {
             // retrigger immediately if button is released
             retriggerDelay = 0;
 
-            // reset the retrigger acceleration
+            // reset retrigger if it hasn't begun accelerating
+            if (triggerCount < 8) {
+                triggerCount = 0;
+            }
+
+            // reset retrigger acceleration if we're idle for too long
             if (time_since(retriggerResetTime) >= RETRIGGER_RESET_PERIOD) {
                 retriggerResetTime = get_current_time();
 
