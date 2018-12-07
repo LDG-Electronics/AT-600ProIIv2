@@ -103,11 +103,11 @@ match_t select_best_match(match_t matchA, match_t matchB) {
 
 /* ************************************************************************** */
 
-match_t create_match_from_current_conditions(relays_t *relays) {
+match_t create_match_from_current_conditions(relays_t relays) {
     match_t match = new_match();
 
     match.attemptNumber = comparisonCount;
-    match.relays = *relays;
+    match.relays = relays;
     match.forward = currentRF.forward;
     match.reverse = currentRF.reverse;
     match.matchQuality = currentRF.matchQuality;
@@ -123,12 +123,12 @@ match_t create_match_from_current_conditions(relays_t *relays) {
 
     Returns the better of the two matches.
 */
-match_t compare_matches(tuning_errors_t *errors, relays_t *relays,
+match_t compare_matches(tuning_errors_t *errors, relays_t relays,
                         match_t bestMatch) {
     comparisonCount++;
 
     // publish our relays
-    if (put_relays(*relays) == -1) {
+    if (put_relays(relays) == -1) {
         errors->relayError = 1;
         return bestMatch;
     }
@@ -190,7 +190,7 @@ const uint8_t zSteps[] = {0,  1,  2,  4,  6,  9,  12,  16,  21,  27, 34,
     s   |___________
             C axis
 */
-match_t LC_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch) {
+match_t LC_zip(tuning_errors_t *errors, relays_t relays, match_t bestMatch) {
     // --------------------------------------------------
     // return early if there's already an error
     if (errors->any) {
@@ -204,8 +204,8 @@ match_t LC_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch) {
 
     uint8_t tryIndex = 0;
     while ((zSteps[tryIndex] < maxCap) && (zSteps[tryIndex] < maxInd)) {
-        relays->caps = zSteps[tryIndex];
-        relays->inds = zSteps[tryIndex];
+        relays.caps = zSteps[tryIndex];
+        relays.inds = zSteps[tryIndex];
 
         match = compare_matches(errors, relays, match);
         if (errors->any) {
@@ -227,7 +227,7 @@ match_t LC_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch) {
     s   |___________
             C axis
 */
-match_t L_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch,
+match_t L_zip(tuning_errors_t *errors, relays_t relays, match_t bestMatch,
               uint8_t caps) {
     // --------------------------------------------------
     // return early if there's already an error
@@ -240,9 +240,9 @@ match_t L_zip(tuning_errors_t *errors, relays_t *relays, match_t bestMatch,
     uint8_t maxInd = calculate_max_inductor();
     match_t match = bestMatch;
 
-    relays->caps = caps;
+    relays.caps = caps;
     while (zSteps[tryIndex] < maxInd) {
-        relays->inds = zSteps[tryIndex];
+        relays.inds = zSteps[tryIndex];
 
         match = compare_matches(errors, relays, match);
         if (errors->any) {
@@ -271,11 +271,11 @@ match_t test_z(tuning_errors_t *errors, match_t bestMatch, uint8_t z) {
     match_t match = bestMatch;
 
     // draw a diagonal line
-    match = LC_zip(errors, &relays, match);
+    match = LC_zip(errors, relays, match);
 
     // draw some vertical lines
-    match = L_zip(errors, &relays, match, 3);
-    match = L_zip(errors, &relays, match, 7);
+    match = L_zip(errors, relays, match, 3);
+    match = L_zip(errors, relays, match, 7);
 
     LOG_INFO({
         print_comparison_count();
@@ -353,7 +353,7 @@ match_t coarse_tune(tuning_errors_t *errors, match_t bestMatch,
         while (coarseSteps[capacitorIndex] < maxCap) {
             relays.caps = coarseSteps[capacitorIndex++];
 
-            match = compare_matches(errors, &relays, match);
+            match = compare_matches(errors, relays, match);
             if (errors->any) {
                 return match;
             }
@@ -419,7 +419,7 @@ match_t inductor_sweep(tuning_errors_t *errors, match_t bestMatch,
     while (relays.inds < maxInd) {
         relays.inds++;
 
-        match = compare_matches(errors, &relays, match);
+        match = compare_matches(errors, relays, match);
         if (errors->any) {
             return match;
         }
@@ -473,7 +473,7 @@ match_t capacitor_sweep(tuning_errors_t *errors, match_t bestMatch,
     while (relays.caps < maxCap) {
         relays.caps++;
 
-        match = compare_matches(errors, &relays, match);
+        match = compare_matches(errors, relays, match);
         if (errors->any) {
             return match;
         }
@@ -512,7 +512,7 @@ tuning_errors_t full_tune(void) {
 
     // prepare match objects
     match_t bestMatch = new_match();
-    match_t bypassMatch = compare_matches(&errors, &bypassRelays, new_match());
+    match_t bypassMatch = compare_matches(&errors, bypassRelays, new_match());
     LOG_DEBUG({
         print("bypassMatch: ");
         print_match(&bypassMatch);
@@ -689,7 +689,7 @@ tuning_errors_t memory_tune(void) {
     // Let's test all the memories we recalled
     match_t bestMatch = new_match();
     for (uint8_t i = 0; i < memoriesFound; i++) {
-        bestMatch = compare_matches(&errors, &memoryBuffer[i], bestMatch);
+        bestMatch = compare_matches(&errors, memoryBuffer[i], bestMatch);
         if (errors.any) {
             return errors;
         }
