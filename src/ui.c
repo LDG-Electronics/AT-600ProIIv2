@@ -455,7 +455,7 @@ static display_frame_t relay_animation_handler(int8_t capResult,
 /* -------------------------------------------------------------------------- */
 
 // checks CUP/CDN/LUP/LDN, returns true if any is down, false if not
-// also updates calResult/indResult with the state of CUP/CDN or LUP/LDN
+// also updates capResult/indResult with the state of CUP/CDN or LUP/LDN
 bool check_relay_buttons(relays_t relays, int8_t *capResult,
                          int8_t *indResult) {
     bool buttons = false;
@@ -502,22 +502,22 @@ bool check_relay_buttons(relays_t relays, int8_t *capResult,
 }
 
 // actually do the increment/decrement, if required
-void process_results(relays_t *relays, int8_t *capResult, int8_t *indResult) {
-    if (*capResult == RLY_INCREMENT) {
+void process_results(relays_t *relays, int8_t capResult, int8_t indResult) {
+    if (capResult == RLY_INCREMENT) {
         if (relays->caps < MAX_CAPACITORS) {
             relays->caps++;
         }
-    } else if (*capResult == RLY_DECREMENT) {
+    } else if (capResult == RLY_DECREMENT) {
         if (relays->caps > MIN_CAPACITORS) {
             relays->caps--;
         }
     }
 
-    if (*indResult == RLY_INCREMENT) {
+    if (indResult == RLY_INCREMENT) {
         if (relays->inds < MAX_INDUCTORS) {
             relays->inds++;
         }
-    } else if (*indResult == RLY_DECREMENT) {
+    } else if (indResult == RLY_DECREMENT) {
         if (relays->inds > MIN_INDUCTORS) {
             relays->inds--;
         }
@@ -567,7 +567,6 @@ void relay_button_hold(void) {
 
     // used to track button timing
     system_time_t lastTriggerTime = get_current_time();
-    system_time_t retriggerResetTime = get_current_time();
     uint8_t triggerCount = 0;
     uint8_t retriggerDelay = 0;
 
@@ -584,10 +583,9 @@ void relay_button_hold(void) {
             // make sure we don't update the relays too ofter
             if (time_since(lastTriggerTime) >= retriggerDelay) {
                 lastTriggerTime = get_current_time();
-                retriggerResetTime = get_current_time();
 
                 // increment or decrement relays as necessary
-                process_results(&relays, &capResult, &indResult);
+                process_results(&relays, capResult, indResult);
 
                 // push our relays out to the hardware
                 put_relays(relays); // TODO: relay error handling???
@@ -607,9 +605,7 @@ void relay_button_hold(void) {
             }
 
             // reset retrigger acceleration if we're idle for too long
-            if (time_since(retriggerResetTime) >= RETRIGGER_RESET_PERIOD) {
-                retriggerResetTime = get_current_time();
-
+            if (time_since(lastTriggerTime) >= RETRIGGER_RESET_PERIOD) {
                 triggerCount = 0;
             }
         }
