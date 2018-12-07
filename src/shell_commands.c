@@ -34,7 +34,7 @@ void shell_show_bargraphs(int argc, char **argv) {
 
         println("");
         println("Rendered frame:");
-        print_frame(&frame);
+        print_frame(frame);
 
         displayBuffer.next = frame;
         display_update();

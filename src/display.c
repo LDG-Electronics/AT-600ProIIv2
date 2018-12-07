@@ -347,10 +347,10 @@ display_frame_t render_RF(float forwardWatts, float swrValue) {
 
 /* ************************************************************************** */
 
-void print_frame(display_frame_t *frame) {
+void print_frame(display_frame_t frame) {
     print("|");
     for (uint8_t i = 0; i < 8; i++) {
-        if (frame->upper & (1 << i)) {
+        if (frame.upper & (1 << i)) {
             print("*");
         } else {
             print("-");
@@ -358,7 +358,7 @@ void print_frame(display_frame_t *frame) {
     }
     print("|\r\n|");
     for (uint8_t i = 0; i < 8; i++) {
-        if (frame->lower & (1 << i)) {
+        if (frame.lower & (1 << i)) {
             print("*");
         } else {
             print("-");
