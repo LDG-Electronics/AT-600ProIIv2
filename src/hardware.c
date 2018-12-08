@@ -5,7 +5,6 @@
 #include "os/buttons.h"
 #include "os/log.h"
 #include "os/shell/shell.h"
-#include "os/stopwatch.h"
 #include "os/system_time.h"
 #include "peripherals/pic_header.h"
 #include "peripherals/interrupt.h"

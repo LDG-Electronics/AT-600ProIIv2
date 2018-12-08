@@ -5,7 +5,6 @@
 #include "os/buttons.h"
 #include "os/log_macros.h"
 #include "os/shell/shell.h"
-#include "os/stopwatch.h"
 #include "os/system_time.h"
 #include "relays.h"
 #include "rf_sensor.h"
