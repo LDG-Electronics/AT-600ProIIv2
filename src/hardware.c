@@ -17,7 +17,6 @@
 #include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
-#include "shell_commands.h"
 #include "tuning.h"
 
 /* ************************************************************************** */

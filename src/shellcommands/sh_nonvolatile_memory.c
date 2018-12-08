@@ -1,57 +1,12 @@
-#include "shell_commands.h"
-#include "calibration.h"
-#include "display.h"
-#include "events.h"
-#include "os/serial_port.h"
-#include "os/shell/shell.h"
-#include "os/shell/shell_command_processor.h"
-#include "os/shell/shell_json.h"
-#include "peripherals/adc.h"
-#include "peripherals/nonvolatile_memory.h"
-#include "rf_sensor.h"
+#include "sh_nonvolatile_memory.h"
+#include "../os/serial_port.h"
+#include "../peripherals/nonvolatile_memory.h"
 #include <ctype.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* ************************************************************************** */
 
-// from display.c
-
-void shell_show_bargraphs(int argc, char **argv) {
-    if (argc == 3) {
-        print("first arg: ");
-        print(argv[1]);
-        float forwardWatts = atof(argv[1]);
-        printf(", forwardWatts: %f\r\n", forwardWatts);
-
-        print("second arg: ");
-        print(argv[2]);
-        float swrValue = atof(argv[2]);
-        printf(", swrValue: %f\r\n", swrValue);
-
-        display_frame_t frame = render_RF(forwardWatts, swrValue);
-
-        println("");
-        println("Rendered frame:");
-        print_frame(frame);
-
-        displayBuffer.next = frame;
-        display_update();
-    }
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void calibration_packet(int argc, char **argv) { print_RF_data(); }
-
-/* -------------------------------------------------------------------------- */
-
-void tune(int argc, char **argv) { request_full_tune(); }
-void mem(int argc, char **argv) { request_memory_tune(); }
-
-/* -------------------------------------------------------------------------- */
 // Diagnostic shell commands for nonvolatile_memory driver
 
 void shell_eeprom(int argc, char **argv) {
@@ -166,10 +121,8 @@ void shell_flash(int argc, char **argv) {
                 return;
             }
 
-            // Read existing block into buffer
-            uint8_t buffer[FLASH_BUFFER_SIZE];
-            flash_read_block(address, buffer);
-            print_flash_buffer(address, buffer);
+            print_flash_block(address);
+
             return;
         }
         break;
