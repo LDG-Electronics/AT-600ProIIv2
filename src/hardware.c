@@ -44,13 +44,13 @@ void startup(void) {
     shell_init((PPS_PORT_D & PPS_PIN_3), &RD2PPS);
     log_init();
     system_time_init();
+    stopwatch_init();
 
     // Driver setup
     relays_init();
     buttons_init();
     display_init();
     RF_sensor_init();
-    stopwatch_init();
     tuning_init();
     memory_init();
     flags_init();
@@ -62,7 +62,7 @@ void startup(void) {
     // Attempt to load previously saved flags
     load_flags();
 
-    // if the unit is off, make sure that we're quiet
+    // only do things if the power is on
     if (systemFlags.powerStatus == 1) {
         // Push out the initial relay settings
         put_relays(currentRelays[systemFlags.antenna]);
