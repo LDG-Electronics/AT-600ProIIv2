@@ -8,7 +8,6 @@
 #include "os/system_time.h"
 #include "peripherals/pic_header.h"
 #include "peripherals/interrupt.h"
-#include "peripherals/nonvolatile_memory.h"
 #include "peripherals/oscillator.h"
 #include "peripherals/ports.h"
 #include "peripherals/pps.h"
