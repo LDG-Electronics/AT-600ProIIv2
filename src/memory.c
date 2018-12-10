@@ -116,9 +116,10 @@ const frequency_group_t group_edges[NUMBER_OF_GROUPS] = {
 };
 
 void print_all_frequency_groups(void) {
-    println("-----------------------------------------------");
+    println("-----------------------------------------------------");
     uint16_t totalSlots = 0;
     println("## | (start, end)   | width     | slots | width/slot");
+    println("---|----------------|-----------|-------|------------");
     for (uint8_t group = 0; group < NUMBER_OF_GROUPS; group++) {
         totalSlots += group_edges[group].slots;
         frequency_group_t tempGroup = group_edges[group];
@@ -133,9 +134,9 @@ void print_all_frequency_groups(void) {
         println("");
     }
 
-    println("-----------------------------------------------");
+    println("-----------------------------------------------------");
     printf("totalSlots: %u\r\n", totalSlots);
-    println("-----------------------------------------------");
+    println("-----------------------------------------------------");
 }
 
 /* ************************************************************************** */
