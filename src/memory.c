@@ -90,27 +90,27 @@ void print_frequency_group(const frequency_group_t *group) {
 #define NUMBER_OF_GROUPS 21
 const frequency_group_t group_edges[NUMBER_OF_GROUPS] = {
     // {Top frequency, Bottom Freq, number of slots}
-    {FREQ_MIN, _160M_BOT - 1, 200},     // (0 - 1.8 MHz) 1.8 MHz
-    {_160M_BOT, _160M_TOP, 100},        // (1.8 - 2.0 MHz) 0.2 MHz
-    {_160M_TOP + 1, _80M_BOT - 1, 200}, // (2.0 - 3.5 MHz) 1.5 MHz
-    {_80M_BOT, _80M_TOP, 200},          // (3.5 - 4.0 MHz) 0.5 MHz
-    {_80M_TOP + 1, _40M_BOT - 1, 200},  // (4.0 - 7.0 MHz) 3.0 MHz
-    {_40M_BOT, _40M_TOP, 100},          // (7.0 - 7.3 MHz) 0.3 MHz
-    {_40M_TOP + 1, _30M_BOT - 1, 200},  // (7.3 - 10.1 MHz) 2.8 MHz
-    {_30M_BOT, _30M_TOP, 100},          // (10.1 - 10.15 MHz) 0.05 MHz
-    {_30M_TOP + 1, _20M_BOT - 1, 200},  // (10.15 - 14.0 MHz) 3.85 MHz
-    {_20M_BOT, _20M_TOP, 100},          // (14.0 - 14.35 MHz) 0.35 MHz
-    {_20M_TOP + 1, _17M_BOT - 1, 200},  // (14.35 - 18.068 MHz) 3.718 MHz
-    {_17M_BOT, _17M_TOP, 100},          // (18.068 - 18.168 MHz) 0.1 MHz
-    {_17M_TOP + 1, _15M_BOT - 1, 200},  // (18.168 - 21.0 MHz) 2.832 MHz
-    {_15M_BOT, _15M_TOP, 200},          // (21.0 - 21.45 MHz) 0.45 MHz
-    {_15M_TOP + 1, _12M_BOT - 1, 200},  // (21.45 - 24.89 MHz) 3.44 MHz
-    {_12M_BOT, _12M_TOP, 100},          // (24.89 - 24.99 MHz) 0.1 MHz
-    {_12M_TOP + 1, _10M_BOT - 1, 200},  // (24.99 - 28 MHz) 3.01 MHz
-    {_10M_BOT, _10M_TOP, 200},          // (28 - 29.7 MHz) 1.7 MHz
-    {_10M_TOP + 1, _6M_BOT - 1, 200},   // (29.7 - 50 MHz) 20.3 MHz
-    {_6M_BOT, _6M_TOP, 200},            // (50 - 54 MHz) 4 MHz
-    {_6M_TOP + 1, FREQ_MAX, 100},       // (54 - 55 MHz) 1 MHz
+    {FREQ_MIN, _160M_BOT, 200},  // (0 - 1.8 MHz) 1.8 MHz
+    {_160M_BOT, _160M_TOP, 100}, // (1.8 - 2.0 MHz) 0.2 MHz
+    {_160M_TOP, _80M_BOT, 200},  // (2.0 - 3.5 MHz) 1.5 MHz
+    {_80M_BOT, _80M_TOP, 200},   // (3.5 - 4.0 MHz) 0.5 MHz
+    {_80M_TOP, _40M_BOT, 200},   // (4.0 - 7.0 MHz) 3.0 MHz
+    {_40M_BOT, _40M_TOP, 100},   // (7.0 - 7.3 MHz) 0.3 MHz
+    {_40M_TOP, _30M_BOT, 200},   // (7.3 - 10.1 MHz) 2.8 MHz
+    {_30M_BOT, _30M_TOP, 100},   // (10.1 - 10.15 MHz) 0.05 MHz
+    {_30M_TOP, _20M_BOT, 200},   // (10.15 - 14.0 MHz) 3.85 MHz
+    {_20M_BOT, _20M_TOP, 100},   // (14.0 - 14.35 MHz) 0.35 MHz
+    {_20M_TOP, _17M_BOT, 200},   // (14.35 - 18.068 MHz) 3.718 MHz
+    {_17M_BOT, _17M_TOP, 100},   // (18.068 - 18.168 MHz) 0.1 MHz
+    {_17M_TOP, _15M_BOT, 200},   // (18.168 - 21.0 MHz) 2.832 MHz
+    {_15M_BOT, _15M_TOP, 200},   // (21.0 - 21.45 MHz) 0.45 MHz
+    {_15M_TOP, _12M_BOT, 200},   // (21.45 - 24.89 MHz) 3.44 MHz
+    {_12M_BOT, _12M_TOP, 100},   // (24.89 - 24.99 MHz) 0.1 MHz
+    {_12M_TOP, _10M_BOT, 200},   // (24.99 - 28 MHz) 3.01 MHz
+    {_10M_BOT, _10M_TOP, 200},   // (28 - 29.7 MHz) 1.7 MHz
+    {_10M_TOP, _6M_BOT, 200},    // (29.7 - 50 MHz) 20.3 MHz
+    {_6M_BOT, _6M_TOP, 200},     // (50 - 54 MHz) 4 MHz
+    {_6M_TOP, FREQ_MAX, 100},    // (54 - 55 MHz) 1 MHz
 };
 
 void print_all_frequency_groups(void) {
