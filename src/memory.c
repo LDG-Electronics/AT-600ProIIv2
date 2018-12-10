@@ -36,32 +36,37 @@ void memory_init(void) {
     ** 60 Meters only contains 5 channels and isn't worth dedicating a group to.
 */
 
+/*  OVERLAP_MARGIN is used to enlarge the band boundarys, just to leave some
+    wiggle room.
+*/
+#define OVERLAP_MARGIN 200
+
 /*  //! Watch out!
     These frequency numbers are in KHz instead of Hz or MHz!
 
     If you're used to thinking in MHz(eg one-point-eight megahertz), don't
     forget to mentally divide by 1000.
 */
-#define _160M_BOT 1800
-#define _160M_TOP 2000
-#define _80M_BOT 3500
-#define _80M_TOP 4000
-#define _40M_BOT 7000
-#define _40M_TOP 7300
-#define _30M_BOT 10010
-#define _30M_TOP 10150
-#define _20M_BOT 14000
-#define _20M_TOP 14350
-#define _17M_BOT 18068
-#define _17M_TOP 18168
-#define _15M_BOT 21000
-#define _15M_TOP 21450
-#define _12M_BOT 24890
-#define _12M_TOP 24990
-#define _10M_BOT 28000
-#define _10M_TOP 29700
-#define _6M_BOT 50000
-#define _6M_TOP 54000
+#define _160M_BOT 1800 - OVERLAP_MARGIN
+#define _160M_TOP 2000 + OVERLAP_MARGIN
+#define _80M_BOT 3500 - OVERLAP_MARGIN
+#define _80M_TOP 4000 + OVERLAP_MARGIN
+#define _40M_BOT 7000 - OVERLAP_MARGIN
+#define _40M_TOP 7300 + OVERLAP_MARGIN
+#define _30M_BOT 10010 - OVERLAP_MARGIN
+#define _30M_TOP 10150 + OVERLAP_MARGIN
+#define _20M_BOT 14000 - OVERLAP_MARGIN
+#define _20M_TOP 14350 + OVERLAP_MARGIN
+#define _17M_BOT 18068 - OVERLAP_MARGIN
+#define _17M_TOP 18168 + OVERLAP_MARGIN
+#define _15M_BOT 21000 - OVERLAP_MARGIN
+#define _15M_TOP 21450 + OVERLAP_MARGIN
+#define _12M_BOT 24890 - OVERLAP_MARGIN
+#define _12M_TOP 24990 + OVERLAP_MARGIN
+#define _10M_BOT 28000 - OVERLAP_MARGIN
+#define _10M_TOP 29700 + OVERLAP_MARGIN
+#define _6M_BOT 50000 - OVERLAP_MARGIN
+#define _6M_TOP 54000 + OVERLAP_MARGIN
 
 #define FREQ_MIN 1
 #define FREQ_MAX 55000
