@@ -84,10 +84,7 @@ typedef struct {
 
 // output: "(1800, 2000), 100 slots"
 void print_frequency_group(const frequency_group_t *group) {
-    float start = group->start;
-    float end = group->end;
-
-    printf("(%f, %f), %u slots", start, end, group->slots);
+    printf("(%05u, %05u), %u slots", group->start, group->end, group->slots);
 }
 
 /* -------------------------------------------------------------------------- */
