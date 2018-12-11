@@ -116,26 +116,28 @@ const frequency_group_t group_edges[NUMBER_OF_GROUPS] = {
 };
 
 void print_all_frequency_groups(void) {
-    println("-----------------------------------------------------");
     uint16_t totalSlots = 0;
-    println("## | (start, end)   | width     | slots | width/slot");
-    println("---|----------------|-----------|-------|------------");
+
+    println("---------------------------------------------------------------");
+    println("## | (start freq -> end freq) | width     | slots | width/slot");
+    println("---|--------------------------|-----------|-------|------------");
+    
     for (uint8_t group = 0; group < NUMBER_OF_GROUPS; group++) {
         totalSlots += group_edges[group].slots;
         frequency_group_t tempGroup = group_edges[group];
         uint16_t groupWidth = tempGroup.end - tempGroup.start;
 
         printf("%02u", group);
-        printf(" | (%05u, %05u)", tempGroup.start, tempGroup.end);
+        printf(" | (%05u KHz -> %05u KHz)", tempGroup.start, tempGroup.end);
         printf(" | %05u KHz", groupWidth);
         printf(" |  %u ", tempGroup.slots);
         printf(" | %2u KHz/slot", (groupWidth / tempGroup.slots));
         println("");
     }
 
-    println("-----------------------------------------------------");
+    println("---------------------------------------------------------------");
     printf("totalSlots: %u\r\n", totalSlots);
-    println("-----------------------------------------------------");
+    println("---------------------------------------------------------------");
 }
 
 /* ************************************************************************** */
