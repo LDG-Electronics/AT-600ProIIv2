@@ -8,6 +8,10 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
+// forward declarations for self-testing
+void print_all_frequency_groups(void);
+void address_conversion_test(uint16_t start, uint16_t end, uint16_t step);
+
 void memory_init(void) {
     nonvolatile_memory_init();
     log_register();
