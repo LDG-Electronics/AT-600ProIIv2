@@ -1,13 +1,12 @@
 #include "sh_flash.h"
 #include "../os/serial_port.h"
-#include "../peripherals/nonvolatile_memory.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* ************************************************************************** */
 
-static NVM_address_t decode_address(char *string) {
+NVM_address_t decode_address(char *string) {
     uint8_t length = strlen(string);
 
     bool decimal = true;
@@ -26,7 +25,7 @@ static NVM_address_t decode_address(char *string) {
     return 0xffffff;
 }
 
-static int16_t decode_data(char *string) {
+ int16_t decode_data(char *string) {
     uint8_t length = strlen(string);
 
     bool decimal = true;
@@ -51,6 +50,8 @@ static int16_t decode_data(char *string) {
     }
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
 
 void shell_flash(int argc, char **argv) {
     switch (argc) {

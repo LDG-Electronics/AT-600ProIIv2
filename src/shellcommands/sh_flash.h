@@ -1,9 +1,13 @@
 #ifndef _SH_FLASH_H_
 #define _SH_FLASH_H_
 
+#include "../peripherals/nonvolatile_memory.h"
 #include <stdint.h>
 
 /* ************************************************************************** */
+
+extern NVM_address_t decode_address(char *string);
+extern int16_t decode_data(char *string);
 
 extern void shell_flash(int argc, char **argv);
 
