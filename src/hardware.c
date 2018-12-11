@@ -33,23 +33,24 @@
     init functions for peripherals should be called during the init for whatever
     driver or system uses that peripheral
 
+    todo: write down the init ordering rules that live in daelon's head
 */
 void startup(void) {
     // System setup
     internal_oscillator_init();
     port_init();
-    pins_init();
     interrupt_init();
 
     // OS setup
     shell_init((PPS_PORT_D & PPS_PIN_3), &RD2PPS);
+    buttons_init();
     log_init();
     system_time_init();
     stopwatch_init();
 
     // Driver setup
+    pins_init();
     relays_init();
-    buttons_init();
     display_init();
     RF_sensor_init();
     tuning_init();
