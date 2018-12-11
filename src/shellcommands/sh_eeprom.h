@@ -12,4 +12,4 @@ extern void shell_eeprom(int argc, char **argv);
 
 /* ************************************************************************** */
 
-#endif
+#endif // _SH_EEPROM_H_

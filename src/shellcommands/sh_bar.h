@@ -1,5 +1,5 @@
-#ifndef _SH_DISPLAY_H_
-#define _SH_DISPLAY_H_
+#ifndef _SH_BAR_H_
+#define _SH_BAR_H_
 
 #include <stdint.h>
 
@@ -12,4 +12,4 @@ extern void shell_show_bargraphs(int argc, char **argv);
 
 /* ************************************************************************** */
 
-#endif // _SH_DISPLAY_H_
+#endif // _SH_BAR_H_

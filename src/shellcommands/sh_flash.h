@@ -12,4 +12,4 @@ extern void shell_flash(int argc, char **argv);
 
 /* ************************************************************************** */
 
-#endif
+#endif // _SH_FLASH_H_

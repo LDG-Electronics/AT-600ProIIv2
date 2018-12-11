@@ -12,4 +12,4 @@ extern void shell_relays(int argc, char **argv);
 
 /* ************************************************************************** */
 
-#endif
+#endif // _SH_RELAYS_H_

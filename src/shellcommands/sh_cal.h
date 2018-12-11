@@ -12,4 +12,4 @@ extern void calibration_packet(int argc, char **argv);
 
 /* ************************************************************************** */
 
-#endif
+#endif // _SH_CAL_H_

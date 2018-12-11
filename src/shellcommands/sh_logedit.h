@@ -14,4 +14,4 @@ int8_t logedit_callback(char currentChar);
 
 /* ************************************************************************** */
 
-#endif
+#endif // _SH_LOGEDIT_H_
