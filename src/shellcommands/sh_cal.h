@@ -1,5 +1,5 @@
-#ifndef _SH_RF_SENSOR_H_
-#define _SH_RF_SENSOR_H_
+#ifndef _SH_CAL_H_
+#define _SH_CAL_H_
 
 #include <stdint.h>
 
