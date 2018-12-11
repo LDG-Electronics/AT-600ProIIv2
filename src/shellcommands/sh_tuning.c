@@ -1,11 +1,13 @@
-#include "../os/serial_port.h"
-// #include "../tuning.h" <-- this project doesn't tune yet
+#include "../events.h"
 
 /* ************************************************************************** */
 
 void tune(int argc, char **argv) {
-    // request_full_tune();
+    //
+    request_full_tune();
 }
+
 void mem(int argc, char **argv) {
-    // request_memory_tune();
+    //
+    request_memory_tune();
 }
