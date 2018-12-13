@@ -25,7 +25,7 @@ NVM_address_t decode_address(char *string) {
     return 0xffffff;
 }
 
- int16_t decode_data(char *string) {
+int16_t decode_data(char *string) {
     uint8_t length = strlen(string);
 
     bool decimal = true;
@@ -49,6 +49,40 @@ NVM_address_t decode_address(char *string) {
         return xtoi(string);
     }
     return -1;
+}
+
+void write_single_byte(NVM_address_t address, uint8_t newData) {
+    // return if the address already contains the data we want
+    uint8_t existingData = flash_read_byte(address);
+    if (existingData == newData) {
+        return;
+    }
+
+    // compare the two datas bit-by-bit, checking for 0->1 transitions
+    bool mustErase = false;
+    for (uint8_t i = 0; i < 8; i++) {
+        if (!(existingData & (1 << i)) && (newData & (1 << i))) {
+            mustErase = true;
+        }
+    }
+
+    // Read existing block into buffer
+    uint8_t buffer[FLASH_BUFFER_SIZE];
+    flash_read_block(address, buffer);
+
+    // write newData into the buffer
+    buffer[address & FLASH_ELEMENT_MASK] = newData;
+
+    // only erase if we need to
+    if (mustErase) {
+        flash_block_erase(address);
+    }
+
+    // Write the modified buffer back into flash
+    flash_block_write(address, buffer);
+
+    // Verify that the write worked
+    flash_read_block(address, buffer);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -100,44 +134,13 @@ void shell_flash(int argc, char **argv) {
             }
 
             // parse data
-            int16_t test = decode_data(argv[3]);
-            if (test < 0 || test > 255) {
+            int16_t data = decode_data(argv[3]);
+            if (data < 0 || data > 255) {
                 println("invalid data");
                 return;
             }
-            uint8_t newData = (uint8_t)test;
-
-            // return if the address already contains the data we want
-            uint8_t existingData = flash_read_byte(address);
-            if (existingData == newData) {
-                return;
-            }
-
-            // compare the two datas bit-by-bit, checking for 0->1 transitions
-            bool mustErase = false;
-            for (uint8_t i = 0; i < 8; i++) {
-                if (!(existingData & (1 << i)) && (newData & (1 << i))) {
-                    mustErase = true;
-                }
-            }
-
-            // Read existing block into buffer
-            uint8_t buffer[FLASH_BUFFER_SIZE];
-            flash_read_block(address, buffer);
-
-            // write newData into the buffer
-            buffer[address & FLASH_ELEMENT_MASK] = newData;
-
-            // only erase if we need to
-            if (mustErase) {
-                flash_block_erase(address);
-            }
-
-            // Write the modified buffer back into flash
-            flash_block_write(address, buffer);
-
-            // Verify that the write worked
-            flash_read_block(address, buffer);
+            
+            write_single_byte(address, data);
 
             return;
         }
