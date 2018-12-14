@@ -208,6 +208,7 @@ void logedit(int argc, char **argv) {
     old_to_new();
     set_global_to_silent();
 
+    term_hide_cursor();
     draw_logedit();
 
     shell_register_callback(logedit_callback);
