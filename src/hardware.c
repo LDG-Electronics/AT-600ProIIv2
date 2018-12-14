@@ -33,7 +33,7 @@
     init functions for peripherals should be called during the init for whatever
     driver or system uses that peripheral
 
-    todo: write down the init ordering rules that live in daelon's head
+    TODO: write down the init ordering rules that live in daelon's head
 */
 void startup(void) {
     // System setup
@@ -67,13 +67,17 @@ void startup(void) {
     // only do things if the power is on
     if (systemFlags.powerStatus == 1) {
         // Push out the initial relay settings
-        put_relays(currentRelays[systemFlags.antenna]);
+        if (put_relays(currentRelays[systemFlags.antenna]) == -1) {
+            // TODO: what do we do on relayerror?
+        }
 
         // initialize the display
         update_status_LEDs();
         play_animation(&right_crawl[0]);
     } else {
-        put_relays(bypassRelays);
+        if (put_relays(bypassRelays) == -1) {
+            // TODO: what do we do on relayerror?
+        }
     }
 }
 

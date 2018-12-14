@@ -55,7 +55,9 @@ void enter_bypass(void) {
     relays_t relays = read_current_relays();
 
     relays.all = 0;
-    put_relays(relays);
+    if (put_relays(relays) == -1) {
+        // TODO: what do we do on relayerror?
+    }
 }
 
 void set_relays_to_max(void) {
@@ -63,7 +65,9 @@ void set_relays_to_max(void) {
 
     relays.caps = 255;
     relays.inds = 255;
-    put_relays(relays);
+    if (put_relays(relays) == -1) {
+        // TODO: what do we do on relayerror?
+    }
 }
 
 void shell_relays(int argc, char **argv) {
@@ -104,7 +108,9 @@ void shell_relays(int argc, char **argv) {
             } else {
                 break;
             }
-            put_relays(relays);
+            if (put_relays(relays) == -1) {
+                // TODO: what do we do on relayerror?
+            }
             print_relays(read_current_relays());
             println("");
             return;
@@ -112,7 +118,9 @@ void shell_relays(int argc, char **argv) {
             relays.caps = atoi(argv[2]);
             relays.inds = atoi(argv[3]);
             relays.z = atoi(argv[4]);
-            put_relays(relays);
+            if (put_relays(relays) == -1) {
+                // TODO: what do we do on relayerror?
+            }
         } else {
             break;
         }
@@ -120,7 +128,7 @@ void shell_relays(int argc, char **argv) {
     default:
         break;
     }
-    
+
     println("invalid arguments");
     return;
 }

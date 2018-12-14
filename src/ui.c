@@ -587,7 +587,9 @@ void relay_button_hold(void) {
                 process_results(&relays, capResult, indResult);
 
                 // push our relays out to the hardware
-                put_relays(relays); // TODO: relay error handling???
+                if (put_relays(relays) == -1) {
+                    // TODO: what do we do on relayerror?
+                }
 
                 if (triggerCount < UINT8_MAX) {
                     triggerCount++;

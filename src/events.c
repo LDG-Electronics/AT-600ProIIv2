@@ -105,7 +105,9 @@ void set_power_status(uint8_t value) {
     systemFlags.powerStatus = value;
 
     if (systemFlags.powerStatus == 1) {
-        put_relays(currentRelays[systemFlags.antenna]);
+        if (put_relays(currentRelays[systemFlags.antenna]) == -1) {
+            // TODO: what do we do on relayerror?
+        }
     } else {
         // put_relays() always publishes its argument to currentRelays
         // We actually don't want that behavior here, so save currentRelays and
