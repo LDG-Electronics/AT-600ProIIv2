@@ -1,5 +1,6 @@
 #include "../os/serial_port.h"
 #include "../os/shell/shell.h"
+#include "../os/shell/shell_command_processor.h"
 #include "../os/shell/shell_cursor.h"
 #include "../os/shell/shell_keys.h"
 #include "../os/shell/shell_utils.h"
@@ -11,11 +12,19 @@
 
 /* ************************************************************************** */
 
-NVM_address_t currentAddress;
+typedef struct {
+    NVM_address_t address;
+    shell_line_t line;
+} romedit_t;
 
+romedit_t romedit;
+
+NVM_address_t currentAddress;
 shell_line_t lineBuffer;
 
 /* -------------------------------------------------------------------------- */
+
+#define move_cursor_to_prompt() term_cursor_set(8, 3)
 
 void draw_romedit_prompt(void) {
     term_cursor_set(0, 0);
@@ -25,37 +34,54 @@ void draw_romedit_prompt(void) {
     reset_text_attributes();
 }
 
+void erase_below_prompt(void) {
+    term_cursor_home();
+    for (size_t i = 0; i < 5; i++) {
+        term_cursor_down(1);
+        term_clear_to_right();
+    }
+    move_cursor_to_prompt();
+}
+
 /* -------------------------------------------------------------------------- */
 
-int8_t romedit_process_command(char *string) {
-    int argc = 0;
-    char *argv[CONFIG_SHELL_MAX_COMMAND_ARGS];
+// redraw the upper half of the screen
+void refresh_grid(void) {
+    term_cursor_set(0, 0);
+    print_flash_block(currentAddress);
+}
 
-    // tokenize the shell buffer
-    // argv_list will end up containing a pointer to each token
-    char *token = strtok(string, " ");
-    while (token != NULL && argc < CONFIG_SHELL_MAX_COMMAND_ARGS) {
-        argv[argc++] = token;
-        token = strtok(NULL, " ");
+// redraw the lower halfd
+void refresh_shell(void) {
+    draw_romedit_prompt();
+    draw_line(&lineBuffer);
+}
+
+/* -------------------------------------------------------------------------- */
+
+int8_t romedit_process_command(shell_line_t *line) {
+    // parse or line into args
+    shell_args_t args = parse_shell_line(line);
+
+    // help command
+    if (!strcmp(args.argv[0], "help")) {
+        println("");
+        println("usage: \t write <data>");
+        println("\t goto <address>");
+        println("\t exit");
+        return 0;
     }
 
-    switch (argc) {
-    case 1:
-        if (!strcmp(argv[0], "help")) {
-            println("");
-            println("usage: \t write <data>");
-            println("\t goto <address>");
-            println("\t exit");
-            return 0;
-        }
-        if (!strcmp(argv[0], "exit")) {
-            return -1;
-        }
-        break;
-    case 2:
-        if (!strcmp(argv[0], "write")) {
+    // exit command
+    if (!strcmp(args.argv[0], "exit")) {
+        return -1;
+    }
+
+    // write command
+    if (!strcmp(args.argv[0], "write")) {
+        if (args.argc == 2) {
             // parse data
-            int16_t data = decode_data(argv[1]);
+            int16_t data = decode_data(args.argv[1]);
             if (data < 0 || data > 255) {
                 println("invalid data");
                 return 0;
@@ -63,11 +89,18 @@ int8_t romedit_process_command(char *string) {
 
             write_single_byte(currentAddress, data);
             return 0;
+        } else {
+            println("");
+            println("invalid arguments");
+            return 0;
         }
+    }
 
-        if (!strcmp(argv[0], "goto")) {
+    // goto command
+    if (!strcmp(args.argv[0], "goto")) {
+        if (args.argc == 2) {
             // parse address
-            NVM_address_t address = decode_address(argv[1]);
+            NVM_address_t address = decode_address(args.argv[1]);
             if (address == 0xffffff || address < 192 || address > FLASH_SIZE) {
                 println("invalid address");
                 return 0;
@@ -82,14 +115,19 @@ int8_t romedit_process_command(char *string) {
             move_cursor_to(&lineBuffer, lineBuffer.cursor);
 
             return 0;
+        } else {
+            println("");
+            println("invalid arguments");
+            return 0;
         }
-        break;
     }
 
     println("");
     printf("%s: command not found\r\n", lineBuffer.buffer);
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
 
 int8_t romedit_keys(key_t key) {
     switch (key.key) {
@@ -148,45 +186,25 @@ int8_t romedit_keys(key_t key) {
         break;
     case ENTER:
         if (lineBuffer.length > 0) {
-            // add terminating null to shell buffer
-            lineBuffer.buffer[lineBuffer.length] = '\0';
+            shell_add_terminator_to_line(lineBuffer);
 
-            term_cursor_home();
-            term_cursor_down(1);
-            term_clear_to_right();
-            term_cursor_down(1);
-            term_clear_to_right();
-            term_cursor_down(1);
-            term_clear_to_right();
-            term_cursor_set(8, 3);
+            // remove any output from previous commands
+            erase_below_prompt();
 
-            // attempt to process the shell buffer
-            if (romedit_process_command(&lineBuffer.buffer[0]) == -1) {
+            if (romedit_process_command(&lineBuffer) == -1) {
                 return -1;
             }
 
-            // wipe the current shell line
-            memset(&lineBuffer, 0, sizeof(shell_line_t));
-
-            // move the cursor to right after the prompt
-            term_cursor_set(8, 3);
-
-            // ...for us to delete the line from the terminal
-            term_clear_to_right();
-
-            // move the cursor to right after the prompt
-            term_cursor_set(8, 3);
+            shell_reset_line(lineBuffer);
+            refresh_shell();
         }
         return 0;
     case ESCAPE:
         return -1;
     }
 
-    term_cursor_set(0, 0);
-    print_flash_block(currentAddress);
-    println("");
-    draw_romedit_prompt();
-    move_cursor_to(&lineBuffer, lineBuffer.cursor);
+    refresh_grid();
+    refresh_shell();
 
     return 0;
 }
@@ -224,13 +242,12 @@ void romedit(int argc, char **argv) {
         return;
     }
 
-    memset(&lineBuffer, 0, sizeof(shell_line_t));
+    shell_reset_line(lineBuffer);
 
     term_reset_screen();
-    term_cursor_set(0, 0);
-    print_flash_block(currentAddress);
-    println("");
-    draw_romedit_prompt();
+
+    refresh_grid();
+    refresh_shell();
 
     shell_register_callback(romedit_callback);
 }
