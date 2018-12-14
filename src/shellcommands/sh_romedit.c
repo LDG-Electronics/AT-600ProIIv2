@@ -15,12 +15,9 @@
 typedef struct {
     NVM_address_t address;
     shell_line_t line;
-} romedit_t;
+} romedit_state_t;
 
-romedit_t re;
-
-NVM_address_t currentAddress;
-shell_line_t lineBuffer;
+romedit_state_t state;
 
 /* -------------------------------------------------------------------------- */
 
@@ -48,13 +45,13 @@ void erase_below_prompt(void) {
 // redraw the upper half of the screen
 void refresh_grid(void) {
     term_cursor_set(0, 0);
-    print_flash_block(currentAddress);
+    print_flash_block(state.address);
 }
 
 // redraw the lower halfd
 void refresh_shell(void) {
     draw_romedit_prompt();
-    draw_line(&lineBuffer);
+    draw_line(&state.line);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -87,7 +84,7 @@ int8_t romedit_process_command(shell_line_t *line) {
                 return 0;
             }
 
-            write_single_byte(currentAddress, data);
+            write_single_byte(state.address, data);
             return 0;
         } else {
             println("");
@@ -106,13 +103,13 @@ int8_t romedit_process_command(shell_line_t *line) {
                 return 0;
             }
 
-            currentAddress = address;
+            state.address = address;
 
             term_cursor_set(0, 0);
-            print_flash_block(currentAddress);
+            print_flash_block(state.address);
             println("");
             draw_romedit_prompt();
-            move_cursor_to(&lineBuffer, lineBuffer.cursor);
+            move_cursor_to(&state.line, state.line.cursor);
 
             return 0;
         } else {
@@ -123,7 +120,7 @@ int8_t romedit_process_command(shell_line_t *line) {
     }
 
     println("");
-    printf("%s: command not found\r\n", lineBuffer.buffer);
+    printf("%s: command not found\r\n", state.line.buffer);
     return 0;
 }
 
@@ -134,49 +131,49 @@ int8_t romedit_keys(key_t key) {
     default:
         return 0;
     case BACKSPACE:
-        if (lineBuffer.cursor != 0) {
-            move_cursor_left(&lineBuffer);
-            remove_char_at_cursor(&lineBuffer);
+        if (state.line.cursor != 0) {
+            move_cursor_left(&state.line);
+            remove_char_at_cursor(&state.line);
         }
         return 0;
     case UP:
-        if ((currentAddress - 16) >= 192) {
-            currentAddress -= 16;
+        if ((state.address - 16) >= 192) {
+            state.address -= 16;
         } else {
             return 0;
         }
         break;
     case DOWN:
-        if ((currentAddress + 16) <= (FLASH_SIZE - 1)) {
-            currentAddress += 16;
+        if ((state.address + 16) <= (FLASH_SIZE - 1)) {
+            state.address += 16;
         } else {
             return 0;
         }
         break;
     case LEFT:
-        if ((currentAddress - 1) >= 192) {
-            currentAddress -= 1;
+        if ((state.address - 1) >= 192) {
+            state.address -= 1;
         } else {
             return 0;
         }
         break;
     case RIGHT:
-        if ((currentAddress + 1) <= (FLASH_SIZE - 1)) {
-            currentAddress += 1;
+        if ((state.address + 1) <= (FLASH_SIZE - 1)) {
+            state.address += 1;
         } else {
             return 0;
         }
         break;
     case PAGEUP:
-        if ((currentAddress - 128) >= 192) {
-            currentAddress -= 128;
+        if ((state.address - 128) >= 192) {
+            state.address -= 128;
         } else {
             return 0;
         }
         break;
     case PAGEDOWN:
-        if ((currentAddress + 128) <= (FLASH_SIZE - 1)) {
-            currentAddress += 128;
+        if ((state.address + 128) <= (FLASH_SIZE - 1)) {
+            state.address += 128;
         } else {
             return 0;
         }
@@ -185,17 +182,17 @@ int8_t romedit_keys(key_t key) {
         term_reset_screen();
         break;
     case ENTER:
-        if (lineBuffer.length > 0) {
-            shell_add_terminator_to_line(lineBuffer);
+        if (state.line.length > 0) {
+            shell_add_terminator_to_line(state.line);
 
             // remove any output from previous commands
             erase_below_prompt();
 
-            if (romedit_process_command(&lineBuffer) == -1) {
+            if (romedit_process_command(&state.line) == -1) {
                 return -1;
             }
 
-            shell_reset_line(lineBuffer);
+            shell_reset_line(state.line);
             refresh_shell();
         }
         return 0;
@@ -209,8 +206,7 @@ int8_t romedit_keys(key_t key) {
     return 0;
 }
 
-/* **************************************************************************
- */
+/* ************************************************************************** */
 
 int8_t romedit_callback(char currentChar) {
     if (iscntrl(currentChar)) {
@@ -219,7 +215,7 @@ int8_t romedit_callback(char currentChar) {
     }
 
     if (isprint(currentChar)) {
-        insert_char_at_cursor(&lineBuffer, currentChar);
+        insert_char_at_cursor(&state.line, currentChar);
         return 0;
     }
     return 0;
@@ -229,11 +225,11 @@ int8_t romedit_callback(char currentChar) {
 void romedit(int argc, char **argv) {
     switch (argc) {
     case 1:
-        currentAddress = 192;
+        state.address = 192;
         break;
     case 2:
-        currentAddress = decode_address(argv[1]);
-        if (currentAddress == 0xffffff) {
+        state.address = decode_address(argv[1]);
+        if (state.address == 0xffffff) {
             println("invalid address");
             return;
         }
@@ -242,7 +238,7 @@ void romedit(int argc, char **argv) {
         return;
     }
 
-    shell_reset_line(lineBuffer);
+    shell_reset_line(state.line);
 
     term_reset_screen();
 
