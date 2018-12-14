@@ -17,7 +17,7 @@ typedef struct {
     shell_line_t line;
 } romedit_t;
 
-romedit_t romedit;
+romedit_t re;
 
 NVM_address_t currentAddress;
 shell_line_t lineBuffer;
