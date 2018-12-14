@@ -7,6 +7,7 @@
 #include "../peripherals/nonvolatile_memory.h"
 #include "sh_flash.h"
 #include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,12 +22,11 @@ romedit_state_t state;
 
 /* -------------------------------------------------------------------------- */
 
-#define move_cursor_to_prompt() term_cursor_set(8, 3)
+#define move_cursor_to_prompt() term_cursor_set(3, 15)
 
 void draw_romedit_prompt(void) {
-    term_cursor_set(0, 0);
-    term_cursor_down(7);
-    print("\033[31m");
+    term_cursor_set(0, 15);
+    print("\033[1;31;40m");
     print("> ");
     reset_text_attributes();
 }
@@ -44,6 +44,7 @@ void erase_below_prompt(void) {
 
 // redraw the upper half of the screen
 void refresh_grid(void) {
+    term_hide_cursor();
     term_cursor_set(0, 0);
     print_flash_block(state.address);
 }
@@ -52,12 +53,12 @@ void refresh_grid(void) {
 void refresh_shell(void) {
     draw_romedit_prompt();
     draw_line(&state.line);
+    term_show_cursor();
 }
 
 /* -------------------------------------------------------------------------- */
 
 int8_t romedit_process_command(shell_line_t *line) {
-    // parse or line into args
     shell_args_t args = parse_shell_line(line);
 
     // help command
@@ -105,11 +106,8 @@ int8_t romedit_process_command(shell_line_t *line) {
 
             state.address = address;
 
-            term_cursor_set(0, 0);
-            print_flash_block(state.address);
-            println("");
-            draw_romedit_prompt();
-            move_cursor_to(&state.line, state.line.cursor);
+            refresh_grid();
+            refresh_shell();
 
             return 0;
         } else {
@@ -229,7 +227,7 @@ int8_t romedit_callback(char currentChar) {
 void romedit(int argc, char **argv) {
     switch (argc) {
     case 1:
-        state.address = 192;
+        state.address = 256;
         break;
     case 2:
         state.address = decode_address(argv[1]);
