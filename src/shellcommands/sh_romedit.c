@@ -126,6 +126,22 @@ int8_t romedit_process_command(shell_line_t *line) {
 
 /* -------------------------------------------------------------------------- */
 
+bool increment_address(uint16_t distance) {
+    if ((state.address + distance) <= (FLASH_SIZE - 1)) {
+        state.address += distance;
+        return true;
+    }
+    return false;
+}
+
+bool decrement_address(uint16_t distance) {
+    if ((state.address - distance) >= 256) {
+        state.address -= distance;
+        return true;
+    }
+    return false;
+}
+
 int8_t romedit_keys(key_t key) {
     switch (key.key) {
     default:
@@ -137,47 +153,35 @@ int8_t romedit_keys(key_t key) {
         }
         return 0;
     case UP:
-        if ((state.address - 16) >= 192) {
-            state.address -= 16;
-        } else {
-            return 0;
+        if (decrement_address(16)) {
+            break;
         }
-        break;
+        return 0;
     case DOWN:
-        if ((state.address + 16) <= (FLASH_SIZE - 1)) {
-            state.address += 16;
-        } else {
-            return 0;
+        if (increment_address(16)) {
+            break;
         }
-        break;
+        return 0;
     case LEFT:
-        if ((state.address - 1) >= 192) {
-            state.address -= 1;
-        } else {
-            return 0;
+        if (decrement_address(1)) {
+            break;
         }
-        break;
+        return 0;
     case RIGHT:
-        if ((state.address + 1) <= (FLASH_SIZE - 1)) {
-            state.address += 1;
-        } else {
-            return 0;
+        if (increment_address(1)) {
+            break;
         }
-        break;
+        return 0;
     case PAGEUP:
-        if ((state.address - 128) >= 192) {
-            state.address -= 128;
-        } else {
-            return 0;
+        if (decrement_address(128)) {
+            break;
         }
-        break;
+        return 0;
     case PAGEDOWN:
-        if ((state.address + 128) <= (FLASH_SIZE - 1)) {
-            state.address += 128;
-        } else {
-            return 0;
+        if (increment_address(128)) {
+            break;
         }
-        break;
+        return 0;
     case F5:
         term_reset_screen();
         break;
