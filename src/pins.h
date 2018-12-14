@@ -7,8 +7,13 @@
 #define LATCH(port, pin) LAT##port##bits.LAT##port##pin
 
 /* ************************************************************************** */
-// Button stuff
-// todo comment about active low
+/*  Buttons
+
+    Buttons are wired with pullups to 5v, and are active-low. This helps prevent
+    random extra button presses caused by the noisy, highRF environment.
+
+    Consequently, inputs need to be inverted.
+*/
 #define POWER_BUTTON_PIN !PORT(A, 3)
 #define CDN_BUTTON_PIN !PORT(A, 4)
 #define LUP_BUTTON_PIN !PORT(A, 5)
