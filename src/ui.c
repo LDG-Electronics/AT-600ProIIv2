@@ -61,6 +61,9 @@ uint16_t calculate_decay_period(uint8_t decayCount) {
     }
 }
 
+#define OVERSCALE_BLINK_INTERVAL 200
+const float overscale[2] = {600, 60};
+
 void update_bargraphs(void) {
     // scale mode handler
     float forwardWatts;
@@ -94,6 +97,22 @@ void update_bargraphs(void) {
 
     if (RF_is_present()) {
         decayCount = 0;
+    }
+
+    // overscale blink handler
+    if (currentRF.forwardWatts > overscale[systemFlags.scaleMode]) {
+        static system_time_t previousBlinkTime = 0;
+        static uint8_t blinkFrame = 0x05;
+        // count time between blinks, and count number of blinks
+        if (time_since(previousBlinkTime) >= OVERSCALE_BLINK_INTERVAL) {
+            previousBlinkTime = get_current_time();
+
+            // overwrite upper bar with overscale blink frame
+            newFrame.upper |= prevFrame.upper;
+
+            // invert the frame in preparation for the next iteration
+            blinkFrame = ~blinkFrame;
+        }
     }
 
     static bool needToClearDisplay = false;
@@ -624,7 +643,7 @@ void relay_button_hold(void) {
 
         // disable autotuning every time we call ui_idle_block()
         allowedToAutoTune = false;
-        
+
         ui_idle_block();
     }
     display_clear();
