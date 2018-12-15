@@ -42,11 +42,53 @@ void erase_below_prompt(void) {
 
 /* -------------------------------------------------------------------------- */
 
+void draw_grid_outline(void) {
+    term_cursor_set(0, 0);
+    println("-----------------------------------------------------");
+    println("|  address  |  blockAddress  |  block#  |  element  |");
+
+    term_cursor_set(0, 4);
+    println("-----------------------------------------------------");
+
+    term_cursor_set(0, 13);
+    println("-----------------------------------------------------");
+}
+
+void draw_grid_contents(NVM_address_t address) {
+    uint8_t element = address & FLASH_ELEMENT_MASK;
+    NVM_address_t blockAddress = address & FLASH_BLOCK_MASK;
+    uint16_t blockNumber = blockAddress / 128;
+
+    term_cursor_set(0, 3);
+    printf("|  %-7lu  |  %-12lu  |  %-6u  |  %-7u  |\r\n", (uint32_t)address,
+           (uint32_t)blockAddress, blockNumber, element);
+
+    // create a pointer to the first byte of the selected block
+    const char *blockPointer = (const char *)blockAddress;
+
+    term_cursor_set(0, 5);
+    print("|  "); // start of first row
+    for (uint8_t i = 0; i < FLASH_BUFFER_SIZE; i++) {
+        char tempChar = *blockPointer++;
+        if (i == element) {
+            printf("\033[7m%02x\033[0;37;40m ", tempChar);
+        } else {
+            printf("%02x ", tempChar);
+        }
+        if (((i + 1) % 16) == 0) {
+            println(" |"); // end of current row
+            if (i < FLASH_BUFFER_SIZE - 1) {
+                print("|  "); // start of next row
+            }
+        }
+    }
+}
+
 // redraw the upper half of the screen
 void refresh_grid(void) {
     term_hide_cursor();
     term_cursor_set(0, 0);
-    print_flash_block(state.address);
+    draw_grid_contents(state.address);
 }
 
 // redraw the lower halfd
@@ -182,6 +224,7 @@ int8_t romedit_keys(key_t key) {
         return 0;
     case F5:
         term_reset_screen();
+        draw_grid_outline();
         break;
     case ENTER:
         if (state.line.length > 0) {
@@ -244,6 +287,7 @@ void romedit(int argc, char **argv) {
 
     term_reset_screen();
 
+    draw_grid_outline();
     refresh_grid();
     refresh_shell();
 
