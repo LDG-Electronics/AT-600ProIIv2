@@ -91,34 +91,10 @@ const animation_s blink_top_bar[] = {
     {0x00, 0x00, END_FRAME},
 };
 
-const animation_s blink_top_bar_3[] = {
-    {true, false, HEADER_FRAME},
-    {0xff, 0x00, 100},
-    {0x00, 0x00, 100},
-    {0xff, 0x00, 100},
-    {0x00, 0x00, 100},
-    {0xff, 0x00, 100},
-    {0x00, 0x00, 100},
-    {0x00, 0x00, END_FRAME},
-    {0x00, 0x00, END_FRAME},
-};
-
 const animation_s blink_bottom_bar[] = {
     {false, true, HEADER_FRAME},
     {0x00, 0xff, 100},
     {0x00, 0x00, 100},
-    {0x00, 0x00, END_FRAME},
-};
-
-const animation_s blink_bottom_bar_3[] = {
-    {false, true, HEADER_FRAME},
-    {0x00, 0xff, 100},
-    {0x00, 0x00, 100},
-    {0x00, 0xff, 100},
-    {0x00, 0x00, 100},
-    {0x00, 0xff, 100},
-    {0x00, 0x00, 100},
-    {0x00, 0x00, END_FRAME},
     {0x00, 0x00, END_FRAME},
 };
 
