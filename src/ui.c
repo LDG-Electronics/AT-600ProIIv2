@@ -845,13 +845,14 @@ void ui_mainloop(void) {
                     enable_bargraph_updates();
                 }
             }
+
             if (btn_is_down(ANT)) {
                 if (!RF_is_present()) {
                     disable_bargraph_updates();
                     ant_hold();
                     enable_bargraph_updates();
                 } else {
-                    play_animation(&overpower_warning[0]);
+                    repeat_animation(&toggle_outer_leds[0], 3);
                 }
             }
         }
