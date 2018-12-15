@@ -152,13 +152,15 @@ const animation_s right_blink[] = {
     {0x00, 0x00, END_FRAME},
 };
 
-const animation_s overpower_warning[] = {
+const animation_s toggle_outer_leds[] = {
     {0xa5, 0x42, 100},
     {0x42, 0xa5, 100},
-    {0xa5, 0x42, 100},
-    {0x42, 0xa5, 100},
-    {0xa5, 0x42, 100},
-    {0x42, 0xa5, 100},
+    {0x00, 0x00, END_FRAME},
+};
+
+const animation_s toggle_inner_leds[] = {
+    {0x14, 0x28, 100},
+    {0x28, 0x14, 100},
     {0x00, 0x00, END_FRAME},
 };
 

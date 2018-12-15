@@ -620,14 +620,14 @@ tuning_errors_t memory_tune(void) {
 
         memory_recall() returns the relay object found at the provided address.
         The 'ant' field of a stored memory is hijacked into a flag that
-        represents whether a memory has ever been written. 
-        
+        represents whether a memory has ever been written.
+
         1 means no memory, 0 means yes memory.
 
         The hypothesis is that over the life of the tuner, most memory slots
         will probably never be written to. When we read a memory out into
         tempRelays
-        
+
 
     */
 
@@ -743,19 +743,19 @@ tuning_errors_t memory_tune(void) {
 void tuning_followup_animation(tuning_errors_t errors) {
     display_clear();
 
-    if (errors.any != 0) {
-        if (errors.lostRF == 1) {
+    if (errors.any) {
+        if (errors.lostRF) {
             LOG_ERROR({ println("lostRF"); });
 
-            repeat_animation(&blink_both_bars[0], 2);
-        } else if (errors.noRF == 1) {
+            repeat_animation(&blink_top_bar[0], 2);
+        } else if (errors.noRF) {
             LOG_ERROR({ println("noRF"); });
 
-            repeat_animation(&blink_both_bars[0], 1);
-        } else if (errors.relayError == 1) {
+            repeat_animation(&blink_top_bar[0], 1);
+        } else if (errors.relayError) {
             LOG_ERROR({ println("relayError"); });
 
-            play_animation(&overpower_warning[0]);
+            repeat_animation(&toggle_outer_leds[0], 3);
         }
     } else {
         if (currentRF.swr < 1.7) {
@@ -770,8 +770,7 @@ void tuning_followup_animation(tuning_errors_t errors) {
         } else if (currentRF.swr >= 3.0) {
             LOG_INFO({ println("bad SWR"); });
 
-            // TODO: pick the right animation
-            play_animation(&center_crawl[0]);
+            repeat_animation(&blink_top_bar[0], 2);
         }
         delay_ms(1000);
     }
