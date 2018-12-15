@@ -125,6 +125,8 @@ void update_bargraphs(void) {
     periodically serviced when the system isn't doing anything else important.
 */
 
+static bool allowedToAutoTune = true;
+
 #define RF_POLLS_PER_SECOND 100
 #define RF_POLL_PERIOD 1000 / RF_POLLS_PER_SECOND
 
@@ -143,8 +145,6 @@ void ui_idle_block(void) {
         poll_RF(); // ~140uS
         return;
     }
-
-    static bool allowedToAutoTune = true;
 
     if (RF_is_present()) {
         static system_time_t lastFrequencyUpdate = 0;
@@ -622,6 +622,9 @@ void relay_button_hold(void) {
             display_update();
         }
 
+        // disable autotuning every time we call ui_idle_block()
+        allowedToAutoTune = false;
+        
         ui_idle_block();
     }
     display_clear();
