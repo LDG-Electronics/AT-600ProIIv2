@@ -62,7 +62,7 @@ uint16_t calculate_decay_period(uint8_t decayCount) {
 }
 
 #define OVERSCALE_BLINK_INTERVAL 200
-const float overscale[2] = {600, 60};
+const float overscale[2] = {60, 600};
 
 void update_bargraphs(void) {
     // scale mode handler
@@ -101,15 +101,16 @@ void update_bargraphs(void) {
 
     // overscale blink handler
     if (currentRF.forwardWatts > overscale[systemFlags.scaleMode]) {
+        static uint8_t blinkFrame = 0x50;
+
+        // overwrite upper bar with overscale blink frame
+        newFrame.upper = 0x0f;
+        newFrame.upper |= blinkFrame;
+
         static system_time_t previousBlinkTime = 0;
-        static uint8_t blinkFrame = 0x05;
         // count time between blinks, and count number of blinks
         if (time_since(previousBlinkTime) >= OVERSCALE_BLINK_INTERVAL) {
             previousBlinkTime = get_current_time();
-
-            // overwrite upper bar with overscale blink frame
-            newFrame.upper |= prevFrame.upper;
-
             // invert the frame in preparation for the next iteration
             blinkFrame = ~blinkFrame;
         }
