@@ -87,11 +87,10 @@ void draw_grid_contents(NVM_address_t address) {
 // redraw the upper half of the screen
 void refresh_grid(void) {
     term_hide_cursor();
-    term_cursor_set(0, 0);
     draw_grid_contents(state.address);
 }
 
-// redraw the lower halfd
+// redraw the lower half
 void refresh_shell(void) {
     draw_romedit_prompt();
     draw_line(&state.line);
@@ -141,7 +140,7 @@ int8_t romedit_process_command(shell_line_t *line) {
         if (args.argc == 2) {
             // parse address
             NVM_address_t address = decode_address(args.argv[1]);
-            if (address == 0xffffff || address < 192 || address > FLASH_SIZE) {
+            if (address == 0xffffff || address < 256 || address > FLASH_SIZE) {
                 println("invalid address");
                 return 0;
             }
@@ -253,6 +252,7 @@ int8_t romedit_keys(key_t key) {
 
 /* ************************************************************************** */
 
+// loop
 int8_t romedit_callback(char currentChar) {
     if (iscntrl(currentChar)) {
         key_t key = identify_key(currentChar);

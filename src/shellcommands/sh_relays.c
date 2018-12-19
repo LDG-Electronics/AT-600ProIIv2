@@ -63,8 +63,8 @@ void enter_bypass(void) {
 void set_relays_to_max(void) {
     relays_t relays = read_current_relays();
 
-    relays.caps = 255;
-    relays.inds = 255;
+    relays.inds = MAX_INDUCTORS;
+    relays.caps = MAX_CAPACITORS;
     if (put_relays(relays) == -1) {
         // TODO: what do we do on relayerror?
     }
