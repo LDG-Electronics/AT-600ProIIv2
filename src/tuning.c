@@ -765,7 +765,7 @@ void tuning_followup_animation(tuning_errors_t errors) {
         } else if (currentRF.swr < 3.0) {
             LOG_INFO({ println("fair SWR"); });
 
-            // TODO: pick the right animation
+            // TODO: get mgmnt to pick the right animation
             play_animation(&center_crawl[0]);
         } else if (currentRF.swr >= 3.0) {
             LOG_INFO({ println("bad SWR"); });
