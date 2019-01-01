@@ -37,7 +37,7 @@ build: build_C89
 clean: clean_output_directories
 
 # Target to make sure the hex is current, and then upload it to the target
-upload: upload_ccs
+upload: upload_ccs_linux
 
 # **************************************************************************** #
 # Directory stuff
@@ -270,21 +270,42 @@ clean_pk4:
 	-rm $(PK4_GARBAGE)
 
 # ---------------------------------------------------------------------------- #
-# CCS ICD-U80 USB programmer
+# CCS ICD-U80 USB programmer on Windows
 
-CCSLOAD = ccsloader
+WIN_CCSLOAD = ccsloader
 # Specify what PIC we're using; is always required
-CCSLOADFLAGS = -DEVICE=PIC$(TARGET_DEVICE)
+WIN_CCSLOADFLAGS = -DEVICE=PIC$(TARGET_DEVICE)
 # Program all the device's memory regions
-CCSLOADFLAGS += -AREAS=ALL 
+WIN_CCSLOADFLAGS += -AREAS=ALL 
 # Don't supply power to the target
-CCSLOADFLAGS += -POWER=TARGET
+WIN_CCSLOADFLAGS += -POWER=TARGET
 # Specify the hex file to be programmed
-CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
+WIN_CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
+
 
 # Target for uploading with CCS ICD-U80
-upload_ccs: build
-	$(CCSLOAD) $(CCSLOADFLAGS)
+upload_ccs_win: build
+	$(WIN_CCSLOAD) $(WIN_CCSLOADFLAGS)
+
+
+# ---------------------------------------------------------------------------- #
+# CCS ICD-U80 USB programmer on Linux
+
+LINUX_CCSLOAD = /opt/picc/ccsloader
+# Specify what PIC we're using; is always required
+# Also specify the serial device.
+# TODO: Why the fuck does -port not work when it's on its own line!?!?!
+LINUX_CCSLOADFLAGS = -DEVICE=PIC$(TARGET_DEVICE) -port=COM7
+# Program all the device's memory regions
+LINUX_CCSLOADFLAGS += -AREAS=ALL 
+# Don't supply power to the target
+LINUX_CCSLOADFLAGS += -POWER=TARGET
+# Specify the hex file to be programmed
+LINUX_CCSLOADFLAGS += -WRITE=$(PROJECT_HEX)
+
+# Target for uploading with CCS ICD-U80
+upload_ccs_linux: build
+	$(LINUX_CCSLOAD) $(LINUX_CCSLOADFLAGS)
 
 # ---------------------------------------------------------------------------- #
 # MeLabs U2 USB programmer
