@@ -5,36 +5,13 @@
 
 /* ************************************************************************** */
 
-#define NUM_OF_BANDS 10
-/*  Index of each band
-    0 - 01800000
-    1 - 03500000
-    2 - 07000000
-    3 - 10100000
-    4 - 14000000
-    5 - 18068000
-    6 - 21000000
-    7 - 24890000
-    8 - 28000000
-    9 - 50000000
-*/
-
-// Ax^2 + Bx + C
-typedef struct {
-    float A;
-    float B;
-    float C;
-} polynomial_t;
-
-void print_poly(polynomial_t *poly) {
-    printf("A = %f\r\n", poly->A);
-    printf("B = %f\r\n", poly->B);
-    printf("C = %f\r\n", poly->C);
+void print_poly(polynomial_t poly) {
+    printf("(%10.10f, %10.10f, %10.10f)", poly.A, poly.B, poly.C);
 }
 
 /* -------------------------------------------------------------------------- */
 
-polynomial_t const forwardCalibrationTable[NUM_OF_BANDS] = {
+polynomial_t forwardCalibrationTable[NUM_OF_BANDS] = {
     {3.6555900444132165e-05, -0.0015434445883156646, 1.1854880579097262},
     {2.5317605410047606e-05, 0.006997064709869251, -0.004701911882182358},
     {2.3403776976021854e-05, 0.007613737879580927, -0.71551775684892},
@@ -47,7 +24,7 @@ polynomial_t const forwardCalibrationTable[NUM_OF_BANDS] = {
     {2.7800555242304257e-05, -0.0018858949717490464, 1.33829257612857},
 };
 
-polynomial_t const reverseCalibrationTable[NUM_OF_BANDS] = {
+polynomial_t reverseCalibrationTable[NUM_OF_BANDS] = {
     {-1.801249242849359e-05, 0.036838586207513506, -4.449896887085058},
     {5.484104509420962e-06, 0.009375712494145608, -1.1473144100057233},
     {5.050950818723708e-06, 0.0061173382318063995, -0.20301000809268502},
@@ -62,6 +39,7 @@ polynomial_t const reverseCalibrationTable[NUM_OF_BANDS] = {
 
 /* ************************************************************************** */
 
+// TODO: perhaps these should be right in the center of their bands?
 uint16_t bands[] = {
     1800, 3500, 7000, 10100, 14000, 18068, 21000, 24890, 28000, 50000,
 };
