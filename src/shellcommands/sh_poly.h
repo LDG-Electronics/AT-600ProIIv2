@@ -12,4 +12,4 @@ extern void shell_poly(int argc, char **argv);
 
 /* ************************************************************************** */
 
-#endif // _SH_BAR_H_
+#endif // _SH_POLY_H_

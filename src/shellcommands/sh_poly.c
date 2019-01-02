@@ -1,5 +1,4 @@
 #include "../calibration.h"
-#include "../display.h"
 #include "../os/serial_port.h"
 #include <ctype.h>
 #include <stdlib.h>
@@ -82,7 +81,7 @@ void shell_poly(int argc, char **argv) {
         }
 
         uint8_t band = atoi(argv[3]);
-        if (band > NUM_OF_BANDS) {
+        if (band >= NUM_OF_BANDS) {
             break;
         }
 
@@ -106,7 +105,7 @@ void shell_poly(int argc, char **argv) {
         }
 
         uint8_t band = atoi(argv[3]);
-        if (band > NUM_OF_BANDS) {
+        if (band >= NUM_OF_BANDS) {
             break;
         }
 
@@ -114,7 +113,7 @@ void shell_poly(int argc, char **argv) {
         temp.A = atof(argv[4]);
         temp.B = atof(argv[5]);
         temp.C = atof(argv[6]);
-
+        
         poly[band] = temp;
 
         return;
