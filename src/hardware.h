@@ -32,7 +32,12 @@
     X(POWER)
 
 // What is the format of the button pin names?
-#define BUTTON_PIN_NAME_FORMAT(NAME) NAME##_BUTTON_PIN
+/*  Buttons are wired with pullups to 5v, and are active-low. This helps prevent
+    random extra button presses caused by the noisy, highRF environment.
+
+    Consequently, inputs need to be inverted.
+*/
+#define BUTTON_PIN_NAME_FORMAT(NAME) !NAME##_BUTTON_PIN
 
 /* ************************************************************************** */
 // Serial Port stuff
