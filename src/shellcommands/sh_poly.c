@@ -6,20 +6,6 @@
 
 /* ************************************************************************** */
 
-int8_t decode_array_number(char *string) {
-    if (!strcmp(string, "forward") || !strcmp(string, "fwd") ||
-        !strcmp(string, "f")) {
-        return 0;
-    }
-
-    if (!strcmp(string, "reverse") || !strcmp(string, "rev") ||
-        !strcmp(string, "r")) {
-        return 1;
-    }
-
-    return atoi(string);
-}
-
 void shell_poly(int argc, char **argv) {
     int8_t array = 0;
     int8_t slot = 0;
