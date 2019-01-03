@@ -4,8 +4,8 @@
 #include "os/shell/shell_json.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
-#include "pins.h"
 #include "peripherals/timer.h"
+#include "pins.h"
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +29,8 @@ const json_field_t JSONcurrentRF[] = {
 };
 
 void print_RF_data(void) {
-    //
     json_serialize_and_print(&JSONcurrentRF[0]);
+    println("");
 }
 
 /* ************************************************************************** */
