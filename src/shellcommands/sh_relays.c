@@ -73,57 +73,74 @@ void set_relays_to_max(void) {
 void shell_relays(int argc, char **argv) {
     relays_t relays = read_current_relays();
     switch (argc) {
-    case 1:
-        println("relays set <caps|inds|z> <value>");
+    case 1: // usage
+        println("relays set <caps|inds|z|ant> <value>");
         println("relays setall <caps> <inds> <z>");
         println("relays <cup|cdn|lup|ldn|bypass|max>");
         return;
-    case 2:
-        if (strcmp(argv[1], "cup") == 0) {
+    case 2: // relays <cup|cdn|lup|ldn|bypass|max>
+        if (!strcmp(argv[1], "cup")) {
             capacitor_increment();
-        } else if (strcmp(argv[1], "cdn") == 0) {
+        } else if (!strcmp(argv[1], "cdn")) {
             capacitor_decrement();
-        } else if (strcmp(argv[1], "lup") == 0) {
+        } else if (!strcmp(argv[1], "lup")) {
             inductor_increment();
-        } else if (strcmp(argv[1], "ldn") == 0) {
+        } else if (!strcmp(argv[1], "ldn")) {
             inductor_decrement();
-        } else if (strcmp(argv[1], "bypass") == 0) {
+        } else if (!strcmp(argv[1], "bypass")) {
             enter_bypass();
-        } else if (strcmp(argv[1], "max") == 0) {
+        } else if (!strcmp(argv[1], "max")) {
             set_relays_to_max();
         } else {
             break;
         }
+
         print_relays(read_current_relays());
         println("");
         return;
-    case 4:
-        if (strcmp(argv[1], "set") == 0) {
-            if (strcmp(argv[2], "caps") == 0) {
+    case 4: // relays set <caps|inds|z|ant> <value>
+        if (!strcmp(argv[1], "set")) {
+            // decode relays
+            if ((!strcmp(argv[2], "caps")) || (!strcmp(argv[2], "c"))) {
                 relays.caps = atoi(argv[3]);
-            } else if (strcmp(argv[2], "inds") == 0) {
+            } else if ((!strcmp(argv[2], "inds")) || (!strcmp(argv[2], "l"))) {
                 relays.inds = atoi(argv[3]);
-            } else if (strcmp(argv[2], "z") == 0) {
+            } else if (!strcmp(argv[2], "z")) {
                 relays.z = atoi(argv[3]);
+            } else if ((!strcmp(argv[2], "ant")) || (!strcmp(argv[2], "a"))) {
+                systemFlags.antenna = atoi(argv[3]);
+                relays = read_current_relays();
             } else {
                 break;
             }
+
+            // publish
             if (put_relays(relays) == -1) {
                 // TODO: what do we do on relayerror?
             }
+
             print_relays(read_current_relays());
             println("");
             return;
-        } else if (strcmp(argv[1], "setall") == 0) {
+        }
+        break;
+    case 5: // relays setall <caps> <inds> <z>
+        if (!strcmp(argv[1], "setall")) {
+            // decode relays
             relays.caps = atoi(argv[2]);
             relays.inds = atoi(argv[3]);
             relays.z = atoi(argv[4]);
+
+            // publish
             if (put_relays(relays) == -1) {
                 // TODO: what do we do on relayerror?
             }
-        } else {
-            break;
+
+            print_relays(read_current_relays());
+            println("");
+            return;
         }
+        break;
 
     default:
         break;
