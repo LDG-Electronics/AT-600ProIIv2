@@ -95,7 +95,7 @@
     duplicating state that is already embedded in the pin alias. Pin aliases
     that use the PORT() macro are all inputs, and ones that use LATCH() are all
     outputs. The style I've chosen IS pretty gross, but it also REALLY reduces
-    the maintenance overhead and opportunity for a type to send you on an hour
+    the maintenance overhead and opportunity for a typo to send you on an hour
     long debugging journey.
 */
 
@@ -166,7 +166,6 @@ void pins_init(void) {
 // --------------------------------------------------
 
     // RF Sensor pins
-    FREQ_PIN;
     FWD_PIN;
     REV_PIN;
 
