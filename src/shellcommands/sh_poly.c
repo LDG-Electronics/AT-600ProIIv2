@@ -7,9 +7,6 @@
 /* ************************************************************************** */
 
 void shell_poly(int argc, char **argv) {
-    int8_t array = 0;
-    int8_t slot = 0;
-
     switch (argc) {
     case 1: // usage
         print("usage: ");
