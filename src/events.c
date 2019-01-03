@@ -11,17 +11,17 @@
 
 /* ************************************************************************** */
 
-void set_bypass_off(void) {
-    if (put_relays(preBypassRelays[systemFlags.antenna]) == -1) {
-        // TODO: what do we do on relayerror?
-    }
-}
-
 void set_bypass_on(void) {
     // save current relays into preBypassRelays
     preBypassRelays[systemFlags.antenna] = read_current_relays();
 
     if (put_relays(bypassRelays) == -1) {
+        // TODO: what do we do on relayerror?
+    }
+}
+
+void set_bypass_off(void) {
+    if (put_relays(preBypassRelays[systemFlags.antenna]) == -1) {
         // TODO: what do we do on relayerror?
     }
 }
@@ -36,18 +36,21 @@ void toggle_bypass(void) {
 
 /* -------------------------------------------------------------------------- */
 
+void set_peak_mode(uint8_t value) { systemFlags.peakMode = value; }
 void set_peak_on(void) { systemFlags.peakMode = 1; }
 void set_peak_off(void) { systemFlags.peakMode = 0; }
 void toggle_peak(void) { systemFlags.peakMode = !systemFlags.peakMode; }
 
 /* -------------------------------------------------------------------------- */
 
+void set_scale_mode(uint8_t value) { systemFlags.scaleMode = value; }
 void set_scale_high(void) { systemFlags.scaleMode = 1; }
 void set_scale_low(void) { systemFlags.scaleMode = 0; }
 void toggle_scale(void) { systemFlags.scaleMode = !systemFlags.scaleMode; }
 
 /* -------------------------------------------------------------------------- */
 
+void set_auto_mode(uint8_t value) { systemFlags.autoMode = value; }
 void set_auto_on(void) { systemFlags.autoMode = 1; }
 void set_auto_off(void) { systemFlags.autoMode = 0; }
 void toggle_auto(void) { systemFlags.autoMode = !systemFlags.autoMode; }
@@ -85,6 +88,12 @@ void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
 
 /* -------------------------------------------------------------------------- */
 
+/*  // TODO: this is completely fubar
+    It needs...
+    * animations
+    * success/failure
+    * how to handle if currentRF.frequency is invalid
+*/
 void manual_store(void) {
     relays_t relays = read_current_relays();
     NVM_address_t address = convert_memory_address(currentRF.frequency);
@@ -101,29 +110,26 @@ void manual_store(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void set_power_status(uint8_t value) {
-    systemFlags.powerStatus = value;
-
-    if (systemFlags.powerStatus == 1) {
-        if (put_relays(currentRelays[systemFlags.antenna]) == -1) {
-            // TODO: what do we do on relayerror?
-        }
-    } else {
-        // put_relays() always publishes its argument to currentRelays
-        // We actually don't want that behavior here, so save currentRelays and
-        // restore it after it gets overwritten.
-        relays_t temp = read_current_relays();
-        if (put_relays(bypassRelays) == -1) {
-            // TODO: what do we do on relayerror?
-        }
-        currentRelays[systemFlags.antenna] = temp;
+void set_power_on(void) {
+    systemFlags.powerStatus = 1;
+    
+    if (put_relays(currentRelays[systemFlags.antenna]) == -1) {
+        // TODO: what do we do on relayerror?
     }
 }
 
-void set_power_on(void) { set_power_status(1); }
-void set_power_off(void) { set_power_status(0); }
+void set_power_off(void) {
+    systemFlags.powerStatus = 0;
 
-void toggle_power_status(void) { set_power_status(!systemFlags.powerStatus); }
+    // put_relays() always publishes its argument to currentRelays
+    // We actually don't want that behavior here, so save currentRelays and
+    // restore it after it gets overwritten.
+    relays_t temp = read_current_relays();
+    if (put_relays(bypassRelays) == -1) {
+        // TODO: what do we do on relayerror?
+    }
+    currentRelays[systemFlags.antenna] = temp;
+}
 
 /* -------------------------------------------------------------------------- */
 

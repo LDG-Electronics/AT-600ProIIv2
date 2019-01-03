@@ -11,30 +11,35 @@ extern void toggle_bypass(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern void set_peak_mode(uint8_t value);
 extern void set_peak_on(void);
 extern void set_peak_off(void);
 extern void toggle_peak(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern void set_scale_mode(uint8_t value);
 extern void set_scale_high(void);
 extern void set_scale_low(void);
 extern void toggle_scale(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern void set_auto_mode(uint8_t value);
 extern void set_auto_on(void);
 extern void set_auto_off(void);
 extern void toggle_auto(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern void set_hiloz(uint8_t value);
 extern void set_high_z(void);
 extern void set_low_z(void);
 extern void toggle_hiloz(void);
 
 /* -------------------------------------------------------------------------- */
 
+extern void set_antenna(uint8_t value);
 extern void set_antenna_one(void);
 extern void set_antenna_two(void);
 extern void toggle_antenna(void);
