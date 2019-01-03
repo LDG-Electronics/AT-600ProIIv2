@@ -2,6 +2,15 @@
 #define _HARDWARE_H_
 
 /* ************************************************************************** */
+// version information
+
+#define PRODUCT_NAME "AT-600ProII"
+
+#define PRODUCT_V_MAJOR 0
+#define PRODUCT_V_MINOR 1
+#define PRODUCT_V_PATCH 2
+
+/* ************************************************************************** */
 //! There's no way to prove that this list is up-to-date.
 //! Search the entire project for "timer" or "timer.h" before claiming a timer.
 
