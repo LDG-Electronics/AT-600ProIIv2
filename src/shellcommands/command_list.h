@@ -1,6 +1,7 @@
 #ifndef _SHELL_COMMANDS_H_
 #define _SHELL_COMMANDS_H_
 
+#include "sh_adc.h"
 #include "sh_bar.h"
 #include "sh_cal.h"
 #include "sh_eeprom.h"
@@ -14,8 +15,8 @@
 /* ************************************************************************** */
 
 #define SHELL_COMMANDS                                                         \
-    SH_CAL, SH_TUNE, SH_LOGEDIT, SH_RELAYS, SH_EEPROM, SH_FLASH, SH_BAR,       \
-        SH_ROMEDIT, SH_POLY
+    SH_ADC, SH_BAR, SH_CAL, SH_EEPROM, SH_FLASH, SH_LOGEDIT, SH_POLY,          \
+        SH_RELAYS, SH_ROMEDIT, SH_TUNE
 
 /* ************************************************************************** */
 
