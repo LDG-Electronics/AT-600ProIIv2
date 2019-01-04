@@ -106,7 +106,7 @@ C89FLAGS += --FILL=0xffff
 # Suppress most of xc8's command echos
 C89FLAGS += -q
 # Set the size of floating point types
-C89FLAGS += --FLOAT=24 --DOUBLE=24
+C89FLAGS += --FLOAT=32 --DOUBLE=32
 
 # There are several differences between the development hardware and the final
 # product hardware. The code wraps these differences in #ifdefs so we don't
