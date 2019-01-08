@@ -42,7 +42,12 @@ void startup(void) {
     interrupt_init();
 
     // OS setup
+#ifdef DEVELOPMENT
     shell_init((PPS_PORT_D & PPS_PIN_3), &RD2PPS);
+#else
+    // TODO: find alternate uart pins
+    shell_init((PPS_PORT_A & PPS_PIN_7), &RA6PPS);
+#endif
     buttons_init();
     log_init();
     system_time_init();
