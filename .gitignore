@@ -1,3 +1,5 @@
+# ignore vscode's workspace settings folder
+.vscode
 
 # ignore output and build artifacts
 build/**
@@ -8,7 +10,3 @@ log.0
 log.1
 log.2
 MPLABXLog.xml
-.vscode/settings.json
-pic18f45k42.h.bak
-.vs/slnx.sqlite
-.vscode/ftp-sync.json
