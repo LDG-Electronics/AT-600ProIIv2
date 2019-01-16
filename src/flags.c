@@ -42,6 +42,45 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 system_flags_t systemFlags;
 
+/* -------------------------------------------------------------------------- */
+/*  system_flag_bits_t is a data used to pack the full sized system flags into
+    a form that's efficient to store in EEPROM
+
+*/
+typedef struct {
+    unsigned ant1Bypass : 1;
+    unsigned ant2Bypass : 1;
+    unsigned antenna : 1;
+    unsigned autoMode : 1;
+    unsigned peakMode : 1;
+    unsigned scaleMode : 1;
+    unsigned powerStatus : 1;
+} system_flag_bits_t;
+
+system_flag_bits_t pack_system_flags(void) {
+    system_flag_bits_t flagBits;
+
+    flagBits.ant1Bypass = systemFlags.bypassStatus[0];
+    flagBits.ant2Bypass = systemFlags.bypassStatus[1];
+    flagBits.antenna = systemFlags.antenna;
+    flagBits.autoMode = systemFlags.autoMode;
+    flagBits.peakMode = systemFlags.peakMode;
+    flagBits.scaleMode = systemFlags.scaleMode;
+    flagBits.powerStatus = systemFlags.powerStatus;
+
+    return flagBits;
+}
+
+void unpack_system_flags(system_flag_bits_t flagBits) {
+    systemFlags.bypassStatus[0] = flagBits.ant1Bypass;
+    systemFlags.bypassStatus[1] = flagBits.ant2Bypass;
+    systemFlags.antenna = flagBits.antenna;
+    systemFlags.autoMode = flagBits.autoMode;
+    systemFlags.peakMode = flagBits.peakMode;
+    systemFlags.scaleMode = flagBits.scaleMode;
+    systemFlags.powerStatus = flagBits.powerStatus;
+}
+
 /* ************************************************************************** */
 /*  flag_record_fields_t
 
@@ -61,7 +100,7 @@ system_flags_t systemFlags;
 */
 typedef struct {
     uint8_t threshIndex;
-    system_flags_t flags;
+    system_flag_bits_t flagBits;
     packed_relays_t relayBits[NUM_OF_ANTENNA_PORTS * 2];
 } flag_record_fields_t;
 
@@ -86,55 +125,21 @@ typedef union {
 */
 #define NUMBER_OF_RECORD_SLOTS 20
 
-/* -------------------------------------------------------------------------- */
-/*  bypassStatus[] is used to access the current bypass status using the same
-    idiom as accessing currentRelays:
-
-    currentRelays[systemFlags.antenna]
-    bypassStatus[systemFlags.antenna]
-    etc
-
-    This array makes it easier to interact with bypass at runtime, but it's
-    obviously wasteful to use 2 bytes to store a pair of bools. Runtime
-    performance or RAM usage is obviously not a concern, but saving system
-    status to EEPROM requires different tradeoffs.
-
-    bypassStatus needs to be packed into systemFlags in order to properly save
-    system settings.
-
-    After restoring system settings from EEPROM, bypassStatus needs to be
-    unpacked from systemFlags.
-*/
-uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS];
-
-// copy usable bypass array values back into flags
-void pack_bypass_status(void) {
-    systemFlags.ant1Bypass = bypassStatus[0];
-    systemFlags.ant2Bypass = bypassStatus[1];
-}
-
-// copy stored bypass values to the usable array
-void unpack_bypass_status(void) {
-    bypassStatus[0] = systemFlags.ant1Bypass;
-    bypassStatus[1] = systemFlags.ant2Bypass;
-}
-
 /* ************************************************************************** */
 
 void flags_init(void) {
     nonvolatile_memory_init();
 
     // populate systemFlags with default values
-    systemFlags.ant1Bypass = 1;  // default is bypass
-    systemFlags.ant2Bypass = 1;  // default is bypass
-    systemFlags.antenna = 0;     // default is Ant 2
-    systemFlags.autoMode = 0;    // default is semi mode
-    systemFlags.peakMode = 0;    // default is NOT peak mode
-    systemFlags.scaleMode = 1;   // default is 1, full scale
-    systemFlags.powerStatus = 1; // default is 1
-    swrThreshIndex = 0;
+    systemFlags.bypassStatus[0] = 1; // default is bypass
+    systemFlags.bypassStatus[1] = 1; // default is bypass
+    systemFlags.antenna = 0;         // default is Ant 2
+    systemFlags.autoMode = 0;        // default is semi mode
+    systemFlags.peakMode = 0;        // default is NOT peak mode
+    systemFlags.scaleMode = 1;       // default is 1, full scale
+    systemFlags.powerStatus = 1;     // default is 1
 
-    unpack_bypass_status();
+    swrThreshIndex = 0;
 
     log_register();
 }
@@ -166,7 +171,7 @@ int16_t find_current_record(void) {
 flag_record_t read_record(uint16_t address) {
     flag_record_t record;
 
-    // mask off the record 
+    // mask off the record
     record.array[0] = (internal_eeprom_read(address) & 0x7f);
 
     // remaining elements can be read directly
@@ -181,15 +186,13 @@ flag_record_t read_record(uint16_t address) {
 void unpack_record_to_system(flag_record_t *record) {
     // these fields can be read directly
     swrThreshIndex = record->fields.threshIndex;
-    systemFlags = record->fields.flags;
+    unpack_system_flags(record->fields.flagBits);
 
     // these fields need to be unpacked
     currentRelays[0] = unpack_relays(record->fields.relayBits[0]);
     currentRelays[1] = unpack_relays(record->fields.relayBits[1]);
     preBypassRelays[0] = unpack_relays(record->fields.relayBits[2]);
     preBypassRelays[1] = unpack_relays(record->fields.relayBits[3]);
-
-    unpack_bypass_status();
 }
 
 // restore most recently saved system settings from EEPROM
@@ -224,13 +227,10 @@ void write_record(flag_record_t *record, uint16_t address) {
 
 // assemble a record from various system status variables
 flag_record_t pack_system_to_record(void) {
-    pack_bypass_status();
-
     flag_record_t record;
 
-    // these fields can be stored directly in the record
     record.fields.threshIndex = swrThreshIndex;
-    record.fields.flags = systemFlags;
+    record.fields.flagBits = pack_system_flags();
 
     // these fields need to be packed
     record.fields.relayBits[0] = pack_relays(currentRelays[0]);

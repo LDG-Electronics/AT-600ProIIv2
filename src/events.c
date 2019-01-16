@@ -27,7 +27,7 @@ void set_bypass_off(void) {
 }
 
 void toggle_bypass(void) {
-    if (bypassStatus[systemFlags.antenna] == 1) {
+    if (systemFlags.bypassStatus[systemFlags.antenna] == 1) {
         set_bypass_off();
     } else {
         set_bypass_on();

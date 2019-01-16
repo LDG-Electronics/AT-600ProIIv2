@@ -1,7 +1,6 @@
 #include "rf_sensor.h"
 #include "calibration.h"
 #include "os/log_macros.h"
-#include "os/shell/shell_json.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
 #include "peripherals/timer.h"
@@ -15,23 +14,6 @@ static uint8_t LOG_LEVEL = L_SILENT;
 
 // Global RF Readings
 RF_power_t currentRF;
-
-// json object that matches
-const json_field_t JSONcurrentRF[] = {
-    {"forward", &(currentRF.forward), jsonFloat},
-    {"reverse", &(currentRF.reverse), jsonFloat},
-    {"matchQuality", &(currentRF.matchQuality), jsonFloat},
-    {"forwardWatts", &(currentRF.forwardWatts), jsonFloat},
-    {"reverseWatts", &(currentRF.reverseWatts), jsonFloat},
-    {"swr", &(currentRF.swr), jsonFloat},
-    {"frequency", &(currentRF.frequency), jsonU16},
-    {NULL, NULL, jsonObject},
-};
-
-void print_RF_data(void) {
-    json_serialize_and_print(&JSONcurrentRF[0]);
-    println("");
-}
 
 /* ************************************************************************** */
 

@@ -40,7 +40,7 @@ void update_status_LEDs(void) {
     if (systemFlags.powerStatus == 1) {
         POWER_LED_PIN = systemFlags.powerStatus;
         ANT_LED_PIN = ~systemFlags.antenna;
-        BYPASS_LED_PIN = bypassStatus[systemFlags.antenna];
+        BYPASS_LED_PIN = systemFlags.bypassStatus[systemFlags.antenna];
     } else {
         clear_status_LEDs();
     }
@@ -181,7 +181,7 @@ void show_peak(void) {
 void blink_bypass(void) {
     relays_t relays = read_current_relays();
 
-    if (bypassStatus[systemFlags.antenna] == 1) {
+    if (systemFlags.bypassStatus[systemFlags.antenna] == 1) {
         repeat_animation(&blink_both_bars[0], 3);
     } else {
         displayBuffer.next.upper = relays.inds;

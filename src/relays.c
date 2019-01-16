@@ -76,9 +76,9 @@ int8_t check_if_safe(void) {
 }
 
 void update_bypass_status(relays_t relays) {
-    bypassStatus[systemFlags.antenna] = 0;
+    systemFlags.bypassStatus[systemFlags.antenna] = 0;
     if ((relays.caps == 0) && (relays.inds == 0)) {
-        bypassStatus[systemFlags.antenna] = 1;
+        systemFlags.bypassStatus[systemFlags.antenna] = 1;
     }
 
     update_status_LEDs();

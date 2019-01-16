@@ -24,8 +24,6 @@ typedef struct {
 // read-only: contains the most recent RF measurements
 extern RF_power_t currentRF;
 
-extern void print_RF_data(void);
-
 /* ************************************************************************** */
 
 // Setup
