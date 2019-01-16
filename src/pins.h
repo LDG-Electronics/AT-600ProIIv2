@@ -69,8 +69,14 @@
 
 /* -------------------------------------------------------------------------- */
 // Serial debug UART pins
+#ifdef DEVELOPMENT
 #define DEBUG_TX_PIN LATCH(D, 2)
 #define DEBUG_RX_PIN PORT(D, 1)
+#else
+// TODO: find alternate uart pins
+#define DEBUG_TX_PIN LATCH(A, 6)
+#define DEBUG_RX_PIN PORT(A, 7)
+#endif
 
 /* ************************************************************************** */
 
