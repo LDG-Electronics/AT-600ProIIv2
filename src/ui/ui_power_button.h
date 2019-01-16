@@ -1,8 +1,8 @@
-#ifndef _UI_H_
-#define _UI_H_
+#ifndef _UI_POWER_BUTTON_H_
+#define _UI_POWER_BUTTON_H_
 
 /* ************************************************************************** */
 
-extern void ui_mainloop(void);
+extern void power_hold(void);
 
 #endif
