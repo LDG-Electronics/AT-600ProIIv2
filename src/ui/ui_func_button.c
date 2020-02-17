@@ -3,7 +3,8 @@
 #include "os/buttons.h"
 #include "ui.h"
 #include "ui_idle_block.h"
-#include "ui_submenus.h"
+
+extern void function_submenu(void);
 
 /* ************************************************************************** */
 /*  Handler for holding FUNC button
