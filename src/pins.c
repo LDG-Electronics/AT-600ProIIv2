@@ -137,9 +137,7 @@ void pins_init(void) {
     // RF Sensor pins
     FWD_PIN;
     REV_PIN;
-#ifdef DEVELOPMENT
     FREQ_PIN;
-#endif
 
     // Radio interface input pin
     RADIO_CMD_PIN;
