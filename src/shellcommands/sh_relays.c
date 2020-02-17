@@ -1,7 +1,7 @@
-#include "sh_relays.h"
-#include "../flags.h"
-#include "../os/serial_port.h"
-#include "../relays.h"
+#include "flags.h"
+#include "os/serial_port.h"
+#include "os/shell/shell_command_processor.h"
+#include "relays.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -70,7 +70,7 @@ void set_relays_to_max(void) {
     }
 }
 
-void shell_relays(int argc, char **argv) {
+void sh_relays(int argc, char **argv) {
     relays_t relays = read_current_relays();
     switch (argc) {
     case 1: // usage
@@ -149,3 +149,5 @@ void shell_relays(int argc, char **argv) {
     println("invalid arguments");
     return;
 }
+
+REGISTER_SHELL_COMMAND(sh_relays, "relays");

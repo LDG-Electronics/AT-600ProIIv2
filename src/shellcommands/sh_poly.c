@@ -1,12 +1,13 @@
-#include "../calibration.h"
-#include "../os/serial_port.h"
+#include "calibration.h"
+#include "os/serial_port.h"
+#include "os/shell/shell_command_processor.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* ************************************************************************** */
 
-void shell_poly(int argc, char **argv) {
+void sh_poly(int argc, char **argv) {
     switch (argc) {
     case 1: // usage
         print("usage: ");
@@ -91,3 +92,5 @@ void shell_poly(int argc, char **argv) {
     println("invalid arguments");
     return;
 }
+
+REGISTER_SHELL_COMMAND(sh_poly, "poly");

@@ -1,18 +1,18 @@
-#include "sh_flash.h"
-#include "../os/serial_port.h"
+#include "os/serial_port.h"
+#include "peripherals/nonvolatile_memory.h"
+#include "shell_command_processor.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* ************************************************************************** */
 
-NVM_address_t decode_address(char *string) {
-    uint8_t length = strlen(string);
-
+static NVM_address_t decode_address(char *string) {
     bool decimal = true;
 
-    for (uint8_t i = 0; i < length; i++) {
-        if (!isdigit(string[i])) {
+    uint8_t i = 0;
+    while (string[i]) {
+        if (!isdigit(string[i++])) {
             decimal = false;
         }
     }
@@ -25,14 +25,13 @@ NVM_address_t decode_address(char *string) {
     return 0xffffff;
 }
 
-int16_t decode_data(char *string) {
-    uint8_t length = strlen(string);
-
+static int16_t decode_data(char *string) {
     bool decimal = true;
     bool hex = true;
 
-    for (uint8_t i = 0; i < length; i++) {
-        if (!isdigit(string[i])) {
+    uint8_t i = 0;
+    while (string[i]) {
+        if (!isdigit(string[i++])) {
             decimal = false;
         }
     }
@@ -40,13 +39,14 @@ int16_t decode_data(char *string) {
         return atoi(string);
     }
 
-    for (uint8_t i = 0; i < length; i++) {
-        if (!isxdigit(string[i])) {
+    i = 0;
+    while (string[i]) {
+        if (!isxdigit(string[i++])) {
             hex = false;
         }
     }
     if (hex) {
-        return xtoi(string);
+        return strtol(string, NULL, 16);
     }
     return -1;
 }
@@ -87,7 +87,7 @@ void write_single_byte(NVM_address_t address, uint8_t newData) {
 
 /* -------------------------------------------------------------------------- */
 
-void shell_flash(int argc, char **argv) {
+void sh_flash(int argc, char **argv) {
     switch (argc) {
     case 1:
         println("usage: \tflash write <address> <data>");
@@ -139,7 +139,6 @@ void shell_flash(int argc, char **argv) {
                 println("invalid data");
                 return;
             }
-            
             write_single_byte(address, data);
 
             return;
@@ -151,3 +150,5 @@ void shell_flash(int argc, char **argv) {
     }
     println("invalid arguments");
 }
+
+REGISTER_SHELL_COMMAND(sh_flash, "flash");

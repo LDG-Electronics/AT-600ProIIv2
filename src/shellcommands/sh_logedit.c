@@ -1,53 +1,23 @@
-#include "sh_logedit.h"
-#include "../os/log.h"
-#include "../os/log_macros.h"
-#include "../os/serial_port.h"
-#include "../os/shell/shell.h"
-#include "../os/shell/shell_keys.h"
-#include "../os/shell/shell_utils.h"
+#include "os/log.h"
+#include "os/log_macros.h"
+#include "os/serial_port.h"
+#include "os/shell/shell.h"
+#include "os/shell/shell_keys.h"
+#include "os/shell/shell_utils.h"
+#include "shell_command_processor.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* ************************************************************************** */
 
-uint8_t oldLogDatabase[MAX_NUMBER_OF_FILES];
-uint8_t newLogDatabase[MAX_NUMBER_OF_FILES];
-
-void set_global_to_silent(void) {
-    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
-        *logDatabase.file[i].levelPtr = L_SILENT;
-    }
-}
-
-void global_to_local(void) {
-    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
-        oldLogDatabase[i] = *logDatabase.file[i].levelPtr;
-    }
-}
-
-void old_to_new(void) {
-    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
-        oldLogDatabase[i] = newLogDatabase[i];
-    }
-}
-
-void old_to_global(void) {
-    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
-        *logDatabase.file[i].levelPtr = oldLogDatabase[i];
-    }
-}
-
-void new_to_global(void) {
-    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
-        *logDatabase.file[i].levelPtr = newLogDatabase[i];
-    }
-}
+static uint8_t oldLogDatabase[MAX_NUMBER_OF_FILES];
+static uint8_t newLogDatabase[MAX_NUMBER_OF_FILES];
 
 /* -------------------------------------------------------------------------- */
 
-uint8_t selectedLine = 0;
-uint8_t selectedLevel = 0;
+static uint8_t selectedLine = 0;
+static uint8_t selectedLevel = 0;
 
 #define COLUMN_NUMBER 7
 
@@ -61,17 +31,11 @@ void reprint_line(void) {
 
 /* -------------------------------------------------------------------------- */
 
-#define HEADER_HEIGHT 10
+// This should be the number of newlines printed by print_logedit_header()
+#define HEADER_HEIGHT 5
 
 void print_logedit_header(void) {
     println("-----------------------------------------------");
-    // usage instructions
-    println("press f5 to refresh list");
-    println("press ENTER to save and exit");
-    println("press ESC to exit without saving");
-    println("press ctrl+c to terminate logedit");
-
-    println("");
     printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
     println("");
     println("  #  | level  | path/to/file");
@@ -96,6 +60,13 @@ void print_logedit_footer(void) {
     }
     println("");
     println("-----------------------------------------------");
+
+    // usage instructions
+    //! These are disabled to help logedit fit on page in the terminal
+    // println("press f5 to refresh list");
+    // println("press ENTER to save and exit");
+    // println("press ESC to exit without saving");
+    // println("press ctrl+c to terminate logedit");
 }
 
 void draw_logedit(void) {
@@ -180,10 +151,14 @@ int8_t logedit_keys(key_t key) {
         draw_logedit();
         return 0;
     case ENTER:
-        new_to_global();
+        for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
+            *logDatabase.file[i].levelPtr = newLogDatabase[i];
+        }
         return -1;
     case ESCAPE:
-        old_to_global();
+        for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
+            *logDatabase.file[i].levelPtr = oldLogDatabase[i];
+        }
         return -1;
     }
 }
@@ -203,13 +178,24 @@ int8_t logedit_callback(char currentChar) {
 }
 
 // setup
-void logedit(int argc, char **argv) {
-    global_to_local();
-    old_to_new();
-    set_global_to_silent();
+void sh_logedit(int argc, char **argv) {
+    // make a backup of the existing log database
+    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
+        oldLogDatabase[i] = *logDatabase.file[i].levelPtr;
+    }
+    // use that backup to initialize our new working copy
+    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
+        newLogDatabase[i] = oldLogDatabase[i];
+    }
+    // set the "real" log data to all silent
+    for (uint8_t i = 0; i < MAX_NUMBER_OF_FILES; i++) {
+        *logDatabase.file[i].levelPtr = L_SILENT;
+    }
 
     term_hide_cursor();
     draw_logedit();
 
     shell_register_callback(logedit_callback);
 }
+
+REGISTER_SHELL_COMMAND(sh_logedit, "logedit");

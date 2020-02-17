@@ -1,8 +1,8 @@
-#include "sh_adc.h"
-#include "../os/serial_port.h"
-#include "../os/stopwatch.h"
-#include "../peripherals/adc.h"
-#include "../peripherals/pic_header.h"
+#include "os/serial_port.h"
+#include "os/stopwatch.h"
+#include "peripherals/adc.h"
+#include "peripherals/pic_header.h"
+#include "shell_command_processor.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -79,6 +79,7 @@ void sh_print_settings(void) {
 
 /* -------------------------------------------------------------------------- */
 
+//
 #define NUM_OF_TEST_SAMPLES 64
 uint16_t fwdArray[NUM_OF_TEST_SAMPLES];
 uint16_t revArray[NUM_OF_TEST_SAMPLES];
@@ -115,9 +116,9 @@ void sh_adc_read(void) {
     }
 
     println("{");
-    print_array("forward", &fwdArray);
+    print_array("forward", fwdArray);
     println(",");
-    print_array("reverse", &revArray);
+    print_array("reverse", revArray);
     println("}");
 }
 
@@ -162,3 +163,5 @@ void sh_adc(int argc, char **argv) {
     }
     println("invalid arguments");
 }
+
+REGISTER_SHELL_COMMAND(sh_adc, "adc");

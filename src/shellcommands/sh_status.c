@@ -1,7 +1,8 @@
-#include "../flags.h"
-#include "../os/serial_port.h"
-#include "../os/shell/shell_json.h"
-#include "../rf_sensor.h"
+#include "flags.h"
+#include "os/serial_port.h"
+#include "os/shell/shell_command_processor.h"
+#include "os/shell/shell_json.h"
+#include "rf_sensor.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,3 +57,5 @@ void sh_status(int argc, char **argv) {
     }
     println("invalid arguments");
 }
+
+REGISTER_SHELL_COMMAND(sh_status, "status");

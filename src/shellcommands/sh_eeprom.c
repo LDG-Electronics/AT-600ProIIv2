@@ -1,13 +1,13 @@
-#include "sh_eeprom.h"
-#include "../os/serial_port.h"
-#include "../peripherals/nonvolatile_memory.h"
+#include "os/serial_port.h"
+#include "peripherals/nonvolatile_memory.h"
+#include "shell_command_processor.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* ************************************************************************** */
 
-void shell_eeprom(int argc, char **argv) {
+static void sh_eeprom(int argc, char **argv) {
     switch (argc) {
     case 1:
         println("usage: \teeprom write <address> <data>");
@@ -40,3 +40,5 @@ void shell_eeprom(int argc, char **argv) {
     println("invalid arguments");
     return;
 }
+
+REGISTER_SHELL_COMMAND(sh_eeprom, "eeprom");

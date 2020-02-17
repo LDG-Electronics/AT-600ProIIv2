@@ -1,10 +1,11 @@
-#include "../events.h"
-#include "../os/serial_port.h"
+#include "events.h"
+#include "os/serial_port.h"
+#include "os/shell/shell_command_processor.h"
 #include <string.h>
 
 /* ************************************************************************** */
 
-void tune(int argc, char **argv) {
+void sh_tune(int argc, char **argv) {
     switch (argc) {
     case 1:
         request_full_tune();
@@ -25,3 +26,5 @@ void tune(int argc, char **argv) {
     println("invalid arguments");
     return;
 }
+
+REGISTER_SHELL_COMMAND(sh_tune, "tune");

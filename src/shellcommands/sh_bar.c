@@ -1,12 +1,13 @@
-#include "../display.h"
-#include "../os/serial_port.h"
+#include "display.h"
+#include "os/serial_port.h"
+#include "os/shell/shell_command_processor.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
 /* ************************************************************************** */
 
-void shell_show_bargraphs(int argc, char **argv) {
+void sh_bar(int argc, char **argv) {
     switch (argc) {
     case 1:
         println("usage: bar <forward> <SWR>");
@@ -38,3 +39,5 @@ void shell_show_bargraphs(int argc, char **argv) {
     println("invalid arguments");
     return;
 }
+
+REGISTER_SHELL_COMMAND(sh_bar, "bar");

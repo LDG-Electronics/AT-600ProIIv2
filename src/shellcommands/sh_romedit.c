@@ -1,15 +1,63 @@
-#include "../os/serial_port.h"
-#include "../os/shell/shell.h"
-#include "../os/shell/shell_command_processor.h"
-#include "../os/shell/shell_cursor.h"
-#include "../os/shell/shell_keys.h"
-#include "../os/shell/shell_utils.h"
-#include "../peripherals/nonvolatile_memory.h"
-#include "sh_flash.h"
+#include "os/serial_port.h"
+#include "os/shell/shell.h"
+#include "os/shell/shell_command_processor.h"
+#include "os/shell/shell_cursor.h"
+#include "os/shell/shell_keys.h"
+#include "os/shell/shell_utils.h"
+#include "peripherals/nonvolatile_memory.h"
+#include "shell_command_processor.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
+extern void write_single_byte(NVM_address_t address, uint8_t newData);
+
+/* ************************************************************************** */
+
+static NVM_address_t decode_address(char *string) {
+    bool decimal = true;
+
+    uint8_t i = 0;
+    while (string[i]) {
+        if (!isdigit(string[i++])) {
+            decimal = false;
+        }
+    }
+    if (decimal) {
+        int32_t temp = atol(string);
+        if ((temp >= 0) && (temp < FLASH_SIZE)) {
+            return (NVM_address_t)temp;
+        }
+    }
+    return 0xffffff;
+}
+
+static int16_t decode_data(char *string) {
+    bool decimal = true;
+    bool hex = true;
+
+    uint8_t i = 0;
+    while (string[i]) {
+        if (!isdigit(string[i++])) {
+            decimal = false;
+        }
+    }
+    if (decimal) {
+        return atoi(string);
+    }
+
+    i = 0;
+    while (string[i]) {
+        if (!isxdigit(string[i++])) {
+            hex = false;
+        }
+    }
+    if (hex) {
+        return strtol(string, NULL, 16);
+    }
+    return -1;
+}
 
 /* ************************************************************************** */
 
@@ -267,7 +315,7 @@ int8_t romedit_callback(char currentChar) {
 }
 
 // setup
-void romedit(int argc, char **argv) {
+void sh_romedit(int argc, char **argv) {
     switch (argc) {
     case 1:
         state.address = 256;
@@ -293,3 +341,5 @@ void romedit(int argc, char **argv) {
 
     shell_register_callback(romedit_callback);
 }
+
+REGISTER_SHELL_COMMAND(sh_romedit, "romedit");
