@@ -1,8 +1,8 @@
 #include "ui_bargraphs.h"
-#include "../display.h"
-#include "../flags.h"
-#include "../os/system_time.h"
-#include "../rf_sensor.h"
+#include "display.h"
+#include "flags.h"
+#include "os/system_time.h"
+#include "rf_sensor.h"
 #include "ui.h"
 #include "ui_idle_block.h"
 #include <stdbool.h>

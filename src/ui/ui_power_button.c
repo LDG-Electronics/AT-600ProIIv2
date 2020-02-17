@@ -1,8 +1,8 @@
-#include "../display.h"
-#include "../events.h"
-#include "../flags.h"
-#include "../os/buttons.h"
-#include "../os/system_time.h"
+#include "display.h"
+#include "events.h"
+#include "flags.h"
+#include "os/buttons.h"
+#include "os/system_time.h"
 #include "ui.h"
 #include "ui_idle_block.h"
 

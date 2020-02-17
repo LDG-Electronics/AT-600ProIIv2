@@ -1,6 +1,6 @@
-#include "../display.h"
-#include "../events.h"
-#include "../os/buttons.h"
+#include "display.h"
+#include "events.h"
+#include "os/buttons.h"
 #include "ui_idle_block.h"
 
 /* ************************************************************************** */
