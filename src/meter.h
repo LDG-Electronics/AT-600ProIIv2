@@ -3,7 +3,11 @@
 
 /* ************************************************************************** */
 
-extern void meter_init(void);
+#include "peripherals/uart.h"
+
+/* ************************************************************************** */
+
+extern void meter_init(uart_interface_t interface);
 
 extern void attempt_meter_update(void);
 

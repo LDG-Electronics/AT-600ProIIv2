@@ -13,6 +13,7 @@
 #include "peripherals/ports.h"
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"
+#include "peripherals/uart.h"
 #include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
@@ -42,12 +43,18 @@ void startup(void) {
     interrupt_init();
 
     // OS setup
+    uart_config_t serialUARTconfig = UART_get_config(2);
+    serialUARTconfig.baud = _115200;
 #ifdef DEVELOPMENT
-    shell_init((PPS_PORT_D & PPS_PIN_3), &RD2PPS);
+    serialUARTconfig.txPin = PPS_OUTPUT_PIN(D, 2);
+    serialUARTconfig.rxPin = PPS_INPUT_PIN(D, 1);
 #else
     // TODO: find alternate uart pins
-    shell_init((PPS_PORT_A & PPS_PIN_7), &RA6PPS);
+    serialUARTconfig.txPin = PPS_OUTPUT_PIN(A, 6);
+    serialUARTconfig.rxPin = PPS_INPUT_PIN(A, 7);
 #endif
+
+    shell_init(UART_init(serialUARTconfig));
     buttons_init();
     log_init();
     system_time_init();

@@ -3,7 +3,7 @@
 #include "os/system_time.h"
 #include "peripherals/adc.h"
 #include "peripherals/pps.h"
-#include "peripherals/uart1.h"
+#include "peripherals/uart.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -22,12 +22,11 @@ struct {
 
 /* ************************************************************************** */
 
-void meter_init(void) {
-    // PPS Setup
-    PPS_IN_UART1_RX(PPS_PORT_C & PPS_PIN_7);
-    PPS_OUT_UART1_TX(RC6PPS);
+EMPTY_UART_INTERFACE(uart);
 
-    UART1_init(_38400);
+void meter_init(uart_interface_t interface) {
+    //
+    uart = interface;
 
     // The last three bytes of the buffer never change, so init them here
     meter.packetBuffer[6] = ';';
@@ -40,12 +39,12 @@ void meter_init(void) {
 /* -------------------------------------------------------------------------- */
 
 void check_for_meter_sync(void) {
-    char data = UART1_rx_char();
+    char data = uart.rx_char();
 
     if (data == '\0') {
         return;
     } else if (data == 'Z') {
-        UART1_tx_string(METER_SYNC_STRING, '\0');
+        uart.tx_string(METER_SYNC_STRING, '\0');
     } else if (data == 'S') {
         meter.active = 1;
     } else if (data == 'X') {
@@ -66,7 +65,7 @@ void send_meter_update(void) {
     meter.packetBuffer[4] = (uint8_t)(tempPeriod >> 8);
     meter.packetBuffer[5] = (uint8_t)(tempPeriod & 0xff);
 
-    UART1_tx_string(meter.packetBuffer, METER_COMMS_TERMINATOR);
+    uart.tx_string(meter.packetBuffer, METER_COMMS_TERMINATOR);
 }
 
 #define METER_UPDATE_INTERVAL 100

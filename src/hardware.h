@@ -49,15 +49,6 @@
 #define BUTTON_PIN_NAME_FORMAT(NAME) !NAME##_BUTTON_PIN
 
 /* ************************************************************************** */
-// Serial Port stuff
-
-// Which UART should the serial port use?
-#define SERIAL_PORT_UART_NUMBER 2
-
-// Select a baud rate
-#define SERIAL_PORT_BAUD _115200
-
-/* ************************************************************************** */
 
 extern void startup(void);
 extern void shutdown(void);
