@@ -49,6 +49,16 @@ SRC_DIR = src
 BUILD_DIR = build
 OBJ_DIR = obj
 
+# Include paths for the compiler
+# TODO: This works but it's definitely not the right way to do it
+# Maybe learn how to use a Make array?
+INCLUDE_PATH = -I"src"
+INCLUDE_PATH += -I"src/peripherals"
+INCLUDE_PATH += -I"src/os"
+INCLUDE_PATH += -I"src/os/shell"
+INCLUDE_PATH += -I"src/libraries"
+INCLUDE_PATH += -I"src/shellcommands"
+
 # Target to make sure output directories exist
 create_output_directories:
 	mkdir -p ./$(BUILD_DIR)
@@ -75,10 +85,6 @@ HEADER_FILES := $(wildcard $(SRC_DIR)/*.h) \
 # Full file name of the resulting hex file
 PROJECT_HEX := $(BUILD_DIR)/$(PROJECT).hex
 
-# .c -> .hex
-$(PROJECT_HEX): $(SRC_FILES) $(HEADER_FILES)
-	$(C89_COMMAND)
-
 # **************************************************************************** #
 # Commands and command variables
 
@@ -98,6 +104,9 @@ C89FLAGS = --CHIP=$(TARGET_DEVICE)
 C89FLAGS += --OBJDIR=$(OBJ_DIR) 
 # Tell xc8 where to put output files(.hex, .map, .cof, .as, etc)
 C89FLAGS += -O$(BUILD_DIR)/$(PROJECT)
+# Tell xc8 where to look for files when processing #include statements
+C89FLAGS += $(INCLUDE_PATH)
+
 # Use hybrid-style stack. Additional fields are the desired size of, in order:
 # stack size of (main code : low priority ISRs : high priority ISRs)
 C89FLAGS += --STACK=hybrid:auto:auto:auto
@@ -107,6 +116,8 @@ C89FLAGS += --FILL=0xffff
 C89FLAGS += -q
 # Set the size of floating point types
 C89FLAGS += --FLOAT=32 --DOUBLE=32
+# Tell the linker to create a psect
+C89FLAGS += -L-Pshell_commands
 
 # There are several differences between the development hardware and the final
 # product hardware. The code wraps these differences in #ifdefs so we don't
@@ -126,8 +137,8 @@ C89FLAGS += -M$(BUILD_DIR)/$(PROJECT).map
 C89_COMMAND := $(CC89) $(C89FLAGS) $(SRC_FILES)
 
 # Target to compile in C89 mode
-build_C89: $(PROJECT_HEX)
-
+build_C89: 
+	$(C89_COMMAND)
 
 # ---------------------------------------------------------------------------- #
 # XC8 C99 mode
@@ -142,8 +153,13 @@ C99FLAGS = -mcpu=$(TARGET_DEVICE)
 C99FLAGS += -std=C99
 # Tell xc8 to put all the output in the /build directory
 C99FLAGS += -o $(BUILD_DIR)/$(PROJECT).hex
+# Tell xc8 where to look for files when processing #include statements
+C99FLAGS += $(INCLUDE_PATH)
+
 # Use the hybrid stack
 C99FLAGS += -mstack=hybrid:auto:auto:auto
+# Tell the linker to create a psect 
+C99FLAGS += -Wl,-Pshell_commands
 
 # There are several differences between the development hardware and the final
 # product hardware. The code wraps these differences in #ifdefs so we don't
