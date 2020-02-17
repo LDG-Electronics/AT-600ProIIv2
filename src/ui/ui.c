@@ -2,14 +2,15 @@
 #include "display.h"
 #include "flags.h"
 #include "os/buttons.h"
-#include "ui_ant_button.h"
 #include "ui_bargraphs.h"
-#include "ui_func_button.h"
 #include "ui_idle_block.h"
-#include "ui_power_button.h"
-#include "ui_relay_button.h"
 #include "ui_submenus.h"
-#include "ui_tune_button.h"
+
+extern void func_hold(void);
+extern void ant_hold(void);
+extern void power_hold(void);
+extern void relay_button_hold(void);
+extern void tune_hold(void);
 
 /* ************************************************************************** */
 
