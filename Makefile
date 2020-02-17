@@ -58,6 +58,7 @@ INCLUDE_PATH += -I"src/os"
 INCLUDE_PATH += -I"src/os/shell"
 INCLUDE_PATH += -I"src/libraries"
 INCLUDE_PATH += -I"src/shellcommands"
+INCLUDE_PATH += -I"src/tuning"
 
 # Target to make sure output directories exist
 create_output_directories:
