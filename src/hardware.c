@@ -47,7 +47,7 @@ void startup(void) {
     serialUARTconfig.baud = _115200;
 #ifdef DEVELOPMENT
     serialUARTconfig.txPin = PPS_OUTPUT_PIN(D, 2);
-    serialUARTconfig.rxPin = PPS_INPUT_PIN(D, 1);
+    serialUARTconfig.rxPin = PPS_INPUT_PIN(D, 3);
 #else
     // TODO: find alternate uart pins
     serialUARTconfig.txPin = PPS_OUTPUT_PIN(A, 6);
