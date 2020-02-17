@@ -27,13 +27,13 @@ void poll_RF(void) {
 
 bool attempt_RF_poll(void) {
     static system_time_t lastAttempt = 0;
-    if (time_since(lastAttempt) > RF_POLL_COOLDOWN) {
-        lastAttempt = get_current_time();
-
-        poll_RF();
-        return true;
+    if (time_since(lastAttempt) < RF_POLL_COOLDOWN) {
+        return false;
     }
-    return false;
+    lastAttempt = get_current_time();
+
+    poll_RF(); // takes 203 uS
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -43,13 +43,13 @@ bool attempt_RF_poll(void) {
 
 bool attempt_frequency_measurement(void) {
     static system_time_t lastAttempt = 0;
-    if (time_since(lastAttempt) > FREQUENCY_UPDATE_PERIOD) {
-        lastAttempt = get_current_time();
-
-        measure_frequency(); // ~2500uS @ 50MHz, ~60000uS @ 1.8MHz
-        return true;
+    if (time_since(lastAttempt) < FREQUENCY_UPDATE_PERIOD) {
+        return false;
     }
-    return false;
+    lastAttempt = get_current_time();
+
+    measure_frequency(); // ~2500uS @ 50MHz, ~60000uS @ 1.8MHz
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -59,13 +59,13 @@ bool attempt_frequency_measurement(void) {
 
 bool attempt_RF_measurement(void) {
     static system_time_t lastAttempt = 0;
-    if (time_since(lastAttempt) > RF_UPDATE_COOLDOWN) {
-        lastAttempt = get_current_time();
-
-        measure_RF(); // ~1700uS
-        return true;
+    if (time_since(lastAttempt) < RF_UPDATE_COOLDOWN) {
+        return false;
     }
-    return false;
+    lastAttempt = get_current_time();
+
+    measure_RF(); // ~1700uS
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -75,14 +75,14 @@ bool attempt_RF_measurement(void) {
 
 bool attempt_bargraph_update(void) {
     static system_time_t lastAttempt = 0;
-    if (time_since(lastAttempt) > BARGRAPH_UPDATE_COOLDOWN) {
-        lastAttempt = get_current_time();
-
-        calculate_watts_and_swr(); // ~3800uS
-        update_bargraphs();        // ~180uS
-        return true;
+    if (time_since(lastAttempt) < BARGRAPH_UPDATE_COOLDOWN) {
+        return false;
     }
-    return false;
+    lastAttempt = get_current_time();
+
+    calculate_watts_and_swr(); // ~3800uS
+    update_bargraphs();        // ~180uS
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -91,12 +91,13 @@ bool attempt_bargraph_update(void) {
 
 bool attempt_flag_save(void) {
     static system_time_t lastAttempt = 0;
-    if (time_since(lastAttempt) > FLAG_SAVE_COOLDOWN) {
-        lastAttempt = get_current_time();
-        save_flags(); // takes either 80uS or 28mS
-        return true;
+    if (time_since(lastAttempt) < FLAG_SAVE_COOLDOWN) {
+        return false;
     }
-    return false;
+    lastAttempt = get_current_time();
+
+    save_flags(); // takes either 80uS or 28mS
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -110,14 +111,16 @@ void enable_auto_tuning(void) { allowedToAutoTune = true; }
 
 bool attempt_auto_tune(void) {
     static system_time_t lastAttempt = 0;
-    if (time_since(lastAttempt) > AUTO_TUNE_COOLDOWN) {
-        lastAttempt = get_current_time();
-        if (systemFlags.autoMode && allowedToAutoTune) {
-            if (currentRF.swr > get_SWR_threshold()) {
-                disable_auto_tuning();
-                request_memory_tune();
-                return true;
-            }
+    if (time_since(lastAttempt) < AUTO_TUNE_COOLDOWN) {
+        return false;
+    }
+    lastAttempt = get_current_time();
+
+    if (systemFlags.autoMode && allowedToAutoTune) {
+        if (currentRF.swr > get_SWR_threshold()) {
+            disable_auto_tuning();
+            request_memory_tune();
+            return true;
         }
     }
     return false;
