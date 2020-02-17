@@ -4,7 +4,6 @@
 #include "os/buttons.h"
 #include "ui_bargraphs.h"
 #include "ui_idle_block.h"
-#include "ui_submenus.h"
 
 extern void func_hold(void);
 extern void ant_hold(void);
