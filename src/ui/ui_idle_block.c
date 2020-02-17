@@ -13,15 +13,6 @@
 
 /* ************************************************************************** */
 
-uint8_t RFhistory;
-
-void poll_RF(void) {
-    RFhistory <<= 1;
-    RFhistory |= check_for_RF();
-}
-
-/* -------------------------------------------------------------------------- */
-
 #define RF_POLLS_PER_SECOND 100
 #define RF_POLL_COOLDOWN 1000 / RF_POLLS_PER_SECOND
 

@@ -2,6 +2,7 @@
 #include "display.h"
 #include "flags.h"
 #include "os/buttons.h"
+#include "rf_sensor.h"
 #include "ui_bargraphs.h"
 #include "ui_idle_block.h"
 

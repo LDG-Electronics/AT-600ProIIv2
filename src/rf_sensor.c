@@ -18,9 +18,12 @@ RF_power_t currentRF;
 /* ************************************************************************** */
 
 static void clear_currentRF(void) {
+    // raw readings 
     currentRF.forward = 0;
     currentRF.reverse = 0;
     currentRF.matchQuality = 0.0;
+
+    // calculated values
     currentRF.forwardWatts = 0.0;
     currentRF.reverseWatts = 0.0;
     currentRF.swr = 0.0;
@@ -33,6 +36,9 @@ void RF_sensor_init(void) {
 
     // Initialize the Global RF Readings
     clear_currentRF();
+    currentRF.frequency = 0;
+    currentRF.history = 0;
+    currentRF.isPresent = false;
 
     // clear timestamps
     currentRF.lastMeasurementTime = 0;
@@ -87,6 +93,21 @@ bool check_for_RF(void) {
     clear_currentRF();
     return false;
 }
+
+void poll_RF(void) {
+    currentRF.history <<= 1;
+    currentRF.history |= check_for_RF();
+
+    if (currentRF.history == 0b11111111) {
+        currentRF.isPresent = true;
+    }
+
+    if (currentRF.history == 0b00000000) {
+        currentRF.isPresent = false;
+    }
+}
+
+/* ************************************************************************** */
 
 // #define BETA 0.025
 #define BETA 0.2
