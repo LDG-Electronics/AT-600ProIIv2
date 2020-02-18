@@ -22,7 +22,7 @@ TARGET_DEVICE = 18f47k42
 # **************************************************************************** #
 # Primary targets
 
-.PHONY: build create_directories lint program clean
+.PHONY: build create_directories lint docs program clean
 
 # Running "make" should simply build the project
 .DEFAULT: build
@@ -216,6 +216,12 @@ LINTFLAGS += -j 6
 lint:
 	$(LINT) $(LINTFLAGS) $(SRC_FILES)
 
+# **************************************************************************** #
+# generate doxygen output
+
+docs:
+	doxygen Doxyfile
+	
 # **************************************************************************** #
 # Automated programming targets
 

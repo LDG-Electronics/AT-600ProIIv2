@@ -4,6 +4,7 @@
 # ignore output and build artifacts
 build/**
 obj/**
+docs/**
 
 # ignore stupid log file outputs from pk3cmd.exe
 log.0
