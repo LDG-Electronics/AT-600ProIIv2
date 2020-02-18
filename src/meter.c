@@ -2,7 +2,6 @@
 #include "os/log_macros.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
-#include "peripherals/pps.h"
 #include "peripherals/uart.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
