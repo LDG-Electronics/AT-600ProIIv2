@@ -33,7 +33,15 @@ clean:
 cog: venv
 	$(VENV_PYTHON) -m cogapp -Iscripts -p "import cogutils as utils" @cogfiles.txt 
 	rm -rf ./src/__pycache__
+
+# generate doxygen output
+docs:
+	doxygen Doxyfile
 	
+# run cppcheck
+lint: venv
+	$(VENV_PYTHON) scripts/cppcheck.py	
+
 # **************************************************************************** #
 # python venv settings
 
