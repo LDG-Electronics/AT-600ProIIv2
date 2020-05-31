@@ -4,11 +4,9 @@
 /* ************************************************************************** */
 // version information
 
+/* [[[cog cog.outl(f'#define PRODUCT_NAME "{utils.project.name}"') ]]] */
 #define PRODUCT_NAME "AT-600ProII"
-
-#define PRODUCT_V_MAJOR 0
-#define PRODUCT_V_MINOR 1
-#define PRODUCT_V_PATCH 2
+/* [[[end]]] */
 
 /* ************************************************************************** */
 //! There's no way to prove that this list is up-to-date.

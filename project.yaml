@@ -1,19 +1,19 @@
-name: SW-4U
+name: AT-600ProII
 hw_version: 'a08'
 sw_version:
   major: '0'
-  minor: '2'
+  minor: '5'
   patch: '0'
 processor: PIC18F27K42
 target: 18F27K42
-programmer: Pickit4
+programmer: ICD-U80
 src_dir: src
 obj_dir: obj
 build_dir: build
 defines:
   - DEVELOPMENT
   - PRODUCT_V_MAJOR=0
-  - PRODUCT_V_MINOR=2
+  - PRODUCT_V_MINOR=5
   - PRODUCT_V_PATCH=0
 linker_flags:
   - -Pshell_cmds
