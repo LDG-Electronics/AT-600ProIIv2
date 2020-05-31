@@ -5,9 +5,10 @@
 /* ************************************************************************** */
 /* [[[cog
     import cogutils as utils, codegen as code
+    from collections import OrderedDict 
 
     keys = utils.search('src/usb/usb_messages.c', r'(?<={nKey, ").*?(?="})')
-    keys = list(set(keys))
+    keys = list(OrderedDict.fromkeys(keys))  
     prefix = 'hash_'
     enum = code.Enum(
         name = 'hash_value_t',
