@@ -1,6 +1,3 @@
-# ignore vscode's workspace settings folder
-.vscode
-
 # ignore output and build artifacts
 build/**
 obj/**
@@ -12,4 +9,10 @@ log.1
 log.2
 MPLABXLog.xml
 
+# ignore python virtual environment
 .venv
+
+# ignore python cache files
+__pycache__
+*.pyc
+*.pyo
