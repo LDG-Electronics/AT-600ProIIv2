@@ -1,0 +1,278 @@
+[
+    {
+        "name": "BUTTON_ONE_PIN",
+        "port": "C",
+        "pin": "0",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": true
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "WPU": "1"
+        }
+    },
+    {
+        "name": "BUTTON_TWO_PIN",
+        "port": "C",
+        "pin": "1",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": true
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "WPU": "1"
+        }
+    },
+    {
+        "name": "BUTTON_THREE_PIN",
+        "port": "C",
+        "pin": "2",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": true
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "WPU": "1"
+        }
+    },
+    {
+        "name": "BUTTON_FOUR_PIN",
+        "port": "C",
+        "pin": "3",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": true
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "WPU": "1"
+        }
+    },
+    {
+        "name": "DC_SENSE_PIN",
+        "port": "A",
+        "pin": "2",
+        "usage": {
+            "gpio": false,
+            "pps": false,
+            "analog": true,
+            "button": false
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "ANSEL": "1"
+        }
+    },
+    {
+        "name": "MAG_PIN",
+        "port": "A",
+        "pin": "3",
+        "usage": {
+            "gpio": false,
+            "pps": false,
+            "analog": true,
+            "button": false
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "ANSEL": "1"
+        }
+    },
+    {
+        "name": "FREQ_PIN",
+        "port": "A",
+        "pin": "5",
+        "usage": {
+            "gpio": false,
+            "pps": true,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1"
+        }
+    },
+    {
+        "name": "RELAY_CLOCK_PIN",
+        "port": "C",
+        "pin": "7",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": false,
+            "output": true
+        },
+        "registers": {
+            "TRIS": "0"
+        }
+    },
+    {
+        "name": "RELAY_DATA_PIN",
+        "port": "C",
+        "pin": "5",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": false,
+            "output": true
+        },
+        "registers": {
+            "TRIS": "0"
+        }
+    },
+    {
+        "name": "RELAY_STROBE_PIN",
+        "port": "C",
+        "pin": "4",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": false,
+            "output": true
+        },
+        "registers": {
+            "TRIS": "0"
+        }
+    },
+    {
+        "name": "LED_STROBE_PIN",
+        "port": "B",
+        "pin": "4",
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": false,
+            "output": true
+        },
+        "registers": {
+            "TRIS": "0"
+        }
+    },
+    {
+        "name": "USB_TX_PIN",
+        "port": "B",
+        "pin": "0",
+        "usage": {
+            "gpio": false,
+            "pps": true,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": false,
+            "output": true
+        },
+        "registers": {
+            "TRIS": "0"
+        }
+    },
+    {
+        "name": "USB_RX_PIN",
+        "port": "B",
+        "pin": "1",
+        "usage": {
+            "gpio": false,
+            "pps": true,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1"
+        }
+    },
+    {
+        "name": "DEBUG_TX_PIN",
+        "port": "B",
+        "pin": "2",
+        "usage": {
+            "gpio": false,
+            "pps": true,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": false,
+            "output": true
+        },
+        "registers": {
+            "TRIS": "0"
+        }
+    },
+    {
+        "name": "DEBUG_RX_PIN",
+        "port": "B",
+        "pin": "3",
+        "usage": {
+            "gpio": false,
+            "pps": true,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1"
+        }
+    }
+]

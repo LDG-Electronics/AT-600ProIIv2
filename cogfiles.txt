@@ -1,0 +1,4 @@
+src/pins.h -r
+src/pins.c -r
+src/usb/usb_json_hash.c -r
+src/hardware.h -r
