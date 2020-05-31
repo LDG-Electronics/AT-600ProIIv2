@@ -4,7 +4,7 @@
 
 /* ************************************************************************** */
 /* [[[cog
-    import cogutils as utils, codegen as code
+    import codegen as code
     from collections import OrderedDict 
 
     keys = utils.search('src/usb/usb_messages.c', r'(?<={nKey, ").*?(?="})')
