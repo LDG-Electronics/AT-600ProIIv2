@@ -7,6 +7,7 @@
 #include "os/shell/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_time.h"
+#include "peripherals/device_information.h"
 #include "peripherals/interrupt.h"
 #include "peripherals/oscillator.h"
 #include "peripherals/pic_header.h"
@@ -18,6 +19,7 @@
 #include "relays.h"
 #include "rf_sensor.h"
 #include "tuning.h"
+#include "usb/usb.h"
 
 /* ************************************************************************** */
 /*  Notes on startup()
@@ -36,42 +38,55 @@
 
     TODO: write down the init ordering rules that live in daelon's head
 */
-void startup(void) {
-    // System setup
+
+static void system_init(void) {
     internal_oscillator_init();
-    port_init();
     interrupt_init();
+    port_init();
+    pins_init();
+    device_information_init();
+}
 
-    // OS setup
-    uart_config_t serialUARTconfig = UART_get_config(2);
-    serialUARTconfig.baud = _115200;
-#ifdef DEVELOPMENT
-    serialUARTconfig.txPin = PPS_OUTPUT(D, 2);
-    serialUARTconfig.rxPin = PPS_INPUT(D, 3);
-#else
-    // TODO: find alternate uart pins
-    serialUARTconfig.txPin = PPS_OUTPUT(A, 6);
-    serialUARTconfig.rxPin = PPS_INPUT(A, 7);
-#endif
+static void OS_init(void) {
+    uart_config_t config = UART_get_config(2);
+    config.baud = _115200;
+    config.txPin = PPS_DEBUG_TX_PIN;
+    config.rxPin = PPS_DEBUG_RX_PIN;
+    shell_init(UART_init(config));
 
-    shell_init(UART_init(serialUARTconfig));
     buttons_init();
+
     log_init();
     system_time_init();
     stopwatch_init();
+}
 
-    // Driver setup
-    pins_init();
+static void application_init(void) {
+    flags_init();
     relays_init();
     display_init();
     RF_sensor_init();
     tuning_init();
     memory_init();
-    flags_init();
+
+    uart_config_t config = UART_get_config(1);
+    config.baud = _115200;
+    config.txPin = PPS_USB_TX_PIN;
+    config.rxPin = PPS_USB_RX_PIN;
+    usb_init(UART_init(config));
+}
+
+/* ************************************************************************** */
+
+void startup(void) {
+    system_init();
+    OS_init();
+
+    check_hardware_reset_flags(); // should be after OS_init(), so logging is on
+
+    application_init();
 
     pps_lock(); // PPS writes ABOVE THIS POINT ONLY
-
-    check_hardware_reset_flags();
 
     // Attempt to load previously saved flags
     load_flags();

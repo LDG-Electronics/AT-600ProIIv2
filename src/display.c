@@ -3,7 +3,6 @@
 #include "os/buttons.h"
 #include "os/log_macros.h"
 #include "peripherals/pic_header.h"
-#include "peripherals/spi.h"
 #include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
@@ -18,7 +17,10 @@ double_frame_buffer_t displayBuffer;
 /* ************************************************************************** */
 
 void display_init(void) {
-    spi_init(&RA6PPS, &RC5PPS);
+    // set bitbang spi display pins to default values
+    set_RELAY_CLOCK_PIN(1);
+    set_RELAY_DATA_PIN(1);
+    set_RELAY_STROBE_PIN(1);
 
     clear_status_LEDs();
 
@@ -31,16 +33,16 @@ void display_init(void) {
 /* -------------------------------------------------------------------------- */
 // LED control functions
 void clear_status_LEDs(void) {
-    POWER_LED_PIN = 0;
-    ANT_LED_PIN = 0;
-    BYPASS_LED_PIN = 0;
+    set_POWER_LED_PIN(0);
+    set_ANT_LED_PIN(0);
+    set_BYPASS_LED_PIN(0);
 }
 
 void update_status_LEDs(void) {
     if (systemFlags.powerStatus == 1) {
-        POWER_LED_PIN = systemFlags.powerStatus;
-        ANT_LED_PIN = ~systemFlags.antenna;
-        BYPASS_LED_PIN = systemFlags.bypassStatus[systemFlags.antenna];
+        set_POWER_LED_PIN(systemFlags.powerStatus);
+        set_ANT_LED_PIN(~systemFlags.antenna);
+        set_BYPASS_LED_PIN(systemFlags.bypassStatus[systemFlags.antenna]);
     } else {
         clear_status_LEDs();
     }
@@ -48,9 +50,31 @@ void update_status_LEDs(void) {
 
 /* ************************************************************************** */
 
+static void display_spi_bitbang_tx_word(uint16_t word) {
+    set_FP_STROBE_PIN(1);
+    set_FP_CLOCK_PIN(0);
+
+    for (uint8_t i = 0; i < 16; i++) {
+        if (word & (1 << (15 - i))) {
+            set_FP_DATA_PIN(1);
+        } else {
+            set_FP_DATA_PIN(0);
+        }
+        delay_us(10);
+        set_FP_CLOCK_PIN(1);
+        delay_us(10);
+        set_FP_CLOCK_PIN(0);
+        delay_us(10);
+    }
+    set_FP_STROBE_PIN(0);
+    delay_us(10);
+    set_FP_STROBE_PIN(1);
+    delay_us(10);
+}
+
 // Publish the contents of display.frameBuffer
 void push_frame_buffer(void) {
-    spi_tx_word(displayBuffer.next.frame);
+    display_spi_bitbang_tx_word(displayBuffer.next.frame);
     displayBuffer.current.frame = displayBuffer.next.frame;
 }
 

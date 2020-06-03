@@ -1,85 +1,53 @@
 #ifndef _PINS_H_
 #define _PINS_H_
 
-/* ************************************************************************** */
-
-#define PORT(port, pin) PORT##port##bits.R##port##pin
-#define LATCH(port, pin) LAT##port##bits.LAT##port##pin
+#include "peripherals/pps.h"
+#include <stdbool.h>
 
 /* ************************************************************************** */
+/* [[[cog 
+    import pins
+    cog.outl(pins.pin_declarations()) 
+]]] */
 
-// Front panel button pins
-#define POWER_BUTTON_PIN PORT(A, 3)
-#define CDN_BUTTON_PIN PORT(A, 4)
-#define LUP_BUTTON_PIN PORT(A, 5)
-#define CUP_BUTTON_PIN PORT(B, 2)
-#define FUNC_BUTTON_PIN PORT(B, 4)
-#define LDN_BUTTON_PIN PORT(B, 5)
+// GPIO read functions 
+extern bool read_TUNE_BUTTON_PIN(void);
+extern bool read_ANT_BUTTON_PIN(void);
+extern bool read_CUP_BUTTON_PIN(void);
+extern bool read_CDN_BUTTON_PIN(void);
+extern bool read_LUP_BUTTON_PIN(void);
+extern bool read_LDN_BUTTON_PIN(void);
+extern bool read_FUNC_BUTTON_PIN(void);
+extern bool read_POWER_BUTTON_PIN(void);
+extern bool read_FREQ_PIN(void);
 
-#ifdef DEVELOPMENT
-#define ANT_BUTTON_PIN PORT(E, 2)
-#define TUNE_BUTTON_PIN PORT(E, 1)
-#else
-#define ANT_BUTTON_PIN PORT(B, 6)
-#define TUNE_BUTTON_PIN PORT(B, 7)
-#endif
+// GPIO write functions 
+extern void set_FP_CLOCK_PIN(bool value);
+extern void set_FP_DATA_PIN(bool value);
+extern void set_FP_STROBE_PIN(bool value);
+extern void set_RELAY_CLOCK_PIN(bool value);
+extern void set_RELAY_DATA_PIN(bool value);
+extern void set_RELAY_STROBE_PIN(bool value);
+extern void set_ANT_LED_PIN(bool value);
+extern void set_POWER_LED_PIN(bool value);
+extern void set_BYPASS_LED_PIN(bool value);
+extern void set_RADIO_CMD_PIN(bool value);
 
-/* -------------------------------------------------------------------------- */
-// Bargraph bitbang SPI pins
-#define FP_CLOCK_PIN LATCH(A, 6)
-#define FP_DATA_PIN LATCH(C, 5)
-#define FP_STROBE_PIN LATCH(C, 4)
+// PPS initialization macros
+#define PPS_FREQ_PIN PPS_INPUT(E, 0)
+#define PPS_USB_TX_PIN PPS_OUTPUT(C, 6)
+#define PPS_USB_RX_PIN PPS_INPUT(C, 7)
+#define PPS_DEBUG_TX_PIN PPS_OUTPUT(D, 2)
+#define PPS_DEBUG_RX_PIN PPS_INPUT(D, 3)
 
-/* -------------------------------------------------------------------------- */
-// Status LED pins
-#define POWER_LED_PIN LATCH(A, 2)
-#define BYPASS_LED_PIN LATCH(C, 3)
-#define ANT_LED_PIN LATCH(B, 1)
+// ADC Channel Select macros
+#define ADC_FWD_PIN 0
+#define ADC_REV_PIN 1
 
-/* -------------------------------------------------------------------------- */
-// RF Sensor pins
-#ifdef DEVELOPMENT
-#define FREQ_PIN PORT(E, 0) // frequency counter
-#else
-#define FREQ_PIN PORT(E, 3) // frequency counter
-#endif
-
-#define FWD_PIN PORT(A, 0) // forward power
-#define REV_PIN PORT(A, 1) // reverse power
-
-/* -------------------------------------------------------------------------- */
-// External Interrupt pins
-#define RF_INT_PIN PORT(B, 3)    // rf interrupt - unused
-#define INTERRUPT_PIN PORT(B, 0) // front panel button interrupt - unused
-
-/* -------------------------------------------------------------------------- */
-// Radio interface input pin
-#define RADIO_CMD_PIN LATCH(A, 7)
-
-/* -------------------------------------------------------------------------- */
-// Relay driver bitbang SPI pins
-#define RELAY_CLOCK_PIN LATCH(C, 0)
-#define RELAY_DATA_PIN LATCH(C, 1)
-#define RELAY_STROBE_PIN LATCH(C, 2)
-
-/* -------------------------------------------------------------------------- */
-// Meter port UART pins
-#define METER_TX_PIN LATCH(C, 6)
-#define METER_RX_PIN PORT(C, 7)
-
-/* -------------------------------------------------------------------------- */
-// Serial debug UART pins
-#ifdef DEVELOPMENT
-#define DEBUG_TX_PIN LATCH(D, 2)
-#define DEBUG_RX_PIN PORT(D, 3)
-#else
-// TODO: find alternate uart pins
-#define DEBUG_TX_PIN LATCH(A, 6)
-#define DEBUG_RX_PIN PORT(A, 7)
-#endif
+// [[[end]]]
 
 /* ************************************************************************** */
 
-void pins_init(void);
+extern void pins_init(void);
 
 #endif /* _PINS_H_ */

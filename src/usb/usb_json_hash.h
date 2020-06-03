@@ -22,12 +22,17 @@ typedef enum {
     hash_toggle = 13,
     hash_short = 14,
     hash_full = 15,
-    hash_device_info = 16,
-    hash_name = 17,
-    hash_software_version = 18,
-    hash_ok = 19,
-    hash_response = 20,
-    hash_pong = 21,
+    hash_relays = 16,
+    hash_cup = 17,
+    hash_cdn = 18,
+    hash_lup = 19,
+    hash_ldn = 20,
+    hash_device_info = 21,
+    hash_name = 22,
+    hash_software_version = 23,
+    hash_ok = 24,
+    hash_response = 25,
+    hash_pong = 26,
 } hash_value_t;
 
 extern hash_value_t json_hash(const char *string);

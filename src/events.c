@@ -135,7 +135,7 @@ void set_power_off(void) {
 
 void request_memory_tune(void) {
     // key the radio
-    RADIO_CMD_PIN = 1;
+    set_RADIO_CMD_PIN(1);
 
     // first, attempt to recall an appropriate memory from storage
     tuning_errors_t errors = memory_tune();
@@ -147,18 +147,18 @@ void request_memory_tune(void) {
     }
 
     // unkey the radio
-    RADIO_CMD_PIN = 0;
+    set_RADIO_CMD_PIN(0);
     tuning_followup_animation(errors);
 }
 
 void request_full_tune(void) {
     // key the radio
-    RADIO_CMD_PIN = 1;
+    set_RADIO_CMD_PIN(1);
 
     // do the thing
     tuning_errors_t errors = full_tune();
 
     // unkey the radio
-    RADIO_CMD_PIN = 0;
+    set_RADIO_CMD_PIN(0);
     tuning_followup_animation(errors);
 }

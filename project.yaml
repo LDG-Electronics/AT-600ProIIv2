@@ -4,9 +4,8 @@ sw_version:
   major: '0'
   minor: '5'
   patch: '0'
-processor: PIC18F27K42
-target: 18F27K42
-programmer: ICD-U80
+target: 18F47K42
+programmer: ICD-U80-win
 src_dir: src
 obj_dir: obj
 build_dir: build

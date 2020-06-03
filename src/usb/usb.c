@@ -155,7 +155,7 @@ void respond(json_buffer_t *buf) {
     for (uint8_t i = 0; i < tokensParsed; i++) {
         switch (tokens[i].hash) {
             case hash_set_antenna:
-                select_antenna(atoi(TOKEN(i + 1)));
+                // select_antenna(atoi(TOKEN(i + 1)));
                 json_print(usb_print, responseOk);
                 break;
 
@@ -170,6 +170,27 @@ void respond(json_buffer_t *buf) {
             case hash_ping:
                 set_json_pongString(TOKEN(i + 1));
                 json_print(usb_print, responsePong);
+                break;
+
+            case hash_relays:
+                switch (tokens[i + 1].hash) {
+                    case hash_cup:
+                        // relays_cup();
+                        json_print(usb_print, responseOk);
+                        break;
+                    case hash_cdn:
+                        // relays_cdn();
+                        json_print(usb_print, responseOk);
+                        break;
+                    case hash_lup:
+                        // relays_lup();
+                        json_print(usb_print, responseOk);
+                        break;
+                    case hash_ldn:
+                        // relays_ldn();
+                        json_print(usb_print, responseOk);
+                        break;
+                }
                 break;
 
             case hash_request_device_info:

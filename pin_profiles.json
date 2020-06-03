@@ -1,0 +1,73 @@
+[
+    "gpio_input"{
+        "usage": {
+            "gpio": true,
+            "pps": false,
+            "analog": false,
+            "button": true
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "WPU": "1"
+        }
+    },
+    "gpio_output"{
+        "": ""
+    },
+    "analog_input"{
+        "usage": {
+            "gpio": false,
+            "pps": false,
+            "analog": true,
+            "button": false
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1",
+            "ANSEL": "1"
+        }
+    },
+    "pps_input"{
+        "usage": {
+            "gpio": false,
+            "pps": true,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": true,
+            "output": false
+        },
+        "registers": {
+            "TRIS": "1"
+        }
+    },
+    "pps_output"{
+        "usage": {
+            "gpio": false,
+            "pps": true,
+            "analog": false,
+            "button": false
+        },
+        "direction": {
+            "input": false,
+            "output": true
+        },
+        "registers": {
+            "TRIS": "0"
+        }
+    },
+    "gpio_input"{
+        "": ""
+    },
+    "gpio_output"{
+        "": ""
+    },
+]

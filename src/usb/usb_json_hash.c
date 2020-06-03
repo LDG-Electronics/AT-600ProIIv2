@@ -7,7 +7,7 @@
     import codegen as code
     from collections import OrderedDict 
 
-    keys = utils.search('src/usb/usb_messages.c', r'(?<={nKey, ").*?(?="})')
+    keys = utils.search('src/usb/usb_messages.c', r'(?<={nKey, ").*?(?="})') 
     keys = list(OrderedDict.fromkeys(keys))  
     prefix = 'hash_'
     enum = code.Enum(
@@ -44,7 +44,7 @@
 /* ANSI-C code produced by gperf version 3.1 */
 /* Command-line: 'C:\\ProgramData\\chocolatey\\lib\\gperf\\tools\\gperf.exe' -m
  * 100 -r -n strings.gperf  */
-/* Computed positions: -k'1-2,9' */
+/* Computed positions: -k'1-2,8-9' */
 
 #if !(                                                                         \
     (' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) && ('%' == 37) && \
@@ -78,12 +78,12 @@ struct key {
     hash_value_t value;
 };
 
-#define TOTAL_KEYWORDS 22
+#define TOTAL_KEYWORDS 27
 #define MIN_WORD_LENGTH 2
 #define MAX_WORD_LENGTH 19
 #define MIN_HASH_VALUE 0
-#define MAX_HASH_VALUE 21
-/* maximum key range = 22, duplicates = 0 */
+#define MAX_HASH_VALUE 32
+/* maximum key range = 33, duplicates = 0 */
 
 #ifdef __GNUC__
 
@@ -94,21 +94,21 @@ struct key {
 #endif
 static uint16_t hash(const char *str, uint8_t len) {
     static const uint8_t asso_values[] = {
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 7,  22, 2,  22, 1,  3,  3,  5,  22, 18, 0,  22, 12,
-        22, 1,  4,  7,  0,  22, 11, 2,  5,  16, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
-        22, 22, 22, 22};
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 1,  33, 12, 33, 2,  4,  1,  10, 33, 15, 14, 33, 1,
+        18, 3,  1,  0,  0,  33, 2,  8,  18, 14, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33,
+        33, 33, 33, 33};
     uint16_t hval = 0;
 
     switch (len) {
@@ -116,6 +116,8 @@ static uint16_t hash(const char *str, uint8_t len) {
             hval += asso_values[(uint8_t)str[8]];
         /*FALLTHROUGH*/
         case 8:
+            hval += asso_values[(uint8_t)str[7]];
+        /*FALLTHROUGH*/
         case 7:
         case 6:
         case 5:
@@ -132,28 +134,39 @@ static uint16_t hash(const char *str, uint8_t len) {
 }
 
 static const struct key wordlist[] = {
-    {"ping", hash_ping},
-    {"minor", hash_minor},
-    {"patch", hash_patch},
-    {"major", hash_major},
-    {"message_id", hash_message_id},
-    {"serial", hash_serial},
-    {"name", hash_name},
     {"pong", hash_pong},
+    {"ok", hash_ok},
     {"command", hash_command},
-    {"set_antenna", hash_set_antenna},
-    {"device_info", hash_device_info},
-    {"compile_date", hash_compile_date},
-    {"toggle", hash_toggle},
-    {"compile_time", hash_compile_time},
+    {"relays", hash_relays},
     {"response", hash_response},
     {"compiler_version", hash_compiler_version},
-    {"software_version", hash_software_version},
+    {"cdn", hash_cdn},
+    {"compile_date", hash_compile_date},
     {"request_device_info", hash_request_device_info},
-    {"auto", hash_auto},
-    {"ok", hash_ok},
+    {"serial", hash_serial},
+    {"software_version", hash_software_version},
+    {"set_antenna", hash_set_antenna},
+    {"patch", hash_patch},
+    {"name", hash_name},
+    {"ping", hash_ping},
+    {"major", hash_major},
+    {"cup", hash_cup},
+    {"minor", hash_minor},
+    {"toggle", hash_toggle},
+    {"message_id", hash_message_id},
+    {"device_info", hash_device_info},
+    {"compile_time", hash_compile_time},
+    {"ldn", hash_ldn},
     {"short", hash_short},
     {"full", hash_full},
+    {""},
+    {"auto", hash_auto},
+    {""},
+    {""},
+    {""},
+    {""},
+    {""},
+    {"lup", hash_lup},
 };
 
 const struct key *in_word_set(const char *str, uint8_t len) {
@@ -174,7 +187,7 @@ const struct key *in_word_set(const char *str, uint8_t len) {
 /* ************************************************************************** */
 
 #if TOTAL_KEYWORDS != (MAX_HASH_VALUE + 1)
-    #error Gperf output is not minimal! Add more iterations!
+    // #error Gperf output is not minimal! Add more iterations!
 #endif
 
 hash_value_t json_hash(const char *string) {

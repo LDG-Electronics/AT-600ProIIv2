@@ -104,6 +104,11 @@ static const json_node_t compilation_info[] = {
     {nKey, "toggle"}
     {nKey, "short"}
     {nKey, "full"}
+    {nKey, "relays"}
+    {nKey, "cup"}
+    {nKey, "cdn"}
+    {nKey, "lup"}
+    {nKey, "ldn"}
 */
 
 const json_node_t msgDeviceInfo[] = {

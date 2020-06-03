@@ -9,17 +9,34 @@
 /* [[[end]]] */
 
 /* ************************************************************************** */
-//! There's no way to prove that this list is up-to-date.
-//! Search the entire project for "timer" or "timer.h" before claiming a timer.
+/* [[[cog
+    timers = {f'timer{k}': [] for k in range(7)}
+    for f in utils.all_files('src', '*.c'):
+        text = open(f).read()
+        for t in timers:
+            if t in text:
+                timers[t].append(f[4:])
 
-// Timer registry
-// Timer0 is used in the stopwatch module
-// Timer1 is unused
-// Timer2 is used for the systick module
-// Timer3 is used in the frequency counter
-// Timer4 is used in the frequency counter
-// Timer5 is unused
-// Timer6 is used for the button debounce subsystem
+    cog.outl(utils.start_comment + '  //' + '! Timer registry')
+    for t in timers:
+        cog.out(f'    {t} is ')
+        if timers[t]:
+            cog.out('used in: ' + ', '.join(timers[t]))
+        else:
+            cog.out('unused' )
+        cog.outl('')
+    cog.outl(utils.end_comment)
+]]] */
+/*  //! Timer registry
+    timer0 is used in: os/stopwatch.c
+    timer1 is unused
+    timer2 is used in: os/system_time.c
+    timer3 is used in: rf_sensor.c
+    timer4 is used in: rf_sensor.c
+    timer5 is unused
+    timer6 is used in: os/buttons.c
+*/
+/* [[[end]]] */
 
 /* ************************************************************************** */
 // Button stuff
@@ -44,11 +61,8 @@
 
     Consequently, inputs need to be inverted.
 */
-#define BUTTON_PIN_NAME_FORMAT(NAME) !NAME##_BUTTON_PIN
+#define BUTTON_PIN_NAME_FORMAT(NAME) read_##NAME##_BUTTON_PIN
 
 /* ************************************************************************** */
-
-extern void startup(void);
-extern void shutdown(void);
 
 #endif // _HARDWARE_H_

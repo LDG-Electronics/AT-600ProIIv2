@@ -61,4 +61,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.programmer not in programmers.keys():
+        print(f"Could not find an upload profile for '{args.programmer}'!")
+        sys.exit(1)
+
     main(programmers[args.programmer], args)

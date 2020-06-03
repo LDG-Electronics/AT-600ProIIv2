@@ -1,5 +1,5 @@
 #include "config.h"
-#include "hardware.h"
+#include "system.h"
 #include "ui/ui.h"
 
 /* ************************************************************************** */
