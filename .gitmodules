@@ -7,3 +7,6 @@
 [submodule "src/libraries"]
 	path = src/libraries
 	url = https://github.com/LDG-Electronics/PIC18FXXK42-SDK-LIBRARIES
+[submodule "toolchain"]
+	path = toolchain
+	url = https://github.com/DaelonSuzuka/XC8-Toolchain.git
