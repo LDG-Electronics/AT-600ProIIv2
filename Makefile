@@ -12,4 +12,4 @@ MAKEFLAGS += -s
 TOOLCHAIN_DIR = toolchain
 
 # include the toolchain makefile
-include $(TOOLCHAIN_DIR)/toolchain.mk
+include $(TOOLCHAIN_DIR)/easy_xc8.mk
