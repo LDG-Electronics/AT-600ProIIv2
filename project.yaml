@@ -4,15 +4,15 @@ sw_version:
   major: '0'
   minor: '5'
   patch: '0'
-target: 18F47K42
+processor: 18F47K42
 programmer: ICD-U80-win
 src_dir: src
 obj_dir: obj
 build_dir: build
 defines:
-  - DEVELOPMENT
-  - PRODUCT_V_MAJOR=0
-  - PRODUCT_V_MINOR=5
-  - PRODUCT_V_PATCH=0
+- DEVELOPMENT
+- PRODUCT_V_MAJOR=0
+- PRODUCT_V_MINOR=5
+- PRODUCT_V_PATCH=0
 linker_flags:
-  - -Pshell_cmds
+- -Pshell_cmds
