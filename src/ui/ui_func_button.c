@@ -1,6 +1,7 @@
 #include "display.h"
 #include "events.h"
 #include "os/buttons.h"
+#include "pins.h"
 #include "rf_sensor.h"
 #include "ui.h"
 #include "ui_idle_block.h"

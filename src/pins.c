@@ -1,11 +1,10 @@
 #include "pins.h"
-// #include "peripherals/pic_header.h"
-#include <pic18_chip_select.h>
+#include "peripherals/pic_header.h"
 
 /* ************************************************************************** */
 /* [[[cog
-    from codegen import pins, fmt
-    cog.outl(fmt(pins.pin_definitions())) 
+    from codegen import fmt; import pins
+    cog.outl(fmt(pins.pin_definitions()))
 ]]] */
 
 // GPIO read functions
@@ -18,6 +17,19 @@ bool read_LDN_BUTTON_PIN(void) { return PORTBbits.RB5; }
 bool read_FREQ_PIN(void) { return PORTEbits.RE0; }
 bool read_TUNE_BUTTON_PIN(void) { return PORTEbits.RE1; }
 bool read_ANT_BUTTON_PIN(void) { return PORTEbits.RE2; }
+
+// Button stuff
+// array of pointers to button reading functions
+button_function_t buttonFunctions[NUMBER_OF_BUTTONS] = {
+    read_POWER_BUTTON_PIN, //
+    read_CDN_BUTTON_PIN,   //
+    read_LUP_BUTTON_PIN,   //
+    read_CUP_BUTTON_PIN,   //
+    read_FUNC_BUTTON_PIN,  //
+    read_LDN_BUTTON_PIN,   //
+    read_TUNE_BUTTON_PIN,  //
+    read_ANT_BUTTON_PIN,   //
+};
 
 // GPIO write functions
 void set_POWER_LED_PIN(bool value) { LATAbits.LATA2 = value; }
@@ -35,8 +47,8 @@ void set_FP_DATA_PIN(bool value) { LATCbits.LATC5 = value; }
 
 /* ************************************************************************** */
 /* [[[cog
-    from codegen import pins, fmt
-    cog.outl(fmt(pins.pins_init())) 
+    from codegen import fmt; import pins
+    cog.outl(fmt(pins.pins_init()))
 ]]] */
 
 void pins_init(void) {
@@ -53,15 +65,15 @@ void pins_init(void) {
 
     // POWER_BUTTON_PIN
     TRISAbits.TRISA3 = 1;
-    WPUAbits.WPUA3 = 0;
+    WPUAbits.WPUA3 = 1;
 
     // CDN_BUTTON_PIN
     TRISAbits.TRISA4 = 1;
-    WPUAbits.WPUA4 = 0;
+    WPUAbits.WPUA4 = 1;
 
     // LUP_BUTTON_PIN
     TRISAbits.TRISA5 = 1;
-    WPUAbits.WPUA5 = 0;
+    WPUAbits.WPUA5 = 1;
 
     // FP_CLOCK_PIN
     TRISAbits.TRISA6 = 0;
@@ -74,15 +86,15 @@ void pins_init(void) {
 
     // CUP_BUTTON_PIN
     TRISBbits.TRISB2 = 1;
-    WPUBbits.WPUB2 = 0;
+    WPUBbits.WPUB2 = 1;
 
     // FUNC_BUTTON_PIN
     TRISBbits.TRISB4 = 1;
-    WPUBbits.WPUB4 = 0;
+    WPUBbits.WPUB4 = 1;
 
     // LDN_BUTTON_PIN
     TRISBbits.TRISB5 = 1;
-    WPUBbits.WPUB5 = 0;
+    WPUBbits.WPUB5 = 1;
 
     // RELAY_CLOCK_PIN
     TRISCbits.TRISC0 = 0;
@@ -119,10 +131,10 @@ void pins_init(void) {
 
     // TUNE_BUTTON_PIN
     TRISEbits.TRISE1 = 1;
-    WPUEbits.WPUE1 = 0;
+    WPUEbits.WPUE1 = 1;
 
     // ANT_BUTTON_PIN
     TRISEbits.TRISE2 = 1;
-    WPUEbits.WPUE2 = 0;
+    WPUEbits.WPUE2 = 1;
 }
 // [[[end]]]

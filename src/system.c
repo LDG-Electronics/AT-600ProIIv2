@@ -1,4 +1,3 @@
-#include "hardware.h"
 #include "display.h"
 #include "flags.h"
 #include "memory.h"
@@ -14,6 +13,7 @@
 #include "peripherals/ports.h"
 #include "peripherals/pps.h"
 #include "peripherals/reset.h"
+#include "peripherals/timer.h"
 #include "peripherals/uart.h"
 #include "pins.h"
 #include "relays.h"
@@ -22,22 +22,27 @@
 #include "usb/usb.h"
 
 /* ************************************************************************** */
-/*  Notes on startup()
 
-    This function shall be called exactly once: In main(), before any main loop
-    or task scheduler is started.
+// Set up the timer for the button isr
+static void button_isr_init(void) {
+    // Timer 6 configured using MPLABX MCC
+    // Period is calculated to be exactly 5ms
+    timer6_clock_source(TMR_CLK_FOSC);
+    timer6_prescale(TMR_PRE_1_128);
+    timer6_postscale(TMR_POST_1_10);
+    timer6_period_set(0xF9);
+    timer6_interrupt_enable();
+    timer6_start();
+}
 
-    The only contents of startup() should be the various xxx_init() functions
-    used to initialize various parts of the system.
+// call scan_buttons() every 5ms
+void __interrupt(irq(TMR6), high_priority) button_ISR(void) {
+    timer6_IF_clear();
 
-    Facts about the init process:
-    init functions may or may not have dependecies
-    init functions may or may not be idempotent
-    init functions for peripherals should be called during the init for whatever
-    driver or system uses that peripheral
+    scan_buttons();
+}
 
-    TODO: write down the init ordering rules that live in daelon's head
-*/
+/* ************************************************************************** */
 
 static void system_init(void) {
     internal_oscillator_init();
@@ -54,7 +59,8 @@ static void OS_init(void) {
     config.rxPin = PPS_DEBUG_RX_PIN;
     shell_init(UART_init(config));
 
-    buttons_init();
+    buttons_init(NUMBER_OF_BUTTONS, buttonFunctions);
+    button_isr_init();
 
     log_init();
     system_time_init();
@@ -77,6 +83,22 @@ static void application_init(void) {
 }
 
 /* ************************************************************************** */
+/*  Notes on startup()
+
+    This function shall be called exactly once: In main(), before any main loop
+    or task scheduler is started.
+
+    The only contents of startup() should be the various xxx_init() functions
+    used to initialize various parts of the system.
+
+    Facts about the init process:
+    init functions may or may not have dependecies
+    init functions may or may not be idempotent
+    init functions for peripherals should be called during the init for whatever
+    driver or system uses that peripheral
+
+    TODO: write down the init ordering rules that live in daelon's head
+*/
 
 void startup(void) {
     system_init();

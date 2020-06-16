@@ -1,7 +1,7 @@
 #include "usb_messages.h"
-#include "hardware.h"
 #include "os/json/json_print.h"
 #include "peripherals/device_information.h"
+#include "project_variables.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -128,13 +128,13 @@ const json_node_t msgDeviceInfo[] = {
 };
 
 const json_node_t deviceInfoShort[] = {
-    {nControl, "{"},                //
-    {nKey, "device_info"},          //
-    {nControl, "{"},                //
-    {nKey, "name"},                 //
-    {nString, &productName},        //
-    {nNodeList, &serial_number},    //
-    {nControl, "\e"},               //
+    {nControl, "{"},             //
+    {nKey, "device_info"},       //
+    {nControl, "{"},             //
+    {nKey, "name"},              //
+    {nString, &productName},     //
+    {nNodeList, &serial_number}, //
+    {nControl, "\e"},            //
 };
 
 const json_node_t deviceInfoFull[] = {
@@ -183,8 +183,8 @@ void set_json_pongString(char *string) {
 }
 
 const json_node_t responsePong[] = {
-    {nControl, "{"},            //
-    {nKey, "pong"},             //
+    {nControl, "{"},             //
+    {nKey, "pong"},              //
     {nString, &json_pongString}, //
-    {nControl, "\e"},           //
+    {nControl, "\e"},            //
 };

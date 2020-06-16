@@ -11,8 +11,5 @@ obj_dir: obj
 build_dir: build
 defines:
 - DEVELOPMENT
-- PRODUCT_V_MAJOR=0
-- PRODUCT_V_MINOR=5
-- PRODUCT_V_PATCH=0
 linker_flags:
 - -Pshell_cmds

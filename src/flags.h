@@ -5,11 +5,6 @@
 #include <stdint.h>
 
 /* ************************************************************************** */
-/*  system_flags2_t is a potential replacement for system_flags_t that is more
-    compatible with other systems. Flags still need to be saved into EEPROM,
-    but I don't see a reason to not just pack them right before you save them.
-
-*/
 
 typedef struct {
     uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS]; // 1 is bypass, 0 is.. not?

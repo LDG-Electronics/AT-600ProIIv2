@@ -3,6 +3,7 @@
 #include "flags.h"
 #include "os/buttons.h"
 #include "os/system_time.h"
+#include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
 #include "ui.h"

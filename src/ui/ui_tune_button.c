@@ -4,6 +4,7 @@
 #include "os/buttons.h"
 #include "os/log_macros.h"
 #include "os/system_time.h"
+#include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
 #include "ui.h"
