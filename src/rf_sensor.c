@@ -81,7 +81,7 @@ void SWR_threshold_increment(void) {
 bool check_for_RF(void) {
     uint16_t sum = 0;
     for (uint8_t i = 0; i < NUMBER_OF_SAMPLES; i++) {
-        sum += adc_read(0);
+        sum += adc_read(ADC_FWD_PIN);
     }
 
     uint16_t average = sum / NUMBER_OF_SAMPLES;
@@ -121,7 +121,7 @@ bool wait_for_stable_RF(uint16_t timeoutDuration) {
 
     while (1) {
         iterations++;
-        int16_t rawFWD = adc_read(0);
+        int16_t rawFWD = adc_read(ADC_FWD_PIN);
         smoothFWD = smoothFWD - (BETA * (smoothFWD - rawFWD));
 
         if (fabs(prevSmoothFWD - smoothFWD) < (smoothFWD * .01)) {
@@ -157,8 +157,8 @@ void measure_RF(void) {
 
     // Collect measurements
     for (uint8_t i = 0; i < NUM_OF_SWR_SAMPLES; i++) {
-        tempForward += adc_read(0);
-        tempReverse += adc_read(1);
+        tempForward += adc_read(ADC_FWD_PIN);
+        tempReverse += adc_read(ADC_REV_PIN);
     }
 
     // publish the averaged forward and reverse
