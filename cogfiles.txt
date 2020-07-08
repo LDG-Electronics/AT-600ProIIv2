@@ -1,4 +1,4 @@
 src/pins.h -r
 src/pins.c -r
-src/usb/usb_json_hash.c -r
+src/usb/hash.h -r
 src/project_variables.h -r

@@ -6,6 +6,7 @@
 #include "os/shell/shell.h"
 #include "os/stopwatch.h"
 #include "os/system_time.h"
+#include "os/usb.h"
 #include "peripherals/device_information.h"
 #include "peripherals/interrupt.h"
 #include "peripherals/oscillator.h"
@@ -19,7 +20,7 @@
 #include "relays.h"
 #include "rf_sensor.h"
 #include "tuning.h"
-#include "usb/usb.h"
+#include "usb/messages.h"
 
 /* ************************************************************************** */
 
@@ -76,10 +77,10 @@ static void application_init(void) {
     memory_init();
 
     uart_config_t config = UART_get_config(1);
-    config.baud = _115200;
+    config.baud = _9600;
     config.txPin = PPS_USB_TX_PIN;
     config.rxPin = PPS_USB_RX_PIN;
-    usb_init(UART_init(config));
+    usb_init(UART_init(config), respond);
 }
 
 /* ************************************************************************** */
