@@ -1,127 +1,283 @@
-#include "includes.h"
+#include "flags.h"
+#include "os/log_macros.h"
+#include "peripherals/nonvolatile_memory.h"
+#include "relay_driver.h"
+#include "relays.h"
+#include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
+//! READ THIS BEFORE TRYING TO UNDERSTAND THIS FILE
+/*  Flag Manager theory of operation:
 
-system_flags_s system_flags;
+    The system has a handful of centrally managed systemFlags to keep track of
+    the state of the unit. Yes, systemFlags is a global variable.
 
-uint8_t bypassStatus[NUM_OF_ANTENNA_PORTS];
+    The contents of these flags needs to persist across power loss. The best way
+    to do this is storing flags in EEPROM. While we're at it, there are several
+    other system settings that should also be stored in EEPROM.
 
-#define FLAG_BLOCK_WIDTH 10
-#define NUM_OF_FLAG_BLOCKS 15
+    We need to store:
+    SWR Threshold Index, from RF_sensor.h
+    systemFlags, from flags.h
+    currentRelays and preBypassRelays, from relays.h
+
+    The collection of all of these fields is called a 'record'. There's a record
+    data type, flag_record_t, that will assist us in saving/restoring these
+    variables.
+
+    EEPROM has a limited lifespan. The PIC18FXXK42 datasheet lists EEPROM write
+    endurance as 100k erase/write cycles. In order to lengthen product lifespan,
+    we're using a simple rotating wear-leveling technique. There are 20 'slots'
+    allocated in EEPROM, and instead of updating a single record at a single
+    EEPROM location, we iterate through the record slots. This spreads out the
+    erase cycles across a larger number of EEPROM cells, therefore making each
+    cell last longer.
+
+    The current record is marked by the most-significant-bit of the first byte.
+    A 0 in that spot means that it's the most recent, a 1 in that spot means
+    it's... not the most recent.
+*/
+//! SERIOUSLY, READ THIS FIRST
+
+system_flags_t systemFlags;
+
+/* -------------------------------------------------------------------------- */
+/*  system_flag_bits_t is a data used to pack the full sized system flags into
+    a form that's efficient to store in EEPROM
+
+*/
+typedef struct {
+    unsigned ant1Bypass : 1;
+    unsigned ant2Bypass : 1;
+    unsigned antenna : 1;
+    unsigned autoMode : 1;
+    unsigned peakMode : 1;
+    unsigned scaleMode : 1;
+    unsigned powerStatus : 1;
+} system_flag_bits_t;
+
+system_flag_bits_t pack_system_flags(void) {
+    system_flag_bits_t flagBits;
+
+    flagBits.ant1Bypass = systemFlags.bypassStatus[0];
+    flagBits.ant2Bypass = systemFlags.bypassStatus[1];
+    flagBits.antenna = systemFlags.antenna;
+    flagBits.autoMode = systemFlags.autoMode;
+    flagBits.peakMode = systemFlags.peakMode;
+    flagBits.scaleMode = systemFlags.scaleMode;
+    flagBits.powerStatus = systemFlags.powerStatus;
+
+    return flagBits;
+}
+
+void unpack_system_flags(system_flag_bits_t flagBits) {
+    systemFlags.bypassStatus[0] = flagBits.ant1Bypass;
+    systemFlags.bypassStatus[1] = flagBits.ant2Bypass;
+    systemFlags.antenna = flagBits.antenna;
+    systemFlags.autoMode = flagBits.autoMode;
+    systemFlags.peakMode = flagBits.peakMode;
+    systemFlags.scaleMode = flagBits.scaleMode;
+    systemFlags.powerStatus = flagBits.powerStatus;
+}
+
+/* ************************************************************************** */
+/*  flag_record_fields_t
+
+    This is kind of a hot mess, but there's a good reason. Manually counting
+    struct sizes is generally a bad idea. Struct size is not always obvious, and
+    a defined literal is always at risk of falling out-of-sync with the struct
+    definition.
+
+    Instead, FLAG_RECORD_SIZE is determined with the sizeof() operator. Using
+    sizeof() causes a bit of a chicken-and-egg problem, because the value needs
+    to be used INSIDE the flag_record_t struct, whose definition can't be known
+    until FLAG_RECORD_SIZE is defined.
+
+    The workaround is to define the actual fields in flag_record_fields_t, and
+    then add that to flag_record_t as an anonymous member. This is apparently
+    gross and non-portable, but it lets me use sizeof().
+*/
+typedef struct {
+    uint8_t threshIndex;
+    system_flag_bits_t flagBits;
+    packed_relays_t relayBits[NUM_OF_ANTENNA_PORTS * 2];
+} flag_record_fields_t;
+
+/*  flag_record_t is syntactic sugar used to streamline the saving and restoring
+    of general system status to/from EEPROM.
+
+    The array[] member is a trick to gain bytewise access to the entire struct,
+    so we can iterate through it as we read or write one byte of EEPROM at a
+    time.
+*/
+#define FLAG_RECORD_SIZE (uint8_t)sizeof(flag_record_fields_t)
+typedef union {
+    flag_record_fields_t fields;
+    uint8_t array[FLAG_RECORD_SIZE];
+} flag_record_t;
+
+/*  K42 series PICs will either have 256 or 1024 bytes of EEPROM, but we're
+    probably using one with 1024.
+
+    Therefore if(!) FLAG_RECORD_SIZE is 10, 20 record slots will consume 200
+    bytes of EEPROM.
+*/
+#define NUMBER_OF_RECORD_SLOTS 20
 
 /* ************************************************************************** */
 
 void flags_init(void) {
-    // populate system_flags with default values
-    system_flags.ant1Bypass = 1;  // default value is bypass
-    system_flags.ant2Bypass = 1;  // default value is bypass
-    system_flags.antenna = 0;     // default value is Ant 2
-    system_flags.autoMode = 0;    // default value is semi mode
-    system_flags.peakMode = 0;    // default value is NOT peak mode
-    system_flags.scaleMode = 0;   // default value is
-    system_flags.powerStatus = 1; // default value is 1
+    nonvolatile_memory_init();
+
+    // populate systemFlags with default values
+    systemFlags.bypassStatus[0] = 1; // default is bypass
+    systemFlags.bypassStatus[1] = 1; // default is bypass
+    systemFlags.antenna = 0;         // default is Ant 2
+    systemFlags.autoMode = 0;        // default is semi mode
+    systemFlags.peakMode = 0;        // default is NOT peak mode
+    systemFlags.scaleMode = 1;       // default is 1, full scale
+    systemFlags.powerStatus = 1;     // default is 1
+
     swrThreshIndex = 0;
-
-    // Attempt to load previously saved flags
-    load_flags();
-
-    // copy stored bypass values to the usable array
-    bypassStatus[0] = system_flags.ant1Bypass;
-    bypassStatus[1] = system_flags.ant2Bypass;
 
     log_register();
 }
 
-/* -------------------------------------------------------------------------- */
+/* ************************************************************************** */
 
-void load_flags(void) {
+#define NO_VALID_RECORD -1
+
+/*  find_current_record() steps through EEPROM, reading the first byte of
+    every stored record, looking for one where the first bit is 0.
+*/
+int16_t find_current_record(void) {
     uint8_t address = 0;
-    uint8_t valid = 0;
 
-    LOG_TRACE(println("load_flags"););
-
-    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
+    while (address < (FLAG_RECORD_SIZE * NUMBER_OF_RECORD_SLOTS)) {
         if ((internal_eeprom_read(address) & 0x80) == 0) {
-            valid = 1;
-            break;
+            return address;
         }
-        address += FLAG_BLOCK_WIDTH;
+        address += FLAG_RECORD_SIZE;
     }
 
-    if (valid == 1) {
-        LOG_INFO(printf("found valid records at: %d", address););
-
-        // Read stored values out into their containers
-        swrThreshIndex = (internal_eeprom_read(address) & 0x07);
-        system_flags.flags = internal_eeprom_read(address + 1);
-        currentRelays[0].top = internal_eeprom_read(address + 2);
-        currentRelays[0].bot = internal_eeprom_read(address + 3);
-        currentRelays[1].top = internal_eeprom_read(address + 4);
-        currentRelays[1].bot = internal_eeprom_read(address + 5);
-        preBypassRelays[0].top = internal_eeprom_read(address + 6);
-        preBypassRelays[0].bot = internal_eeprom_read(address + 7);
-        preBypassRelays[1].top = internal_eeprom_read(address + 8);
-        preBypassRelays[1].bot = internal_eeprom_read(address + 9);
-    } else {
-        LOG_INFO(println("no valid record"););
-    }
-    SWR_threshold_set();
+    // didn't find record
+    return NO_VALID_RECORD;
 }
 
-void save_flags(void) {
-    uint8_t address = 0;
-    uint8_t tempThreshIndex = 0;
+/* ************************************************************************** */
 
-    relays_s tempRelays[NUM_OF_ANTENNA_PORTS * 2];
-    system_flags_s temp_flags;
+// reads EEPROM at the given address and returns a populated record
+flag_record_t read_record(uint16_t address) {
+    flag_record_t record;
 
-    LOG_TRACE(println("save_flags"););
+    // mask off the record
+    record.array[0] = (internal_eeprom_read(address) & 0x7f);
 
-    while (address < (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS)) {
-        if ((internal_eeprom_read(address) & 0x80) == 0)
-            break;
-        address += FLAG_BLOCK_WIDTH;
+    // remaining elements can be read directly
+    for (uint8_t i = 1; i < FLAG_RECORD_SIZE; i++) {
+        record.array[i] = (internal_eeprom_read(address + i));
     }
 
-    tempThreshIndex = (internal_eeprom_read(address) & 0x7f);
-    temp_flags.flags = internal_eeprom_read(address + 1);
-    tempRelays[0].top = internal_eeprom_read(address + 2);
-    tempRelays[0].bot = internal_eeprom_read(address + 3);
-    tempRelays[1].top = internal_eeprom_read(address + 4);
-    tempRelays[1].bot = internal_eeprom_read(address + 5);
-    tempRelays[2].top = internal_eeprom_read(address + 6);
-    tempRelays[2].bot = internal_eeprom_read(address + 7);
-    tempRelays[3].top = internal_eeprom_read(address + 8);
-    tempRelays[3].bot = internal_eeprom_read(address + 9);
+    return record;
+}
 
-    if ((tempThreshIndex != swrThreshIndex) ||
-        (temp_flags.flags != system_flags.flags) ||
-        (tempRelays[0].top != currentRelays[0].top) ||
-        (tempRelays[0].bot != currentRelays[0].bot) ||
-        (tempRelays[1].top != currentRelays[1].top) ||
-        (tempRelays[1].bot != currentRelays[1].bot) ||
-        (tempRelays[2].top != preBypassRelays[0].top) ||
-        (tempRelays[2].bot != preBypassRelays[0].bot) ||
-        (tempRelays[3].top != preBypassRelays[1].top) ||
-        (tempRelays[3].bot != preBypassRelays[1].bot)) {
+// copy record fields back to their homes in the system
+void unpack_record_to_system(flag_record_t *record) {
+    // these fields can be read directly
+    swrThreshIndex = record->fields.threshIndex;
+    unpack_system_flags(record->fields.flagBits);
+
+    // these fields need to be unpacked
+    currentRelays[0] = unpack_relays(record->fields.relayBits[0]);
+    currentRelays[1] = unpack_relays(record->fields.relayBits[1]);
+    preBypassRelays[0] = unpack_relays(record->fields.relayBits[2]);
+    preBypassRelays[1] = unpack_relays(record->fields.relayBits[3]);
+}
+
+// restore most recently saved system settings from EEPROM
+void load_flags(void) {
+    LOG_TRACE({ println("load_flags"); });
+
+    int16_t address = find_current_record();
+
+    if (address != NO_VALID_RECORD) {
+        LOG_INFO({ printf("found valid records at: %d\r\n", address); });
+
+        flag_record_t existingRecord = read_record(address);
+        unpack_record_to_system(&existingRecord);
+
+    } else {
+        LOG_INFO({ println("no valid record"); });
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+// writes the provided record to EEPROM at the given address
+void write_record(flag_record_t *record, uint16_t address) {
+    // first element needs to be modified
+    internal_eeprom_write(address, (record->array[0] & 0x7f));
+
+    // remaining elements can be written directly
+    for (uint8_t i = 1; i < FLAG_RECORD_SIZE; i++) {
+        internal_eeprom_write(address + i, record->array[i]);
+    }
+}
+
+// assemble a record from various system status variables
+flag_record_t pack_system_to_record(void) {
+    flag_record_t record;
+
+    record.fields.threshIndex = swrThreshIndex;
+    record.fields.flagBits = pack_system_flags();
+
+    // these fields need to be packed
+    record.fields.relayBits[0] = pack_relays(currentRelays[0]);
+    record.fields.relayBits[1] = pack_relays(currentRelays[1]);
+    record.fields.relayBits[2] = pack_relays(preBypassRelays[0]);
+    record.fields.relayBits[3] = pack_relays(preBypassRelays[1]);
+
+    return record;
+}
+
+// save current system settings to EEPROM
+// TODO: if this is called too often, it fails to detect matching records
+// Ian suggests looking at discrepencies in antenna selection
+void save_flags(void) {
+    LOG_TRACE({ println("save_flags"); });
+
+    int16_t address = find_current_record();
+    // if no record found, then we're saving to address 0
+    if (address == NO_VALID_RECORD) {
+        address = 0;
+    }
+
+    // assemble our records
+    flag_record_t existingRecord = read_record(address);
+    flag_record_t newRecord = pack_system_to_record();
+
+    // make sure what we're trying to save is different
+    bool recordsAreDifferent = false;
+    for (uint8_t i = 0; i < FLAG_RECORD_SIZE; i++) {
+        if (existingRecord.array[i] != newRecord.array[i]) {
+            recordsAreDifferent = true;
+        }
+    }
+
+    if (recordsAreDifferent) {
+        // invalidate the old record
         internal_eeprom_write(address, 0xff);
 
-        address += FLAG_BLOCK_WIDTH;
-        if (address > (FLAG_BLOCK_WIDTH * NUM_OF_FLAG_BLOCKS))
+        // increment to the next record location
+        address += FLAG_RECORD_SIZE;
+        if (address > (FLAG_RECORD_SIZE * NUMBER_OF_RECORD_SLOTS)) {
             address = 0;
+        }
 
-        LOG_INFO(printf("saving records at: %d", address););
-
-        internal_eeprom_write(address, (swrThreshIndex & 0x7f));
-        internal_eeprom_write(address + 1, system_flags.flags);
-        internal_eeprom_write(address + 2, currentRelays[0].top);
-        internal_eeprom_write(address + 3, currentRelays[0].bot);
-        internal_eeprom_write(address + 4, currentRelays[1].top);
-        internal_eeprom_write(address + 5, currentRelays[1].bot);
-        internal_eeprom_write(address + 6, preBypassRelays[0].top);
-        internal_eeprom_write(address + 7, preBypassRelays[0].bot);
-        internal_eeprom_write(address + 8, preBypassRelays[1].top);
-        internal_eeprom_write(address + 9, preBypassRelays[1].bot);
+        LOG_INFO({ printf("saving records at: %d\r\n", address); });
+        write_record(&newRecord, address);
+    } else {
+        LOG_INFO({ println("new record matched existing record"); });
     }
 }

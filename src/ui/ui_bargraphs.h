@@ -1,14 +1,13 @@
-#ifndef _METER_H_
-#define _METER_H_
+#ifndef _UI_BARGRAPHS_H_
+#define _UI_BARGRAPHS_H_
 
 /* ************************************************************************** */
 
-#include "peripherals/uart.h"
+extern void enable_bargraph_updates(void);
+extern void disable_bargraph_updates(void);
 
 /* ************************************************************************** */
 
-extern void meter_init(uart_interface_t interface);
-
-extern void attempt_meter_update(void);
+extern void update_bargraphs(void);
 
 #endif

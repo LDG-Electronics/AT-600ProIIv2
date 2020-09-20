@@ -1,74 +1,46 @@
 {
     "configurations": [
         {
-            "name": "Mac",
-            "includePath": [
-                "/usr/include",
-                "/usr/local/include",
-                "${workspaceRoot}"
-            ],
-            "defines": [],
-            "intelliSenseMode": "clang-x64",
-            "browse": {
-                "path": [
-                    "/usr/include",
-                    "/usr/local/include",
-                    "${workspaceRoot}"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            },
-            "macFrameworkPath": [
-                "/System/Library/Frameworks",
-                "/Library/Frameworks"
-            ]
-        },
-        {
-            "name": "Linux",
-            "includePath": [
-                "/usr/include",
-                "/usr/local/include",
-                "${workspaceRoot}"
-            ],
-            "defines": [],
-            "intelliSenseMode": "clang-x64",
-            "browse": {
-                "path": [
-                    "/usr/include",
-                    "/usr/local/include",
-                    "${workspaceRoot}"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            }
-        },
-        {
             "name": "Win32",
             "includePath": [
-                "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/*",
-                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/um",
-                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/shared",
-                "${workspaceRoot}",
-                "C:/Microchip/xc8/v1.45/include"
+                "${workspaceFolder}/**",
+                "C:/Microchip/xc8/v2.20/pic/include",
+                "C:/Microchip/xc8/v2.20/pic/include/c90",
+                "C:/Microchip/xc8/v2.20/pic/include/proc"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "_18F47K42",
+                "DEVELOPMENT"
             ],
-            "intelliSenseMode": "msvc-x64",
-            "browse": {
-                "path": [
-                    "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/*",
-                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/um",
-                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/shared",
-                    "${workspaceRoot}"
-                ],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": ""
-            },
-            "cStandard": "c11",
-            "cppStandard": "c++17"
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "C:/Microchip/xc8/v2.20/pic/bin/clang.exe",
+            "cStandard": "c89",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/opt/Microchip/xc8/v2.20/pic/include",
+                "/opt/Microchip/xc8/v2.20/pic/include/c90",
+                "/opt/Microchip/xc8/v2.20/pic/include/proc"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "_18F47K42",
+                "DEVELOPMENT"
+            ],
+            "windowsSdkVersion": "10.0.18362.0",
+            "compilerPath": "/opt/Microchip/xc8/v2.20/pic/bin/clang.exe",
+            "cStandard": "c89",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
         }
     ],
     "version": 4

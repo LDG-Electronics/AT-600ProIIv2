@@ -1,58 +1,33 @@
-#include "includes.h"
+#include "events.h"
+#include "flags.h"
+#include "memory.h"
+#include "os/serial_port.h"
+#include "os/system_time.h"
+#include "peripherals/pic_header.h"
+#include "pins.h"
+#include "relays.h"
+#include "rf_sensor.h"
+#include "tuning.h"
 
 /* ************************************************************************** */
 
-void events_init(void) {
+void set_bypass_on(void) {
+    // save current relays into preBypassRelays
+    preBypassRelays[systemFlags.antenna] = read_current_relays();
 
-    // Calibration Event
-    // event_register("swr", send_RF_data_packet, 250);
-}
-
-/* ************************************************************************** */
-
-int16_t check_SWR_and_update_meters(void) {
-    printf("check_SWR %lu\r\n", (uint32_t)systick_read());
-
-    SWR_stable_average();
-
-    // if (!display.displayIsLocked) {
-    //     show_current_power_and_SWR();
-    // }
-}
-
-/* ************************************************************************** */
-
-void read_bypass(void) {
-    printf("BP%d;\r\n", bypassStatus[system_flags.antenna]);
-}
-
-void set_bypass_off(void) {
-    relays_s undoRelays;
-    undoRelays = currentRelays[system_flags.antenna];
-
-    currentRelays[system_flags.antenna] = preBypassRelays[system_flags.antenna];
-
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-        currentRelays[system_flags.antenna] = undoRelays;
+    if (put_relays(bypassRelays) == -1) {
+        // TODO: what do we do on relayerror?
     }
 }
 
-void set_bypass_on(void) {
-    relays_s undoRelays;
-    undoRelays = currentRelays[system_flags.antenna];
-
-    preBypassRelays[system_flags.antenna] = currentRelays[system_flags.antenna];
-    currentRelays[system_flags.antenna].caps = 0;
-    currentRelays[system_flags.antenna].inds = 0;
-    currentRelays[system_flags.antenna].z = 0;
-
-    if (put_relays(&bypassRelays) == -1) {
-        currentRelays[system_flags.antenna] = undoRelays;
+void set_bypass_off(void) {
+    if (put_relays(preBypassRelays[systemFlags.antenna]) == -1) {
+        // TODO: what do we do on relayerror?
     }
 }
 
 void toggle_bypass(void) {
-    if (bypassStatus[system_flags.antenna] == 1) {
+    if (systemFlags.bypassStatus[systemFlags.antenna] == 1) {
         set_bypass_off();
     } else {
         set_bypass_on();
@@ -61,74 +36,73 @@ void toggle_bypass(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void read_peak(void) { printf("PK%d;\r\n", system_flags.peakMode); }
-void set_peak_on(void) { system_flags.peakMode = 1; }
-void set_peak_off(void) { system_flags.peakMode = 0; }
-void toggle_peak(void) { system_flags.peakMode = !system_flags.peakMode; }
+void set_peak_mode(uint8_t value) { systemFlags.peakMode = value; }
+void set_peak_on(void) { systemFlags.peakMode = 1; }
+void set_peak_off(void) { systemFlags.peakMode = 0; }
+void toggle_peak(void) { systemFlags.peakMode = !systemFlags.peakMode; }
 
 /* -------------------------------------------------------------------------- */
 
-void read_scale(void) { printf("SC%d;\r\n", system_flags.scaleMode); }
-void set_scale_high(void) { system_flags.scaleMode = 1; }
-void set_scale_low(void) { system_flags.scaleMode = 0; }
-void toggle_scale(void) { system_flags.scaleMode = !system_flags.scaleMode; }
+void set_scale_mode(uint8_t value) { systemFlags.scaleMode = value; }
+void set_scale_high(void) { systemFlags.scaleMode = 1; }
+void set_scale_low(void) { systemFlags.scaleMode = 0; }
+void toggle_scale(void) { systemFlags.scaleMode = !systemFlags.scaleMode; }
 
 /* -------------------------------------------------------------------------- */
 
-void read_auto_mode(void) { printf("AT%d;\r\n", system_flags.autoMode); }
-void set_auto_on(void) { system_flags.autoMode = 1; }
-void set_auto_off(void) { system_flags.autoMode = 0; }
-void toggle_auto(void) { system_flags.autoMode = !system_flags.autoMode; }
+void set_auto_mode(uint8_t value) { systemFlags.autoMode = value; }
+void set_auto_on(void) { systemFlags.autoMode = 1; }
+void set_auto_off(void) { systemFlags.autoMode = 0; }
+void toggle_auto(void) { systemFlags.autoMode = !systemFlags.autoMode; }
 
 /* -------------------------------------------------------------------------- */
-
-void read_hiloz(void) {
-    printf("ZR%d;\r\n", currentRelays[system_flags.antenna].z);
-}
 
 void set_hiloz(uint8_t value) {
-    uint8_t undo = currentRelays[system_flags.antenna].z;
+    relays_t relays = read_current_relays();
 
-    currentRelays[system_flags.antenna].z = value;
+    relays.z = value;
 
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-        currentRelays[system_flags.antenna].z = undo;
+    if (put_relays(relays) == -1) {
+        // TODO: what do we do on relayerror?
     }
 }
 
 void set_high_z(void) { set_hiloz(1); }
-void set_low_z(void) { set_hiloz(1); }
-void toggle_hiloz(void) { set_hiloz(!currentRelays[system_flags.antenna].z); }
+void set_low_z(void) { set_hiloz(0); }
+void toggle_hiloz(void) { set_hiloz(!currentRelays[systemFlags.antenna].z); }
 
 /* -------------------------------------------------------------------------- */
 
-void read_antenna(void) { printf("AN%d;\r\n", system_flags.antenna); }
-
 void set_antenna(uint8_t value) {
-    uint8_t undo = system_flags.antenna;
+    systemFlags.antenna = value;
+    relays_t relays = read_current_relays();
 
-    system_flags.antenna = value;
-
-    if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-        system_flags.antenna = undo;
+    if (put_relays(relays) == -1) {
+        // TODO: what do we do on relayerror?
     }
-
-    update_antenna_LED();
 }
 
 void set_antenna_one(void) { set_antenna(1); }
 void set_antenna_two(void) { set_antenna(0); }
-void toggle_antenna(void) { set_antenna(!system_flags.antenna); }
+void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
 
 /* -------------------------------------------------------------------------- */
 
+/*  // TODO: this is completely fubar
+    It needs...
+    * animations
+    * success/failure
+    * how to handle if currentRF.frequency is invalid
+*/
 void manual_store(void) {
-    uint24_t address = convert_memory_address(currentRF.frequency);
-
-    memory_store(address);
+    relays_t relays = read_current_relays();
+    NVM_address_t address = convert_memory_address(currentRF.frequency);
+    if (address) {
+        memory_store(address, relays);
+    }
 
     // success animation?
-    play_animation(&center_crawl);
+    // play_animation(&center_crawl[0]);
 
     // failure animation?
     // repeat_animation(&blink_both_bars, 2);
@@ -136,108 +110,55 @@ void manual_store(void) {
 
 /* -------------------------------------------------------------------------- */
 
+void set_power_on(void) {
+    systemFlags.powerStatus = 1;
+    
+    if (put_relays(currentRelays[systemFlags.antenna]) == -1) {
+        // TODO: what do we do on relayerror?
+    }
+}
+
+void set_power_off(void) {
+    systemFlags.powerStatus = 0;
+
+    // put_relays() always publishes its argument to currentRelays
+    // We actually don't want that behavior here, so save currentRelays and
+    // restore it after it gets overwritten.
+    relays_t temp = read_current_relays();
+    if (put_relays(bypassRelays) == -1) {
+        // TODO: what do we do on relayerror?
+    }
+    currentRelays[systemFlags.antenna] = temp;
+}
+
+/* -------------------------------------------------------------------------- */
+
 void request_memory_tune(void) {
-    RADIO_CMD_PIN = 1;
+    // key the radio
+    set_RADIO_CMD_PIN(1);
 
-    memory_tune();
+    // first, attempt to recall an appropriate memory from storage
+    tuning_errors_t errors = memory_tune();
 
-    if (tuning_flags.noMemory == 1) {
-        full_tune();
+    // if we didn't find a good memory, but nothing else went wrong, then start
+    // from scratch with a full tune
+    if (errors.noMemory == 1) {
+        errors = full_tune();
     }
 
-    RADIO_CMD_PIN = 0;
-    tuning_followup_animation();
+    // unkey the radio
+    set_RADIO_CMD_PIN(0);
+    tuning_followup_animation(errors);
 }
 
 void request_full_tune(void) {
-    RADIO_CMD_PIN = 1;
+    // key the radio
+    set_RADIO_CMD_PIN(1);
 
-    full_tune();
+    // do the thing
+    tuning_errors_t errors = full_tune();
 
-    RADIO_CMD_PIN = 0;
-    tuning_followup_animation();
-}
-
-/* -------------------------------------------------------------------------- */
-
-void read_relays(void) {}
-
-void capacitor_increment(void) {
-    if (currentRelays[system_flags.antenna].caps < MAX_CAPACITORS) {
-        currentRelays[system_flags.antenna].caps++;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].caps--;
-        }
-        show_cap_relays();
-    } else {
-        play_animation_in_background(&blink_bottom_bar_3);
-    }
-}
-
-void capacitor_decrement(void) {
-    if (currentRelays[system_flags.antenna].caps > MIN_CAPACITORS) {
-        currentRelays[system_flags.antenna].caps--;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].caps++;
-        }
-        show_cap_relays();
-    } else {
-        play_animation_in_background(&blink_bottom_bar_3);
-    }
-}
-
-void inductor_increment(void) {
-    if (currentRelays[system_flags.antenna].inds < MAX_INDUCTORS) {
-        currentRelays[system_flags.antenna].inds++;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].inds--;
-        }
-        show_ind_relays();
-    } else {
-        play_animation_in_background(&blink_top_bar_3);
-    }
-}
-
-void inductor_decrement(void) {
-    if (currentRelays[system_flags.antenna].inds > MIN_INDUCTORS) {
-        currentRelays[system_flags.antenna].inds--;
-        if (put_relays(&currentRelays[system_flags.antenna]) == -1) {
-            currentRelays[system_flags.antenna].inds++;
-        }
-        show_ind_relays();
-    } else {
-        play_animation_in_background(&blink_top_bar_3);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-/*  print_RF_calibration_data()
-
-    This function provides data to a calibration routine that runs on an LDG
-    Servitor. The Servitor uses this data in conjunction with data from a
-    Kenwood TS-480 radio and Alpha 4510 wattmeter to generate frequency
-    compensation tables to improve the accuracy of the RF sensor.
-
-    (F, Fw, R, Rw, SWR,      frequency)
-    (0, 0,  0, 0,  0.000000, 0xffff)
-*/
-
-void print_RF_calibration_data(void) {
-    printf("(%u, %f, %u, %f, %f, %u)\r\n", currentRF.forward,
-           currentRF.forwardWatts, currentRF.reverse, currentRF.reverseWatts,
-           currentRF.swr, currentRF.frequency);
-}
-
-#define RF_DATA_PACKET_INTERVAL 100
-
-// This event is used to generate calibration tables
-int16_t send_RF_data_packet(void) {
-    SWR_stable_average();
-
-    show_current_power_and_SWR();
-
-    print_RF_calibration_data();
-
-    return RF_DATA_PACKET_INTERVAL;
+    // unkey the radio
+    set_RADIO_CMD_PIN(0);
+    tuning_followup_animation(errors);
 }

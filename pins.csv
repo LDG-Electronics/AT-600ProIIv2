@@ -1,0 +1,49 @@
+# processor=PIC18F47K42
+
+pin, name, tags
+
+# Port A
+A0, FWD_PIN, input analog
+A1, REV_PIN, input analog
+A2, POWER_LED_PIN, output gpio
+A3, POWER_BUTTON_PIN, input gpio button
+A4, CDN_BUTTON_PIN, input gpio button
+A5, LUP_BUTTON_PIN, input gpio button
+A6, FP_CLOCK_PIN, output gpio
+A7, RADIO_CMD_PIN, output gpio
+
+# Port B
+B0, 
+B1, ANT_LED_PIN, output gpio
+B2, CUP_BUTTON_PIN, input gpio button
+B3, 
+B4, FUNC_BUTTON_PIN, input gpio button
+B5, LDN_BUTTON_PIN, input gpio button
+B6, 
+B7, 
+
+# Port C
+C0, RELAY_CLOCK_PIN, output gpio
+C1, RELAY_DATA_PIN, output gpio
+C2, RELAY_STROBE_PIN, output gpio
+C3, BYPASS_LED_PIN, output gpio
+C4, FP_STROBE_PIN, output gpio
+C5, FP_DATA_PIN, output gpio
+C6, USB_TX_PIN, output pps
+C7, USB_RX_PIN, input pps
+
+# Port D
+D0, 
+D1, 
+D2, DEBUG_TX_PIN, output pps
+D3, DEBUG_RX_PIN, input pps
+D4, 
+D5, 
+D6, 
+D7, 
+
+# Port E
+E0, FREQ_PIN, input gpio pps
+E1, TUNE_BUTTON_PIN, input gpio button
+E2, ANT_BUTTON_PIN, input gpio button
+E3, 

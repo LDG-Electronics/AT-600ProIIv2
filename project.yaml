@@ -1,0 +1,15 @@
+name: AT-600ProII
+hw_version: 'a08'
+sw_version:
+  major: '0'
+  minor: '5'
+  patch: '0'
+processor: 18F47K42
+programmer: ICD-U80-win
+src_dir: src
+obj_dir: obj
+build_dir: build
+defines:
+- DEVELOPMENT
+linker_flags:
+- -Pshell_cmds

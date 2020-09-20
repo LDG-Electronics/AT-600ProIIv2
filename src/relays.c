@@ -1,12 +1,17 @@
-#include "includes.h"
+#include "relays.h"
+#include "display.h"
+#include "flags.h"
+#include "os/log_macros.h"
+#include "os/system_time.h"
+#include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
 // Global
-relays_s currentRelays[NUM_OF_ANTENNA_PORTS];
-relays_s bypassRelays;
-relays_s preBypassRelays[NUM_OF_ANTENNA_PORTS];
+relays_t currentRelays[NUM_OF_ANTENNA_PORTS];
+relays_t bypassRelays;
+relays_t preBypassRelays[NUM_OF_ANTENNA_PORTS];
 
 /* ************************************************************************** */
 
@@ -22,38 +27,33 @@ void relays_init(void) {
     preBypassRelays[1].all = 0;
     preBypassRelays[1].ant = 1;
 
-    //
-    RELAY_STROBE_PIN = 1;
-    RELAY_CLOCK_PIN = 1;
-    RELAY_DATA_PIN = 1;
+    relay_driver_init();
 
     log_register();
 }
 
 /* -------------------------------------------------------------------------- */
 
-void publish_relays(uint16_t word) {
-    uint8_t i;
+packed_relays_t pack_relays(relays_t relays) {
+    packed_relays_t relayBits;
 
-    RELAY_STROBE_PIN = 1;
-    RELAY_CLOCK_PIN = 0;
+    relayBits.caps = relays.caps;
+    relayBits.inds = relays.inds;
+    relayBits.z = relays.z;
+    relayBits.ant = relays.ant;
 
-    for (i = 0; i < 16; i++) {
-        if (word & (1 << (15 - i))) {
-            RELAY_DATA_PIN = 1;
-        } else {
-            RELAY_DATA_PIN = 0;
-        }
-        delay_us(10);
-        RELAY_CLOCK_PIN = 1;
-        delay_us(10);
-        RELAY_CLOCK_PIN = 0;
-        delay_us(10);
-    }
-    RELAY_STROBE_PIN = 0;
-    delay_us(10);
-    RELAY_STROBE_PIN = 1;
-    delay_us(10);
+    return relayBits;
+}
+
+relays_t unpack_relays(packed_relays_t relayBits) {
+    relays_t relays;
+
+    relays.caps = relayBits.caps;
+    relays.inds = relayBits.inds;
+    relays.z = relayBits.z;
+    relays.ant = relayBits.ant;
+
+    return relays;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -65,49 +65,70 @@ void publish_relays(uint16_t word) {
     on the front panel.
 */
 int8_t check_if_safe(void) {
-    SWR_average();
+    measure_RF();
+    calculate_watts_and_swr();
+
+    if (currentRF.forwardWatts > 125) {
+        return -1;
+    }
 
     return 0;
 }
 
-void update_bypass_status(relays_s *testRelays) {
-    bypassStatus[system_flags.antenna] = 0;
-    if ((testRelays->caps == 0) && (testRelays->inds == 0)) {
-
-        bypassStatus[system_flags.antenna] = 1;
+void update_bypass_status(relays_t relays) {
+    systemFlags.bypassStatus[systemFlags.antenna] = 0;
+    if ((relays.caps == 0) && (relays.inds == 0)) {
+        systemFlags.bypassStatus[systemFlags.antenna] = 1;
     }
 
-    update_bypass_LED();
+    update_status_LEDs();
 }
 
 /*  put_relays() takes a pointer to a relay struct and attempts to publish that
     struct to the physical relays.
 
 */
-int8_t put_relays(relays_s *testRelays) {
-    if (check_if_safe() == -1)
+int8_t put_relays(relays_t relays) {
+    LOG_TRACE({ println("put_relays"); });
+
+    // overwrite the antenna setting just in case it got clobbered by something
+    relays.ant = systemFlags.antenna;
+
+    LOG_INFO({
+        print("new relays: ");
+        print_relays(relays);
+        print(", old relays: ");
+        print_relays(currentRelays[systemFlags.antenna]);
+        println("");
+    });
+
+    // make sure the radio isn't transmitting too much power
+    // this is EXTRA important on >100W tuners
+    if (check_if_safe() == -1) {
+        LOG_ERROR({ println("not safe to switch relays"); });
         return (-1);
+    }
 
-    update_bypass_status(testRelays);
+    // calculate whether the new relays count as bypass
+    update_bypass_status(relays);
 
-    publish_relays(testRelays->all);
+    // pass off the new relays to the relay driver
+    packed_relays_t relayBits = pack_relays(relays);
+    publish_relays(relayBits);
 
-    delay_ms(RELAY_COIL_DELAY);
+    // Update the global bulletin board
+    currentRelays[systemFlags.antenna] = relays;
 
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
+/* ************************************************************************** */
 
-// Prints the contents of relay struct as "(caps, inds, z)"
-void print_relays(relays_s *relays) {
-    printf("(C%d, L%d, Z%d, A%d)", relays->caps, relays->inds, relays->z,
-           relays->ant);
-}
+/*  print_relays prints the contents of a relays_t struct
 
-// Same as log_relays(), but also appends a CRLF.
-void print_relays_ln(relays_s *relays) {
-    print_relays(relays);
-
-    println("");
+    Format: "(<caps>, <inds>, <z>, <ant>)"
+*/
+void print_relays(relays_t relays) {
+    printf("(C%d, L%d, Z%d, A%d)", relays.caps, relays.inds, relays.z,
+           relays.ant);
 }

@@ -1,50 +1,78 @@
-#ifndef RF_SENSOR_H
-#define RF_SENSOR_H
+#ifndef _RF_SENSOR_H_
+#define _RF_SENSOR_H_
+
+#include "os/system_time.h"
+#include "peripherals/adc.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 /* ************************************************************************** */
 
-// Global RF data format
-typedef union {
-    struct {
-        uint16_t forward;
-        double forwardWatts;
-        uint16_t reverse;
-        double reverseWatts;
-        double swr;
-        uint16_t frequency;
-    };
-} RF_power_s;
+typedef struct {
+    // raw measurement values
+    float forward;      // forward power in millivolts
+    float reverse;      // reverse power in millivolts
+    float matchQuality; // psuedo-SWR, calcuated from from raw forward/reverse
+    system_time_t lastMeasurementTime;
+    // calculated values
+    float forwardWatts; // forward power in watts
+    float reverseWatts; // reverse power in watts
+    float swr;          // SWR, calculated from corrected wattages
+    system_time_t lastCalculationTime;
+    // 
+    uint16_t frequency; // frequency in KHz
+    system_time_t lastFrequencyTime;
+    // 
+    bool isPresent;
+    uint8_t history;
+} RF_power_t;
 
-// Global RF Readings
-extern RF_power_s currentRF;
+// read-only: contains the most recent RF measurements
+extern RF_power_t currentRF;
 
-// Global SWR Threshold Settings
-extern double swrThresh;
-extern uint8_t swrThreshIndex;
+/* ************************************************************************** */
+
+#define clear_RF_history() (currentRF.history = 0)
+#define RF_is_present() (currentRF.history == 0b11111111)
+#define RF_is_absent() (currentRF.history == 0b00000000)
 
 /* ************************************************************************** */
 
 // Setup
 extern void RF_sensor_init(void);
 
+/* -------------------------------------------------------------------------- */
+// TODO: move this stuff somewhere else?
+
 // SWR Threshold manipulation
-extern void SWR_threshold_set(void);
+extern volatile uint8_t swrThreshIndex;
+
+// returns the current SWR threshold, using the swrThreshIndex
+extern float get_SWR_threshold(void);
+
+// increase the threshold by one slot
 extern void SWR_threshold_increment(void);
 
 /* -------------------------------------------------------------------------- */
 
-// SWR measurement functions
-extern void SWR_measure(void);
-extern void SWR_average(void);
-extern int8_t SWR_stable_average(void);
+// Call this periodically to update currentRF
+extern void poll_RF(void);
 
-// Prints the current Forward, Reverse, and SWR
-extern void print_current_SWR(void);
-extern void print_current_SWR_ln(void);
+// returns true is RF is detected, false if not
+extern bool check_for_RF(void);
 
-/* ************************************************************************** */
+// tries to detect RF for timeoutDuration mS
+extern bool wait_for_stable_RF(uint16_t timeoutDuration);
 
-// Tests
-void print_SWR_samples(uint8_t delta);
+// measures forward & reverse, and calculates matchQuality
+extern void measure_RF(void);
 
-#endif
+// calculates forwardWatts & reverseWatts, and uses those to calculate SWR
+extern bool calculate_watts_and_swr(void);
+
+/* -------------------------------------------------------------------------- */
+
+// measures frequency
+extern void measure_frequency(void);
+
+#endif // _RF_SENSOR_H_

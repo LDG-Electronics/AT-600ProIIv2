@@ -1,31 +1,31 @@
-#include "includes.h"
+#include "display.h"
+#include "flags.h"
+#include "os/buttons.h"
+#include "os/log_macros.h"
+#include "peripherals/pic_header.h"
+#include "pins.h"
+#include "relays.h"
+#include "rf_sensor.h"
+#include <float.h>
+#include <math.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
-const uint8_t swrThreshDisplay[] = {0x08, 0x10, 0x20, 0x40};
-const uint8_t ledBarTable[] = {
-    0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
-};
-const uint8_t ledSingleTable[] = {
-    0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80,
-};
-
-/* ************************************************************************** */
-
-locking_double_buffer_s displayBuffer;
+double_frame_buffer_t displayBuffer;
 
 /* ************************************************************************** */
 
 void display_init(void) {
-    spi_init();
+    // set bitbang spi display pins to default values
+    set_RELAY_CLOCK_PIN(1);
+    set_RELAY_DATA_PIN(1);
+    set_RELAY_STROBE_PIN(1);
 
     clear_status_LEDs();
 
     displayBuffer.next.frame = 0;
     displayBuffer.current.frame = 0;
-    displayBuffer.upperMutex = 0;
-    displayBuffer.lowerMutex = 0;
 
     log_register();
 }
@@ -33,38 +33,66 @@ void display_init(void) {
 /* -------------------------------------------------------------------------- */
 // LED control functions
 void clear_status_LEDs(void) {
-    POWER_LED_PIN = 0;
-    ANT_LED_PIN = 0;
-    BYPASS_LED_PIN = 0;
+    set_POWER_LED_PIN(0);
+    set_ANT_LED_PIN(0);
+    set_BYPASS_LED_PIN(0);
 }
 
 void update_status_LEDs(void) {
-    POWER_LED_PIN = system_flags.powerStatus;
-    ANT_LED_PIN = ~system_flags.antenna;
-    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
+    if (systemFlags.powerStatus == 1) {
+        set_POWER_LED_PIN(systemFlags.powerStatus);
+        set_ANT_LED_PIN(~systemFlags.antenna);
+        set_BYPASS_LED_PIN(systemFlags.bypassStatus[systemFlags.antenna]);
+    } else {
+        clear_status_LEDs();
+    }
 }
-
-void update_antenna_LED(void) { ANT_LED_PIN = ~system_flags.antenna; }
-
-void update_bypass_LED(void) {
-    BYPASS_LED_PIN = bypassStatus[system_flags.antenna];
-}
-
-void update_power_LED(void) { POWER_LED_PIN = system_flags.powerStatus; }
 
 /* ************************************************************************** */
 
-// Publishes a raw frame to the display
-void FP_update(uint16_t data) { spi_tx_word(data); }
+static void display_spi_bitbang_tx_word(uint16_t word) {
+    set_FP_STROBE_PIN(1);
+    set_FP_CLOCK_PIN(0);
+
+    for (uint8_t i = 0; i < 16; i++) {
+        if (word & (1 << (15 - i))) {
+            set_FP_DATA_PIN(1);
+        } else {
+            set_FP_DATA_PIN(0);
+        }
+        delay_us(10);
+        set_FP_CLOCK_PIN(1);
+        delay_us(10);
+        set_FP_CLOCK_PIN(0);
+        delay_us(10);
+    }
+    set_FP_STROBE_PIN(0);
+    delay_us(10);
+    set_FP_STROBE_PIN(1);
+    delay_us(10);
+}
 
 // Publish the contents of display.frameBuffer
 void push_frame_buffer(void) {
-    spi_tx_word(displayBuffer.next.frame);
+    display_spi_bitbang_tx_word(displayBuffer.next.frame);
     displayBuffer.current.frame = displayBuffer.next.frame;
 }
 
+void display_update(void) {
+    if (systemFlags.powerStatus == 1) {
+        push_frame_buffer();
+    } else {
+        // if the unit is 'off', make sure we can't accidentally display stuff
+        displayBuffer.next.frame = 0;
+        push_frame_buffer();
+    }
+}
+
 // Clears the display by turning off both bargraphs
-void display_clear(void) { FP_update(0x0000); }
+void display_clear(void) {
+    displayBuffer.next.frame = 0;
+    push_frame_buffer();
+}
 
 // Clears the display and releases the display object
 int16_t display_release(void) {
@@ -83,12 +111,13 @@ void display_single_frame(const animation_s *animation, uint8_t frame_number) {
 
 // Play an animation from animations.h
 void play_animation(const animation_s *animation) {
+    LOG_TRACE({ println("play_animation"); });
     uint8_t i = 0;
     bool useUpper = true;
     bool useLower = true;
 
     // Check if the provided animation has a header frame
-    if (animation[0].frame_delay == NULL) {
+    if (animation[0].frame_delay == 0) {
         useUpper = animation[0].upper;
         useLower = animation[0].lower;
 
@@ -97,14 +126,17 @@ void play_animation(const animation_s *animation) {
     }
 
     while (1) {
-        if (useUpper)
+        if (useUpper) {
             displayBuffer.next.upper = animation[i].upper;
-        if (useLower)
+        }
+        if (useLower) {
             displayBuffer.next.lower = animation[i].lower;
+        }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == NULL)
+        if (animation[i].frame_delay == 0) {
             break;
+        }
         delay_ms(animation[i].frame_delay);
 
         i++;
@@ -113,20 +145,22 @@ void play_animation(const animation_s *animation) {
 
 // Play an animation from animations.h, and repeat it n times
 void repeat_animation(const animation_s *animation, uint8_t repeats) {
-    for (uint8_t i = 0; i < repeats; i++) {
+    LOG_TRACE({ println("repeat_animation"); });
+    while (repeats--) {
         play_animation(animation);
     }
 }
 
 // Play an animation from animations.h and return early if a button is pressed
 void play_interruptable_animation(const animation_s *animation) {
+    LOG_TRACE({ println("play_interruptable_animation"); });
     uint8_t i = 0;
     uint16_t j = 0;
     bool useUpper = true;
     bool useLower = true;
 
     // Check if the provided animation has a header frame
-    if (animation[i].frame_delay == NULL) {
+    if (animation[i].frame_delay == 0) {
         useUpper = animation[0].upper;
         useLower = animation[0].lower;
 
@@ -135,18 +169,22 @@ void play_interruptable_animation(const animation_s *animation) {
     }
 
     while (1) {
-        if (useUpper)
+        if (useUpper) {
             displayBuffer.next.upper = animation[i].upper;
-        if (useLower)
+        }
+        if (useLower) {
             displayBuffer.next.lower = animation[i].lower;
+        }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == NULL)
+        if (animation[i].frame_delay == 0) {
             break;
+        }
 
         for (j = animation[i].frame_delay; j != 0; j--) {
-            if (get_buttons() != 0)
+            if (get_buttons() != 0) {
                 break;
+            }
             delay_ms(1);
         }
 
@@ -156,266 +194,199 @@ void play_interruptable_animation(const animation_s *animation) {
 
 /* -------------------------------------------------------------------------- */
 
-// background animation system, using TuneOS event scheduler
-
-struct {
-    const animation_s *animation;
-    uint16_t frameIndex;
-} bgA; // bgA = backgroundAnimation
-
-void play_animation_in_background(const animation_s *animation) {
-    // is the display available?
-    if (displayBuffer.upperMutex == 1) {
-        // println("upperMutex already claimed");
-        return;
-    }
-    if (displayBuffer.lowerMutex == 1) {
-        // println("lowerMutex already claimed");
-        return;
-    }
-
-    // is there another bgA event in the queue?
-    if (event_queue_lookup("bgA") != -1) {
-        // println("bgA animation already in event queue");
-        return;
-    }
-
-    // set up the state variables
-    bgA.animation = animation;
-    bgA.frameIndex = 0;
-
-    // Check if the provided animation has a header frame
-    if (animation[0].frame_delay == NULL) {
-        bgA.frameIndex = 1;
-    }
-
-    // Register the event
-    event_register("bgA", continue_animation_in_background, 1);
-}
-
-int16_t continue_animation_in_background(void) {
-    bool useUpper = true;
-    bool useLower = true;
-
-    // Check if the provided animation has a header frame
-    if (bgA.animation[0].frame_delay == NULL) {
-        useUpper = bgA.animation[0].upper;
-        useLower = bgA.animation[0].lower;
-    }
-
-    // publish the current frame
-    if (useUpper)
-        displayBuffer.next.upper = bgA.animation[bgA.frameIndex].upper;
-    if (useLower)
-        displayBuffer.next.lower = bgA.animation[bgA.frameIndex].lower;
-
-    push_frame_buffer();
-
-    // a NULL delay is the signal that the animation is completed
-    if (bgA.animation[bgA.frameIndex].frame_delay == NULL) {
-        // unlock_display();
-    }
-
-    return bgA.animation[bgA.frameIndex++].frame_delay;
-}
-
-/* -------------------------------------------------------------------------- */
-// display functions that use the frame buffer
-
-void show_cap_relays(void) {
-    displayBuffer.next.lower = currentRelays[system_flags.antenna].caps;
-
-    push_frame_buffer();
-}
-
-void show_ind_relays(void) {
-    displayBuffer.next.upper = currentRelays[system_flags.antenna].inds;
-
-    push_frame_buffer();
-}
-
-/* -------------------------------------------------------------------------- */
-
-// function-related display functions
-
 void show_peak(void) {
-    if (system_flags.peakMode == 0) {
-        play_animation(&peak_off);
+    if (systemFlags.peakMode == 0) {
+        play_animation(&peak_off[0]);
     } else {
-        play_animation(&peak_on);
+        play_animation(&peak_on[0]);
     }
 }
 
-// function-related, blinky display functions
-// THESE HAVE BLOCKING DELAYS
 void blink_bypass(void) {
-    if (bypassStatus[system_flags.antenna] == 1) {
-        repeat_animation(&blink_both_bars, 3);
+    relays_t relays = read_current_relays();
+
+    if (systemFlags.bypassStatus[systemFlags.antenna] == 1) {
+        repeat_animation(&blink_both_bars[0], 3);
     } else {
-        show_relays();
-        delay_ms(150);
+        displayBuffer.next.upper = relays.inds;
+        displayBuffer.next.lower = relays.caps;
+        display_update();
+        delay_ms(250);
         display_clear();
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
 void blink_antenna(void) {
-    if (system_flags.antenna == 1) {
-        play_animation(&right_wave);
+    if (systemFlags.antenna == 1) {
+        play_animation(&right_blink[0]);
     } else {
-        play_animation(&left_wave);
+        play_animation(&left_blink[0]);
     }
 }
 
-void blink_auto(uint8_t blinks) {
-    if (system_flags.autoMode == 0) {
-        repeat_animation(&auto_off, blinks);
+void show_antenna(void) {
+    if (systemFlags.antenna == 1) {
+        display_single_frame(&right_wave[0], 0);
     } else {
-        repeat_animation(&auto_on, blinks);
+        display_single_frame(&left_wave[0], 0);
     }
-}
-
-// TODO: fix this animation
-void blink_HiLoZ(uint8_t blinks) {
-    if (currentRelays[system_flags.antenna].z == 1) {
-        repeat_animation(&auto_off, blinks);
-    } else {
-        repeat_animation(&auto_on, blinks);
-    }
-}
-
-void blink_scale(uint8_t blinks) {
-    if (system_flags.scaleMode == 0) {
-        repeat_animation(&high_scale, blinks);
-    } else {
-        repeat_animation(&low_scale, blinks);
-    }
-}
-
-void blink_thresh(uint8_t blinks) {
-    uint8_t currentThreshold = swrThreshIndex;
-    repeat_animation(&swrThreshold[currentThreshold], blinks);
 }
 
 /* -------------------------------------------------------------------------- */
-// function-related, single frame display functions
-// THESE HAVE NO DELAYS
+
+void blink_auto(uint8_t blinks) {
+    repeat_animation(&auto_mode[systemFlags.autoMode][0], blinks);
+}
 
 void show_auto(void) {
-    if (system_flags.autoMode == 0) {
-        FP_update(0x8181);
+    if (systemFlags.autoMode == 0) {
+        displayBuffer.next.lower = 0x81;
+        displayBuffer.next.upper = 0x81;
     } else {
-        FP_update(0x1818);
+        displayBuffer.next.lower = 0x18;
+        displayBuffer.next.upper = 0x18;
+    }
+
+    display_update();
+}
+
+/* -------------------------------------------------------------------------- */
+
+void blink_HiLoZ(uint8_t blinks) {
+    if (currentRelays[systemFlags.antenna].z == 1) {
+        repeat_animation(&hiz_wave[0], blinks);
+    } else {
+        repeat_animation(&loz_wave[0], blinks);
     }
 }
 
 void show_HiLoZ(void) {
-    if (currentRelays[system_flags.antenna].z == 1) {
-        FP_update(0xc0c0);
+    if (currentRelays[systemFlags.antenna].z == 1) {
+        displayBuffer.next.lower = 0xc0;
+        displayBuffer.next.upper = 0xc0;
     } else {
-        FP_update(0x0303);
+        displayBuffer.next.lower = 0x03;
+        displayBuffer.next.upper = 0x03;
     }
-}
 
-void show_relays(void) {
-    display_frame_s frame;
-
-    frame.upper = ((currentRelays[system_flags.antenna].inds & 0x7f) |
-                   ((currentRelays[system_flags.antenna].z & 0x01) << 7));
-    frame.lower = currentRelays[system_flags.antenna].caps;
-
-    FP_update(frame.frame);
-}
-
-void show_scale(void) {
-    if (system_flags.scaleMode == 0) {
-        FP_update(0x0008);
-    } else {
-        FP_update(0x0080);
-    }
-}
-
-void show_thresh(void) {
-    display_frame_s frame;
-    frame.upper = 0;
-    frame.lower = swrThreshDisplay[swrThreshIndex];
-
-    FP_update(frame.frame);
+    display_update();
 }
 
 /* -------------------------------------------------------------------------- */
 
-/*  fwdIndex
+void blink_scale(uint8_t blinks) {
+    if (systemFlags.scaleMode == 0) {
+        repeat_animation(&high_scale[0], blinks);
+    } else {
+        repeat_animation(&low_scale[0], blinks);
+    }
+}
 
-    AT-600ProII PWR bargraph has the following markings:
+void show_scale(void) {
+    displayBuffer.next.lower = 0;
 
-    0       <- all bars off still needs a value
-    10
-    25
-    50
-    100
-    200
-    300
-    450
-    600
-*/
-
-double fwdIndexArray[] = {
-    0, 10, 25, 50, 100, 200, 300, 450, 600,
-};
-
-static uint8_t calculate_fwd_index(double forwardWatts) {
-    uint8_t i = 0;
-
-    while (fwdIndexArray[i] < forwardWatts) {
-        i++;
+    if (systemFlags.scaleMode == 0) {
+        displayBuffer.next.upper = 0x08;
+    } else {
+        displayBuffer.next.upper = 0x80;
     }
 
-    return i;
+    display_update();
 }
 
-/*  swrIndex
+/* -------------------------------------------------------------------------- */
 
-    AT-600ProII SWR bargraph has the following markings:
+const uint8_t swrThreshDisplay[] = {0x08, 0x10, 0x20, 0x40};
 
-    1.0     <- all bars off still needs a value
-    1.1
-    1.3
-    1.5
-    1.7
-    2.0
-    2.5
-    3.0
-    3.0+
+void blink_thresh(uint8_t blinks) {
+    repeat_animation(&swrThreshold[swrThreshIndex][0], blinks);
+}
+
+void show_thresh(void) {
+    displayBuffer.next.upper = 0;
+    displayBuffer.next.lower = swrThreshDisplay[swrThreshIndex];
+
+    display_update();
+}
+
+/* -------------------------------------------------------------------------- */
+
+/*  AT-600ProII bargraph has the following markings:
+
+    v- all bars off still needs a value
+    0, 10, 25, 50, 100, 200, 300, 450, 600
+
+    v- all bars off still needs a value
+    1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.0+
 */
-
-double swrIndexArray[] = {
-    1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5,
+float fwdIndexArray[10] = {
+    0, 10, 25, 50, 100, 200, 300, 450, 600, FLT_MAX,
 };
 
-static uint8_t calculate_swr_index(double swrValue) {
-    uint8_t i = 0;
+float swrIndexArray[10] = {
+    1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.5, FLT_MAX,
+};
 
-    while (swrIndexArray[i] < swrValue) {
-        i++;
+// returns the index of the array element whose value is closest to data
+uint8_t find_closest_value(float data, float *array) {
+    uint8_t lowerNeighbor = 0;
+    while (array[lowerNeighbor + 1] < data) {
+        lowerNeighbor++;
+    }
+    uint8_t upperNeighbor = lowerNeighbor + 1;
+
+    float lowerDistance = fabs(data - array[lowerNeighbor]);
+    float upperDistance = fabs(array[upperNeighbor] - data);
+    uint8_t nearestNeighbor;
+
+    if (lowerDistance < upperDistance) {
+        nearestNeighbor = lowerNeighbor;
+    } else {
+        nearestNeighbor = upperNeighbor;
     }
 
-    return i;
+    if (nearestNeighbor > 9) {
+        nearestNeighbor = 9;
+    }
+    return nearestNeighbor;
 }
 
-void show_power_and_SWR(uint16_t forwardWatts, double swrValue) {
-    display_frame_s frame;
+const uint8_t ledBarTable[9] = {
+    0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff,
+};
 
-    frame.upper = ledBarTable[calculate_fwd_index(forwardWatts)];
-    frame.lower = ledBarTable[calculate_swr_index(swrValue)];
+display_frame_t render_RF(float forwardWatts, float swrValue) {
+    display_frame_t frame;
 
-    FP_update(frame.frame);
+    uint8_t fwdIndex = find_closest_value(forwardWatts, fwdIndexArray);
+    frame.upper = ledBarTable[fwdIndex];
+
+    uint8_t swrIndex = find_closest_value(swrValue, swrIndexArray);
+    frame.lower = ledBarTable[swrIndex];
+
+    return frame;
 }
 
-void show_current_power_and_SWR(void) {
-    display_frame_s frame;
+/* ************************************************************************** */
 
-    frame.upper = ledBarTable[calculate_fwd_index(currentRF.forwardWatts)];
-    frame.lower = ledBarTable[calculate_swr_index(currentRF.swr)];
-
-    FP_update(frame.frame);
+void print_frame(display_frame_t frame) {
+    print("|");
+    for (uint8_t i = 0; i < 8; i++) {
+        if (frame.upper & (1 << i)) {
+            print("*");
+        } else {
+            print("-");
+        }
+    }
+    print("|\r\n|");
+    for (uint8_t i = 0; i < 8; i++) {
+        if (frame.lower & (1 << i)) {
+            print("*");
+        } else {
+            print("-");
+        }
+    }
+    println("|");
 }
