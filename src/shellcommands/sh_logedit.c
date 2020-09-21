@@ -1,13 +1,13 @@
+#ifdef LOGGING_ENABLED
+
+/* ************************************************************************** */
+
 #include "os/log.h"
 #include "os/log_macros.h"
-#include "os/serial_port.h"
 #include "os/shell/shell.h"
+#include "os/shell/shell_command_utils.h"
 #include "os/shell/shell_keys.h"
 #include "os/shell/shell_utils.h"
-#include "shell_command_processor.h"
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
 
 /* ************************************************************************** */
 
@@ -38,7 +38,11 @@ void print_logedit_header(void) {
     println("-----------------------------------------------");
     printf("%d files are currently registered.\r\n", logDatabase.numberOfFiles);
     println("");
-    println("  #  | level  | path/to/file");
+    if (logFeatures.useShortNames) {
+        println(" #   | level  | file name");
+    } else {
+        println(" #   | level  | path/to/file");
+    }
     println("-----------------------------------------------");
 }
 
@@ -48,7 +52,11 @@ void print_managed_log_table(void) {
         print(" | ");
         print_log_level(newLogDatabase[i]);
         print(" | ");
-        println(logDatabase.file[i].name);
+        if (logFeatures.useShortNames) {
+            println(logDatabase.file[i].shortName);
+        } else {
+            println(logDatabase.file[i].name);
+        }
     }
 }
 
@@ -62,16 +70,16 @@ void print_logedit_footer(void) {
     println("-----------------------------------------------");
 
     // usage instructions
-    //! These are disabled to help logedit fit on page in the terminal
-    // println("press f5 to refresh list");
-    // println("press ENTER to save and exit");
-    // println("press ESC to exit without saving");
-    // println("press ctrl+c to terminate logedit");
+    println("press f5 to refresh list");
+    println("press ENTER to save and exit");
+    println("press ESC to exit without saving");
+    println("press ctrl+c to terminate logedit");
 }
 
 void draw_logedit(void) {
     // wipe the screen
     term_reset_screen();
+    term_cursor_set(0, 0);
 
     // draw charts and graphs
     print_logedit_header();
@@ -147,6 +155,19 @@ int8_t logedit_keys(key_t key) {
             increase_level();
         }
         return 0;
+    case F1:
+        logFeatures.printTimestamp = !logFeatures.printTimestamp;
+        return 0;
+    case F2:
+        logFeatures.printLogLevel = !logFeatures.printLogLevel;
+        return 0;
+    case F3:
+        logFeatures.printFileName = !logFeatures.printFileName;
+        return 0;
+    case F4:
+        logFeatures.useShortNames = !logFeatures.useShortNames;
+        draw_logedit();
+        return 0;
     case F5:
         draw_logedit();
         return 0;
@@ -199,3 +220,5 @@ void sh_logedit(int argc, char **argv) {
 }
 
 REGISTER_SHELL_COMMAND(sh_logedit, "logedit");
+
+#endif // #ifdef LOGGING_ENABLED

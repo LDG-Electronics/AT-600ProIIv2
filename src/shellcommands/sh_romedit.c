@@ -1,15 +1,14 @@
-#include "os/serial_port.h"
-#include "os/shell/shell.h"
+#ifdef DEVELOPMENT
+
+/* ************************************************************************** */
+
 #include "os/shell/shell_command_processor.h"
+#include "os/shell/shell_command_utils.h"
 #include "os/shell/shell_cursor.h"
 #include "os/shell/shell_keys.h"
 #include "os/shell/shell_utils.h"
 #include "peripherals/nonvolatile_memory.h"
-#include "shell_command_processor.h"
-#include <ctype.h>
 #include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
 
 extern void write_single_byte(NVM_address_t address, uint8_t newData);
 
@@ -343,3 +342,5 @@ void sh_romedit(int argc, char **argv) {
 }
 
 REGISTER_SHELL_COMMAND(sh_romedit, "romedit");
+
+#endif // #ifdef DEVELOPMENT

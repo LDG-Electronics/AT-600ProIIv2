@@ -1,9 +1,9 @@
-#include "os/serial_port.h"
+#ifdef DEVELOPMENT
+
+/* ************************************************************************** */
+
+#include "os/shell/shell_command_utils.h"
 #include "peripherals/nonvolatile_memory.h"
-#include "shell_command_processor.h"
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
 
 /* ************************************************************************** */
 
@@ -42,3 +42,5 @@ static void sh_eeprom(int argc, char **argv) {
 }
 
 REGISTER_SHELL_COMMAND(sh_eeprom, "eeprom");
+
+#endif // #ifdef DEVELOPMENT

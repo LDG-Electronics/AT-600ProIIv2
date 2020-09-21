@@ -10,18 +10,16 @@
 */
 /* [[[cog
 
-cog.outl(f'#define PRODUCT_NAME "{utils.project.name}"')
 cog.outl()
-cog.outl(f'#define PRODUCT_V_MAJOR {utils.project.sw_version.major}')
-cog.outl(f'#define PRODUCT_V_MINOR {utils.project.sw_version.minor}')
-cog.outl(f'#define PRODUCT_V_PATCH {utils.project.sw_version.patch}')
+cog.outl(f'#define PRODUCT_NAME "{utils.project.name}"')
+cog.outl(f'#define PRODUCT_VERSION "{utils.project.sw_version}"')
+cog.outl()
 
 ]]] */
-#define PRODUCT_NAME "AT-600ProII"
 
-#define PRODUCT_V_MAJOR 0
-#define PRODUCT_V_MINOR 5
-#define PRODUCT_V_PATCH 0
+#define PRODUCT_NAME "AT-600ProII"
+#define PRODUCT_VERSION "0.9.0"
+
 /* [[[end]]] */
 
 /* ************************************************************************** */
@@ -35,9 +33,7 @@ cog.outl(f'#define PRODUCT_V_PATCH {utils.project.sw_version.patch}')
 extern const char productName[];
 
 // product software version
-extern const uint16_t productVerMajor;
-extern const uint16_t productVerMinor;
-extern const uint16_t productVerPatch;
+extern const char productVersion[];
 
 // compilation information
 extern const uint16_t xc8Version;
