@@ -16,3 +16,6 @@ MPLABXLog.xml
 __pycache__
 *.pyc
 *.pyo
+
+# vscode won't stop creating this file
+debug.log
