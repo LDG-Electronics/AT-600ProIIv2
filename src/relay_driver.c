@@ -1,5 +1,5 @@
 #include "relay_driver.h"
-#include "os/log_macros.h"
+#include "os/logging.h"
 #include "os/system_time.h"
 #include "peripherals/pic_header.h"
 #include "pins.h"
@@ -40,7 +40,7 @@ static void relay_spi_bitbang_tx_word(uint16_t word) {
     delay_us(10);
 }
 
-void publish_relays(packed_relays_t relayBits) {
+void publish_relays(relay_bits_t relayBits) {
     relay_spi_bitbang_tx_word(relayBits.bits);
 
     // wait for the relay to stop bouncing
@@ -49,11 +49,11 @@ void publish_relays(packed_relays_t relayBits) {
 
 /* ************************************************************************** */
 
-/*  print_relay_bits prints the contents of a packed_relays_t struct
+/*  print_relay_bits prints the contents of a relay_bits_t struct
 
     Format: "(<caps>, <inds>, <z>, <ant>)"
 */
-void print_relay_bits(packed_relays_t relayBits) {
+void print_relay_bits(relay_bits_t relayBits) {
     printf("(C%u, L%u, Z%u, A%u)", relayBits.caps, relayBits.inds, relayBits.z,
            relayBits.ant);
 }

@@ -57,5 +57,3 @@
 //     }
 //     println("invalid arguments");
 // }
-
-// REGISTER_SHELL_COMMAND(sh_status, "status");

@@ -1,6 +1,6 @@
 #include "events.h"
 #include "flags.h"
-#include "memory.h"
+#include "tuning/tuning_memories.h"
 #include "os/serial_port.h"
 #include "os/system_time.h"
 #include "peripherals/pic_header.h"
@@ -95,11 +95,11 @@ void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
     * how to handle if currentRF.frequency is invalid
 */
 void manual_store(void) {
-    relays_t relays = read_current_relays();
-    NVM_address_t address = convert_memory_address(currentRF.frequency);
-    if (address) {
-        memory_store(address, relays);
-    }
+    // relays_t relays = read_current_relays();
+    // NVM_address_t address = convert_memory_address(currentRF.frequency);
+    // if (address) {
+    //     memory_store(address, relays);
+    // }
 
     // success animation?
     // play_animation(&center_crawl[0]);

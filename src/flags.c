@@ -1,5 +1,5 @@
 #include "flags.h"
-#include "os/log_macros.h"
+#include "os/logging.h"
 #include "peripherals/nonvolatile_memory.h"
 #include "relay_driver.h"
 #include "relays.h"
@@ -101,7 +101,7 @@ void unpack_system_flags(system_flag_bits_t flagBits) {
 typedef struct {
     uint8_t threshIndex;
     system_flag_bits_t flagBits;
-    packed_relays_t relayBits[NUM_OF_ANTENNA_PORTS * 2];
+    relay_bits_t relayBits[NUM_OF_ANTENNA_PORTS * 2];
 } flag_record_fields_t;
 
 /*  flag_record_t is syntactic sugar used to streamline the saving and restoring

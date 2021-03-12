@@ -1,7 +1,7 @@
 #include "display.h"
 #include "flags.h"
 #include "os/buttons.h"
-#include "os/log_macros.h"
+#include "os/logging.h"
 #include "peripherals/pic_header.h"
 #include "pins.h"
 #include "relays.h"

@@ -1,7 +1,7 @@
 #include "relays.h"
 #include "display.h"
 #include "flags.h"
-#include "os/log_macros.h"
+#include "os/logging.h"
 #include "os/system_time.h"
 #include "rf_sensor.h"
 static uint8_t LOG_LEVEL = L_SILENT;
@@ -34,8 +34,8 @@ void relays_init(void) {
 
 /* -------------------------------------------------------------------------- */
 
-packed_relays_t pack_relays(relays_t relays) {
-    packed_relays_t relayBits;
+relay_bits_t pack_relays(relays_t relays) {
+    relay_bits_t relayBits;
 
     relayBits.caps = relays.caps;
     relayBits.inds = relays.inds;
@@ -45,7 +45,7 @@ packed_relays_t pack_relays(relays_t relays) {
     return relayBits;
 }
 
-relays_t unpack_relays(packed_relays_t relayBits) {
+relays_t unpack_relays(relay_bits_t relayBits) {
     relays_t relays;
 
     relays.caps = relayBits.caps;
@@ -113,7 +113,7 @@ int8_t put_relays(relays_t relays) {
     update_bypass_status(relays);
 
     // pass off the new relays to the relay driver
-    packed_relays_t relayBits = pack_relays(relays);
+    relay_bits_t relayBits = pack_relays(relays);
     publish_relays(relayBits);
 
     // Update the global bulletin board

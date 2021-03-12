@@ -52,12 +52,21 @@ extern void set_BYPASS_LED_PIN(bool value);
 extern void set_FP_STROBE_PIN(bool value);
 extern void set_FP_DATA_PIN(bool value);
 
-// PPS initialization macros
+// GPIO direction functions
+extern void set_tris_BYPASS_LED_PIN(bool value);
+extern void set_tris_FP_STROBE_PIN(bool value);
+extern void set_tris_FP_DATA_PIN(bool value);
+
+// PPS Pin initialization macros
 #define PPS_USB_TX_PIN PPS_OUTPUT(C, 6)
 #define PPS_USB_RX_PIN PPS_INPUT(C, 7)
-#define PPS_DEBUG_TX_PIN PPS_OUTPUT(D, 2)
-#define PPS_DEBUG_RX_PIN PPS_INPUT(D, 3)
 #define PPS_FREQ_PIN PPS_INPUT(E, 0)
+#ifdef DEVELOPMENT
+    #define PPS_DEBUG_TX_PIN PPS_OUTPUT(D, 2)
+#endif
+#ifdef DEVELOPMENT
+    #define PPS_DEBUG_RX_PIN PPS_INPUT(D, 3)
+#endif
 
 // ADC Channel Select macros
 #define ADC_FWD_PIN 0

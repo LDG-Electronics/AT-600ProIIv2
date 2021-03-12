@@ -1,6 +1,6 @@
 #include "rf_sensor.h"
 #include "calibration.h"
-#include "os/log_macros.h"
+#include "os/logging.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
 #include "peripherals/timer.h"
@@ -19,8 +19,8 @@ RF_power_t currentRF;
 
 static void clear_currentRF(void) {
     // raw readings 
-    currentRF.forward = 0;
-    currentRF.reverse = 0;
+    currentRF.forwardVolts = 0;
+    currentRF.reverseVolts = 0;
     currentRF.matchQuality = 0.0;
 
     // calculated values
@@ -47,12 +47,12 @@ void RF_sensor_init(void) {
 
     // Frequency counter uses timer3 and timer4
     // timer3 measures the period length
-    timer3_clock_source(TMR_CLK_FOSC);
+    timer3_clock_source(TMR1_CLK_FOSC);
 
     // timeout timer: overflows in 16.384 mS, according MPLABX
-    timer4_clock_source(TMR_CLK_FOSC4);
-    timer4_prescale(TMR_PRE_1_128);
-    timer4_postscale(TMR_POST_1_8);
+    timer4_clock_source(TMR2_CLK_FOSC4);
+    timer4_prescale(TMR_PRESCALE_128);
+    timer4_postscale(TMR_POSTSCALE_8);
     timer4_period_set(0xFF);
 
     log_register();
@@ -162,8 +162,8 @@ void measure_RF(void) {
     }
 
     // publish the averaged forward and reverse
-    currentRF.forward = (float)tempForward / NUM_OF_SWR_SAMPLES;
-    currentRF.reverse = (float)tempReverse / NUM_OF_SWR_SAMPLES;
+    currentRF.forwardVolts = (float)tempForward / NUM_OF_SWR_SAMPLES;
+    currentRF.reverseVolts = (float)tempReverse / NUM_OF_SWR_SAMPLES;
 
     // this bitshift improves the precision of the following integer division
     tempReverse <<= 12;
@@ -179,9 +179,9 @@ bool calculate_watts_and_swr(void) {
 
     currentRF.lastCalculationTime = get_current_time();
     currentRF.forwardWatts =
-        correct_forward_power(currentRF.forward, currentRF.frequency);
+        correct_forward_power(currentRF.forwardVolts, currentRF.frequency);
     currentRF.reverseWatts =
-        correct_reverse_power(currentRF.reverse, currentRF.frequency);
+        correct_reverse_power(currentRF.reverseVolts, currentRF.frequency);
     currentRF.swr =
         calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 

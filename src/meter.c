@@ -1,5 +1,5 @@
 #include "meter.h"
-#include "os/log_macros.h"
+#include "os/logging.h"
 #include "os/system_time.h"
 #include "peripherals/adc.h"
 #include "peripherals/uart.h"

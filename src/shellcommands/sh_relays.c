@@ -149,5 +149,3 @@ void sh_relays(int argc, char **argv) {
     println("invalid arguments");
     return;
 }
-
-REGISTER_SHELL_COMMAND(sh_relays, "relays");

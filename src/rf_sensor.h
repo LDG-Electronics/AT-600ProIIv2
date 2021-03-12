@@ -10,8 +10,8 @@
 
 typedef struct {
     // raw measurement values
-    float forward;      // forward power in millivolts
-    float reverse;      // reverse power in millivolts
+    float forwardVolts;      // forward power in millivolts
+    float reverseVolts;      // reverse power in millivolts
     float matchQuality; // psuedo-SWR, calcuated from from raw forward/reverse
     system_time_t lastMeasurementTime;
     // calculated values

@@ -3,6 +3,7 @@
 #include "events.h"
 #include "flags.h"
 #include "os/buttons.h"
+#include "os/serial_port.h"
 #include "os/shell/shell.h"
 #include "os/system_time.h"
 #include "relays.h"
@@ -150,7 +151,7 @@ void ui_idle_block(void) {
     }
 
     // ~22uS, most shell commands are ~2000uS
-    shell_update();
+    shell_update(getch());
 
     // ~30mS
     if (attempt_flag_save()) {

@@ -1,18 +1,19 @@
 name: AT-600ProII
 hw_version: 'a08'
 sw_version: '0.9.0'
-processor: 18F47K42
-dev_processor: 18F27K42
-release_processors:
-  - 18F27K42
-programmer: ICD-U80-win
-src_dir: src
-obj_dir: obj
-build_dir: build
-defines:
-  - DEVELOPMENT
-  - USB_ENABLED
-  - LOGGING_ENABLED
-  - SHELL_HISTORY_ENABLED
-linker_flags:
-  - -Pshell_cmds
+
+build_settings:  
+  development:
+    processor: 18F57K42
+    programmer: Pickit4
+    defines:
+      - DEVELOPMENT
+      - USB_ENABLED
+      - SHELL_HISTORY_ENABLED
+      - LOGGING_ENABLED
+
+  release:
+    processor: 18F47K42
+    programmer: ICD-U80-win
+    defines:
+      - USB_ENABLED

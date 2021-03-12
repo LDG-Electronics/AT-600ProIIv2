@@ -163,5 +163,3 @@ void sh_adc(int argc, char **argv) {
     }
     println("invalid arguments");
 }
-
-REGISTER_SHELL_COMMAND(sh_adc, "adc");

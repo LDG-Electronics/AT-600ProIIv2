@@ -5,7 +5,7 @@
 #include "hash.h"
 #include "os/json/json_print.h"
 #include "os/serial_port.h"
-#include "project_variables.h"
+#include "system.h"
 #include "relays.h"
 #include <stdint.h>
 #include <stdlib.h>

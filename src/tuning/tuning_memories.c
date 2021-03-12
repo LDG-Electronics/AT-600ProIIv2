@@ -1,21 +1,9 @@
-#include "memory.h"
-#include "flags.h"
-#include "os/log_macros.h"
-#include "peripherals/nonvolatile_memory.h"
+#include "tuning_memories.h"
+#include "nvm_table.h"
+#include "os/logging.h"
 #include "relay_driver.h"
 #include "relays.h"
 static uint8_t LOG_LEVEL = L_SILENT;
-
-/* ************************************************************************** */
-
-// forward declarations for self-testing
-void print_all_frequency_groups(void);
-void address_conversion_test(uint16_t start, uint16_t end, uint16_t step);
-
-void memory_init(void) {
-    nonvolatile_memory_init();
-    log_register();
-}
 
 /* ************************************************************************** */
 /*  Frequency Group definitions
@@ -93,6 +81,7 @@ void print_frequency_group(const frequency_group_t *group) {
 
 /* -------------------------------------------------------------------------- */
 
+// This big table is used to define the boundaries between bands
 #define NUMBER_OF_GROUPS 21
 const frequency_group_t group_edges[NUMBER_OF_GROUPS] = {
     // {Top frequency, Bottom Freq, number of slots}
@@ -125,7 +114,7 @@ void print_all_frequency_groups(void) {
     println("---------------------------------------------------------------");
     println("## | (start freq -> end freq) | width     | slots | width/slot");
     println("---|--------------------------|-----------|-------|------------");
-    
+
     for (uint8_t group = 0; group < NUMBER_OF_GROUPS; group++) {
         totalSlots += group_edges[group].slots;
         frequency_group_t tempGroup = group_edges[group];
@@ -176,44 +165,30 @@ map_parameters_t look_up_map_parameters(uint16_t frequency) {
 }
 
 // proportionally translates a number from range a to range b
-int32_t map_range(int32_t x, int32_t a1, int32_t a2, int32_t b1, int32_t b2) {
-    return b1 + (x - a1) * (b2 - b1) / (a2 - a1);
+uint16_t map_range(int32_t x, int32_t a1, int32_t a2, int32_t b1, int32_t b2) {
+    return (uint16_t)(b1 + (x - a1) * (b2 - b1) / (a2 - a1));
 }
 
 /* ************************************************************************** */
 
-// Memory configuration
-// This MUST be at a higher address than the size of the hex file
-#define MEMORY_BASE_ADDRESS 1000
-#define MEMORY_ANTENNA_OFFSET 4000
+// convert a frequency into a valid memory slot
+uint16_t find_memory_slot(uint16_t frequency) {
+    LOG_TRACE({ println("find_memory_slot"); });
 
-NVM_address_t convert_memory_address(uint16_t frequency) {
-    LOG_TRACE({ println("convert_memory_address"); });
-
-    if (frequency == UINT16_MAX) {
+    LOG_DEBUG({ printf("frequency: %u KHz\r\n", frequency); });
+    if (frequency == UINT16_MAX || frequency == 0) {
         LOG_ERROR({ println("invalid frequency"); });
         return 0;
     }
 
     map_parameters_t map = look_up_map_parameters(frequency);
 
-    NVM_address_t address = (NVM_address_t)map_range(
-        frequency, map.inMin, map.inMax, map.outMin, map.outMax);
+    uint16_t slot =
+        map_range(frequency, map.inMin, map.inMax, map.outMin, map.outMax);
 
-    //! WARNING
-    // Read and chant the incantation before proceeding.
-    // Makes address point to two bytes of flash instead of one byte of flash.
-    address <<= 1;
-    // Set the least significant bit to zero.
-    address &= ~1;
-    // Pushes address past the address that contains this program.
-    address += MEMORY_BASE_ADDRESS;
+    LOG_DEBUG({ printf("slot: %u\r\n", slot); });
 
-    if (systemFlags.antenna) {
-        address += MEMORY_ANTENNA_OFFSET;
-    }
-
-    return address;
+    return slot;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -224,7 +199,7 @@ void address_conversion_test(uint16_t start, uint16_t end, uint16_t step) {
     printf("(%u,%u) -> (%u)\r\n", start, end, step);
 
     for (uint16_t freq = start; freq < end; freq += step) {
-        printf(" %u -> %lu\r\n", freq, (uint32_t)convert_memory_address(freq));
+        printf(" %u -> %u\r\n", freq, find_memory_slot(freq));
     }
 
     println("-----------------------------------------------");
@@ -232,89 +207,52 @@ void address_conversion_test(uint16_t start, uint16_t end, uint16_t step) {
 
 /* ************************************************************************** */
 
-relays_t memory_recall(NVM_address_t address) {
-    LOG_TRACE({ println("memory_recall"); });
-    packed_relays_t relayBits;
+void tuning_memories_init(void) {
 
-    if (address == 0) {
-        LOG_ERROR({ println("invalid address"); });
-        return read_current_relays();
-    }
+    // initialize the persistent data structures used to store memories
+    nvm_table_init();
 
-    relayBits.top = flash_read_byte(address);
-    relayBits.bot = flash_read_byte(address + 1);
+    //
+    log_register();
+}
 
-    LOG_INFO({
-        printf("address: %lu ", address);
-        print_relay_bits(relayBits);
+/* ************************************************************************** */
+
+// Recall
+relays_t recall_memory(uint16_t slot) {
+    // get the raw memory
+    table_entry_t memory = nvm_table_read(slot);
+
+    // unpack the memory contents
+    relay_bits_t relayBits;
+    relayBits.bot = memory.contents[0];
+    relayBits.top = memory.contents[1];
+    relays_t relays = unpack_relays(relayBits);
+
+    LOG_DEBUG({
+        print_relays(relays);
+        printf(" recalled from: %u", slot);
         println("");
     });
-
-    return unpack_relays(relayBits);
+    return relays;
 }
 
 /* -------------------------------------------------------------------------- */
 
-// compare the two variables bit-by-bit, checking for 0->1 transitions
-bool must_erase(uint16_t newBits, uint16_t savedBits) {
-    for (uint8_t i = 0; i < 16; i++) {
-        if (!(savedBits & (1 << i)) && (newBits & (1 << i))) {
-            return true;
-        }
-    }
-    return false;
-}
-
-void memory_store(NVM_address_t address, relays_t relays) {
-    LOG_TRACE({ println("memory_store"); });
-
-    // return early if we're given a bad address
-    if (address == 0) {
-        LOG_ERROR({ println("invalid address"); });
-        return;
-    }
-
-    LOG_INFO({
-        printf("address: %lu", address);
+// Store
+void store_memory(uint16_t slot, relays_t relays) {
+    LOG_DEBUG({
         print_relays(relays);
+        printf(" stored at: %u", slot);
         println("");
     });
 
-    // Pack the relays we want to save
-    packed_relays_t relayBits = pack_relays(relays);
+    // pack the memory
+    relay_bits_t relayBits = pack_relays(relays);
+    table_entry_t memory = new_table_entry();
+    memory.contents[0] = relayBits.bot;
+    memory.contents[1] = relayBits.top;
 
-    // Use the ant bit as an 'has been written' flag
-    relayBits.ant = 0;
-
-    // Pull out what's already at the specified address
-    relays_t savedRelays = memory_recall(address);
-    packed_relays_t savedRelayBits = pack_relays(savedRelays);
-
-    // Make sure we aren't wasting an erase/write cycle
-    if (savedRelayBits.bits == relayBits.bits) {
-        LOG_INFO({ println("Reading existing block"); });
-        return;
-    }
-
-    // Fill the buffer with the current flash contents
-    LOG_INFO({ println("Reading existing block"); });
-    uint8_t buffer[FLASH_BUFFER_SIZE];
-    flash_read_block(address, buffer);
-
-    // identify which element in the array corresponds to our address
-    uint8_t element = address & FLASH_ELEMENT_MASK;
-
-    // update the buffer with our new data
-    buffer[element] = relayBits.top;
-    buffer[element + 1] = relayBits.bot;
-
-    // erase, but only if necessary
-    if (must_erase(relayBits.bits, savedRelayBits.bits)) {
-        LOG_INFO({ println("Erasing block"); });
-        flash_block_erase(address);
-    }
-
-    // finally, we can write our modified block back into flash
-    LOG_INFO({ println("Writing new block"); });
-    flash_block_write(address, buffer);
+    // write the memory to the array
+    nvm_table_write(slot, memory);
 }

@@ -92,5 +92,3 @@ void sh_poly(int argc, char **argv) {
     println("invalid arguments");
     return;
 }
-
-REGISTER_SHELL_COMMAND(sh_poly, "poly");

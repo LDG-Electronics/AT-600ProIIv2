@@ -27,7 +27,7 @@
 
 #define NUM_OF_ANTENNA_PORTS 2
 
-/*  packed_relays_t is used to simplify the translation of software
+/*  relay_bits_t is used to simplify the translation of software
     representation of relay information into a packed bit representation that's
     useful for communicating with the hardware.
 */
@@ -43,7 +43,7 @@ typedef union {
         uint8_t bot;
     };
     uint16_t bits;
-} packed_relays_t;
+} relay_bits_t;
 
 /* ************************************************************************** */
 
@@ -59,11 +59,11 @@ extern void relay_driver_init(void);
     a blocking delay that prevents the rest of the system from doing things
     during that debounce time.
 */
-extern void publish_relays(packed_relays_t relayBits);
+extern void publish_relays(relay_bits_t relayBits);
 
 /* ************************************************************************** */
 
-// Prints the contents of a packed_relays_t as "(<caps>, <inds>, <z>, <ant>)"
-extern void print_relay_bits(packed_relays_t relayBits);
+// Prints the contents of a relay_bits_t as "(<caps>, <inds>, <z>, <ant>)"
+extern void print_relay_bits(relay_bits_t relayBits);
 
 #endif // _RELAY_DRIVER_H_
