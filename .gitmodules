@@ -1,3 +1,9 @@
 [submodule "toolchain"]
 	path = toolchain
 	url = https://github.com/DaelonSuzuka/XC8-Toolchain.git
+[submodule "src/peripherals"]
+	path = src/peripherals
+	url = git@github.com:DaelonSuzuka/K42-Peripheral-Libraries.git
+[submodule "src/os"]
+	path = src/os
+	url = git@github.com:DaelonSuzuka/K42-System-Libraries.git
