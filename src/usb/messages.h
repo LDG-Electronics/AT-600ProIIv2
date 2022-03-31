@@ -1,9 +1,10 @@
 #ifndef _MESSAGES_H_
 #define _MESSAGES_H_
 
-#include "os/json/json_messages.h"
+#include "os/judi/judi.h"
+#include "os/judi/judi_messages.h"
+#include "os/judi/message_builder.h"
 #include "os/usb_port.h"
-#include "os/usb.h"
 
 /* ************************************************************************** */
 // project specific message components

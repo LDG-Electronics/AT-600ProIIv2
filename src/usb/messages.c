@@ -3,6 +3,8 @@
 #include "events.h"
 #include "flags.h"
 #include "hash.h"
+#include "os/judi/hash.h"
+#include "os/judi/message_id.h"
 #include "os/json/json_print.h"
 #include "os/serial_port.h"
 #include "system.h"
