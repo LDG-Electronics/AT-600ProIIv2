@@ -1,5 +1,5 @@
-name: AT-600ProII
-hw_version: 'a08'
+name: AT-200ProII
+hw_version: '1.0'
 sw_version: '0.9.0'
 
 build_settings:

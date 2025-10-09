@@ -1,1 +1,1 @@
-AT-600ProII software rewrite, based on TuneOS
+AT-200ProII software rewrite, based on TuneOS
