@@ -98,13 +98,13 @@ static void application_init(void) {
     RF_sensor_init();
     tuning_init();
 
-    uart_config_t config = UART_get_config(1);
-    config.baud = _9600;
-    config.txPin = PPS_USB_TX_PIN;
-    config.rxPin = PPS_USB_RX_PIN;
-    create_uart_buffers(debug, config, 128);
-    usb_port_init(&config);
-    
+    // uart_config_t config = UART_get_config(1);
+    // config.baud = _9600;
+    // config.txPin = PPS_USB_TX_PIN;
+    // config.rxPin = PPS_USB_RX_PIN;
+    // create_uart_buffers(debug, config, 128);
+    // usb_port_init(&config);
+
     judi_init(respond);
 }
 
