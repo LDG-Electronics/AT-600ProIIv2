@@ -4,9 +4,9 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Program Files/Microchip/xc8/v2.32/pic/include",
-                "C:/Program Files/Microchip/xc8/v2.32/pic/include/c90",
-                "C:/Program Files/Microchip/xc8/v2.32/pic/include/proc"
+                "C:/Microchip/xc8/v2.45/pic/include",
+                "C:/Microchip/xc8/v2.45/pic/include/c90",
+                "C:/Microchip/xc8/v2.45/pic/include/proc"
             ],
             "defines": [
                 "_DEBUG",
@@ -16,7 +16,7 @@
                 "DEVELOPMENT"
             ],
             "windowsSdkVersion": "10.0.18362.0",
-            "compilerPath": "C:/Program Files/Microchip/xc8/v2.32/pic/bin/clang.exe",
+            "compilerPath": "C:/Microchip/xc8/v2.45/pic/bin/clang.exe",
             "cStandard": "c89",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
