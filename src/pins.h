@@ -18,8 +18,23 @@ extern bool read_CUP_BUTTON_PIN(void);
 extern bool read_FUNC_BUTTON_PIN(void);
 extern bool read_LDN_BUTTON_PIN(void);
 extern bool read_FREQ_PIN(void);
-extern bool read_TUNE_BUTTON_PIN(void);
 extern bool read_ANT_BUTTON_PIN(void);
+extern bool read_TUNE_BUTTON_PIN(void);
+
+// GPIO write functions
+extern void set_POWER_LED_PIN(bool value);
+extern void set_RADIO_CMD_PIN(bool value);
+extern void set_ANT_LED_PIN(bool value);
+extern void set_RELAY_CLOCK_PIN(bool value);
+extern void set_RELAY_DATA_PIN(bool value);
+extern void set_RELAY_STROBE_PIN(bool value);
+extern void set_BYPASS_LED_PIN(bool value);
+extern void set_FP_STROBE_PIN(bool value);
+extern void set_FP_DATA_PIN(bool value);
+extern void set_FP_CLOCK_PIN(bool value);
+
+// GPIO direction functions
+// none
 
 // Button stuff
 #define NUMBER_OF_BUTTONS 8
@@ -36,36 +51,17 @@ enum {
     CUP,
     FUNC,
     LDN,
-    TUNE,
     ANT,
+    TUNE,
 } button_names;
 
-// GPIO write functions
-extern void set_POWER_LED_PIN(bool value);
-extern void set_FP_CLOCK_PIN(bool value);
-extern void set_RADIO_CMD_PIN(bool value);
-extern void set_ANT_LED_PIN(bool value);
-extern void set_RELAY_CLOCK_PIN(bool value);
-extern void set_RELAY_DATA_PIN(bool value);
-extern void set_RELAY_STROBE_PIN(bool value);
-extern void set_BYPASS_LED_PIN(bool value);
-extern void set_FP_STROBE_PIN(bool value);
-extern void set_FP_DATA_PIN(bool value);
-
-// GPIO direction functions
-extern void set_tris_BYPASS_LED_PIN(bool value);
-extern void set_tris_FP_STROBE_PIN(bool value);
-extern void set_tris_FP_DATA_PIN(bool value);
-
 // PPS Pin initialization macros
-#define PPS_USB_TX_PIN PPS_OUTPUT(C, 6)
-#define PPS_USB_RX_PIN PPS_INPUT(C, 7)
 #define PPS_FREQ_PIN PPS_INPUT(E, 0)
 #ifdef DEVELOPMENT
-    #define PPS_DEBUG_TX_PIN PPS_OUTPUT(D, 2)
+    #define PPS_DEBUG_RX_PIN PPS_INPUT(B, 6)
 #endif
 #ifdef DEVELOPMENT
-    #define PPS_DEBUG_RX_PIN PPS_INPUT(D, 3)
+    #define PPS_DEBUG_TX_PIN PPS_OUTPUT(B, 7)
 #endif
 
 // ADC Channel Select macros

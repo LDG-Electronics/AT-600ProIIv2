@@ -15,20 +15,35 @@ bool read_CUP_BUTTON_PIN(void) { return PORTBbits.RB2; }
 bool read_FUNC_BUTTON_PIN(void) { return PORTBbits.RB4; }
 bool read_LDN_BUTTON_PIN(void) { return PORTBbits.RB5; }
 bool read_FREQ_PIN(void) { return PORTEbits.RE0; }
-bool read_TUNE_BUTTON_PIN(void) {
-#ifdef DEVELOPMENT
-    return PORTEbits.RE1;
-#else
-    return PORTBbits.RB6;
-#endif
-}
 bool read_ANT_BUTTON_PIN(void) {
 #ifdef DEVELOPMENT
-    return PORTEbits.RE2;
+    return PORTFbits.RF1;
 #else
     return PORTBbits.RB7;
 #endif
 }
+bool read_TUNE_BUTTON_PIN(void) {
+#ifdef DEVELOPMENT
+    return PORTFbits.RF2;
+#else
+    return PORTBbits.RB6;
+#endif
+}
+
+// GPIO write functions
+void set_POWER_LED_PIN(bool value) { LATAbits.LATA2 = value; }
+void set_RADIO_CMD_PIN(bool value) { LATAbits.LATA7 = value; }
+void set_ANT_LED_PIN(bool value) { LATBbits.LATB1 = value; }
+void set_RELAY_CLOCK_PIN(bool value) { LATCbits.LATC0 = value; }
+void set_RELAY_DATA_PIN(bool value) { LATCbits.LATC1 = value; }
+void set_RELAY_STROBE_PIN(bool value) { LATCbits.LATC2 = value; }
+void set_BYPASS_LED_PIN(bool value) { LATCbits.LATC3 = value; }
+void set_FP_STROBE_PIN(bool value) { LATCbits.LATC4 = value; }
+void set_FP_DATA_PIN(bool value) { LATCbits.LATC5 = value; }
+void set_FP_CLOCK_PIN(bool value) { LATCbits.LATC6 = value; }
+
+// GPIO direction functions
+// none
 
 // Button stuff
 // array of pointers to button reading functions
@@ -39,26 +54,9 @@ button_function_t buttonFunctions[NUMBER_OF_BUTTONS] = {
     read_CUP_BUTTON_PIN,   //
     read_FUNC_BUTTON_PIN,  //
     read_LDN_BUTTON_PIN,   //
-    read_TUNE_BUTTON_PIN,  //
     read_ANT_BUTTON_PIN,   //
+    read_TUNE_BUTTON_PIN,  //
 };
-
-// GPIO write functions
-void set_POWER_LED_PIN(bool value) { LATAbits.LATA2 = value; }
-void set_FP_CLOCK_PIN(bool value) { LATAbits.LATA6 = value; }
-void set_RADIO_CMD_PIN(bool value) { LATAbits.LATA7 = value; }
-void set_ANT_LED_PIN(bool value) { LATBbits.LATB1 = value; }
-void set_RELAY_CLOCK_PIN(bool value) { LATCbits.LATC0 = value; }
-void set_RELAY_DATA_PIN(bool value) { LATCbits.LATC1 = value; }
-void set_RELAY_STROBE_PIN(bool value) { LATCbits.LATC2 = value; }
-void set_BYPASS_LED_PIN(bool value) { LATCbits.LATC3 = value; }
-void set_FP_STROBE_PIN(bool value) { LATCbits.LATC4 = value; }
-void set_FP_DATA_PIN(bool value) { LATCbits.LATC5 = value; }
-
-// GPIO direction functions
-void set_tris_BYPASS_LED_PIN(bool value) { TRISCbits.TRISC3 = value; }
-void set_tris_FP_STROBE_PIN(bool value) { TRISCbits.TRISC4 = value; }
-void set_tris_FP_DATA_PIN(bool value) { TRISCbits.TRISC5 = value; }
 
 // [[[end]]]
 
@@ -91,9 +89,6 @@ void pins_init(void) {
     // LUP_BUTTON_PIN
     TRISAbits.TRISA5 = 1;
     WPUAbits.WPUA5 = 1;
-
-    // FP_CLOCK_PIN
-    TRISAbits.TRISA6 = 0;
 
     // RADIO_CMD_PIN
     TRISAbits.TRISA7 = 0;
@@ -131,47 +126,44 @@ void pins_init(void) {
     // FP_DATA_PIN
     TRISCbits.TRISC5 = 0;
 
-    // USB_TX_PIN
+    // FP_CLOCK_PIN
     TRISCbits.TRISC6 = 0;
-
-    // USB_RX_PIN
-    TRISCbits.TRISC7 = 1;
 
     // FREQ_PIN
     TRISEbits.TRISE0 = 1;
 
-// DEBUG_TX_PIN
-#ifdef DEVELOPMENT
-    TRISDbits.TRISD2 = 0;
-#endif
-
 // DEBUG_RX_PIN
 #ifdef DEVELOPMENT
-    TRISDbits.TRISD3 = 1;
-#endif
-
-// TUNE_BUTTON_PIN
-#ifdef DEVELOPMENT
-    TRISEbits.TRISE1 = 1;
-#else
     TRISBbits.TRISB6 = 1;
 #endif
+
+// DEBUG_TX_PIN
 #ifdef DEVELOPMENT
-    WPUEbits.WPUE1 = 1;
-#else
-    WPUBbits.WPUB6 = 1;
+    TRISBbits.TRISB7 = 0;
 #endif
 
 // ANT_BUTTON_PIN
 #ifdef DEVELOPMENT
-    TRISEbits.TRISE2 = 1;
+    TRISFbits.TRISF1 = 1;
 #else
     TRISBbits.TRISB7 = 1;
 #endif
 #ifdef DEVELOPMENT
-    WPUEbits.WPUE2 = 1;
+    WPUFbits.WPUF1 = 1;
 #else
     WPUBbits.WPUB7 = 1;
+#endif
+
+// TUNE_BUTTON_PIN
+#ifdef DEVELOPMENT
+    TRISFbits.TRISF2 = 1;
+#else
+    TRISBbits.TRISB6 = 1;
+#endif
+#ifdef DEVELOPMENT
+    WPUFbits.WPUF2 = 1;
+#else
+    WPUBbits.WPUB6 = 1;
 #endif
 }
 // [[[end]]]
