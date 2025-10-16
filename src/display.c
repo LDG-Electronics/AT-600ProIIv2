@@ -18,9 +18,9 @@ double_frame_buffer_t displayBuffer;
 
 void display_init(void) {
     // set bitbang spi display pins to default values
-    set_RELAY_CLOCK_PIN(1);
-    set_RELAY_DATA_PIN(1);
-    set_RELAY_STROBE_PIN(1);
+    set_FP_STROBE_PIN(1);
+    set_FP_CLOCK_PIN(1);
+    set_FP_DATA_PIN(1);
 
     clear_status_LEDs();
 
