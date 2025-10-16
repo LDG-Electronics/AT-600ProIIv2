@@ -51,7 +51,7 @@ void update_status_LEDs(void) {
 /* ************************************************************************** */
 
 static void display_spi_bitbang_tx_word(uint16_t word) {
-    set_FP_STROBE_PIN(1);
+    set_FP_STROBE_PIN(0);
     set_FP_CLOCK_PIN(0);
 
     for (uint8_t i = 0; i < 16; i++) {
@@ -66,9 +66,9 @@ static void display_spi_bitbang_tx_word(uint16_t word) {
         set_FP_CLOCK_PIN(0);
         delay_us(10);
     }
-    set_FP_STROBE_PIN(0);
-    delay_us(10);
     set_FP_STROBE_PIN(1);
+    delay_us(10);
+    set_FP_STROBE_PIN(0);
     delay_us(10);
 }
 
