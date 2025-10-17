@@ -169,7 +169,7 @@ const animation_s loz_wave[] = {
 };
 
 const animation_s high_scale[] = {
-    {0x08, 0x00, 100},
+    {0x10, 0x00, 100},
     {0x00, 0x00, 100},
     {0x00, 0x00, END_FRAME},
 };

@@ -288,9 +288,9 @@ void show_scale(void) {
     displayBuffer.next.lower = 0;
 
     if (systemFlags.scaleMode == 0) {
-        displayBuffer.next.upper = 0x08;
+        displayBuffer.next.upper = high_scale[0].upper;
     } else {
-        displayBuffer.next.upper = 0x80;
+        displayBuffer.next.upper = low_scale[0].upper;
     }
 
     display_update();
