@@ -4,6 +4,7 @@
 #include "os/judi/judi.h"
 #include "os/logging.h"
 #include "os/shell/shell.h"
+#include "os/shell/shell_command_processor.h"
 #include "os/stopwatch.h"
 #include "os/system_time.h"
 #include "peripherals/device_information.h"
@@ -71,6 +72,19 @@ static void system_init(void) {
     device_information_init();
 }
 
+#ifdef DEVELOPMENT
+extern void sh_adc(int argc, char **argv);
+extern void sh_bar(int argc, char **argv);
+extern void sh_eeprom(int argc, char **argv);
+extern void sh_flash(int argc, char **argv);
+extern void sh_memory(int argc, char **argv);
+extern void sh_poly(int argc, char **argv);
+extern void sh_relays(int argc, char **argv);
+extern void sh_rfmon(int argc, char **argv);
+extern void sh_romedit(int argc, char **argv);
+extern void sh_tune(int argc, char **argv);
+#endif
+
 static void OS_init(void) {
 #ifdef DEVELOPMENT
     uart_config_t config = UART_get_config(2);
@@ -81,6 +95,17 @@ static void OS_init(void) {
     serial_port_init(&config);
 
     shell_init();
+
+    shell_register_command(sh_adc, "adc");
+    shell_register_command(sh_bar, "bar");
+    shell_register_command(sh_eeprom, "eeprom");
+    shell_register_command(sh_flash, "flash");
+    shell_register_command(sh_memory, "memory");
+    shell_register_command(sh_poly, "poly");
+    shell_register_command(sh_relays, "relays");
+    shell_register_command(sh_rfmon, "rfmon");
+    shell_register_command(sh_romedit, "romedit");
+    shell_register_command(sh_tune, "tune");
 #endif
 
     buttons_init(NUMBER_OF_BUTTONS, buttonFunctions);
