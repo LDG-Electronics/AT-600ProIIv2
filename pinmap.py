@@ -22,7 +22,6 @@ class Pin:
 
 
 common = {
-    # port A
     'A0': ('FWD_PIN', Pin.analog_in),
     'A1': ('REV_PIN', Pin.analog_in),
     'A2': ('POWER_LED_PIN', Pin.led),
@@ -32,7 +31,6 @@ common = {
     'A6': None,
     'A7': ('RADIO_CMD_PIN', ['output', 'gpio']),
     #
-    # port B
     'B0': None,
     'B1': ('ANT_LED_PIN', Pin.led),
     'B2': ('CUP_BUTTON_PIN', Pin.button),
@@ -42,7 +40,6 @@ common = {
     'B6': None,
     'B7': None,
     #
-    # port C
     'C0': ('RELAY_CLOCK_PIN', Pin.led),
     'C1': ('RELAY_DATA_PIN', Pin.led),
     'C2': ('RELAY_STROBE_PIN', Pin.led),
@@ -51,18 +48,17 @@ common = {
     'C5': ('FP_DATA_PIN', Pin.led),
     'C6': ('FP_CLOCK_PIN', Pin.led),
     'C7': None,
-    #
-    # port E
-    'E0': ('FREQ_PIN', Pin.freq),
 }
 
 
 development = {
     'B6': ('DEBUG_RX_PIN', Pin.uart_rx),
     'B7': ('DEBUG_TX_PIN', Pin.uart_tx),
+    #
+    'F0': ('FREQ_PIN', Pin.freq),
     'F1': ('ANT_BUTTON_PIN', Pin.button),
     'F2': ('TUNE_BUTTON_PIN', Pin.button),
-    
+    #
     # 'C6': ('USB_TX_PIN', Pin.uart_tx),
     # 'C7': ('USB_RX_PIN', Pin.uart_rx),
 }
@@ -71,4 +67,6 @@ development = {
 release = {
     'B6': ('TUNE_BUTTON_PIN', Pin.button),
     'B7': ('ANT_BUTTON_PIN', Pin.button),
+    #
+    'E3': ('FREQ_PIN', Pin.freq),
 }

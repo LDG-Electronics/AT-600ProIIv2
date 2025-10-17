@@ -56,12 +56,16 @@ enum {
 } button_names;
 
 // PPS Pin initialization macros
-#define PPS_FREQ_PIN PPS_INPUT(E, 0)
 #ifdef DEVELOPMENT
     #define PPS_DEBUG_RX_PIN PPS_INPUT(B, 6)
 #endif
 #ifdef DEVELOPMENT
     #define PPS_DEBUG_TX_PIN PPS_OUTPUT(B, 7)
+#endif
+#ifdef DEVELOPMENT
+    #define PPS_FREQ_PIN PPS_INPUT(F, 0)
+#else
+    #define PPS_FREQ_PIN PPS_INPUT(E, 3)
 #endif
 
 // ADC Channel Select macros

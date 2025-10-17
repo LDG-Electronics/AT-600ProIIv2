@@ -14,7 +14,13 @@ bool read_LUP_BUTTON_PIN(void) { return PORTAbits.RA5; }
 bool read_CUP_BUTTON_PIN(void) { return PORTBbits.RB2; }
 bool read_FUNC_BUTTON_PIN(void) { return PORTBbits.RB4; }
 bool read_LDN_BUTTON_PIN(void) { return PORTBbits.RB5; }
-bool read_FREQ_PIN(void) { return PORTEbits.RE0; }
+bool read_FREQ_PIN(void) {
+#ifdef DEVELOPMENT
+    return PORTFbits.RF0;
+#else
+    return PORTEbits.RE3;
+#endif
+}
 bool read_ANT_BUTTON_PIN(void) {
 #ifdef DEVELOPMENT
     return PORTFbits.RF1;
@@ -129,9 +135,6 @@ void pins_init(void) {
     // FP_CLOCK_PIN
     TRISCbits.TRISC6 = 0;
 
-    // FREQ_PIN
-    TRISEbits.TRISE0 = 1;
-
 // DEBUG_RX_PIN
 #ifdef DEVELOPMENT
     TRISBbits.TRISB6 = 1;
@@ -140,6 +143,11 @@ void pins_init(void) {
 // DEBUG_TX_PIN
 #ifdef DEVELOPMENT
     TRISBbits.TRISB7 = 0;
+#endif
+
+// FREQ_PIN
+#ifdef DEVELOPMENT
+    TRISFbits.TRISF0 = 1;
 #endif
 
 // ANT_BUTTON_PIN
