@@ -9,6 +9,7 @@
                 "C:/Microchip/xc8/v2.45/pic/include/proc"
             ],
             "defines": [
+                "${default}",
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE",
