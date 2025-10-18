@@ -291,7 +291,7 @@ uint32_t get_period(void) {
     timer4_start();
 
     // align ourselves with the falling edge of FREQ_PIN
-    while (!read_FREQ_PIN() == 0) {
+    while (!read_FREQ_PIN()) {
         if (timer4_IF_read()) {
             timer4_stop();
             LOG_ERROR({ println("timed out"); });
