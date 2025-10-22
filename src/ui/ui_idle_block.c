@@ -6,10 +6,13 @@
 #include "os/serial_port.h"
 #include "os/shell/shell.h"
 #include "os/system_time.h"
+#include "os/usb_port.h"
 #include "relays.h"
 #include "rf_sensor.h"
 #include "ui.h"
 #include "ui_bargraphs.h"
+#include "usb/messages.h"
+#include "usb_port.h"
 #include <stdbool.h>
 
 /* ************************************************************************** */
@@ -57,6 +60,42 @@ bool attempt_RF_measurement(void) {
     lastAttempt = get_current_time();
 
     measure_RF(); // ~1700uS
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+
+static uint16_t calculate_cooldown(void) {
+    if (!currentRF.isPresent) {
+        return 200;
+    }
+    return 50;
+}
+
+static bool attempt_RF_message(void) {
+    static system_time_t lastAttempt = 0;
+    static bool updating = false;
+    if (updating && judi_is_recieving()) {
+        updating = false;
+        lastAttempt = get_current_time();
+        return false;
+    }
+
+    if (time_since(lastAttempt) < calculate_cooldown()) {
+        return false;
+    }
+
+    if (!updating) {
+        if (time_since(lastAttempt) < 1000) {
+            return false;
+        } else {
+            updating = true;
+        }
+    }
+    lastAttempt = get_current_time();
+
+    json_print(usb_print, rfUpdate);
+
     return true;
 }
 
@@ -150,8 +189,15 @@ void ui_idle_block(void) {
         return;
     }
 
+#ifdef DEVELOPMENT
     // ~22uS, most shell commands are ~2000uS
     shell_update(getch());
+    judi_update(usb_getch());
+
+    if (attempt_RF_message()) {
+        return;
+    }
+#endif
 
     // ~30mS
     if (attempt_flag_save()) {

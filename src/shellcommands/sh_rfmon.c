@@ -25,6 +25,10 @@ bool attempt_print(void) {
         print(" | ");
         printf("REV: %9.4f", currentRF.reverseVolts);
         print(" | ");
+        printf("FWatts: %9.4f", currentRF.forwardWatts);
+        print(" | ");
+        printf("RWatts: %9.4f", currentRF.reverseWatts);
+        print(" | ");
         printf("Q: %9.4f", currentRF.matchQuality);
         print(" | ");
         printf("Freq: %u", currentRF.frequency);

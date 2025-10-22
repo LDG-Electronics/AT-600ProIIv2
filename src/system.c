@@ -23,25 +23,6 @@
 #include "usb/messages.h"
 
 /* ************************************************************************** */
-/*  System information
-    Various information about the system, made available at runtime.
-*/
-
-#define xstr(s) str(s)
-#define str(s) #s
-
-// product name
-const char productName[] = xstr(__PRODUCT_NAME__);
-
-// product software version
-const char productVersion[] = xstr(__PRODUCT_VERSION__);
-
-// compilation information
-const uint16_t xc8Version = __XC8_VERSION;
-const char compileDate[] = __DATE__;
-const char compileTime[] = __TIME__;
-
-/* ************************************************************************** */
 
 // Set up the timer for the button isr
 static void button_isr_init(void) {
@@ -83,6 +64,7 @@ extern void sh_relays(int argc, char **argv);
 extern void sh_rfmon(int argc, char **argv);
 extern void sh_romedit(int argc, char **argv);
 extern void sh_tune(int argc, char **argv);
+extern void sh_usb(int argc, char **argv);
 #endif
 
 static void OS_init(void) {
@@ -106,6 +88,7 @@ static void OS_init(void) {
     shell_register_command(sh_rfmon, "rfmon");
     shell_register_command(sh_romedit, "romedit");
     shell_register_command(sh_tune, "tune");
+    shell_register_command(sh_usb, "usb");
 #endif
 
     buttons_init(NUMBER_OF_BUTTONS, buttonFunctions);
@@ -123,12 +106,14 @@ static void application_init(void) {
     RF_sensor_init();
     tuning_init();
 
-    // uart_config_t config = UART_get_config(1);
-    // config.baud = _9600;
-    // config.txPin = PPS_USB_TX_PIN;
-    // config.rxPin = PPS_USB_RX_PIN;
-    // create_uart_buffers(debug, config, 128);
-    // usb_port_init(&config);
+    uart_config_t config = UART_get_config(1);
+    config.baud = _1000000;
+    config.txPin = PPS_USB_TX_PIN;
+    config.rxPin = PPS_USB_RX_PIN;
+    create_uart_buffers(debug, config, 128);
+    usb_port_init(&config);
+
+    // usb_println("USB initialized");
 
     judi_init(respond);
 }

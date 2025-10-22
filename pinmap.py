@@ -59,8 +59,8 @@ development = {
     'F1': ('ANT_BUTTON_PIN', Pin.button),
     'F2': ('TUNE_BUTTON_PIN', Pin.button),
     #
-    # 'C6': ('USB_TX_PIN', Pin.uart_tx),
-    # 'C7': ('USB_RX_PIN', Pin.uart_rx),
+    'F6': ('USB_TX_PIN', Pin.uart_tx),
+    'F7': ('USB_RX_PIN', Pin.uart_rx),
 }
 
 

@@ -173,5 +173,15 @@ void pins_init(void) {
 #else
     WPUBbits.WPUB6 = 1;
 #endif
+
+// USB_TX_PIN
+#ifdef DEVELOPMENT
+    TRISFbits.TRISF6 = 0;
+#endif
+
+// USB_RX_PIN
+#ifdef DEVELOPMENT
+    TRISFbits.TRISF7 = 1;
+#endif
 }
 // [[[end]]]

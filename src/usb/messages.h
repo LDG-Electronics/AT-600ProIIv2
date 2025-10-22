@@ -15,6 +15,7 @@ extern const json_node_t relaysInput[];
 extern const json_node_t relaysOutput[];
 extern const json_node_t relaysAll[];
 extern const json_node_t updateCurrentRelays[];
+extern const json_node_t rfUpdate[];
 
 /* ************************************************************************** */
 

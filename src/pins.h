@@ -67,6 +67,12 @@ enum {
 #else
     #define PPS_FREQ_PIN PPS_INPUT(E, 3)
 #endif
+#ifdef DEVELOPMENT
+    #define PPS_USB_TX_PIN PPS_OUTPUT(F, 6)
+#endif
+#ifdef DEVELOPMENT
+    #define PPS_USB_RX_PIN PPS_INPUT(F, 7)
+#endif
 
 // ADC Channel Select macros
 #define ADC_FWD_PIN 0

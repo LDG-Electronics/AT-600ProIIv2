@@ -9,6 +9,7 @@ build_settings:
     defines:
       - DEVELOPMENT
       - USB_ENABLED
+      - SHELL_ENABLED
       - SHELL_HISTORY_ENABLED
       - LOGGING_ENABLED
 
