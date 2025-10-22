@@ -14,7 +14,9 @@
                 "UNICODE",
                 "_UNICODE",
                 "_18F47K42",
-                "DEVELOPMENT"
+                "DEVELOPMENT",
+                "USB_ENABLED",
+                "__XC8_VERSION=2450"
             ],
             "windowsSdkVersion": "10.0.18362.0",
             "compilerPath": "C:/Microchip/xc8/v2.45/pic/bin/clang.exe",
