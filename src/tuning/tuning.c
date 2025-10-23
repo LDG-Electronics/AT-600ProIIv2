@@ -9,7 +9,7 @@
 #include "tuning_search.h"
 #include "tuning_utils.h"
 #include <float.h>
-static uint8_t LOG_LEVEL = L_TRACE;
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ tuning_errors_t full_tune(void) {
             print_relays(bestMatch.relays);
             printf(" to slot %u \r\n", slot);
         });
-        store_memory(slot, bestMatch.relays);
+        // store_memory(slot, bestMatch.relays);
     }
     return errors;
 }

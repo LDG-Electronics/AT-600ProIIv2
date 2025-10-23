@@ -2,7 +2,7 @@
 #include "os/logging.h"
 #include "rf_sensor.h"
 #include "tuning_utils.h"
-static uint8_t LOG_LEVEL = L_TRACE;
+static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
 
