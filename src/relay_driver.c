@@ -19,7 +19,7 @@ void relay_driver_init(void) {
 /* -------------------------------------------------------------------------- */
 
 static void relay_spi_bitbang_tx_word(uint16_t word) {
-    set_RELAY_STROBE_PIN(1);
+    set_RELAY_STROBE_PIN(0);
     set_RELAY_CLOCK_PIN(0);
 
     for (uint8_t i = 0; i < 16; i++) {
@@ -34,9 +34,9 @@ static void relay_spi_bitbang_tx_word(uint16_t word) {
         set_RELAY_CLOCK_PIN(0);
         delay_us(10);
     }
-    set_RELAY_STROBE_PIN(0);
-    delay_us(10);
     set_RELAY_STROBE_PIN(1);
+    delay_us(10);
+    set_RELAY_STROBE_PIN(0);
     delay_us(10);
 }
 
