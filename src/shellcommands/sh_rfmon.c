@@ -21,15 +21,17 @@ bool attempt_print(void) {
     if (time_since(lastAttempt) > PRINT_COOLDOWN) {
         lastAttempt = get_current_time();
 
-        printf("FWD: %9.4f", currentRF.forwardVolts);
+        printf("FWD: %9.1f", currentRF.forwardVolts);
         print(" | ");
-        printf("REV: %9.4f", currentRF.reverseVolts);
+        printf("REV: %9.1f", currentRF.reverseVolts);
+        print(" | ");
+        printf("Q: %9.4f", currentRF.matchQuality);
         print(" | ");
         printf("FWatts: %9.4f", currentRF.forwardWatts);
         print(" | ");
         printf("RWatts: %9.4f", currentRF.reverseWatts);
         print(" | ");
-        printf("Q: %9.4f", currentRF.matchQuality);
+        printf("SWR: %9.2f", currentRF.swr);
         print(" | ");
         printf("Freq: %u", currentRF.frequency);
 
