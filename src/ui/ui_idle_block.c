@@ -67,7 +67,7 @@ bool attempt_RF_measurement(void) {
 
 static uint16_t calculate_cooldown(void) {
     if (!currentRF.isPresent) {
-        return 200;
+        return 500;
     }
     return 50;
 }
