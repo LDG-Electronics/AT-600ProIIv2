@@ -65,6 +65,7 @@ bool attempt_RF_measurement(void) {
 
 /* -------------------------------------------------------------------------- */
 
+#if defined DEVELOPMENT && defined USB_ENABLED
 static uint16_t calculate_cooldown(void) {
     if (!currentRF.isPresent) {
         return 500;
@@ -98,6 +99,7 @@ static bool attempt_RF_message(void) {
 
     return true;
 }
+#endif
 
 /* -------------------------------------------------------------------------- */
 
@@ -192,11 +194,13 @@ void ui_idle_block(void) {
 #ifdef DEVELOPMENT
     // ~22uS, most shell commands are ~2000uS
     shell_update(getch());
+    #ifdef USB_ENABLED
     judi_update(usb_getch());
 
     if (attempt_RF_message()) {
         return;
     }
+    #endif
 #endif
 
     // ~30mS

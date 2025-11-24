@@ -106,7 +106,7 @@ static void application_init(void) {
     RF_sensor_init();
     tuning_init();
 
-#ifdef DEVELOPMENT
+#if defined DEVELOPMENT && defined USB_ENABLED
     uart_config_t config = UART_get_config(1);
     config.baud = _1000000;
     config.txPin = PPS_USB_TX_PIN;
