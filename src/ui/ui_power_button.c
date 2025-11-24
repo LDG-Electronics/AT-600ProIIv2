@@ -17,6 +17,7 @@ void power_hold(void) {
     if (systemFlags.powerStatus == 0) {
         set_power_on();
         update_status_LEDs();
+        play_animation(&right_crawl[0]);
 
         while (btn_is_down(POWER)) {
             ui_idle_block();
@@ -28,6 +29,7 @@ void power_hold(void) {
                 set_power_off();
                 display_clear();
                 clear_status_LEDs();
+                play_animation(&left_crawl[0]);
 
                 while (btn_is_down(POWER)) {
                     // make sure we wait here until POWER is released
