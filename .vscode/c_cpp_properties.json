@@ -16,6 +16,7 @@
                 "_18F47K42",
                 "DEVELOPMENT",
                 "USB_ENABLED",
+                "LOGGING_ENABLED",
                 "__XC8_VERSION=2450"
             ],
             "windowsSdkVersion": "10.0.18362.0",
