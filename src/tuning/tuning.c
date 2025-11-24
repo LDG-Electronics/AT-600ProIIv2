@@ -117,7 +117,7 @@ tuning_errors_t full_tune(void) {
             print_relays(bestMatch.relays);
             printf(" to slot %u \r\n", slot);
         });
-        // store_memory(slot, bestMatch.relays);
+        store_memory(slot, bestMatch.relays);
     }
     return errors;
 }
