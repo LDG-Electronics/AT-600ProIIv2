@@ -1,6 +1,5 @@
 #include "events.h"
 #include "flags.h"
-#include "tuning/tuning_memories.h"
 #include "os/serial_port.h"
 #include "os/system_time.h"
 #include "peripherals/pic_header.h"
@@ -8,6 +7,8 @@
 #include "relays.h"
 #include "rf_sensor.h"
 #include "tuning.h"
+#include "tuning/tuning_memories.h"
+
 
 /* ************************************************************************** */
 
@@ -112,7 +113,7 @@ void manual_store(void) {
 
 void set_power_on(void) {
     systemFlags.powerStatus = 1;
-    
+
     if (put_relays(currentRelays[systemFlags.antenna]) == -1) {
         // TODO: what do we do on relayerror?
     }
