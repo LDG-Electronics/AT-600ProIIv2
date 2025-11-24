@@ -14,28 +14,31 @@
 
 /* ************************************************************************** */
 
+void print_current_rf(void) {
+    printf("FWD: %9.1f", currentRF.forwardVolts);
+    print(" | ");
+    printf("REV: %9.1f", currentRF.reverseVolts);
+    print(" | ");
+    printf("Q: %9.4f", currentRF.matchQuality);
+    print(" | ");
+    printf("FWatts: %9.4f", currentRF.forwardWatts);
+    print(" | ");
+    printf("RWatts: %9.4f", currentRF.reverseWatts);
+    print(" | ");
+    printf("SWR: %9.2f", currentRF.swr);
+    print(" | ");
+    printf("Freq: %u", currentRF.frequency);
+
+    println("");
+}
+
 #define PRINT_COOLDOWN 1000
 
 bool attempt_print(void) {
     static system_time_t lastAttempt = 0;
     if (time_since(lastAttempt) > PRINT_COOLDOWN) {
         lastAttempt = get_current_time();
-
-        printf("FWD: %9.1f", currentRF.forwardVolts);
-        print(" | ");
-        printf("REV: %9.1f", currentRF.reverseVolts);
-        print(" | ");
-        printf("Q: %9.4f", currentRF.matchQuality);
-        print(" | ");
-        printf("FWatts: %9.4f", currentRF.forwardWatts);
-        print(" | ");
-        printf("RWatts: %9.4f", currentRF.reverseWatts);
-        print(" | ");
-        printf("SWR: %9.2f", currentRF.swr);
-        print(" | ");
-        printf("Freq: %u", currentRF.frequency);
-
-        println("");
+        print_current_rf();
         return true;
     }
     return false;
@@ -44,8 +47,9 @@ bool attempt_print(void) {
 /* ************************************************************************** */
 
 int8_t rfmon_callback(char currentChar) {
-    if (currentChar == 3) {
-        return -1;
+    if (currentChar) {
+        print_current_rf();
+        return 0;
     }
     static bool prevIsPresent = false;
 
@@ -69,8 +73,9 @@ int8_t rfmon_callback(char currentChar) {
 // setup
 void sh_rfmon(int argc, char **argv) {
     println("entering rfmon");
+    println("press any key to refresh");
+
+    print_current_rf(); // force one print
 
     shell_register_callback(rfmon_callback);
 }
-
-// REGISTER_SHELL_COMMAND(sh_rfmon, "rfmon");
