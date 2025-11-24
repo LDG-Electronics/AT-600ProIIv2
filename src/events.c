@@ -1,14 +1,16 @@
 #include "events.h"
+#include "animations.h"
+#include "display.h"
 #include "flags.h"
 #include "os/serial_port.h"
 #include "os/system_time.h"
+#include "peripherals/nonvolatile_memory.h"
 #include "peripherals/pic_header.h"
 #include "pins.h"
 #include "relays.h"
 #include "rf_sensor.h"
 #include "tuning.h"
 #include "tuning/tuning_memories.h"
-
 
 /* ************************************************************************** */
 
@@ -89,24 +91,16 @@ void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
 
 /* -------------------------------------------------------------------------- */
 
-/*  // TODO: this is completely fubar
-    It needs...
-    * animations
-    * success/failure
-    * how to handle if currentRF.frequency is invalid
-*/
 void manual_store(void) {
-    // relays_t relays = read_current_relays();
-    // NVM_address_t address = convert_memory_address(currentRF.frequency);
-    // if (address) {
-    //     memory_store(address, relays);
-    // }
+    if (currentRF.frequency) {
+        uint16_t slot = find_memory_slot(currentRF.frequency);
+        relays_t relays = read_current_relays();
+        store_memory(slot, relays);
+        play_animation(&center_crawl[0]);
+        return;
+    }
 
-    // success animation?
-    // play_animation(&center_crawl[0]);
-
-    // failure animation?
-    // repeat_animation(&blink_both_bars, 2);
+    repeat_animation(&blink_both_bars, 2);
 }
 
 /* -------------------------------------------------------------------------- */
