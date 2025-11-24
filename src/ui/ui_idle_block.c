@@ -197,9 +197,9 @@ void ui_idle_block(void) {
     #ifdef USB_ENABLED
     judi_update(usb_getch());
 
-    if (attempt_RF_message()) {
-        return;
-    }
+    // if (attempt_RF_message()) {
+    //     return;
+    // }
     #endif
 #endif
 
