@@ -8,6 +8,7 @@
 #include "rf_sensor.h"
 #include <float.h>
 #include <math.h>
+#include <stdlib.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
 /* ************************************************************************** */
@@ -111,13 +112,12 @@ void display_single_frame(const animation_s *animation, uint8_t frame_number) {
 
 // Play an animation from animations.h
 void play_animation(const animation_s *animation) {
-    LOG_TRACE({ println("play_animation"); });
     uint8_t i = 0;
     bool useUpper = true;
     bool useLower = true;
 
     // Check if the provided animation has a header frame
-    if (animation[0].frame_delay == 0) {
+    if (animation[0].frame_delay == HEADER_FRAME) {
         useUpper = animation[0].upper;
         useLower = animation[0].lower;
 
@@ -134,10 +134,25 @@ void play_animation(const animation_s *animation) {
         }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == 0) {
+        if (animation[i].frame_delay == END_FRAME) {
             break;
         }
-        delay_ms(animation[i].frame_delay);
+
+        // negative frame_delay indicates last frame
+        if (animation[i].frame_delay < 0) {
+            delay_ms(abs(animation[i].frame_delay));
+
+            if (useUpper) {
+                displayBuffer.next.upper = 0;
+            }
+            if (useLower) {
+                displayBuffer.next.lower = 0;
+            }
+            push_frame_buffer();
+            break;
+        } else {
+            delay_ms(animation[i].frame_delay);
+        }
 
         i++;
     }
@@ -151,16 +166,25 @@ void repeat_animation(const animation_s *animation, uint8_t repeats) {
     }
 }
 
+bool button_delay(uint16_t durationMs) {
+    for (uint16_t j = durationMs; j != 0; j--) {
+        if (get_buttons() != 0) {
+            return true;
+        }
+        delay_ms(1);
+    }
+    return false;
+}
+
 // Play an animation from animations.h and return early if a button is pressed
 void play_interruptable_animation(const animation_s *animation) {
-    LOG_TRACE({ println("play_interruptable_animation"); });
+    LOG_TRACE({ println("play_interruptable_animation START"); });
     uint8_t i = 0;
-    uint16_t j = 0;
     bool useUpper = true;
     bool useLower = true;
 
     // Check if the provided animation has a header frame
-    if (animation[i].frame_delay == 0) {
+    if (animation[i].frame_delay == HEADER_FRAME) {
         useUpper = animation[0].upper;
         useLower = animation[0].lower;
 
@@ -177,15 +201,28 @@ void play_interruptable_animation(const animation_s *animation) {
         }
         push_frame_buffer();
 
-        if (animation[i].frame_delay == 0) {
+        if (animation[i].frame_delay == END_FRAME) {
             break;
         }
 
-        for (j = animation[i].frame_delay; j != 0; j--) {
-            if (get_buttons() != 0) {
+        // negative frame_delay indicates last frame
+        if (animation[i].frame_delay < 0) {
+            if (button_delay(abs(animation[i].frame_delay))) {
                 break;
             }
-            delay_ms(1);
+
+            if (useUpper) {
+                displayBuffer.next.upper = 0;
+            }
+            if (useLower) {
+                displayBuffer.next.lower = 0;
+            }
+            push_frame_buffer();
+            break;
+        } else {
+            if (button_delay(animation[i].frame_delay)) {
+                break;
+            }
         }
 
         i++;
@@ -236,9 +273,7 @@ void show_antenna(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void blink_auto(uint8_t blinks) {
-    repeat_animation(&auto_mode[systemFlags.autoMode][0], blinks);
-}
+void blink_auto(uint8_t blinks) { repeat_animation(&auto_mode[systemFlags.autoMode][0], blinks); }
 
 void show_auto(void) {
     if (systemFlags.autoMode == 0) {
@@ -300,9 +335,7 @@ void show_scale(void) {
 
 const uint8_t swrThreshDisplay[] = {0x08, 0x10, 0x20, 0x40};
 
-void blink_thresh(uint8_t blinks) {
-    repeat_animation(&swrThreshold[swrThreshIndex][0], blinks);
-}
+void blink_thresh(uint8_t blinks) { repeat_animation(&swrThreshold[swrThreshIndex][0], blinks); }
 
 void show_thresh(void) {
     displayBuffer.next.upper = 0;
