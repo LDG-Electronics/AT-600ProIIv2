@@ -14,7 +14,7 @@ build_settings:
       - LOGGING_ENABLED
 
   release:
-    processor: 18F47K42
+    processor: 18F27K42
     programmer: ICD-U80-win
     defines:
       - USB_ENABLED
