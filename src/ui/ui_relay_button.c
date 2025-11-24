@@ -22,8 +22,7 @@ typedef enum {
 
 // WARNING - Dragons incoming
 #define BLINK_INTERVAL 100
-static display_frame_t relay_animation_handler(int8_t capResult,
-                                               int8_t indResult) {
+static display_frame_t relay_animation_handler(int8_t capResult, int8_t indResult) {
     static system_time_t previousBlinkTime = 0;
     static uint8_t blinkFrame = 0xff;
     static bool upperBarIsBlinking = false;
@@ -38,8 +37,7 @@ static display_frame_t relay_animation_handler(int8_t capResult,
         It also prevents the blinking from starting on an 'off' cycle.
     */
     if ((!lowerBarIsBlinking && !upperBarIsBlinking) &&
-        ((capResult == RLY_LIMIT_REACHED) ||
-         (indResult == RLY_LIMIT_REACHED))) {
+        ((capResult == RLY_LIMIT_REACHED) || (indResult == RLY_LIMIT_REACHED))) {
         previousBlinkTime = get_current_time();
         blinkFrame = 0xff;
     }
@@ -102,8 +100,7 @@ static display_frame_t relay_animation_handler(int8_t capResult,
 
 // checks CUP/CDN/LUP/LDN, returns true if any is down, false if not
 // also updates capResult/indResult with the state of CUP/CDN or LUP/LDN
-bool check_relay_buttons(relays_t relays, int8_t *capResult,
-                         int8_t *indResult) {
+bool check_relay_buttons(relays_t relays, int8_t *capResult, int8_t *indResult) {
     bool buttons = false;
 
     *capResult = RLY_NO_CHANGE;
@@ -177,14 +174,12 @@ static int8_t timeout_handler(void) {
     // this keeps track of the last time a relay button was down
     static system_time_t lastTimeButtonWasDown;
 
-    if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) ||
-        btn_is_down(LDN)) {
+    if (btn_is_down(CUP) || btn_is_down(CDN) || btn_is_down(LUP) || btn_is_down(LDN)) {
         lastTimeButtonWasDown = get_current_time();
     } else {
         // if we ARE NOT holding a relay button, any other button press should
         // kick us out
-        if (btn_is_down(POWER) || btn_is_down(ANT) || btn_is_down(FUNC) ||
-            btn_is_down(TUNE)) {
+        if (btn_is_down(POWER) || btn_is_down(ANT) || btn_is_down(FUNC) || btn_is_down(TUNE)) {
             return 0;
         }
     }
@@ -233,7 +228,7 @@ void relay_button_hold(void) {
 
                 // push our relays out to the hardware
                 if (put_relays(relays) == -1) {
-                    // TODO: what do we do on relayerror?
+                    repeat_animation(&toggle_inner_leds[0], 4);
                 }
 
                 if (triggerCount < UINT8_MAX) {
