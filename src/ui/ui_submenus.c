@@ -38,32 +38,32 @@ void scale_submenu(void) {
     blink_scale(4);
 }
 
-void auto_submenu(void) {
-    blink_auto(3); // blink for emphasis
-    show_auto();   // leave it on the screen
+// void auto_submenu(void) {
+//     blink_auto(3); // blink for emphasis
+//     show_auto();   // leave it on the screen
 
-    system_time_t startTime = get_current_time(); // stash the current time
-    while (1) {
-        if (btn_is_down(CDN)) {
-            startTime = get_current_time(); // reset the start time
-            toggle_auto();
-            blink_auto(2); // blink for emphasis
-            show_auto();   // leave it on the screen
-        }
+//     system_time_t startTime = get_current_time(); // stash the current time
+//     while (1) {
+//         if (btn_is_down(CDN)) {
+//             startTime = get_current_time(); // reset the start time
+//             toggle_auto();
+//             blink_auto(2); // blink for emphasis
+//             show_auto();   // leave it on the screen
+//         }
 
-        if (btn_is_down(FUNC)) {
-            break; // Pressing FUNC again cancels and exits
-        }
-        if (time_since(startTime) >= SUBMENU_DURATION) {
-            break; // Cancel and exit if it's been longer than SUBMENU_DURATION
-        }
-        if (RF_is_present()) {
-            return; // Immediately exit if RF is detected
-        }
-        ui_idle_block();
-    }
-    blink_auto(4);
-}
+//         if (btn_is_down(FUNC)) {
+//             break; // Pressing FUNC again cancels and exits
+//         }
+//         if (time_since(startTime) >= SUBMENU_DURATION) {
+//             break; // Cancel and exit if it's been longer than SUBMENU_DURATION
+//         }
+//         if (RF_is_present()) {
+//             return; // Immediately exit if RF is detected
+//         }
+//         ui_idle_block();
+//     }
+//     blink_auto(4);
+// }
 
 void threshold_submenu(void) {
     blink_thresh(3); // blink for emphasis
@@ -116,7 +116,9 @@ void function_submenu(void) {
             return;
         }
         if (btn_is_down(CDN)) {
-            auto_submenu();
+            // auto_submenu();
+            toggle_auto();
+            blink_auto(4); // blink for emphasis
             return;
         }
         if (btn_is_down(LDN)) {
