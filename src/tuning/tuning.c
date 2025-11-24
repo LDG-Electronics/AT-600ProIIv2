@@ -98,14 +98,16 @@ tuning_errors_t full_tune(void) {
 
     measure_RF();
     measure_frequency();
-    while (currentRF.frequency == 0) {
+    if (currentRF.frequency == 0) {
         LOG_DEBUG({ println("bad frequency, retrying"); });
         measure_frequency();
+        errors.noFreq = 1;
+        LOG_WARN({ println("no frequency!"); });
     }
 
+    LOG_DEBUG({ printf("frequency: %u KHz\r\n", currentRF.frequency); });
     LOG_INFO({
-        printf("tested %u solutions in %lums, ", comparisonCount,
-               time_since(startTime));
+        printf("tested %u solutions in %lums, ", comparisonCount, time_since(startTime));
         printf("final Q: %f\r\n", bestMatch.matchQuality);
     });
 
@@ -143,9 +145,11 @@ tuning_errors_t memory_tune(void) {
     // Hopefully RF is stable, so refresh our measurements
     measure_RF();
     measure_frequency();
-    while (currentRF.frequency == 0) {
+    if (currentRF.frequency == 0) {
         LOG_DEBUG({ println("bad frequency, retrying"); });
         measure_frequency();
+        errors.noFreq = 1;
+        LOG_WARN({ println("no frequency!"); });
     }
 
     LOG_DEBUG({ printf("frequency: %u KHz\r\n", currentRF.frequency); });
