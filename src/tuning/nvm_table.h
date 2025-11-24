@@ -32,9 +32,9 @@ extern void print_table_entry(table_entry_t entry);
 
 // Align the table towards the end of ROM
 // Used the compiler-defined _ROMSIZE so we're device independant
-// Use double the TABLE_SIZE just to make sure we stay in bounds
 // Use FLASH_BLOCK_MASK to make sure the array is block-aligned
-#define TABLE_LOCATION ((_ROMSIZE - (TABLE_SIZE * 2)) & FLASH_BLOCK_MASK)
+// offset the table by FLASH_ERASE_BLOCKSIZE to make sure it's in bounds
+#define TABLE_LOCATION ((_ROMSIZE - (TABLE_SIZE)) & FLASH_BLOCK_MASK) - FLASH_ERASE_BLOCKSIZE
 
 /* ************************************************************************** */
 
