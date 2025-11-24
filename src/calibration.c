@@ -69,7 +69,11 @@ float correct_forward_power(float forward, uint16_t frequency) {
 
     polynomial_t poly = forwardCalibrationTable[band];
 
-    return (poly.A * pow(forward, 2)) + (poly.B * forward) + poly.C;
+    float temp = (poly.A * pow(forward, 2)) + (poly.B * forward) + poly.C;
+    if (temp < 0) {
+        temp = 0;
+    }
+    return temp;
 }
 
 float correct_reverse_power(float reverse, uint16_t frequency) {
@@ -77,7 +81,11 @@ float correct_reverse_power(float reverse, uint16_t frequency) {
 
     polynomial_t poly = reverseCalibrationTable[band];
 
-    return (poly.A * pow(reverse, 2)) + (poly.B * reverse) + poly.C;
+    float temp = (poly.A * pow(reverse, 2)) + (poly.B * reverse) + poly.C;
+    if (temp < 0) {
+        temp = 0;
+    }
+    return temp;
 }
 
 /* -------------------------------------------------------------------------- */
