@@ -18,7 +18,7 @@ RF_power_t currentRF;
 /* ************************************************************************** */
 
 static void clear_currentRF(void) {
-    // raw readings 
+    // raw readings
     currentRF.forwardVolts = 0;
     currentRF.reverseVolts = 0;
     currentRF.matchQuality = 0.0;
@@ -86,6 +86,9 @@ bool check_for_RF(void) {
 
     uint16_t average = sum / NUMBER_OF_SAMPLES;
 
+    // enable this for reverse power calibration
+    // return true;
+
     if (average >= LOW_POWER_CUTOFF) {
         return true;
     }
@@ -132,9 +135,7 @@ bool wait_for_stable_RF(uint16_t timeoutDuration) {
         }
 
         if (goodSlopeCount >= 10) {
-            LOG_INFO({
-                printf("found good slope in %u iterations\r\n", iterations);
-            });
+            LOG_INFO({ printf("found good slope in %u iterations\r\n", iterations); });
             return true;
         }
 
@@ -171,19 +172,15 @@ void measure_RF(void) {
 }
 
 bool calculate_watts_and_swr(void) {
-    if (time_since(currentRF.lastMeasurementTime) >
-        time_since(currentRF.lastCalculationTime)) {
+    if (time_since(currentRF.lastMeasurementTime) > time_since(currentRF.lastCalculationTime)) {
         // There no point recalculating if the measurement hasn't changed
         return false;
     }
 
     currentRF.lastCalculationTime = get_current_time();
-    currentRF.forwardWatts =
-        correct_forward_power(currentRF.forwardVolts, currentRF.frequency);
-    currentRF.reverseWatts =
-        correct_reverse_power(currentRF.reverseVolts, currentRF.frequency);
-    currentRF.swr =
-        calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
+    currentRF.forwardWatts = correct_forward_power(currentRF.forwardVolts, currentRF.frequency);
+    currentRF.reverseWatts = correct_reverse_power(currentRF.reverseVolts, currentRF.frequency);
+    currentRF.swr = calculate_SWR_by_watts(currentRF.forwardWatts, currentRF.reverseWatts);
 
     return true;
 }
