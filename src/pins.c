@@ -25,14 +25,14 @@ bool read_ANT_BUTTON_PIN(void) {
 #ifdef DEVELOPMENT
     return PORTFbits.RF1;
 #else
-    return PORTBbits.RB7;
+    return PORTBbits.RB6;
 #endif
 }
 bool read_TUNE_BUTTON_PIN(void) {
 #ifdef DEVELOPMENT
     return PORTFbits.RF2;
 #else
-    return PORTBbits.RB6;
+    return PORTBbits.RB7;
 #endif
 }
 
@@ -154,24 +154,24 @@ void pins_init(void) {
 #ifdef DEVELOPMENT
     TRISFbits.TRISF1 = 1;
 #else
-    TRISBbits.TRISB7 = 1;
+    TRISBbits.TRISB6 = 1;
 #endif
 #ifdef DEVELOPMENT
     WPUFbits.WPUF1 = 1;
 #else
-    WPUBbits.WPUB7 = 1;
+    WPUBbits.WPUB6 = 1;
 #endif
 
 // TUNE_BUTTON_PIN
 #ifdef DEVELOPMENT
     TRISFbits.TRISF2 = 1;
 #else
-    TRISBbits.TRISB6 = 1;
+    TRISBbits.TRISB7 = 1;
 #endif
 #ifdef DEVELOPMENT
     WPUFbits.WPUF2 = 1;
 #else
-    WPUBbits.WPUB6 = 1;
+    WPUBbits.WPUB7 = 1;
 #endif
 
 // USB_TX_PIN

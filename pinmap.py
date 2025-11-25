@@ -65,8 +65,8 @@ development = {
 
 
 release = {
-    'B6': ('TUNE_BUTTON_PIN', Pin.button),
-    'B7': ('ANT_BUTTON_PIN', Pin.button),
+    'B6': ('ANT_BUTTON_PIN', Pin.button),
+    'B7': ('TUNE_BUTTON_PIN', Pin.button),
     #
     'E3': ('FREQ_PIN', Pin.freq),
 }
