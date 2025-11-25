@@ -57,40 +57,29 @@ tuning_errors_t no_errors(void) {
     going wrong and then the tuner displaying 8 seconds of random blinks.
 */
 
-// TODO: make sure the error codes are documented
 void tuning_followup_animation(tuning_errors_t errors) {
-    // led_red(0);
-    delay_ms(500);
-
     if (errors.any) {
         if (errors.lostRF) {
             LOG_INFO({ println("lostRF"); });
 
-            // led_red_blink(4, MEDIUM);
+            repeat_animation(&blink_top_bar[0], 2);
         } else if (errors.noRF) {
             LOG_INFO({ println("noRF"); });
 
-            // led_red_blink(5, MEDIUM);
+            repeat_animation(&blink_top_bar[0], 1);
+        } else if (errors.noFreq) {
+            LOG_INFO({ println("noFreq"); });
+
+            repeat_animation(&blink_both_bars[0], 2);
+        } else if (errors.badMatch) {
+            LOG_INFO({ println("badMatch"); });
+
+            repeat_animation(&blink_bottom_bar[0], 2);
         } else if (errors.relayError) {
             LOG_INFO({ println("relayError"); });
 
-            // TODO: I still don't know how to handle relayError
+            repeat_animation(&toggle_inner_leds[0], 2);
         }
-    } else {
-        if (currentRF.matchQuality < 200) {
-            LOG_INFO({ println("good SWR"); });
-
-            // led_green_blink(2, MEDIUM);
-        } else if (currentRF.matchQuality < 1000) {
-            LOG_INFO({ println("fair SWR"); });
-
-            // led_red_blink(2, MEDIUM);
-        } else if (currentRF.matchQuality >= 1500) {
-            LOG_INFO({ println("bad SWR"); });
-
-            // led_red_blink(3, MEDIUM);
-        }
-        delay_ms(1000);
     }
 }
 
@@ -117,8 +106,7 @@ match_t new_match(void) {
 */
 void print_match(match_t *match) {
     print_relays(match->relays);
-    printf(" Q: %f, FWD: %f, #: %u", match->matchQuality, match->forward,
-           match->attemptNumber);
+    printf(" Q: %f, FWD: %f, #: %u", match->matchQuality, match->forward, match->attemptNumber);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -173,8 +161,7 @@ match_t create_match_from_current_conditions(relays_t relays) {
 
     Returns the better of the two matches.
 */
-match_t compare_matches(tuning_errors_t *errors, relays_t relays,
-                        match_t bestMatch) {
+match_t compare_matches(tuning_errors_t *errors, relays_t relays, match_t bestMatch) {
     comparisonCount++;
     if (comparisonCount == 1000) {
         errors->timeout = 1;

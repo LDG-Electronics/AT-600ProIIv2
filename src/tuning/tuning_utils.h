@@ -27,6 +27,7 @@ extern void print_comparison_count(void);
 
 typedef union {
     struct {
+        unsigned noFreq : 1;
         unsigned noRF : 1;
         unsigned lostRF : 1;
         unsigned badMatch : 1;
@@ -67,8 +68,7 @@ extern void print_match(match_t *match);
 extern match_t select_best_match(match_t matchA, match_t matchB);
 
 //
-extern match_t compare_matches(tuning_errors_t *errors, relays_t relays,
-                               match_t bestMatch);
+extern match_t compare_matches(tuning_errors_t *errors, relays_t relays, match_t bestMatch);
 
 /* ************************************************************************** */
 

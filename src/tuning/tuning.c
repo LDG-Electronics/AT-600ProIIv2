@@ -68,7 +68,6 @@ tuning_errors_t full_tune(void) {
     bestMatch = capacitor_sweep(&errors, bestMatch, 10);
 
     // maybe we have the wrong Z
-    // TODO: shouldn't this be checking caps?
     if (bestMatch.relays.inds < 3) {
         bestMatch = test_z(&errors, bestMatch, !bestMatch.relays.z);
     }
@@ -95,6 +94,7 @@ tuning_errors_t full_tune(void) {
     }
 
     wait_for_stable_RF(500);
+    delay_ms(250);
 
     measure_RF();
     measure_frequency();
@@ -104,15 +104,16 @@ tuning_errors_t full_tune(void) {
         errors.noFreq = 1;
         LOG_WARN({ println("no frequency!"); });
     }
+    calculate_watts_and_swr();
 
     LOG_DEBUG({ printf("frequency: %u KHz\r\n", currentRF.frequency); });
     LOG_INFO({
         printf("tested %u solutions in %lums, ", comparisonCount, time_since(startTime));
-        printf("final Q: %f\r\n", bestMatch.matchQuality);
+        printf("final SWR: %f\r\n", currentRF.swr);
     });
 
     // Save the result, if it's good enough
-    if (bestMatch.matchQuality < 100) {
+    if (currentRF.swr > get_SWR_threshold()) {
         uint16_t slot = find_memory_slot(currentRF.frequency);
         LOG_INFO({
             print("saving ");
@@ -120,6 +121,8 @@ tuning_errors_t full_tune(void) {
             printf(" to slot %u \r\n", slot);
         });
         store_memory(slot, bestMatch.relays);
+    } else {
+        errors.badMatch = 1;
     }
     return errors;
 }
@@ -233,10 +236,11 @@ tuning_errors_t memory_tune(void) {
     // measure the RF one last time
     delay_ms(250);
     measure_RF();
+    calculate_watts_and_swr();
 
     // Did we find a valid memory?
-    LOG_INFO({ printf("final Q: %f\r\n", currentRF.matchQuality); });
-    if (currentRF.matchQuality < 200) {
+    LOG_INFO({ printf("final SWR: %f\r\n", currentRF.swr); });
+    if (currentRF.swr > get_SWR_threshold()) {
         LOG_INFO({
             printf("found memory: %f ", currentRF.matchQuality);
             print_relays(currentRelays[systemFlags.antenna]);
