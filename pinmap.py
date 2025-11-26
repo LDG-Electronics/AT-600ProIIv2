@@ -29,7 +29,7 @@ common = {
     'A4': ('CDN_BUTTON_PIN', Pin.button),
     'A5': ('LUP_BUTTON_PIN', Pin.button),
     'A6': None,
-    'A7': ('RADIO_CMD_PIN', ['output', 'gpio']),
+    'A7': None,
     #
     'B0': None,
     'B1': ('ANT_LED_PIN', Pin.led),
@@ -47,7 +47,7 @@ common = {
     'C4': ('FP_STROBE_PIN', Pin.led),
     'C5': ('FP_DATA_PIN', Pin.led),
     'C6': ('FP_CLOCK_PIN', Pin.led),
-    'C7': None,
+    'C7': ('RADIO_CMD_PIN', ['output', 'gpio']),
 }
 
 

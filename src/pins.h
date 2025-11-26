@@ -23,7 +23,6 @@ extern bool read_TUNE_BUTTON_PIN(void);
 
 // GPIO write functions
 extern void set_POWER_LED_PIN(bool value);
-extern void set_RADIO_CMD_PIN(bool value);
 extern void set_ANT_LED_PIN(bool value);
 extern void set_RELAY_CLOCK_PIN(bool value);
 extern void set_RELAY_DATA_PIN(bool value);
@@ -32,6 +31,7 @@ extern void set_BYPASS_LED_PIN(bool value);
 extern void set_FP_STROBE_PIN(bool value);
 extern void set_FP_DATA_PIN(bool value);
 extern void set_FP_CLOCK_PIN(bool value);
+extern void set_RADIO_CMD_PIN(bool value);
 
 // GPIO direction functions
 // none
