@@ -7,7 +7,7 @@ docs/**
 log.0
 log.1
 log.2
-MPLABXLog.xml
+MPLABXLog.xml*
 
 # ignore python virtual environment
 .venv
