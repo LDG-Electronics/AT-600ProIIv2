@@ -109,11 +109,11 @@ tuning_errors_t full_tune(void) {
     LOG_DEBUG({ printf("frequency: %u KHz\r\n", currentRF.frequency); });
     LOG_INFO({
         printf("tested %u solutions in %lums, ", comparisonCount, time_since(startTime));
-        printf("final SWR: %f\r\n", currentRF.swr);
+        printf("final SWR: %f\r\n", bestMatch.swr);
     });
 
     // Save the result, if it's good enough
-    if (currentRF.swr > get_SWR_threshold()) {
+    if (bestMatch.swr < get_SWR_threshold()) {
         uint16_t slot = find_memory_slot(currentRF.frequency);
         LOG_INFO({
             print("saving ");
@@ -240,7 +240,7 @@ tuning_errors_t memory_tune(void) {
 
     // Did we find a valid memory?
     LOG_INFO({ printf("final SWR: %f\r\n", currentRF.swr); });
-    if (currentRF.swr > get_SWR_threshold()) {
+    if (currentRF.swr < get_SWR_threshold()) {
         LOG_INFO({
             printf("found memory: %f ", currentRF.matchQuality);
             print_relays(currentRelays[systemFlags.antenna]);
