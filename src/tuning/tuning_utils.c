@@ -106,7 +106,7 @@ match_t new_match(void) {
 */
 void print_match(match_t *match) {
     print_relays(match->relays);
-    printf(" Q: %f, FWD: %f, #: %u", match->matchQuality, match->forward, match->attemptNumber);
+    printf(" Q: %f, SWR: %f, FWD: %f, #: %u", match->matchQuality, match->swr, match->forward, match->attemptNumber);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -149,6 +149,7 @@ match_t create_match_from_current_conditions(relays_t relays) {
     match.forward = currentRF.forwardVolts;
     match.reverse = currentRF.reverseVolts;
     match.matchQuality = currentRF.matchQuality;
+    match.swr = currentRF.swr;
     match.frequency = currentRF.frequency;
 
     return match;
@@ -181,9 +182,12 @@ match_t compare_matches(tuning_errors_t *errors, relays_t relays, match_t bestMa
     }
 
     measure_RF();
+    calculate_watts_and_swr();
+
     LOG_INFO({
         print_comparison_count();
         printf(" <fwd: %f>", currentRF.forwardVolts);
+        printf(" <swr: %f>", currentRF.swr);
         printf(" <q: %f>", currentRF.matchQuality);
         println("");
     });

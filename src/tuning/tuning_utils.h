@@ -55,6 +55,7 @@ typedef struct {
     float forward;
     float reverse;
     float matchQuality;
+    float swr;
     uint16_t frequency;
 } match_t;
 
