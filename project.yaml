@@ -1,7 +1,7 @@
 # name: CalibrationTarget
 name: AT-200ProII
 hw_version: '1.0'
-sw_version: '0.9.2'
+sw_version: '0.9.4'
 
 build_settings:
   development:
@@ -9,10 +9,10 @@ build_settings:
     programmer: Pickit4
     defines:
       - DEVELOPMENT
-      - USB_ENABLED
+      # - USB_ENABLED
       - SHELL_ENABLED
       - SHELL_HISTORY_ENABLED
-      - LOGGING_ENABLED
+      # - LOGGING_ENABLED
 
   release:
     processor: 18F27K42
