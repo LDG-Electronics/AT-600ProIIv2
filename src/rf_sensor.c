@@ -112,13 +112,13 @@ void poll_RF(void) {
 
 /* ************************************************************************** */
 
-// #define BETA 0.025
-#define BETA 0.2
+// #define BETA 0.025f
+#define BETA 0.2f
 
 bool wait_for_stable_RF(uint16_t timeoutDuration) {
     system_time_t startTime = get_current_time();
-    float smoothFWD = 0;
-    float prevSmoothFWD = 0;
+    float smoothFWD = 0.0f;
+    float prevSmoothFWD = 0.0f;
     uint16_t iterations = 0;
     uint16_t goodSlopeCount = 0;
 
@@ -127,7 +127,7 @@ bool wait_for_stable_RF(uint16_t timeoutDuration) {
         int16_t rawFWD = adc_read(ADC_FWD_PIN);
         smoothFWD = smoothFWD - (BETA * (smoothFWD - rawFWD));
 
-        if (fabs(prevSmoothFWD - smoothFWD) < (smoothFWD * .01)) {
+        if (fabs(prevSmoothFWD - smoothFWD) < (smoothFWD * .01f)) {
             goodSlopeCount++;
         } else {
             goodSlopeCount = 0;

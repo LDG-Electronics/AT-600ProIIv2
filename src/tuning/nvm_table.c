@@ -35,8 +35,7 @@ static void print_configuration_data(void) {
     printf("TABLE_SIZE: %d\r\n", TABLE_SIZE);
     printf("TABLE_LOCATION: %ld\r\n", TABLE_LOCATION);
 
-    const table_entry_t *tableLocation = nvmTable;
-    printf("tableLocation: %lu\r\n", (uint32_t)tableLocation);
+    printf("tableLocation: %lu\r\n", (uint32_t)&nvmTable[0]);
 }
 
 void nvm_table_init(void) {

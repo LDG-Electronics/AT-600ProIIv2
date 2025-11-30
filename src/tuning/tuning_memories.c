@@ -31,7 +31,7 @@ static uint8_t LOG_LEVEL = L_SILENT;
 /*  OVERLAP_MARGIN is used to enlarge the band boundarys, just to leave some
     wiggle room.
 */
-#define OVERLAP_MARGIN 200
+#define OVERLAP_MARGIN 200U
 
 /*  //! Watch out!
     These frequency numbers are in KHz instead of Hz or MHz!
@@ -39,29 +39,29 @@ static uint8_t LOG_LEVEL = L_SILENT;
     If you're used to thinking in MHz(eg one-point-eight megahertz), don't
     forget to mentally divide by 1000.
 */
-#define _160M_BOT 1800 - OVERLAP_MARGIN
-#define _160M_TOP 2000 + OVERLAP_MARGIN
-#define _80M_BOT 3500 - OVERLAP_MARGIN
-#define _80M_TOP 4000 + OVERLAP_MARGIN
-#define _40M_BOT 7000 - OVERLAP_MARGIN
-#define _40M_TOP 7300 + OVERLAP_MARGIN
-#define _30M_BOT 10010 - OVERLAP_MARGIN
-#define _30M_TOP 10150 + OVERLAP_MARGIN
-#define _20M_BOT 14000 - OVERLAP_MARGIN
-#define _20M_TOP 14350 + OVERLAP_MARGIN
-#define _17M_BOT 18068 - OVERLAP_MARGIN
-#define _17M_TOP 18168 + OVERLAP_MARGIN
-#define _15M_BOT 21000 - OVERLAP_MARGIN
-#define _15M_TOP 21450 + OVERLAP_MARGIN
-#define _12M_BOT 24890 - OVERLAP_MARGIN
-#define _12M_TOP 24990 + OVERLAP_MARGIN
-#define _10M_BOT 28000 - OVERLAP_MARGIN
-#define _10M_TOP 29700 + OVERLAP_MARGIN
-#define _6M_BOT 50000 - OVERLAP_MARGIN
-#define _6M_TOP 54000 + OVERLAP_MARGIN
+#define _160M_BOT 1800U - OVERLAP_MARGIN
+#define _160M_TOP 2000U + OVERLAP_MARGIN
+#define _80M_BOT 3500U - OVERLAP_MARGIN
+#define _80M_TOP 4000U + OVERLAP_MARGIN
+#define _40M_BOT 7000U - OVERLAP_MARGIN
+#define _40M_TOP 7300U + OVERLAP_MARGIN
+#define _30M_BOT 10010U - OVERLAP_MARGIN
+#define _30M_TOP 10150U + OVERLAP_MARGIN
+#define _20M_BOT 14000U - OVERLAP_MARGIN
+#define _20M_TOP 14350U + OVERLAP_MARGIN
+#define _17M_BOT 18068U - OVERLAP_MARGIN
+#define _17M_TOP 18168U + OVERLAP_MARGIN
+#define _15M_BOT 21000U - OVERLAP_MARGIN
+#define _15M_TOP 21450U + OVERLAP_MARGIN
+#define _12M_BOT 24890U - OVERLAP_MARGIN
+#define _12M_TOP 24990U + OVERLAP_MARGIN
+#define _10M_BOT 28000U - OVERLAP_MARGIN
+#define _10M_TOP 29700U + OVERLAP_MARGIN
+#define _6M_BOT 50000U - OVERLAP_MARGIN
+#define _6M_TOP 54000U + OVERLAP_MARGIN
 
-#define FREQ_MIN 1
-#define FREQ_MAX 55000
+#define FREQ_MIN 1U
+#define FREQ_MAX 55000U
 
 /* -------------------------------------------------------------------------- */
 /*  Each frequency_group_t object contains that groups start frequency, end
@@ -143,8 +143,7 @@ typedef struct {
 } map_parameters_t;
 
 void print_map_parameters(map_parameters_t *map) {
-    printf("(%u,%u) -> (%u,%u)", map->inMin, map->inMax, map->outMin,
-           map->outMax);
+    printf("(%u,%u) -> (%u,%u)", map->inMin, map->inMax, map->outMin, map->outMax);
 }
 
 map_parameters_t look_up_map_parameters(uint16_t frequency) {
@@ -183,8 +182,7 @@ uint16_t find_memory_slot(uint16_t frequency) {
 
     map_parameters_t map = look_up_map_parameters(frequency);
 
-    uint16_t slot =
-        map_range(frequency, map.inMin, map.inMax, map.outMin, map.outMax);
+    uint16_t slot = map_range(frequency, map.inMin, map.inMax, map.outMin, map.outMax);
 
     LOG_DEBUG({ printf("slot: %u\r\n", slot); });
 
@@ -208,9 +206,10 @@ void address_conversion_test(uint16_t start, uint16_t end, uint16_t step) {
 /* ************************************************************************** */
 
 void tuning_memories_init(void) {
-
     // initialize the persistent data structures used to store memories
     nvm_table_init();
+
+    // print_all_frequency_groups();
 
     //
     log_register();

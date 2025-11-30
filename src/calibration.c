@@ -98,7 +98,7 @@ float calculate_SWR_by_watts(float forward, float reverse) {
     // This term is used twice, so let's simplify
     float reflectionCoefficient = sqrt(reverse / forward);
 
-    float swr = ((1.0 + reflectionCoefficient) / (1.0 - reflectionCoefficient));
+    float swr = ((1.0f + reflectionCoefficient) / (1.0f - reflectionCoefficient));
 
     // Actual SWR will almost never be <1.1, but our math is poor at low SWR
     if (swr < 1.1) {

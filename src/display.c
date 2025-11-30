@@ -140,7 +140,7 @@ void play_animation(const animation_s *animation) {
 
         // negative frame_delay indicates last frame
         if (animation[i].frame_delay < 0) {
-            delay_ms(abs(animation[i].frame_delay));
+            delay_ms((uint16_t)abs(animation[i].frame_delay));
 
             if (useUpper) {
                 displayBuffer.next.upper = 0;

@@ -174,7 +174,7 @@ int8_t romedit_process_command(shell_line_t *line) {
                 return 0;
             }
 
-            flash_write_byte(state.address, data);
+            flash_write_byte(state.address, (uint8_t)data);
             return 0;
         } else {
             println("");
