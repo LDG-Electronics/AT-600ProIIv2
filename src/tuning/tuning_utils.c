@@ -80,6 +80,10 @@ void tuning_followup_animation(tuning_errors_t errors) {
 
             repeat_animation(&toggle_inner_leds[0], 2);
         }
+    } else {
+        LOG_INFO({ println("no errors"); });
+
+        play_animation(&center_crawl[0]);
     }
 }
 
