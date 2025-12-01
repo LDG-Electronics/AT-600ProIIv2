@@ -14,7 +14,7 @@
 */
 
 // The 1500 watt relays in this product require a long debounce time
-#define RELAY_COIL_DELAY 10 // debounce time in ms
+#define RELAY_COIL_DELAY 12 // debounce time in ms
 
 #define NUM_OF_INDUCTORS 7
 #define NUM_OF_CAPACITORS 7
