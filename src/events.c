@@ -11,6 +11,7 @@
 #include "rf_sensor.h"
 #include "tuning.h"
 #include "tuning/tuning_memories.h"
+#include "ui/ui_bargraphs.h"
 
 /* ************************************************************************** */
 
@@ -132,6 +133,8 @@ void request_memory_tune(void) {
     // key the radio
     set_RADIO_CMD_PIN(1);
 
+    enable_bargraph_updates();
+
     // first, attempt to recall an appropriate memory from storage
     tuning_errors_t errors = memory_tune();
 
@@ -140,6 +143,8 @@ void request_memory_tune(void) {
     if (errors.noMemory == 1) {
         errors = full_tune();
     }
+
+    disable_bargraph_updates();
 
     // unkey the radio
     set_RADIO_CMD_PIN(0);
@@ -150,8 +155,12 @@ void request_full_tune(void) {
     // key the radio
     set_RADIO_CMD_PIN(1);
 
+    enable_bargraph_updates();
+
     // do the thing
     tuning_errors_t errors = full_tune();
+
+    disable_bargraph_updates();
 
     // unkey the radio
     set_RADIO_CMD_PIN(0);

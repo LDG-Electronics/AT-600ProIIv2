@@ -2,6 +2,7 @@
 #include "display.h"
 #include "os/logging.h"
 #include "rf_sensor.h"
+#include "ui/ui_bargraphs.h"
 #include <float.h>
 static uint8_t LOG_LEVEL = L_SILENT;
 
@@ -187,6 +188,7 @@ match_t compare_matches(tuning_errors_t *errors, relays_t relays, match_t bestMa
 
     measure_RF();
     calculate_watts_and_swr();
+    update_bargraphs();
 
     LOG_INFO({
         print_comparison_count();
