@@ -63,28 +63,34 @@ void tuning_followup_animation(tuning_errors_t errors) {
         if (errors.lostRF) {
             LOG_INFO({ println("lostRF"); });
 
-            repeat_animation(&blink_top_bar[0], 2);
+            repeat_animation(&blink_top_bar, 2);
         } else if (errors.noRF) {
             LOG_INFO({ println("noRF"); });
 
-            repeat_animation(&blink_top_bar[0], 1);
+            repeat_animation(&blink_top_bar, 1);
         } else if (errors.noFreq) {
             LOG_INFO({ println("noFreq"); });
 
-            repeat_animation(&blink_both_bars[0], 2);
+            repeat_animation(&blink_both_bars, 2);
         } else if (errors.badMatch) {
             LOG_INFO({ println("badMatch"); });
 
-            repeat_animation(&blink_bottom_bar[0], 2);
+            repeat_animation(&blink_bottom_bar, 2);
         } else if (errors.relayError) {
             LOG_INFO({ println("relayError"); });
 
-            repeat_animation(&toggle_inner_leds[0], 2);
+            repeat_animation(&toggle_inner_leds, 2);
         }
     } else {
         LOG_INFO({ println("no errors"); });
+        display_clear();
+        delay_ms(250);
 
-        play_animation(&center_crawl[0]);
+        play_animation(&center_crawl);
+        display_single_frame(&center_crawl, 3);
+
+        delay_ms(250);
+        display_clear();
     }
 }
 
