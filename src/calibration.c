@@ -95,14 +95,20 @@ float correct_reverse_power(float reverse, uint16_t frequency) {
     SWR = (1 + sqrt(Pr/Pf))/(1 - sqrt(Pr/Pf))
 */
 float calculate_SWR_by_watts(float forward, float reverse) {
+    // do not allow reverse to be greater than forward
+    float tempReverse = reverse;
+    if (reverse > forward) {
+        tempReverse = forward - 1.0f;
+    }
+
     // This term is used twice, so let's simplify
-    float reflectionCoefficient = sqrt(reverse / forward);
+    float reflectionCoefficient = sqrt(tempReverse / forward);
 
     float swr = ((1.0f + reflectionCoefficient) / (1.0f - reflectionCoefficient));
 
     // Actual SWR will almost never be <1.1, but our math is poor at low SWR
-    if (swr < 1.1) {
-        swr = 1.1;
+    if (swr < 1.1f) {
+        swr = 1.1f;
     }
 
     return swr;
