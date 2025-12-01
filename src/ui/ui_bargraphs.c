@@ -80,7 +80,7 @@ void invert_frame(uint8_t *blinkFrame) {
     }
 }
 
-const float overscale[2] = {60, 600};
+const float overscale[2] = {25, 250};
 
 display_frame_t attempt_overscale_blink(display_frame_t newFrame) {
     if (currentRF.forwardWatts > overscale[systemFlags.scaleMode]) {
