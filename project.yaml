@@ -12,10 +12,17 @@ build_settings:
       # - USB_ENABLED
       - SHELL_ENABLED
       - SHELL_HISTORY_ENABLED
-      # - LOGGING_ENABLED
+      - LOGGING_ENABLED
 
   release:
     processor: 18F27K42
     programmer: ICD-U80-win
     defines:
       # - USB_ENABLED
+    
+    skip_rules:
+      - src/shellcommands/*
+      - src/os/shell/*
+      - src/os/json/*
+      - src/os/judi/*
+      - src/usb/*
