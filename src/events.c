@@ -145,6 +145,7 @@ void request_memory_tune(void) {
     }
 
     disable_bargraph_updates();
+    skip_next_peak_decay();
 
     // unkey the radio
     set_RADIO_CMD_PIN(0);
@@ -161,6 +162,7 @@ void request_full_tune(void) {
     tuning_errors_t errors = full_tune();
 
     disable_bargraph_updates();
+    skip_next_peak_decay();
 
     // unkey the radio
     set_RADIO_CMD_PIN(0);

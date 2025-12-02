@@ -8,6 +8,8 @@ extern void disable_bargraph_updates(void);
 
 /* ************************************************************************** */
 
+extern void skip_next_peak_decay(void);
+
 extern void update_bargraphs(void);
 
 #endif

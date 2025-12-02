@@ -153,6 +153,8 @@ bool attempt_auto_tune(void) {
         if (currentRF.swr > get_SWR_threshold()) {
             disable_auto_tuning();
             request_memory_tune();
+
+            enable_bargraph_updates();
             return true;
         }
     }

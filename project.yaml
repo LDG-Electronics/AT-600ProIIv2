@@ -1,7 +1,7 @@
 # name: CalibrationTarget
 name: AT-200ProII
 hw_version: '1.0'
-sw_version: '0.9.6'
+sw_version: '0.9.7'
 
 build_settings:
   development:

@@ -133,6 +133,12 @@ float get_forward_watts(void) {
 
 /* ************************************************************************** */
 
+static bool skipNextPeak = false;
+
+void skip_next_peak_decay(void) {
+    skipNextPeak = true; //
+}
+
 void update_bargraphs(void) {
     // scale mode handler
     float forwardWatts = get_forward_watts();
@@ -141,7 +147,11 @@ void update_bargraphs(void) {
     display_frame_t newFrame = render_RF(forwardWatts, currentRF.swr);
 
     // peak mode handler
-    newFrame = attempt_peak_decay(newFrame);
+    if (skipNextPeak) {
+        skipNextPeak = false;
+    } else {
+        newFrame = attempt_peak_decay(newFrame);
+    }
 
     // over-scale blink handler
     newFrame = attempt_overscale_blink(newFrame);
