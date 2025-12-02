@@ -53,7 +53,7 @@ static void system_init(void) {
     device_information_init();
 }
 
-#ifdef DEVELOPMENT
+#if defined DEVELOPMENT && defined SHELL_ENABLED
 extern void sh_adc(int argc, char **argv);
 extern void sh_bar(int argc, char **argv);
 extern void sh_eeprom(int argc, char **argv);
@@ -68,7 +68,7 @@ extern void sh_usb(int argc, char **argv);
 #endif
 
 static void OS_init(void) {
-#ifdef DEVELOPMENT
+#if defined DEVELOPMENT && defined SHELL_ENABLED
     uart_config_t config = UART_get_config(2);
     config.baud = _1000000;
     config.txPin = PPS_DEBUG_TX_PIN;

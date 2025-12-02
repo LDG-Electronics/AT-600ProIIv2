@@ -195,7 +195,10 @@ void ui_idle_block(void) {
 
 #ifdef DEVELOPMENT
     // ~22uS, most shell commands are ~2000uS
+    #ifdef SHELL_ENABLED
     shell_update((char)getch());
+    #endif
+
     #ifdef USB_ENABLED
     judi_update(usb_getch());
 
