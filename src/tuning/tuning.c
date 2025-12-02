@@ -68,7 +68,7 @@ tuning_errors_t full_tune(void) {
     bestMatch = capacitor_sweep(&errors, bestMatch, 10);
 
     // maybe we have the wrong Z
-    if (bestMatch.relays.inds < 3) {
+    if (bestMatch.relays.inds < 3 || bestMatch.relays.caps < 3) {
         bestMatch = test_z(&errors, bestMatch, !bestMatch.relays.z);
     }
 
