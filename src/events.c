@@ -106,25 +106,41 @@ void manual_store(void) {
 
 /* -------------------------------------------------------------------------- */
 
-void set_power_on(void) {
+bool set_power_on(void) {
     systemFlags.powerStatus = 1;
 
     if (put_relays(currentRelays[systemFlags.antenna]) == -1) {
-        // TODO: what do we do on relayerror?
+        // if relayerror, restore changes
+        systemFlags.powerStatus = 0;
+        return false;
     }
+
+    return true;
 }
 
-void set_power_off(void) {
+bool set_power_off(void) {
     systemFlags.powerStatus = 0;
 
     // put_relays() always publishes its argument to currentRelays
     // We actually don't want that behavior here, so save currentRelays and
     // restore it after it gets overwritten.
-    relays_t temp = read_current_relays();
+    relays_t tempRelays = read_current_relays();
+
+    // save the antenna setting and override it
+    uint8_t tempAnt = systemFlags.antenna;
+    systemFlags.antenna = 0;
+
     if (put_relays(bypassRelays) == -1) {
-        // TODO: what do we do on relayerror?
+        // if relayerror, restore changes
+        currentRelays[systemFlags.antenna] = tempRelays;
+        systemFlags.antenna = tempAnt;
+        systemFlags.powerStatus = 1;
+        return false;
     }
-    currentRelays[systemFlags.antenna] = temp;
+
+    currentRelays[systemFlags.antenna] = tempRelays;
+    systemFlags.antenna = tempAnt;
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */

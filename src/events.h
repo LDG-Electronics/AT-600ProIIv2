@@ -1,6 +1,7 @@
 #ifndef _EVENTS_H_
 #define _EVENTS_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 /* ************************************************************************** */
@@ -50,9 +51,8 @@ extern void manual_store(void);
 
 /* -------------------------------------------------------------------------- */
 
-extern void set_power_on(void);
-extern void set_power_off(void);
-extern void toggle_power_status(void);
+extern bool set_power_on(void);
+extern bool set_power_off(void);
 
 /* ************************************************************************** */
 
