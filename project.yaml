@@ -1,7 +1,7 @@
 # name: CalibrationTarget
 name: AT-200ProII
 hw_version: '1.0'
-sw_version: '0.9.9'
+sw_version: '0.9.10'
 
 build_settings:
   development:
@@ -15,7 +15,7 @@ build_settings:
       - LOGGING_ENABLED
 
   release:
-    processor: 18F27K42
+    processor: 18F26K42
     programmer: ICD-U80-win
     defines:
       # - USB_ENABLED
