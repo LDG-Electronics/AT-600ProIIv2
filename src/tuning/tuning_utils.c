@@ -59,6 +59,9 @@ tuning_errors_t no_errors(void) {
 */
 
 void tuning_followup_animation(tuning_errors_t errors) {
+    display_clear();
+    delay_ms(250);
+
     if (errors.any) {
         if (errors.lostRF) {
             LOG_INFO({ println("lostRF"); });
@@ -83,8 +86,6 @@ void tuning_followup_animation(tuning_errors_t errors) {
         }
     } else {
         LOG_INFO({ println("no errors"); });
-        display_clear();
-        delay_ms(250);
 
         play_animation(&center_crawl);
         display_single_frame(&center_crawl, 3);

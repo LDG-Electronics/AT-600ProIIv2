@@ -93,6 +93,9 @@ void toggle_antenna(void) { set_antenna(!systemFlags.antenna); }
 /* -------------------------------------------------------------------------- */
 
 void manual_store(void) {
+    display_single_frame(&center_crawl[0], 0);
+    delay_ms(250);
+
     if (currentRF.frequency) {
         uint16_t slot = find_memory_slot(currentRF.frequency);
         relays_t relays = read_current_relays();

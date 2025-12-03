@@ -81,10 +81,10 @@ const animation_s left_crawl[] = {
 };
 
 const animation_s center_crawl[] = {
-    {0x81, 0x81, 100},  //
-    {0x42, 0x42, 100},  //
-    {0x24, 0x24, 100},  //
-    {0x18, 0x18, -100}, //
+    {0x81, 0x81, 150},  //
+    {0x42, 0x42, 150},  //
+    {0x24, 0x24, 150},  //
+    {0x18, 0x18, -150}, //
 };
 
 const animation_s arrow_down[] = {
@@ -106,8 +106,8 @@ const animation_s arrow_up[] = {
 };
 
 const animation_s blink_both_bars[] = {
-    {0xff, 0xff, 100},  //
-    {0x00, 0x00, -100}, //
+    {0xff, 0xff, 250},  //
+    {0x00, 0x00, -250}, //
 };
 
 const animation_s blink_top_bar[] = {
