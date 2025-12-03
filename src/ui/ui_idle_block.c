@@ -154,6 +154,7 @@ bool attempt_auto_tune(void) {
             disable_auto_tuning();
             request_memory_tune();
 
+            skip_next_peak_decay();
             enable_bargraph_updates();
             return true;
         }
