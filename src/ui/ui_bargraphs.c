@@ -69,7 +69,7 @@ display_frame_t attempt_peak_decay(display_frame_t newFrame) {
 
 /* -------------------------------------------------------------------------- */
 
-#define OVERSCALE_BLINK_COOLDOWN 200
+#define OVERSCALE_BLINK_COOLDOWN 250
 void invert_frame(uint8_t *blinkFrame) {
     static system_time_t previousBlinkTime = 0;
     // count time between blinks, and count number of blinks
