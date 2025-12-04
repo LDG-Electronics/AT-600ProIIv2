@@ -24,7 +24,7 @@ void print_table_entry(table_entry_t entry) {
 }
 
 // define a giant array in ROM to reserve space for saving tune memories
-const table_entry_t nvmTable[NUMBER_OF_TABLE_ENTRIES] __at(TABLE_LOCATION);
+const table_entry_t nvmTable[NUMBER_OF_TABLE_ENTRIES] __at(TABLE_LOCATION) = {};
 
 /* ************************************************************************** */
 
