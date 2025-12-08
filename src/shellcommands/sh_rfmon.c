@@ -62,7 +62,11 @@ int8_t rfmon_callback(char currentChar) {
     }
 
     if (currentRF.isPresent) {
-        attempt_print();
+        if (!prevIsPresent) {
+            print_current_rf();
+        } else {
+            attempt_print();
+        }
     }
 
     prevIsPresent = currentRF.isPresent;
