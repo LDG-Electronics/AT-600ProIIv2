@@ -17,7 +17,7 @@
 
 /* ************************************************************************** */
 
-#define RF_POLLS_PER_SECOND 100
+#define RF_POLLS_PER_SECOND 200
 #define RF_POLL_COOLDOWN 1000 / RF_POLLS_PER_SECOND
 
 bool attempt_RF_poll(void) {
