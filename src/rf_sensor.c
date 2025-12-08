@@ -71,7 +71,7 @@ void SWR_threshold_increment(void) {
 
 /* ************************************************************************** */
 #define NUMBER_OF_SAMPLES 8
-#define LOW_POWER_CUTOFF 100
+#define LOW_POWER_CUTOFF 15
 
 // TODO: get a 1W transmitter(FT-817?)
 bool check_for_RF(void) {
@@ -108,10 +108,43 @@ void poll_RF(void) {
 
 /* ************************************************************************** */
 
+bool wait_for_stable_RF(uint16_t timeoutDuration) {
+    system_time_t startTime = get_current_time();
+
+    uint16_t iterations = 0;
+    int16_t currentFWD;
+    int16_t previousFWD;
+    int16_t deltaFWD = 0;
+    int16_t deltaCompare = 0;
+
+    previousFWD = adc_read(ADC_FWD_PIN);
+    while (1) {
+        currentFWD = adc_read(ADC_FWD_PIN);
+        deltaFWD = abs(currentFWD - previousFWD);
+        deltaCompare = currentFWD >> 4;
+
+        if (currentFWD > LOW_POWER_CUTOFF) {
+            if (deltaFWD < deltaCompare)
+                break;
+        }
+
+        previousFWD = currentFWD;
+        iterations++;
+
+        if (time_since(startTime) > timeoutDuration) {
+            LOG_WARN({ printf("timed out after %u iterations\r\n", iterations); });
+            return false;
+        }
+    }
+
+    return true;
+}
+
 // #define BETA 0.025f
 #define BETA 0.2f
 
-bool wait_for_stable_RF(uint16_t timeoutDuration) {
+//! this version doesn't work for Single-Side Band
+bool wait_for_stable_RF_IIR(uint16_t timeoutDuration) {
     system_time_t startTime = get_current_time();
     float smoothFWD = 0.0f;
     float prevSmoothFWD = 0.0f;
@@ -144,7 +177,7 @@ bool wait_for_stable_RF(uint16_t timeoutDuration) {
     return false;
 }
 
-/* -------------------------------------------------------------------------- */
+/* ************************************************************************** */
 
 #define NUM_OF_SWR_SAMPLES 32
 void measure_RF(void) {
