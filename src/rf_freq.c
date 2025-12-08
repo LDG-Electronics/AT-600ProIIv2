@@ -115,7 +115,7 @@ uint32_t get_period(void) {
     while (read_FREQ_PIN()) {
         if (timer4_IF_read()) {
             timer4_stop();
-            LOG_ERROR({ println("timed out"); });
+            LOG_ERROR({ println("timed out on rising edge"); });
             return 0;
         }
     }
@@ -129,7 +129,7 @@ uint32_t get_period(void) {
     while (!read_FREQ_PIN()) {
         if (timer4_IF_read()) {
             timer4_stop();
-            LOG_ERROR({ println("timed out"); });
+            LOG_ERROR({ println("timed out on falling edge"); });
             return 0;
         }
     }
@@ -144,7 +144,7 @@ uint32_t get_period(void) {
     while (read_FREQ_PIN()) {
         if (timer4_IF_read()) {
             timer4_stop();
-            LOG_ERROR({ println("timed out"); });
+            LOG_ERROR({ println("timed out on measurement"); });
             return 0;
         }
     }
