@@ -188,7 +188,7 @@ match_t compare_matches(tuning_errors_t *errors, relays_t relays, match_t bestMa
     }
 
     // make sure the RF isn't going crazy
-    if (!wait_for_stable_RF(1000)) {
+    if (!wait_for_stable_RF(2000)) {
         errors->lostRF = 1;
         return bestMatch;
     }
