@@ -346,16 +346,16 @@ void show_thresh(void) {
 
 /* -------------------------------------------------------------------------- */
 
-/*  AT-200ProII bargraph has the following markings:
+/*  AT-1000ProII bargraph has the following markings:
 
     v- all bars off still needs a value
-    0, 10, 25, 50, 75, 100, 150, 200, 250
+    10, 25, 50, 100, 250, 500, 750, 1000
 
     v- all bars off still needs a value
     1.0, 1.1, 1.3, 1.5, 1.7, 2.0, 2.5, 3.0, 3.0+
 */
 float fwdIndexArray[10] = {
-    0, 10, 25, 50, 75, 100, 150, 200, 250, FLT_MAX,
+    0, 10, 25, 50, 100, 250, 500, 750, 1000, FLT_MAX,
 };
 
 float swrIndexArray[10] = {
