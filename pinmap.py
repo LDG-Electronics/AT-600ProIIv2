@@ -28,8 +28,8 @@ common = {
     'A3': ('POWER_BUTTON_PIN', Pin.button),
     'A4': ('CDN_BUTTON_PIN', Pin.button),
     'A5': ('LUP_BUTTON_PIN', Pin.button),
-    'A6': None,
-    'A7': None,
+    'A6': ('FP_CLOCK_PIN', Pin.led),
+    'A7': ('RADIO_CMD_PIN', ['output', 'gpio']),
     #
     'B0': None,
     'B1': ('ANT_LED_PIN', Pin.led),
@@ -46,8 +46,8 @@ common = {
     'C3': ('BYPASS_LED_PIN', Pin.led),
     'C4': ('FP_STROBE_PIN', Pin.led),
     'C5': ('FP_DATA_PIN', Pin.led),
-    'C6': ('FP_CLOCK_PIN', Pin.led),
-    'C7': ('RADIO_CMD_PIN', ['output', 'gpio']),
+    'C6': None,
+    'C7': None,
 }
 
 

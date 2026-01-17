@@ -38,6 +38,8 @@ bool read_TUNE_BUTTON_PIN(void) {
 
 // GPIO write functions
 void set_POWER_LED_PIN(bool value) { LATAbits.LATA2 = value; }
+void set_FP_CLOCK_PIN(bool value) { LATAbits.LATA6 = value; }
+void set_RADIO_CMD_PIN(bool value) { LATAbits.LATA7 = value; }
 void set_ANT_LED_PIN(bool value) { LATBbits.LATB1 = value; }
 void set_RELAY_CLOCK_PIN(bool value) { LATCbits.LATC0 = value; }
 void set_RELAY_DATA_PIN(bool value) { LATCbits.LATC1 = value; }
@@ -45,8 +47,6 @@ void set_RELAY_STROBE_PIN(bool value) { LATCbits.LATC2 = value; }
 void set_BYPASS_LED_PIN(bool value) { LATCbits.LATC3 = value; }
 void set_FP_STROBE_PIN(bool value) { LATCbits.LATC4 = value; }
 void set_FP_DATA_PIN(bool value) { LATCbits.LATC5 = value; }
-void set_FP_CLOCK_PIN(bool value) { LATCbits.LATC6 = value; }
-void set_RADIO_CMD_PIN(bool value) { LATCbits.LATC7 = value; }
 
 // GPIO direction functions
 // none
@@ -96,6 +96,12 @@ void pins_init(void) {
     TRISAbits.TRISA5 = 1;
     WPUAbits.WPUA5 = 1;
 
+    // FP_CLOCK_PIN
+    TRISAbits.TRISA6 = 0;
+
+    // RADIO_CMD_PIN
+    TRISAbits.TRISA7 = 0;
+
     // ANT_LED_PIN
     TRISBbits.TRISB1 = 0;
 
@@ -128,12 +134,6 @@ void pins_init(void) {
 
     // FP_DATA_PIN
     TRISCbits.TRISC5 = 0;
-
-    // FP_CLOCK_PIN
-    TRISCbits.TRISC6 = 0;
-
-    // RADIO_CMD_PIN
-    TRISCbits.TRISC7 = 0;
 
 // DEBUG_RX_PIN
 #ifdef DEVELOPMENT
