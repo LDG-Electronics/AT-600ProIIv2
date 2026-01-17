@@ -68,10 +68,13 @@ bool attempt_RF_measurement(void) {
 #if defined DEVELOPMENT && defined USB_ENABLED
 static uint16_t calculate_cooldown(void) {
     if (!currentRF.isPresent) {
-        return 500;
+        return 1000;
     }
     return 50;
 }
+
+// { "request": "enable_updates" }
+// { "request": "disable_updates" }
 
 static bool attempt_RF_message(void) {
     static system_time_t lastAttempt = 0;
@@ -83,6 +86,10 @@ static bool attempt_RF_message(void) {
     }
 
     if (time_since(lastAttempt) < calculate_cooldown()) {
+        return false;
+    }
+
+    if (!update_allowed) {
         return false;
     }
 
@@ -203,9 +210,9 @@ void ui_idle_block(void) {
     #ifdef USB_ENABLED
     judi_update(usb_getch());
 
-    // if (attempt_RF_message()) {
-    //     return;
-    // }
+    if (attempt_RF_message()) {
+        return;
+    }
     #endif
 #endif
 

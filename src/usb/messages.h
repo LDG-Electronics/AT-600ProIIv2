@@ -9,6 +9,8 @@
 /* ************************************************************************** */
 // project specific message components
 
+extern bool update_allowed;
+
 extern const json_node_t relaysObject[];
 extern const json_node_t relaysCaps[];
 extern const json_node_t relaysInput[];

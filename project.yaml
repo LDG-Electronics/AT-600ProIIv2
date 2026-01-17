@@ -1,5 +1,6 @@
 # name: CalibrationTarget
 name: AT-1000ProII
+
 hw_version: '1.0'
 sw_version: '0.9.13'
 
@@ -9,7 +10,7 @@ build_settings:
     programmer: Pickit4
     defines:
       - DEVELOPMENT
-      # - USB_ENABLED
+      - USB_ENABLED
       - SHELL_ENABLED
       - SHELL_HISTORY_ENABLED
       - LOGGING_ENABLED

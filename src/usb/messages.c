@@ -16,6 +16,8 @@
 
 /* ************************************************************************** */
 
+bool update_allowed = false;
+
 const json_node_t rfUpdate[] = {
     {nControl, "{"},   //
     {MESSAGE_ID_NODE}, //
@@ -100,9 +102,18 @@ void respond(json_buffer_t *buf) {
     if (request) {
         switch (HASH(request + 1)) {
         case hash_device_info:
+            update_allowed = false;
             add_nodes(updatePreamble);
             add_nodes(deviceInfo);
             print_message(usb_print);
+            break;
+        case hash_enable_updates:
+            update_allowed = true;
+            json_print(usb_print, responseOk);
+            break;
+        case hash_disable_updates:
+            update_allowed = false;
+            json_print(usb_print, responseOk);
             break;
         case hash_rf:
             json_print(usb_print, rfUpdate);
