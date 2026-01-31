@@ -48,16 +48,17 @@ common = {
     'C5': ('FP_DATA_PIN', Pin.led),
     'C6': None,
     'C7': None,
+    #
+    'E0': ('FREQ_PIN', Pin.freq),
 }
 
 
 development = {
-    'B6': ('DEBUG_RX_PIN', Pin.uart_rx),
-    'B7': ('DEBUG_TX_PIN', Pin.uart_tx),
+    'D2': ('DEBUG_TX_PIN', Pin.uart_tx),
+    'D3': ('DEBUG_RX_PIN', Pin.uart_rx),
     #
-    'F0': ('FREQ_PIN', Pin.freq),
-    'F1': ('ANT_BUTTON_PIN', Pin.button),
-    'F2': ('TUNE_BUTTON_PIN', Pin.button),
+    'E1': ('TUNE_BUTTON_PIN', Pin.button),
+    'E2': ('ANT_BUTTON_PIN', Pin.button),
     #
     'F6': ('USB_TX_PIN', Pin.uart_tx),
     'F7': ('USB_RX_PIN', Pin.uart_rx),
@@ -65,8 +66,6 @@ development = {
 
 
 release = {
-    'B6': ('ANT_BUTTON_PIN', Pin.button),
-    'B7': ('TUNE_BUTTON_PIN', Pin.button),
-    #
-    'E3': ('FREQ_PIN', Pin.freq),
+    'B6': ('TUNE_BUTTON_PIN', Pin.button),
+    'B7': ('ANT_BUTTON_PIN', Pin.button),
 }
