@@ -18,8 +18,8 @@ extern bool read_CUP_BUTTON_PIN(void);
 extern bool read_FUNC_BUTTON_PIN(void);
 extern bool read_LDN_BUTTON_PIN(void);
 extern bool read_FREQ_PIN(void);
-extern bool read_TUNE_BUTTON_PIN(void);
 extern bool read_ANT_BUTTON_PIN(void);
+extern bool read_TUNE_BUTTON_PIN(void);
 
 // GPIO write functions
 extern void set_POWER_LED_PIN(bool value);
@@ -51,12 +51,12 @@ enum {
     CUP,
     FUNC,
     LDN,
-    TUNE,
     ANT,
+    TUNE,
 } button_names;
 
 // PPS Pin initialization macros
-#define PPS_FREQ_PIN PPS_INPUT(E, 0)
+#define PPS_FREQ_PIN PPS_INPUT(E, 3)
 #ifdef DEVELOPMENT
     #define PPS_DEBUG_TX_PIN PPS_OUTPUT(D, 2)
 #endif

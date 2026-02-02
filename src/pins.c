@@ -14,17 +14,17 @@ bool read_LUP_BUTTON_PIN(void) { return PORTAbits.RA5; }
 bool read_CUP_BUTTON_PIN(void) { return PORTBbits.RB2; }
 bool read_FUNC_BUTTON_PIN(void) { return PORTBbits.RB4; }
 bool read_LDN_BUTTON_PIN(void) { return PORTBbits.RB5; }
-bool read_FREQ_PIN(void) { return PORTEbits.RE0; }
-bool read_TUNE_BUTTON_PIN(void) {
+bool read_FREQ_PIN(void) { return PORTEbits.RE3; }
+bool read_ANT_BUTTON_PIN(void) {
 #ifdef DEVELOPMENT
-    return PORTEbits.RE1;
+    return PORTFbits.RF1;
 #else
     return PORTBbits.RB6;
 #endif
 }
-bool read_ANT_BUTTON_PIN(void) {
+bool read_TUNE_BUTTON_PIN(void) {
 #ifdef DEVELOPMENT
-    return PORTEbits.RE2;
+    return PORTFbits.RF2;
 #else
     return PORTBbits.RB7;
 #endif
@@ -54,8 +54,8 @@ button_function_t buttonFunctions[NUMBER_OF_BUTTONS] = {
     read_CUP_BUTTON_PIN,   //
     read_FUNC_BUTTON_PIN,  //
     read_LDN_BUTTON_PIN,   //
-    read_TUNE_BUTTON_PIN,  //
     read_ANT_BUTTON_PIN,   //
+    read_TUNE_BUTTON_PIN,  //
 };
 
 // [[[end]]]
@@ -129,8 +129,7 @@ void pins_init(void) {
     // FP_DATA_PIN
     TRISCbits.TRISC5 = 0;
 
-    // FREQ_PIN
-    TRISEbits.TRISE0 = 1;
+// FREQ_PIN
 
 // DEBUG_TX_PIN
 #ifdef DEVELOPMENT
@@ -142,26 +141,26 @@ void pins_init(void) {
     TRISDbits.TRISD3 = 1;
 #endif
 
-// TUNE_BUTTON_PIN
+// ANT_BUTTON_PIN
 #ifdef DEVELOPMENT
-    TRISEbits.TRISE1 = 1;
+    TRISFbits.TRISF1 = 1;
 #else
     TRISBbits.TRISB6 = 1;
 #endif
 #ifdef DEVELOPMENT
-    WPUEbits.WPUE1 = 1;
+    WPUFbits.WPUF1 = 1;
 #else
     WPUBbits.WPUB6 = 1;
 #endif
 
-// ANT_BUTTON_PIN
+// TUNE_BUTTON_PIN
 #ifdef DEVELOPMENT
-    TRISEbits.TRISE2 = 1;
+    TRISFbits.TRISF2 = 1;
 #else
     TRISBbits.TRISB7 = 1;
 #endif
 #ifdef DEVELOPMENT
-    WPUEbits.WPUE2 = 1;
+    WPUFbits.WPUF2 = 1;
 #else
     WPUBbits.WPUB7 = 1;
 #endif
