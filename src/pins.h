@@ -57,10 +57,10 @@ enum {
 
 // PPS Pin initialization macros
 #ifdef DEVELOPMENT
-    #define PPS_DEBUG_TX_PIN PPS_OUTPUT(D, 2)
+    #define PPS_DEBUG_RX_PIN PPS_INPUT(B, 6)
 #endif
 #ifdef DEVELOPMENT
-    #define PPS_DEBUG_RX_PIN PPS_INPUT(D, 3)
+    #define PPS_DEBUG_TX_PIN PPS_OUTPUT(B, 7)
 #endif
 #ifdef DEVELOPMENT
     #define PPS_FREQ_PIN PPS_INPUT(F, 0)

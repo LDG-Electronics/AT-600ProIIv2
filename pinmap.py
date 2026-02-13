@@ -52,8 +52,8 @@ common = {
 
 
 development = {
-    'D2': ('DEBUG_TX_PIN', Pin.uart_tx),
-    'D3': ('DEBUG_RX_PIN', Pin.uart_rx),
+    'B6': ('DEBUG_RX_PIN', Pin.uart_rx),
+    'B7': ('DEBUG_TX_PIN', Pin.uart_tx),
     #
     'F0': ('FREQ_PIN', Pin.freq),
     'F1': ('ANT_BUTTON_PIN', Pin.button),

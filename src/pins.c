@@ -135,14 +135,14 @@ void pins_init(void) {
     // FP_DATA_PIN
     TRISCbits.TRISC5 = 0;
 
-// DEBUG_TX_PIN
-#ifdef DEVELOPMENT
-    TRISDbits.TRISD2 = 0;
-#endif
-
 // DEBUG_RX_PIN
 #ifdef DEVELOPMENT
-    TRISDbits.TRISD3 = 1;
+    TRISBbits.TRISB6 = 1;
+#endif
+
+// DEBUG_TX_PIN
+#ifdef DEVELOPMENT
+    TRISBbits.TRISB7 = 0;
 #endif
 
 // FREQ_PIN
